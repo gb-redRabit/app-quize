@@ -1,0 +1,30 @@
+{
+  "name": "quiz-app-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for the Quiz Application built with Vue.js",
+  "main": "src/main.js",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "deploy": "vue-cli-service build && gh-pages -d dist"
+  },
+  "dependencies": {
+    "autoprefixer": "^9.8.8",
+    "axios": "^0.21.1",
+    "postcss": "^7.0.39",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17",
+    "vue": "^3.2.0",
+    "vue-router": "^4.0.0",
+    "vuex": "^4.0.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^4.5.0",
+    "@vue/cli-service": "^4.5.0",
+    "gh-pages": "^6.3.0",
+    "postcss-loader": "^4.3.0"
+  },
+  "author": "",
+  "license": "MIT",
+  "homepage": "https://gb-redRabit.github.io/quiz-app"
+}
