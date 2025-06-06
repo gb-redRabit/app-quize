@@ -4,7 +4,7 @@ import QuizView from "../views/QuizView.vue";
 import AdminView from "../views/AdminView.vue";
 import NotFound from "../views/NotFound.vue";
 import Login from "../components/Login.vue";
-import History from "../components/History.vue";
+import History from "../views/HistoryView.vue";
 import ExamView from "../views/ExamView.vue";
 import axios from "axios";
 
@@ -23,6 +23,11 @@ const routes = [
     name: "History",
     component: History,
     meta: { requiresAuth: true },
+  },
+  {
+    path: "/history/:idx",
+    name: "HistoryDetails",
+    component: () => import("../views/HistoryDetailsView.vue"),
   },
   { path: "/exam", name: "ExamView", component: ExamView },
   { path: "/:pathMatch(.*)*", name: "NotFound", component: NotFound },

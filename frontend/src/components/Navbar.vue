@@ -42,8 +42,15 @@ export default {
   },
   methods: {
     logout() {
+      // Czyść localStorage i sessionStorage
+      localStorage.clear();
+      sessionStorage.clear();
+      // Wyloguj w Vuex
       this.$store.dispatch("logout");
-      this.$router.push({ name: "Login" });
+      // Przekieruj na stronę główną i odśwież
+      this.$router.push({ name: "Home" }).then(() => {
+        window.location.reload();
+      });
     },
   },
 };
