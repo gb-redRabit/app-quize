@@ -8,7 +8,21 @@ const usersRoutes = require("./routes/users");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// --- DODAJ TĘ KONFIGURACJĘ ---
+app.use(
+  cors({
+    origin: [
+      "https://quize-nnjdhzbym-grzegorzs-projects-7e242f51.vercel.app",
+      "https://quiz-app-rysh.onrender.com",
+      "http://localhost:8080",
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+// ----------------------------
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
