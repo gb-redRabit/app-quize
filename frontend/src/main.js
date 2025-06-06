@@ -5,6 +5,6 @@ import store from "./store";
 import "./assets/tailwind.css";
 import axios from "axios";
 
-axios.defaults.baseURL = "https://quiz-app-rysh.onrender.com";
+axios.defaults.baseURL = "https://app-quize.onrender.com";
 
 createApp(App).use(router).use(store).mount("#app");
