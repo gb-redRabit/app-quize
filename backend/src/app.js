@@ -8,7 +8,9 @@ const usersRoutes = require("./routes/users");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- DODAJ TĘ KONFIGURACJĘ ---
+// Obsługa preflight dla wszystkich tras (musi być przed innymi middleware!)
+app.options("*", cors());
+
 app.use(
   cors({
     origin: [
@@ -19,13 +21,8 @@ app.use(
       "http://localhost:8080",
     ],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
-app.options("*", cors());
-// ----------------------------
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
