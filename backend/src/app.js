@@ -13,12 +13,9 @@ app.use(
   cors({
     origin: [
       "https://quize-nnjdhzbym-grzegorzs-projects-7e242f51.vercel.app",
-      "https://quize-nnjdhzbym-grzegorzs-projects-7e242f51.vercel.app/login",
-      "https://quize-git-main-grzegorzs-projects-7e242f51.vercel.app/login",
       "https://quize-git-main-grzegorzs-projects-7e242f51.vercel.app",
       "https://quiz-app-rysh.onrender.com",
       "https://quize-tawny.vercel.app",
-      "https://quize-tawny.vercel.app/login",
       "http://localhost:8080",
     ],
     credentials: true,
