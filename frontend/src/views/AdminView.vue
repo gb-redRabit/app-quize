@@ -12,9 +12,68 @@
       </button>
       <SearchBar v-model:search="searchQuery" class="w-full sm:w-80" />
     </div>
+    <!-- Zwijana tabela -->
     <div class="overflow-x-auto">
+      <div class="block sm:hidden">
+        <div
+          v-for="question in visibleQuestions"
+          :key="question.ID"
+          class="bg-white rounded-lg shadow mb-4 border"
+        >
+          <div
+            class="flex justify-between items-center px-4 py-2 cursor-pointer"
+            @click="toggleRow(question.ID)"
+          >
+            <div>
+              <span class="text-gray-500 font-bold">ID: {{ question.ID }}</span>
+              <span class="ml-2">{{ question.question }}</span>
+            </div>
+            <svg
+              :class="[
+                'w-6 h-6 transition-transform',
+                { 'rotate-180': expandedRows.includes(question.ID) },
+              ]"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
+          <div v-if="expandedRows.includes(question.ID)" class="px-4 pb-4">
+            <div class="mb-2">
+              <button
+                @click="openEditPopup(question)"
+                class="p-2 rounded hover:bg-yellow-100 transition mr-2"
+                title="Edytuj"
+              >
+                Edytuj
+              </button>
+              <button
+                @click="confirmDeleteQuestion(question)"
+                class="p-2 rounded hover:bg-red-100 transition"
+                title="Usuń"
+              >
+                Usuń
+              </button>
+            </div>
+            <div class="text-xs text-gray-600 mb-1">
+              Kategoria: {{ question.category }}
+            </div>
+            <div class="text-xs text-gray-600 mb-1">
+              Opis: {{ question.description }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Desktop tabela -->
       <table
-        class="min-w-[600px] w-full bg-white border border-gray-300 rounded-lg overflow-hidden shadow text-sm sm:text-base"
+        class="hidden sm:table min-w-[600px] w-full bg-white border border-gray-300 rounded-lg overflow-hidden shadow text-sm sm:text-base"
       >
         <thead class="bg-gray-100">
           <tr>
@@ -42,20 +101,7 @@
                 class="p-2 rounded hover:bg-yellow-100 transition"
                 title="Edytuj"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="w-6 h-6 text-yellow-500 hover:text-yellow-700 transition"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15.232 5.232l3.536 3.536M9 13l6.536-6.536a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-2.828 0L5 12l4-4z"
-                  />
-                </svg>
+                Edytuj
               </button>
             </td>
             <td class="py-2 px-2 sm:px-4 border-b text-center">
@@ -64,20 +110,7 @@
                 class="p-2 rounded hover:bg-red-100 transition"
                 title="Usuń"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="w-6 h-6 text-red-500 hover:text-red-700 transition"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                Usuń
               </button>
             </td>
           </tr>
@@ -383,9 +416,9 @@ export default {
       questionToDelete: null,
       newCategoryInput: "",
       searchQuery: "",
-      // Paginacja/ładowanie
       displayCount: 100,
       loadingMore: false,
+      expandedRows: [], // <--- dodane do obsługi zwijania
     };
   },
   created() {
@@ -564,6 +597,11 @@ export default {
         this.editQuestion.category = newCat;
       }
       this.newCategoryInput = "";
+    },
+    toggleRow(id) {
+      const idx = this.expandedRows.indexOf(id);
+      if (idx === -1) this.expandedRows.push(id);
+      else this.expandedRows.splice(idx, 1);
     },
   },
 };
