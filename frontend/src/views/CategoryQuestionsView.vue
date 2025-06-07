@@ -14,83 +14,7 @@
       <div v-if="filteredQuestions.length === 0" class="text-gray-500">
         Brak pytań w tej kategorii.
       </div>
-      <!-- MOBILE: zwijane pytania -->
-      <!-- <ul v-else class="space-y-6 sm:hidden">
-        <li
-          v-for="q in visibleQuestions"
-          :key="q.ID"
-          class="bg-white rounded-lg shadow border"
-        >
-          <div
-            class="flex justify-between items-center px-4 py-2 cursor-pointer"
-            @click="toggleRow(q.ID)"
-          >
-            <div>
-              <span class="text-gray-500 font-bold">ID: {{ q.ID }}</span>
-              <span class="ml-2">{{ q.question }}</span>
-            </div>
-            <svg
-              :class="[
-                'w-6 h-6 transition-transform',
-                { 'rotate-180': expandedRows.includes(q.ID) },
-              ]"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </div>
-          <div v-if="expandedRows.includes(q.ID)" class="px-4 pb-4">
-            <div class="mb-2 text-gray-700">
-              <span class="font-bold">A:</span>
-              {{ q.answer_a && q.answer_a.answer }}
-              <span
-                v-if="q.answer_a && q.answer_a.isCorret"
-                class="text-green-600 font-bold ml-2"
-                >(poprawna)</span
-              >
-            </div>
-            <div class="mb-2 text-gray-700">
-              <span class="font-bold">B:</span>
-              {{ q.answer_b && q.answer_b.answer }}
-              <span
-                v-if="q.answer_b && q.answer_b.isCorret"
-                class="text-green-600 font-bold ml-2"
-                >(poprawna)</span
-              >
-            </div>
-            <div class="mb-2 text-gray-700">
-              <span class="font-bold">C:</span>
-              {{ q.answer_c && q.answer_c.answer }}
-              <span
-                v-if="q.answer_c && q.answer_c.isCorret"
-                class="text-green-600 font-bold ml-2"
-                >(poprawna)</span
-              >
-            </div>
-            <div v-if="q.answer_d" class="mb-2 text-gray-700">
-              <span class="font-bold">D:</span>
-              {{ q.answer_d && q.answer_d.answer }}
-              <span
-                v-if="q.answer_d && q.answer_d.isCorret"
-                class="text-green-600 font-bold ml-2"
-                >(poprawna)</span
-              >
-            </div>
-            <div class="text-sm text-gray-500 mt-2">
-              {{ q.description }}
-            </div>
-          </div>
-        </li>
-      </ul> -->
-      <!-- DESKTOP: klasyczna lista -->
-      <ul v-else class="space-y-6 hidden sm:block">
+      <ul v-else class="space-y-6">
         <li
           v-for="q in visibleQuestions"
           :key="q.ID"
@@ -140,6 +64,9 @@
           </div>
         </li>
       </ul>
+      <div v-if="hasMoreQuestions" class="text-center py-4 text-gray-400">
+        Przewiń w dół, aby załadować więcej pytań...
+      </div>
     </div>
   </div>
 </template>
@@ -159,7 +86,6 @@ export default {
       searchQuery: "",
       displayCount: 100,
       loadingMore: false,
-      expandedRows: [], // do obsługi zwijania na mobile
     };
   },
   computed: {
@@ -211,11 +137,6 @@ export default {
           this.loadingMore = false;
         }, 200);
       }
-    },
-    toggleRow(id) {
-      const idx = this.expandedRows.indexOf(id);
-      if (idx === -1) this.expandedRows.push(id);
-      else this.expandedRows.splice(idx, 1);
     },
   },
 };
