@@ -140,9 +140,9 @@
           </div>
         </li>
       </ul>
-      <div v-if="hasMoreQuestions" class="text-center py-4 text-gray-400">
+      <!-- <div v-if="hasMoreQuestions" class="text-center py-4 text-gray-400">
         Przewiń w dół, aby załadować więcej pytań...
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
