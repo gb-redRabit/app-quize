@@ -15,7 +15,7 @@
         Brak pytań w tej kategorii.
       </div>
       <!-- MOBILE: zwijane pytania -->
-      <ul v-else class="space-y-6 sm:hidden">
+      <!-- <ul v-else class="space-y-6 sm:hidden">
         <li
           v-for="q in visibleQuestions"
           :key="q.ID"
@@ -88,7 +88,7 @@
             </div>
           </div>
         </li>
-      </ul>
+      </ul> -->
       <!-- DESKTOP: klasyczna lista -->
       <ul v-else class="space-y-6 hidden sm:block">
         <li
@@ -140,9 +140,6 @@
           </div>
         </li>
       </ul>
-      <!-- <div v-if="hasMoreQuestions" class="text-center py-4 text-gray-400">
-        Przewiń w dół, aby załadować więcej pytań...
-      </div> -->
     </div>
   </div>
 </template>
