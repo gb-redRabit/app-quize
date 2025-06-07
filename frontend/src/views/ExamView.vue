@@ -1,8 +1,6 @@
 <template>
-  <div class="flex flex-col items-center justify-center">
-    <div
-      class="w-full max-w-3xl min-w-[600px] bg-white rounded-lg shadow-lg p-8 flex flex-col gap-8"
-    >
+  <div class="container flex flex-col items-center justify-start px-2">
+    <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col gap-8 w-full">
       <div v-if="!showSummary">
         <h1 class="text-3xl font-bold mb-6 text-center">
           Egzamin – {{ examLength }} pytań
@@ -39,14 +37,18 @@
       </div>
       <!-- Podsumowanie -->
       <div v-else>
-        <button
-          class="bg-green-500 text-white p-2 rounded mb-8"
-          @click="restartExam"
-        >
-          Rozpocznij ponownie
-        </button>
-        <h2 class="text-2xl mb-2">Podsumowanie egzaminu</h2>
-        <p class="mb-4">Twój wynik: {{ score }} / {{ examLength }}</p>
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex flex-col gap-1">
+            <h2 class="text-2xl">Podsumowanie testu</h2>
+            <p class="">Twój wynik: {{ score }} / {{ examLength }}</p>
+          </div>
+          <button
+            class="bg-green-500 text-white p-2 rounded"
+            @click="restartExam"
+          >
+            Rozpocznij ponownie
+          </button>
+        </div>
         <div class="space-y-6">
           <div
             v-for="(q, idx) in questions"
@@ -99,9 +101,10 @@ export default {
       loading: true,
       answersStatus: [],
       showSummary: false,
-      timeLeft: 60 * 60, // domyślnie 1 godzina
+      timeLeft: 60 * 60, // nieużywane po poprawce
       timer: null,
-      examLength: 150, // domyślnie 150 pytań
+      examLength: 150,
+      examTimeMinutes: 60,
     };
   },
   computed: {
@@ -114,11 +117,11 @@ export default {
     },
   },
   created() {
-    // Pobierz parametry z query
     const length = parseInt(this.$route.query.length, 10);
     const time = parseInt(this.$route.query.time, 10);
     this.examLength = length && !isNaN(length) ? length : 150;
-    this.timeLeft = time && !isNaN(time) ? time * 60 : 60 * 60;
+    this.examTimeMinutes = time && !isNaN(time) ? time : 60;
+    this.timeLeft = this.examTimeMinutes * 60;
     this.fetchQuestions();
     this.startTimer();
   },
@@ -175,7 +178,7 @@ export default {
       return q[key] && q[key].answer ? q[key].answer : "";
     },
     restartExam() {
-      this.timeLeft = 60 * 60;
+      this.timeLeft = this.examTimeMinutes * 60;
       this.fetchQuestions();
       this.startTimer();
     },

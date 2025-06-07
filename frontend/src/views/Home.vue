@@ -1,8 +1,7 @@
 <template>
   <div
-    class="flex flex-col items-center justify-start bg-gradient-to-br min-h-screen"
+    class="container flex flex-col items-center justify-start bg-gradient-to-br"
   >
-    <!-- Szybki wybór quizu -->
     <div class="flex flex-wrap justify-center gap-4 mb-8">
       <button
         v-for="n in [100, 150, 250]"
@@ -11,6 +10,12 @@
         class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow transition"
       >
         Szybki quiz {{ n }} pytań
+      </button>
+      <button
+        @click="startExam(10, 10)"
+        class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-semibold shadow transition"
+      >
+        Szybki egzamin
       </button>
       <button
         @click="startExam(150, 60)"
@@ -25,9 +30,7 @@
         Egzamin 250 pytań (2h)
       </button>
     </div>
-    <!-- Dwie kolumny -->
-    <div class="flex flex-col md:flex-row gap-8 w-full max-w-6xl">
-      <!-- Lewa kolumna: Quiz -->
+    <div class="flex flex-col md:flex-row gap-8 w-full">
       <div
         class="flex-1 flex flex-col gap-8 bg-white/95 rounded-3xl p-10 shadow-2xl border border-blue-100"
       >

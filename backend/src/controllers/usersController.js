@@ -22,18 +22,11 @@ exports.getUserHistory = (req, res) => {
 exports.updateUserHistory = (req, res) => {
   const userId = req.user.id;
   const newHistoryEntry = req.body;
-  console.log(
-    "Aktualizacja historii dla userId:",
-    userId,
-    "entry:",
-    newHistoryEntry
-  );
 
   fileUtils
     .getUsers()
     .then((users) => {
       const userIndex = users.findIndex((u) => u.id === userId);
-      console.log("Znaleziony userIndex:", userIndex);
       if (userIndex !== -1) {
         users[userIndex].history.push(newHistoryEntry);
         return fileUtils.saveUsers(users);

@@ -1,9 +1,14 @@
 <template>
-  <div class="container mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-6">
-      Pytania z kategorii:
-      <span class="text-blue-700">{{ categoryLabel }}</span>
-    </h1>
+  <div class="container mx-auto p-2 sm:p-6">
+    <div
+      class="flex flex-col sm:flex-row justify-between items-center gap-2 mb-4"
+    >
+      <h1 class="text-2xl font-bold mb-2 sm:mb-0">
+        Pytania z kategorii:
+        <span class="text-blue-700">{{ categoryLabel }}</span>
+      </h1>
+      <SearchBar v-model:search="searchQuery" class="w-full sm:w-80" />
+    </div>
     <div v-if="loading" class="text-lg">Ładowanie pytań...</div>
     <div v-else>
       <div v-if="filteredQuestions.length === 0" class="text-gray-500">
@@ -13,9 +18,11 @@
         <li
           v-for="q in filteredQuestions"
           :key="q.ID"
-          class="bg-white rounded-lg shadow p-6 border"
+          class="bg-white rounded-lg shadow p-4 sm:p-6 border"
         >
-          <div class="font-semibold text-lg mb-2">{{ q.question }}</div>
+          <div class="font-semibold text-base sm:text-lg mb-2 break-words">
+            <span class="text-gray-500">ID: {{ q.ID }} -</span> {{ q.question }}
+          </div>
           <div class="mb-2 text-gray-700">
             <span class="font-bold">A:</span>
             {{ q.answer_a && q.answer_a.answer }}
@@ -63,12 +70,17 @@
 
 <script>
 import axios from "axios";
+import SearchBar from "@/components/SearchBar.vue";
 export default {
   name: "CategoryQuestionsView",
+  components: {
+    SearchBar,
+  },
   data() {
     return {
       questions: [],
       loading: true,
+      searchQuery: "",
     };
   },
   computed: {
@@ -79,8 +91,17 @@ export default {
       return this.category === "all" ? "Wszystkie" : this.category;
     },
     filteredQuestions() {
-      if (this.category === "all") return this.questions;
-      return this.questions.filter((q) => q.category === this.category);
+      let questions =
+        this.category === "all"
+          ? this.questions
+          : this.questions.filter((q) => q.category === this.category);
+      if (!this.searchQuery) return questions;
+      const q = this.searchQuery.toLowerCase();
+      return questions.filter(
+        (item) =>
+          (item.ID && item.ID.toString().includes(q)) ||
+          (item.question && item.question.toLowerCase().includes(q))
+      );
     },
   },
   async created() {

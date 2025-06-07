@@ -6,9 +6,9 @@
     <Navbar v-if="showNavbar" />
     <router-view />
     <button
-      v-if="$route.name !== 'Home'"
+      v-if="$route.name !== 'Home' && $route.name !== 'Login'"
       @click="$router.back()"
-      class="fixed-back-btn bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full shadow-lg font-bold text-lg transition flex items-center group"
+      class="fixed top-4 sm:bottom-6 sm:top-auto sm:left-6 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 sm:px-6 sm:py-3 rounded-full shadow-lg font-bold text-lg transition flex items-center group z-50"
       style="box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12)"
     >
       <svg
@@ -36,7 +36,6 @@ export default {
   computed: {
     ...mapGetters(["isAuthenticated"]),
     showNavbar() {
-      // Navbar nie pojawia się na stronie logowania
       return this.isAuthenticated && this.$route.name !== "Login";
     },
   },
@@ -45,11 +44,4 @@ export default {
 
 <style>
 @import "./assets/tailwind.css";
-/* Możesz dodać do App.vue lub tailwind.css */
-.fixed-back-btn {
-  position: fixed;
-  left: 24px;
-  bottom: 24px;
-  z-index: 100;
-}
 </style>

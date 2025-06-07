@@ -7,3 +7,9 @@
   padding: 0;
   box-sizing: border-box;
 }
+.capitalize-first-letter::first-letter {
+  text-transform: uppercase;
+}
+.h-63vh {
+  height: 63vh;
+}

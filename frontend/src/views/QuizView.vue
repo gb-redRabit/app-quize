@@ -1,12 +1,39 @@
 <template>
-  <div class="flex flex-col items-center justify-center bg-gray-100">
-    <div
-      class="w-full max-w-7xl min-w-[600px] bg-white rounded-lg shadow-lg p-8 flex flex-col gap-8"
-    >
+  <div
+    class="container flex flex-col items-center justify-start bg-gray-100 px-2"
+  >
+    <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col gap-8 w-full">
       <div class="flex-1 flex flex-col" v-if="!showSummary">
-        <h1 class="text-3xl font-bold mb-6 text-center">Quiz Application</h1>
         <div v-if="loading" class="text-lg">Loading questions...</div>
         <div v-else>
+          <div class="flex justify-between items-center mb-3">
+            <button
+              class="bg-blue-600 text-white md:px-6 md:py-3 rounded md:text-lg px-2 py-1"
+              @click="prevQuestion"
+              :disabled="currentQuestionIndex === 0"
+            >
+              ← Poprzednie
+            </button>
+            <h1 class="text-3xl font-bold text-center sm:block hidden">
+              Kategoria {{ questions[currentQuestionIndex].category }}
+            </h1>
+            <button
+              class="bg-blue-600 text-white md:px-6 md:py-3 rounded md:text-lg px-2 py-1"
+              @click="nextOrFinish"
+              :disabled="
+                !(
+                  answersStatus[currentQuestionIndex] &&
+                  answersStatus[currentQuestionIndex].answered
+                )
+              "
+            >
+              {{
+                currentQuestionIndex === questions.length - 1
+                  ? "Zakończ test"
+                  : "Następne →"
+              }}
+            </button>
+          </div>
           <QuestionList
             v-if="questions.length && currentQuestionIndex < questions.length"
             :question="questions[currentQuestionIndex]"
@@ -25,59 +52,35 @@
             :showCorrect="true"
             @select="selectAnswer"
           />
-          <div
+        </div>
+        <div
+          class="h-20 text-gray-700 text-sm sm:text-lg font-medium bg-gray-100 rounded p-3 flex items-center justify-center"
+        >
+          <span
             v-if="
               answersStatus.length > currentQuestionIndex &&
               answersStatus[currentQuestionIndex] &&
               answersStatus[currentQuestionIndex].answered
             "
-            class="mt-4 text-center"
+            >{{ questions[currentQuestionIndex].description }}</span
           >
-            <span
-              v-if="answersStatus[currentQuestionIndex].correct"
-              class="text-green-600 font-bold text-xl"
-              >Dobra odpowiedź!</span
-            >
-            <span v-else class="text-red-600 font-bold text-xl"
-              >Zła odpowiedź!</span
-            >
-            <div
-              class="mt-4 text-gray-700 text-base font-medium bg-gray-100 rounded p-3 min-h-[60px] min-w-max flex items-center justify-center"
-            >
-              <span>{{ questions[currentQuestionIndex].description }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="flex justify-between items-center mt-8">
-          <button
-            class="bg-gray-400 text-white px-6 py-3 rounded text-lg"
-            @click="prevQuestion"
-            :disabled="currentQuestionIndex === 0"
-          >
-            ← Poprzednie
-          </button>
-          <button
-            class="bg-blue-500 text-white px-6 py-3 rounded text-lg"
-            @click="nextOrFinish"
-            :disabled="
-              !(
-                answersStatus[currentQuestionIndex] &&
-                answersStatus[currentQuestionIndex].answered
-              )
-            "
-          >
-            {{
-              currentQuestionIndex === questions.length - 1
-                ? "Zakończ test"
-                : "Następne →"
-            }}
-          </button>
+          <span v-else>Odpowiedz aby uzyskać opis </span>
         </div>
       </div>
       <!-- Podsumowanie -->
       <div v-else>
-        <h2 class="text-2xl mb-2">Podsumowanie testu</h2>
-        <p class="mb-4">Twój wynik: {{ score }} / {{ questions.length }}</p>
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex flex-col gap-1">
+            <h2 class="text-2xl">Podsumowanie testu</h2>
+            <p class="">Twój wynik: {{ score }} / {{ questions.length }}</p>
+          </div>
+          <button
+            class="bg-green-500 text-white p-2 rounded"
+            @click="restartQuiz"
+          >
+            Rozpocznij ponownie
+          </button>
+        </div>
         <div class="space-y-6">
           <div
             v-for="(q, idx) in questions"
@@ -113,27 +116,24 @@
             </div>
           </div>
         </div>
-        <button
-          class="bg-green-500 text-white p-2 rounded mt-8"
-          @click="restartQuiz"
-        >
-          Rozpocznij ponownie
-        </button>
       </div>
     </div>
-    <!-- Lista pytań na dole strony -->
-    <div class="w-full flex flex-col items-center mt-8">
-      <div class="mb-2 font-semibold text-lg">Pytania</div>
-      <div class="flex flex-wrap gap-3 justify-center w-full max-w-5xl">
+
+    <div
+      class="w-full max-w-2xl mx-auto mt-6 overflow-x-auto pb-2 py-2"
+      style="scrollbar-width: thin"
+    >
+      <div class="flex gap-2 min-w-max px-2" style="width: fit-content">
         <button
           v-for="(q, idx) in questions"
           :key="idx"
           @click="goToQuestion(idx)"
-          class="w-12 h-12 rounded-full border-2 flex items-center justify-center text-lg font-bold transition-colors duration-200"
+          class="w-9 h-9 sm:w-12 sm:h-12 rounded-full border-2 flex items-center justify-center text-base sm:text-lg font-bold transition-colors duration-200 focus:outline-none"
           :class="questionNavClass(idx)"
           :aria-current="currentQuestionIndex === idx ? 'true' : undefined"
           :title="q.question"
           :disabled="showSummary"
+          style="box-sizing: content-box"
         >
           {{ idx + 1 }}
         </button>
@@ -270,12 +270,12 @@ export default {
     },
     questionNavClass(idx) {
       if (this.currentQuestionIndex === idx) {
-        return "ring-4 ring-blue-400 bg-blue-500 text-white";
+        return "ring-4 ring-blue-400 bg-blue-500 text-white scale-110 shadow";
       }
       const status = this.answersStatus[idx];
       if (status.answered && status.correct) return "bg-green-500 text-white";
       if (status.answered && !status.correct) return "bg-red-500 text-white";
-      return "bg-white text-gray-800";
+      return "bg-gray-200 text-gray-800";
     },
     userAnswerText(q, selectedIdx) {
       const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];

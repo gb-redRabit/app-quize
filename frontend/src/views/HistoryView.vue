@@ -1,17 +1,22 @@
 <template>
-  <div class="container mx-auto p-4">
+  <div
+    class="container mx-auto p-4 md:flex md:flex-col md:justify-start md:items-center"
+  >
     <h1 class="text-2xl font-bold mb-4">Twoja historia quizów</h1>
     <div v-if="history.length === 0" class="text-gray-500">
       Brak historii quizów.
     </div>
-    <div v-else class="space-y-6">
+    <div
+      v-else
+      class="space-y-6 md:space-y-0 md:flex md:flex-row md:flex-wrap md:gap-6 md:justify-center"
+    >
       <div
         v-for="(entry, idx) in history"
         :key="entry.data"
-        class="bg-white rounded-lg shadow flex flex-col md:flex-row items-center justify-between p-6"
+        class="bg-white rounded-lg shadow md:flex md:flex-row md:w-96 md:items-center md:justify-between p-6"
       >
         <!-- Diagram po lewej -->
-        <div class="flex flex-col items-center mr-8">
+        <div class="flex flex-col items-center mr-8 sm:mr-auto">
           <svg width="70" height="70" viewBox="0 0 36 36" class="mb-2">
             <circle
               cx="18"
@@ -51,92 +56,28 @@
             <span class="text-red-600 font-bold">{{ entry.wrong || 0 }}</span>
           </div>
         </div>
-        <!-- Opis i przycisk po prawej -->
-        <div class="flex-1 flex flex-col items-start">
-          <div class="font-semibold text-lg mb-1">
+        <div
+          class="flex flex-wrap justify-between gap-1 md:flex-nowrap md:flex-col md:items-end h-full"
+        >
+          <span
+            class="inline-block px-3 py-1 rounded-full text-xs font-bold"
+            :class="
+              entry.type === 'egzamin'
+                ? 'bg-purple-200 text-purple-800'
+                : 'bg-blue-200 text-blue-800'
+            "
+          >
+            {{ entry.type === "egzamin" ? "Egzamin" : "Quiz" }}
+          </span>
+          <div class="font-semibold text-base">
             {{ new Date(entry.data).toLocaleString() }}
           </div>
-          <div class="mb-2">
-            <span
-              class="inline-block px-3 py-1 rounded-full text-xs font-bold"
-              :class="
-                entry.type === 'egzamin'
-                  ? 'bg-purple-200 text-purple-800'
-                  : 'bg-blue-200 text-blue-800'
-              "
-            >
-              {{ entry.type === "egzamin" ? "Egzamin" : "Quiz" }}
-            </span>
-          </div>
-        </div>
-        <router-link
-          :to="{ name: 'HistoryDetails', params: { idx } }"
-          class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded font-semibold mt-2"
-        >
-          Pokaż szczegóły
-        </router-link>
-      </div>
-    </div>
-
-    <!-- POPUP SZCZEGÓŁÓW -->
-    <div
-      v-if="showPopup"
-      class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 overflow-hidden"
-      @click.self="closePopup"
-    >
-      <div
-        class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative overflow-y-auto max-h-[60vh]"
-      >
-        <button
-          class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl"
-          @click="closePopup"
-        >
-          &times;
-        </button>
-        <h2 class="text-xl font-bold mb-4">Szczegóły odpowiedzi</h2>
-        <div v-if="popupEntry">
-          <ul class="space-y-4">
-            <li
-              v-for="(item, i) in popupEntry.list"
-              :key="i"
-              class="p-3 bg-gray-50 rounded shadow"
-            >
-              <div class="font-semibold mb-1">
-                <span class="text-gray-500">ID: {{ item.id_questions }}</span>
-                <span v-if="getQuestion(item.id_questions)">
-                  — {{ getQuestion(item.id_questions).question }}
-                </span>
-              </div>
-              <div
-                v-if="
-                  getQuestion(item.id_questions) &&
-                  getQuestion(item.id_questions).description
-                "
-                class="text-gray-500 text-sm mt-1"
-              >
-                Opis: {{ getQuestion(item.id_questions).description }}
-              </div>
-              <div>
-                <span class="font-bold">Twoja odpowiedź: </span>
-                <span
-                  :class="{
-                    'text-green-700': isUserAnswerCorrect(item),
-                    'text-red-700': !isUserAnswerCorrect(item),
-                  }"
-                >
-                  {{ getUserAnswerText(item) }}
-                </span>
-              </div>
-              <div v-if="!isUserAnswerCorrect(item)">
-                <span class="font-bold text-green-700"
-                  >Poprawna odpowiedź:</span
-                >
-                <span class="text-green-700">
-                  {{ getCorrectAnswerText(item) }}
-                </span>
-              </div>
-            </li>
-          </ul>
+          <router-link
+            :to="{ name: 'HistoryDetails', params: { idx } }"
+            class="bg-blue-500 hover:bg-blue-600 text-white m-auto px-4 py-2 rounded font-semibold mt-2 w-full md:w-auto md:m-0"
+          >
+            Pokaż szczegóły
+          </router-link>
         </div>
       </div>
     </div>
@@ -151,8 +92,6 @@ export default {
   name: "History",
   data() {
     return {
-      showPopup: false,
-      popupEntry: null,
       allQuestions: [],
     };
   },
@@ -180,14 +119,6 @@ export default {
       } catch (e) {
         this.allQuestions = [];
       }
-    },
-    openDetails(idx) {
-      this.popupEntry = this.history[idx];
-      this.showPopup = true;
-    },
-    closePopup() {
-      this.showPopup = false;
-      this.popupEntry = null;
     },
     getQuestion(id) {
       // ID może być różnie nazwane w bazie
@@ -231,8 +162,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.container {
-  max-width: 900px;
-}
-</style>
+<style scoped></style>

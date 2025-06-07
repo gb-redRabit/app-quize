@@ -2,66 +2,91 @@
 
 Backend aplikacji Quiz App oparty na Node.js i Express.
 
+---
+
 ## Funkcje
 
-- Rejestracja i logowanie użytkowników
-- CRUD pytań do quizu
+- Rejestracja i logowanie użytkowników (JWT)
+- CRUD pytań do quizu (dodawanie, edycja, usuwanie, pobieranie)
 - Historia rozwiązywanych quizów i egzaminów
-- Przechowywanie danych w plikach JSON
+- Przechowywanie danych w plikach JSON (pytania, użytkownicy)
+- Middleware autoryzujący (token JWT)
+
+---
+
+## Struktura katalogów
+
+```
+backend/
+├── data/
+│   ├── data.json         # Pytania do quizów
+│   └── users.json        # Użytkownicy i ich historia
+├── src/
+│   ├── app.js            # Główny plik uruchamiający serwer
+│   ├── controllers/      # Logika obsługi tras (usersController.js, questionsController.js, authController.js)
+│   ├── middleware/       # Middleware (authMiddleware.js)
+│   ├── routes/           # Definicje tras (users.js, questions.js, auth.js)
+│   └── utils/            # Narzędzia (fileUtils.js)
+├── package.json
+├── package-lock.json
+└── README.md
+```
+
+---
 
 ## Uruchomienie
 
 1. Przejdź do katalogu backend:
 
-   ```
-   cd quiz-app/backend
+   ```bash
+   cd backend
    ```
 
 2. Zainstaluj zależności:
-   ```
+
+   ```bash
    npm install
    ```
 
-### Uruchamianie aplikacji
+3. Uruchom serwer:
+   ```bash
+   npm start
+   # lub na dev:
+   npm run dev
+   ```
 
-Aby uruchomić serwer backendowy, użyj polecenia:
+Serwer działa domyślnie na `http://localhost:3000`.
 
-```
-npm start
-```
+---
 
-Serwer będzie działał pod adresem `http://localhost:3000`.
+## API
 
-### Punkty końcowe API
+- **Autoryzacja**
 
-- **Uwierzytelnianie**
-
-  - `POST /api/auth/login`: Logowanie użytkownika
-  - `POST /api/auth/register`: Rejestracja nowego użytkownika
+  - `POST /api/auth/register` – rejestracja
+  - `POST /api/auth/login` – logowanie
+  - `POST /api/auth/logout` – wylogowanie
 
 - **Pytania**
 
-  - `GET /api/questions`: Pobierz wszystkie pytania
-  - `POST /api/questions`: Dodaj nowe pytanie
-  - `PUT /api/questions/:id`: Edytuj istniejące pytanie
-  - `DELETE /api/questions/:id`: Usuń pytanie
+  - `GET /api/questions` – pobierz wszystkie pytania
+  - `POST /api/questions` – dodaj pytanie (wymaga JWT)
+  - `PUT /api/questions/:id` – edytuj pytanie (wymaga JWT)
+  - `DELETE /api/questions/:id` – usuń pytanie (wymaga JWT)
 
 - **Użytkownicy**
-  - `GET /api/users/history`: Pobierz historię użytkownika
+  - `GET /api/users/history` – historia quizów użytkownika (JWT)
+  - `PUT /api/users/update` – zapisz nową historię (JWT)
 
-### Struktura plików
+---
 
-- `src/app.js`: Punkt wejścia aplikacji
-- `src/routes/`: Zawiera definicje tras
-- `src/controllers/`: Zawiera logikę kontrolerów
-- `src/middleware/`: Zawiera funkcje pośredniczące
-- `src/utils/`: Zawiera funkcje pomocnicze do operacji na plikach
-- `data/`: Zawiera pliki JSON dla pytań i danych użytkowników
+## Pliki danych
 
-### Wkład
+- `data/data.json` – pytania do quizów
+- `data/users.json` – użytkownicy i ich historia
 
-Wkład w rozwój aplikacji jest mile widziany! Proszę otworzyć zgłoszenie lub przesłać pull request w celu wprowadzenia poprawek lub ulepszeń.
+---
 
-### Licencja
+## Licencja
 
-Ten projekt jest licencjonowany na podstawie licencji MIT.
+MIT License

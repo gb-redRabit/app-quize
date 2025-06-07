@@ -1,36 +1,42 @@
 <template>
-  <div class="container mx-auto p-4 bg-gray-100 min-h-screen">
+  <div class="container mx-auto p-2 sm:p-4 bg-gray-100 min-h-screen">
     <h1 class="text-2xl font-bold mb-4">Admin Panel</h1>
-    <div class="mb-4">
+    <div
+      class="flex flex-col sm:flex-row justify-between items-center mb-2 gap-2"
+    >
       <button
         @click="openAddPopup"
-        class="bg-blue-500 text-white px-4 py-2 rounded"
+        class="bg-blue-500 text-white px-4 py-2 rounded mb-2 sm:mb-0"
       >
         Dodaj pytanie
       </button>
+      <SearchBar v-model:search="searchQuery" class="w-full sm:w-80" />
     </div>
-    <div class="max-w-7xl mx-auto">
-      <!-- Dodaj ten div -->
+    <div class="overflow-x-auto">
       <table
-        class="w-full bg-white border border-gray-300 rounded-lg overflow-hidden shadow"
+        class="min-w-[600px] w-full bg-white border border-gray-300 rounded-lg overflow-hidden shadow text-sm sm:text-base"
       >
         <thead class="bg-gray-100">
           <tr>
-            <th class="py-2 px-4 border-b">ID</th>
-            <th class="py-2 px-4 border-b">Pytanie</th>
-            <th class="py-2 px-4 border-b">Edytuj</th>
-            <th class="py-2 px-4 border-b">Usuń</th>
+            <th class="py-2 px-2 sm:px-4 border-b">ID</th>
+            <th class="py-2 px-2 sm:px-4 border-b">Pytanie</th>
+            <th class="py-2 px-2 sm:px-4 border-b">Edytuj</th>
+            <th class="py-2 px-2 sm:px-4 border-b">Usuń</th>
           </tr>
         </thead>
         <tbody>
           <tr
-            v-for="question in questions"
+            v-for="question in filteredQuestions"
             :key="question.ID"
             class="hover:bg-gray-50 transition"
           >
-            <td class="py-2 px-4 border-b">{{ question.ID }}</td>
-            <td class="py-2 px-4 border-b">{{ question.question }}?</td>
-            <td class="py-2 px-4 border-b text-center">
+            <td class="py-2 px-2 sm:px-4 border-b break-all">
+              {{ question.ID }}
+            </td>
+            <td class="py-2 px-2 sm:px-4 border-b break-all">
+              {{ question.question }}
+            </td>
+            <td class="py-2 px-2 sm:px-4 border-b text-center">
               <button
                 @click="openEditPopup(question)"
                 class="p-2 rounded hover:bg-yellow-100 transition"
@@ -52,7 +58,7 @@
                 </svg>
               </button>
             </td>
-            <td class="py-2 px-4 border-b text-center">
+            <td class="py-2 px-2 sm:px-4 border-b text-center">
               <button
                 @click="confirmDeleteQuestion(question)"
                 class="p-2 rounded hover:bg-red-100 transition"
@@ -354,12 +360,14 @@
 
 <script>
 import axios from "axios";
+import SearchBar from "@/components/SearchBar.vue";
 
 export default {
+  components: { SearchBar },
   data() {
     return {
       questions: [],
-      categories: [], // <-- dodaj to
+      categories: [],
       showEditPopup: false,
       editQuestion: null,
       showAddPopup: false,
@@ -373,11 +381,23 @@ export default {
       },
       showDeletePopup: false,
       questionToDelete: null,
-      newCategoryInput: "", // <--- dodaj to
+      newCategoryInput: "",
+      searchQuery: "",
     };
   },
   created() {
     this.fetchQuestions();
+  },
+  computed: {
+    filteredQuestions() {
+      if (!this.searchQuery) return this.questions;
+      const q = this.searchQuery.toLowerCase();
+      return this.questions.filter(
+        (item) =>
+          (item.ID && item.ID.toString().includes(q)) ||
+          (item.question && item.question.toLowerCase().includes(q))
+      );
+    },
   },
   methods: {
     async fetchQuestions() {
@@ -522,8 +542,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.container {
-  max-width: 800px;
-}
-</style>
+<style scoped></style>

@@ -1,98 +1,107 @@
-# Quiz App
+# Quiz App – Frontend
 
-## Overview
+Nowoczesny frontend quizu oparty na **Vue 3** i **Tailwind CSS**.
 
-This project is a quiz application built with Vue.js for the frontend and Node.js for the backend. It allows users to take quizzes, manage questions, and view their quiz history. The application features user authentication and a responsive design using Tailwind CSS.
+---
 
-## Features
+## Funkcje
 
-- User authentication (login and registration)
-- Quiz functionality with a random selection of questions
-- Timer for timed quizzes
-- Admin panel for managing quiz questions
-- User history tracking
-- Responsive design
+- Rejestracja i logowanie użytkowników
+- Rozwiązywanie quizów i egzaminów z losowymi pytaniami
+- Timer i automatyczne zakończenie testu po czasie
+- Historia quizów i egzaminów użytkownika
+- Panel administracyjny do zarządzania pytaniami (CRUD)
+- Wyszukiwanie pytań po ID i treści
+- Przeglądanie pytań wg kategorii
+- Responsywny, nowoczesny interfejs (mobile/desktop)
+- Własny system autoryzacji JWT
 
-## Technologies Used
+---
 
-- **Frontend**: Vue.js, Tailwind CSS
-- **Backend**: Node.js, Express
-- **Database**: JSON files for storing questions and user data
-
-## Project Structure
+## Struktura katalogów
 
 ```
-quiz-app
-├── backend
-│   ├── src
-│   ├── data
-│   ├── package.json
-│   └── README.md
-├── frontend
-│   ├── src
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
-│   ├── package.json
-│   └── README.md
+frontend/
+├── public/
+│   └── index.html
+├── src/
+│   ├── assets/
+│   │   └── tailwind.css
+│   ├── components/
+│   │   ├── Navbar.vue
+│   │   ├── SearchBar.vue
+│   │   ├── QuestionList.vue
+│   │   ├── Timer.vue
+│   │   └── ...
+│   ├── views/
+│   │   ├── Home.vue
+│   │   ├── QuizView.vue
+│   │   ├── ExamView.vue
+│   │   ├── AdminView.vue
+│   │   ├── CategoryQuestionsView.vue
+│   │   ├── HistoryView.vue
+│   │   ├── HistoryDetailsView.vue
+│   │   └── NotFound.vue
+│   ├── router/
+│   │   └── index.js
+│   ├── store/
+│   │   └── index.js
+│   ├── utils/
+│   │   └── randomQuestions.js
+│   ├── App.vue
+│   └── main.js
+├── tailwind.config.js
+├── postcss.config.js
+├── package.json
+├── package-lock.json
 └── README.md
 ```
 
-## Getting Started
+---
 
-### Prerequisites
+## Instalacja i uruchomienie
 
-- Node.js and npm installed on your machine.
+1. Przejdź do katalogu frontend:
 
-### Installation
-
-1. Clone the repository:
-
-   ```
-   git clone <repository-url>
-   cd quiz-app
+   ```bash
+   cd frontend
    ```
 
-2. Install backend dependencies:
+2. Zainstaluj zależności:
 
-   ```
-   cd backend
+   ```bash
    npm install
    ```
 
-3. Install frontend dependencies:
-   ```
-   cd frontend
-   npm install
-   ```
+3. Uruchom aplikację:
 
-### Running the Application
-
-1. Start the backend server:
-
-   ```
-   cd backend
-   npm start
-   ```
-
-2. Start the frontend application:
-
-   ```
-   cd frontend
+   ```bash
    npm run serve
    ```
 
-3. Open your browser and navigate to `http://localhost:8080` to access the application.
+4. Otwórz [http://localhost:8080](http://localhost:8080) w przeglądarce.
 
-## Usage
+---
 
-- Users can log in or register to access the quiz features.
-- Admin users can manage quiz questions through the admin panel.
-- Users can view their quiz history after completing quizzes.
+## Najważniejsze pliki
 
-## Contributing
+- `src/views/` – główne widoki (QuizView, ExamView, AdminView, Home, Historia)
+- `src/components/` – komponenty wielokrotnego użytku (QuestionList, SearchBar, Navbar, Timer)
+- `src/store/` – Vuex store (stan aplikacji)
+- `src/router/` – Vue Router (nawigacja)
+- `src/assets/` – style globalne (Tailwind CSS)
 
-Contributions are welcome! Please open an issue or submit a pull request for any enhancements or bug fixes.
+---
 
-## License
+## Użytkowanie
 
-This project is licensed under the MIT License.
+- Zarejestruj się lub zaloguj, aby korzystać z quizów.
+- Rozwiązuj quizy i egzaminy, przeglądaj statystyki i historię.
+- Jako admin możesz dodawać, edytować i usuwać pytania.
+- Wyszukuj pytania po ID lub treści, przeglądaj wg kategorii.
+
+---
+
+## Licencja
+
+MIT License

@@ -7,7 +7,6 @@ import Login from "../components/Login.vue";
 import History from "../views/HistoryView.vue";
 import ExamView from "../views/ExamView.vue";
 import CategoryQuestionsView from "../views/CategoryQuestionsView.vue";
-import axios from "axios";
 
 const routes = [
   { path: "/", name: "Home", component: Home },

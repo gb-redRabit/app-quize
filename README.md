@@ -1,108 +1,150 @@
-# Quiz Application
+# Quiz App
 
-## Overview
-This project is a quiz application built using Vue.js for the frontend and Node.js for the backend. It allows users to take quizzes, manage questions, and view their quiz history. The application features user authentication, a responsive design using Tailwind CSS, and a timed quiz option.
+Nowoczesna aplikacja quizowa zbudowana w oparciu o **Vue.js** (frontend) oraz **Node.js/Express** (backend). Pozwala na rozwiązywanie quizów, egzaminy, zarządzanie pytaniami, śledzenie historii użytkownika oraz posiada panel administracyjny.
 
-## Features
-- User authentication (login and registration)
-- Quiz functionality with random questions
-- Ability to add, edit, and delete quiz questions
-- User history tracking
-- Responsive design with Tailwind CSS
-- Countdown timer for quizzes
+---
 
-## Project Structure
+## 🛠 Technologie
+
+- **Frontend:** Vue 3, Vuex, Vue Router, Tailwind CSS, Axios
+- **Backend:** Node.js, Express, JWT (autoryzacja), Body-Parser
+- **Baza danych:** Pliki JSON (pytania, użytkownicy)
+- **Inne:** RWD (responsywność), REST API, własny system autoryzacji
+
+---
+
+## 🚀 Funkcje
+
+- Rejestracja i logowanie użytkowników
+- Rozwiązywanie quizów i egzaminów z losowymi pytaniami
+- Timer i automatyczne zakończenie testu po czasie
+- Historia quizów i egzaminów użytkownika
+- Panel administracyjny do zarządzania pytaniami (CRUD)
+- Wyszukiwanie pytań po ID i treści
+- Przeglądanie pytań wg kategorii
+- Nowoczesny, responsywny interfejs (mobile/desktop)
+- Bezpieczna autoryzacja JWT
+
+---
+
+## 📁 Struktura projektu
+
 ```
-quiz-app
-├── backend
-│   ├── src
-│   │   ├── app.js
-│   │   ├── routes
-│   │   │   ├── auth.js
-│   │   │   ├── questions.js
-│   │   │   └── users.js
-│   │   ├── controllers
-│   │   │   ├── authController.js
-│   │   │   ├── questionsController.js
-│   │   │   └── usersController.js
-│   │   ├── middleware
-│   │   │   └── authMiddleware.js
-│   │   └── utils
-│   │       └── fileUtils.js
-│   ├── data
-│   │   ├── data.json
-│   │   └── users.json
+app-quize
+├──backend/
+│   ├── data/
+│   │   ├── data.json         # Pytania do quizów
+│   │   └── users.json        # Użytkownicy i ich historia
+│   ├── src/
+│   │   ├── app.js            # Główny plik uruchamiający serwer
+│   │   ├── controllers/      # Logika obsługi tras (usersController.js, questionsController.js, authController.js)
+│   │   ├── middleware/       # Middleware (authMiddleware.js)
+│   │   ├── routes/           # Definicje tras (users.js, questions.js, auth.js)
+│   │   └── utils/            # Narzędzia (fileUtils.js)
 │   ├── package.json
+│   ├── package-lock.json
 │   └── README.md
-├── frontend
-│   ├── src
-│   │   ├── assets
-│   │   ├── components
-│   │   │   ├── Quiz.vue
-│   │   │   ├── QuestionEditor.vue
-│   │   │   ├── Login.vue
-│   │   │   ├── History.vue
-│   │   │   └── Timer.vue
-│   │   ├── views
+├── frontend/
+│   ├── public/
+│   │   └── index.html
+│   ├── src/
+│   │   ├── assets/
+│   │   │   └── tailwind.css
+│   │   ├── components/
+│   │   │   ├── Navbar.vue
+│   │   │   ├── SearchBar.vue
+│   │   │   ├── QuestionList.vue
+│   │   │   ├── Timer.vue
+│   │   │   └── ...
+│   │   ├── views/
 │   │   │   ├── Home.vue
 │   │   │   ├── QuizView.vue
+│   │   │   ├── ExamView.vue
 │   │   │   ├── AdminView.vue
+│   │   │   ├── CategoryQuestionsView.vue
+│   │   │   ├── HistoryView.vue
+│   │   │   ├── HistoryDetailsView.vue
 │   │   │   └── NotFound.vue
-│   │   ├── router
+│   │   ├── router/
 │   │   │   └── index.js
-│   │   ├── store
+│   │   ├── store/
 │   │   │   └── index.js
+│   │   ├── utils/
+│   │   │   └── randomQuestions.js
 │   │   ├── App.vue
 │   │   └── main.js
 │   ├── tailwind.config.js
 │   ├── postcss.config.js
 │   ├── package.json
+│   ├── package-lock.json
 │   └── README.md
 └── README.md
 ```
 
-## Getting Started
+---
 
-### Prerequisites
-- Node.js
+## ⚡️ Szybki start
+
+### Wymagania
+
+- Node.js (v14+)
 - npm
-- Vue CLI
 
-### Installation
-1. Clone the repository:
+### Instalacja
+
+1. Sklonuj repozytorium:
+
+   ```bash
+   git clone <repo-url>
+   cd app-quize
    ```
-   git clone <repository-url>
-   ```
-2. Navigate to the backend directory and install dependencies:
-   ```
+
+2. Zainstaluj zależności backendu:
+
+   ```bash
    cd backend
    npm install
    ```
-3. Navigate to the frontend directory and install dependencies:
-   ```
-   cd frontend
+
+3. Zainstaluj zależności frontendu:
+   ```bash
+   cd ../frontend
    npm install
    ```
 
-### Running the Application
-1. Start the backend server:
-   ```
+### Uruchomienie
+
+1. Uruchom backend:
+
+   ```bash
    cd backend
    npm start
+   # lub na dev:
+   npm run dev
    ```
-2. Start the frontend application:
-   ```
+
+2. Uruchom frontend:
+
+   ```bash
    cd frontend
    npm run serve
    ```
 
-### Usage
-- Access the application in your browser at `http://localhost:8080`.
-- Use the login functionality to access user-specific features.
-- Take quizzes and manage questions if you have admin privileges.
+3. Otwórz [http://localhost:8080](http://localhost:8080) w przeglądarce.
 
-## Contributing
-Contributions are welcome! Please submit a pull request or open an issue for any suggestions or improvements.
+---
 
-## License
-This project is licensed under the MIT License.# app-quize
+## 🧑‍💻 Użytkowanie
+
+- Zarejestruj się lub zaloguj, aby korzystać z quizów.
+- Rozwiązuj quizy i egzaminy, przeglądaj statystyki i historię.
+- Jako admin możesz dodawać, edytować i usuwać pytania.
+- Wyszukuj pytania po ID lub treści, przeglądaj wg kategorii.
+
+---
+
+## 📜 Licencja
+
+MIT License
+
+---
