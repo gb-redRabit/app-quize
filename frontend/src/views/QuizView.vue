@@ -159,35 +159,36 @@ export default {
       answersStatus: [],
       quizLength: 10,
       showSummary: false,
+      selectedCategories: [],
     };
   },
   created() {
     const length = parseInt(this.$route.query.length, 10);
-    if (length && !isNaN(length)) this.quizLength = length;
+    const categories = (this.$route.query.categories || "all").split(",");
+    this.quizLength = length && !isNaN(length) ? length : 10;
+    this.selectedCategories = categories;
     this.fetchQuestions();
   },
   methods: {
     ...mapActions(["fetchUserHistory"]),
     async fetchQuestions() {
-      try {
-        this.loading = true;
-        const response = await axios.get("/api/questions");
-        this.questions = getRandomUniqueQuestions(
-          response.data,
-          this.quizLength
+      const response = await axios.get("/api/questions");
+      let filtered = response.data.filter((q) => q.question);
+      if (!this.selectedCategories.includes("all")) {
+        filtered = filtered.filter((q) =>
+          this.selectedCategories.includes(q.category)
         );
-        this.answersStatus = this.questions.map(() => ({
-          answered: false,
-          correct: false,
-          selected: null,
-        }));
-        this.loading = false;
-        this.showSummary = false;
-        this.score = 0;
-        this.currentQuestionIndex = 0;
-      } catch (error) {
-        console.error("Error fetching questions:", error);
       }
+      this.questions = getRandomUniqueQuestions(filtered, this.quizLength);
+      this.answersStatus = this.questions.map(() => ({
+        answered: false,
+        correct: false,
+        selected: null,
+      }));
+      this.loading = false;
+      this.showSummary = false;
+      this.score = 0;
+      this.currentQuestionIndex = 0;
     },
     selectAnswer(index) {
       if (this.answersStatus[this.currentQuestionIndex].answered) return;
@@ -268,6 +269,9 @@ export default {
       this.fetchQuestions();
     },
     questionNavClass(idx) {
+      if (this.currentQuestionIndex === idx) {
+        return "ring-4 ring-blue-400 bg-blue-500 text-white";
+      }
       const status = this.answersStatus[idx];
       if (status.answered && status.correct) return "bg-green-500 text-white";
       if (status.answered && !status.correct) return "bg-red-500 text-white";

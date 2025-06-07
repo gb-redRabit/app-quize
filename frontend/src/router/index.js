@@ -6,6 +6,7 @@ import NotFound from "../views/NotFound.vue";
 import Login from "../components/Login.vue";
 import History from "../views/HistoryView.vue";
 import ExamView from "../views/ExamView.vue";
+import CategoryQuestionsView from "../views/CategoryQuestionsView.vue";
 import axios from "axios";
 
 const routes = [
@@ -30,6 +31,11 @@ const routes = [
     component: () => import("../views/HistoryDetailsView.vue"),
   },
   { path: "/exam", name: "ExamView", component: ExamView },
+  {
+    path: "/category/:category",
+    name: "CategoryQuestions",
+    component: CategoryQuestionsView,
+  },
   { path: "/:pathMatch(.*)*", name: "NotFound", component: NotFound },
 ];
 

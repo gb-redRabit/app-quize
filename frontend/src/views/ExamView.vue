@@ -4,10 +4,12 @@
       class="w-full max-w-3xl min-w-[600px] bg-white rounded-lg shadow-lg p-8 flex flex-col gap-8"
     >
       <div v-if="!showSummary">
-        <h1 class="text-3xl font-bold mb-6 text-center">Egzamin – 150 pytań</h1>
+        <h1 class="text-3xl font-bold mb-6 text-center">
+          Egzamin – {{ examLength }} pytań
+        </h1>
         <div class="flex justify-between items-center mb-4">
           <span class="text-lg font-semibold"
-            >Pytanie {{ currentQuestionIndex + 1 }} / 150</span
+            >Pytanie {{ currentQuestionIndex + 1 }} / {{ examLength }}</span
           >
           <span class="text-lg font-semibold text-blue-700"
             >Pozostały czas: {{ formattedTime }}</span
@@ -37,8 +39,14 @@
       </div>
       <!-- Podsumowanie -->
       <div v-else>
+        <button
+          class="bg-green-500 text-white p-2 rounded mb-8"
+          @click="restartExam"
+        >
+          Rozpocznij ponownie
+        </button>
         <h2 class="text-2xl mb-2">Podsumowanie egzaminu</h2>
-        <p class="mb-4">Twój wynik: {{ score }} / 150</p>
+        <p class="mb-4">Twój wynik: {{ score }} / {{ examLength }}</p>
         <div class="space-y-6">
           <div
             v-for="(q, idx) in questions"
@@ -50,16 +58,26 @@
             </div>
             <div>
               <span class="font-bold">Twoja odpowiedź: </span>
-              <span>{{ userAnswerText(q, answersStatus[idx].selected) }}</span>
+              <span
+                :class="{
+                  'text-green-700': isUserAnswerCorrect(idx),
+                  'text-red-700': !isUserAnswerCorrect(idx),
+                }"
+              >
+                {{
+                  userAnswerText(q, answersStatus[idx].selected) ||
+                  "Brak odpowiedzi"
+                }}
+              </span>
+            </div>
+            <div v-if="!isUserAnswerCorrect(idx)">
+              <span class="font-bold text-green-700">Poprawna odpowiedź:</span>
+              <span class="text-green-700">
+                {{ correctAnswerText(q) }}
+              </span>
             </div>
           </div>
         </div>
-        <button
-          class="bg-green-500 text-white p-2 rounded mt-8"
-          @click="restartExam"
-        >
-          Rozpocznij ponownie
-        </button>
       </div>
     </div>
   </div>
@@ -81,8 +99,9 @@ export default {
       loading: true,
       answersStatus: [],
       showSummary: false,
-      timeLeft: 60 * 60, // 1 godzina w sekundach
+      timeLeft: 60 * 60, // domyślnie 1 godzina
       timer: null,
+      examLength: 150, // domyślnie 150 pytań
     };
   },
   computed: {
@@ -95,6 +114,11 @@ export default {
     },
   },
   created() {
+    // Pobierz parametry z query
+    const length = parseInt(this.$route.query.length, 10);
+    const time = parseInt(this.$route.query.time, 10);
+    this.examLength = length && !isNaN(length) ? length : 150;
+    this.timeLeft = time && !isNaN(time) ? time * 60 : 60 * 60;
     this.fetchQuestions();
     this.startTimer();
   },
@@ -104,7 +128,10 @@ export default {
       try {
         this.loading = true;
         const response = await axios.get("/api/questions");
-        this.questions = getRandomUniqueQuestions(response.data, 150);
+        this.questions = getRandomUniqueQuestions(
+          response.data,
+          this.examLength
+        );
         this.answersStatus = this.questions.map(() => ({
           answered: false,
           selected: null,
@@ -160,7 +187,12 @@ export default {
         } else {
           clearInterval(this.timer);
           this.showSummary = true;
+          // Uzupełnij nieodpowiedziane jako błędne
+          this.answersStatus = this.answersStatus.map((a) =>
+            a.answered ? a : { answered: true, selected: null }
+          );
           this.countScore();
+          this.saveExamHistory();
         }
       }, 1000);
     },
@@ -201,13 +233,26 @@ export default {
     },
     userAnswerLetter(q, selectedIdx) {
       const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      if (selectedIdx == null) return "";
-      if (selectedIdx === 0) return "A";
-      if (selectedIdx === 1) return "B";
-      if (selectedIdx === 2) return "C";
-      if (selectedIdx === 3) return "D";
-      return "";
+      if (selectedIdx === null || selectedIdx === undefined) return "";
+      return keys[selectedIdx];
+    },
+    isUserAnswerCorrect(idx) {
+      const q = this.questions[idx];
+      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+      const correctIdx = keys.findIndex((k) => q[k] && q[k].isCorret);
+      return this.answersStatus[idx].selected === correctIdx;
+    },
+    correctAnswerText(q) {
+      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+      const idx = keys.findIndex((k) => q[k] && q[k].isCorret);
+      return idx !== -1 && q[keys[idx]] && q[keys[idx]].answer
+        ? q[keys[idx]].answer
+        : "";
     },
   },
 };
 </script>
+
+<style scoped>
+/* Dodaj własne style, jeśli potrzebujesz */
+</style>

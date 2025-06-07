@@ -41,7 +41,6 @@ const store = createStore({
     },
     async login({ commit }, credentials) {
       const response = await axios.post("/api/auth/login", credentials);
-      console.log("Backend response:", response.data);
       commit("SET_AUTHENTICATED", true);
       commit("SET_USER", response.data.user);
       localStorage.setItem("token", response.data.token);

@@ -62,12 +62,6 @@
           </div>
         </li>
       </ul>
-      <button
-        class="mt-8 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded font-semibold"
-        @click="$router.back()"
-      >
-        Powrót
-      </button>
     </div>
   </div>
 </template>
