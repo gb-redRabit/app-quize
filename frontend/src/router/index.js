@@ -44,12 +44,11 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = !!localStorage.getItem("user");
+  const isAuthenticated =
+    !!localStorage.getItem("user") && !!localStorage.getItem("token");
   if (to.name !== "Login" && !isAuthenticated) {
-    // Jeśli nie jesteś zalogowany i próbujesz wejść gdziekolwiek poza login
     next({ name: "Login" });
   } else if (to.name === "Login" && isAuthenticated) {
-    // Jeśli jesteś zalogowany i próbujesz wejść na login, przekieruj na stronę główną
     next({ name: "Home" });
   } else {
     next();

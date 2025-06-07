@@ -1,6 +1,6 @@
 <template>
   <div
-    class="container flex flex-col items-center justify-start bg-gray-100 px-2"
+    class="container flex flex-col-reverse sm:flex-col items-center justify-start bg-gray-100 px-2"
   >
     <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col gap-8 w-full">
       <div class="flex-1 flex flex-col" v-if="!showSummary">
@@ -35,6 +35,7 @@
             </button>
           </div>
           <QuestionList
+            class="sm:h-auto h-63vh"
             v-if="questions.length && currentQuestionIndex < questions.length"
             :question="questions[currentQuestionIndex]"
             :answered="
@@ -52,92 +53,39 @@
             :showCorrect="true"
             @select="selectAnswer"
           />
-        </div>
-        <div
-          class="h-20 text-gray-700 text-sm sm:text-lg font-medium bg-gray-100 rounded p-3 flex items-center justify-center"
-        >
-          <span
-            v-if="
+          <QuestionDescription
+            :answered="
               answersStatus.length > currentQuestionIndex &&
               answersStatus[currentQuestionIndex] &&
               answersStatus[currentQuestionIndex].answered
             "
-            >{{ questions[currentQuestionIndex].description }}</span
-          >
-          <span v-else>Odpowiedz aby uzyskać opis </span>
+            :description="
+              questions[currentQuestionIndex] &&
+              questions[currentQuestionIndex].description
+            "
+          />
         </div>
       </div>
       <!-- Podsumowanie -->
-      <div v-else>
-        <div class="flex justify-between items-center mb-4">
-          <div class="flex flex-col gap-1">
-            <h2 class="text-2xl">Podsumowanie testu</h2>
-            <p class="">Twój wynik: {{ score }} / {{ questions.length }}</p>
-          </div>
-          <button
-            class="bg-green-500 text-white p-2 rounded"
-            @click="restartQuiz"
-          >
-            Rozpocznij ponownie
-          </button>
-        </div>
-        <div class="space-y-6">
-          <div
-            v-for="(q, idx) in questions"
-            :key="idx"
-            class="border rounded-lg p-4"
-          >
-            <div class="font-semibold mb-2">
-              {{ idx + 1 }}. {{ q.question }}
-            </div>
-            <div v-if="answersStatus[idx].correct">
-              <span class="text-green-700 font-bold"
-                >✔ {{ correctAnswerText(q) }}</span
-              >
-            </div>
-            <div v-else>
-              <div>
-                <span class="text-red-700 font-bold">Twoja odpowiedź: </span>
-                <span>{{
-                  userAnswerText(q, answersStatus[idx].selected)
-                }}</span>
-              </div>
-              <div>
-                <span class="text-green-700 font-bold"
-                  >Prawidłowa odpowiedź:
-                </span>
-                <span>{{ correctAnswerText(q) }}</span>
-              </div>
-            </div>
-            <div
-              class="mt-2 text-gray-700 text-base font-medium bg-gray-100 rounded p-3"
-            >
-              {{ q.description }}
-            </div>
-          </div>
-        </div>
-      </div>
+      <SummaryBox
+        v-else
+        :questions="questions"
+        :answersStatus="answersStatus"
+        :score="score"
+        :total="questions.length"
+        :userAnswerText="userAnswerText"
+        :correctAnswerText="correctAnswerText"
+        @restart="restartQuiz"
+      />
     </div>
-
-    <div
-      class="w-full max-w-2xl mx-auto mt-6 overflow-x-auto pb-2 py-2"
-      style="scrollbar-width: thin"
-    >
-      <div class="flex gap-2 min-w-max px-2" style="width: fit-content">
-        <button
-          v-for="(q, idx) in questions"
-          :key="idx"
-          @click="goToQuestion(idx)"
-          class="w-9 h-9 sm:w-12 sm:h-12 rounded-full border-2 flex items-center justify-center text-base sm:text-lg font-bold transition-colors duration-200 focus:outline-none"
-          :class="questionNavClass(idx)"
-          :aria-current="currentQuestionIndex === idx ? 'true' : undefined"
-          :title="q.question"
-          :disabled="showSummary"
-          style="box-sizing: content-box"
-        >
-          {{ idx + 1 }}
-        </button>
-      </div>
+    <div class="container">
+      <QuestionNavigation
+        :questions="questions"
+        :currentIdx="currentQuestionIndex"
+        :answersStatus="answersStatus"
+        :showSummary="showSummary"
+        @goTo="goToQuestion"
+      />
     </div>
   </div>
 </template>
@@ -146,10 +94,18 @@
 import axios from "axios";
 import { mapActions } from "vuex";
 import QuestionList from "@/components/QuestionList.vue";
+import QuestionNavigation from "@/components/QuestionNavigation.vue";
+import QuestionDescription from "@/components/QuestionDescription.vue";
+import SummaryBox from "@/components/SummaryBox.vue";
 import { getRandomUniqueQuestions } from "@/utils/randomQuestions";
 
 export default {
-  components: { QuestionList },
+  components: {
+    QuestionList,
+    QuestionNavigation,
+    QuestionDescription,
+    SummaryBox,
+  },
   data() {
     return {
       questions: [],
@@ -237,7 +193,7 @@ export default {
           },
           {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }
         );
@@ -267,15 +223,6 @@ export default {
       this.score = 0;
       this.loading = true;
       this.fetchQuestions();
-    },
-    questionNavClass(idx) {
-      if (this.currentQuestionIndex === idx) {
-        return "ring-4 ring-blue-400 bg-blue-500 text-white scale-110 shadow";
-      }
-      const status = this.answersStatus[idx];
-      if (status.answered && status.correct) return "bg-green-500 text-white";
-      if (status.answered && !status.correct) return "bg-red-500 text-white";
-      return "bg-gray-200 text-gray-800";
     },
     userAnswerText(q, selectedIdx) {
       const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];

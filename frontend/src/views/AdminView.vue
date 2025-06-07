@@ -26,11 +26,11 @@
         </thead>
         <tbody>
           <tr
-            v-for="question in filteredQuestions"
+            v-for="question in visibleQuestions"
             :key="question.ID"
             class="hover:bg-gray-50 transition"
           >
-            <td class="py-2 px-2 sm:px-4 border-b break-all">
+            <td class="py-2 px-2 sm:px-4 border-b break-all sm:w-24">
               {{ question.ID }}
             </td>
             <td class="py-2 px-2 sm:px-4 border-b break-all">
@@ -383,10 +383,17 @@ export default {
       questionToDelete: null,
       newCategoryInput: "",
       searchQuery: "",
+      // Paginacja/ładowanie
+      displayCount: 100,
+      loadingMore: false,
     };
   },
   created() {
     this.fetchQuestions();
+    window.addEventListener("scroll", this.handleScroll);
+  },
+  beforeUnmount() {
+    window.removeEventListener("scroll", this.handleScroll);
   },
   computed: {
     filteredQuestions() {
@@ -397,6 +404,12 @@ export default {
           (item.ID && item.ID.toString().includes(q)) ||
           (item.question && item.question.toLowerCase().includes(q))
       );
+    },
+    visibleQuestions() {
+      return this.filteredQuestions.slice(0, this.displayCount);
+    },
+    hasMoreQuestions() {
+      return this.displayCount < this.filteredQuestions.length;
     },
   },
   methods: {
@@ -413,6 +426,20 @@ export default {
         ];
       } catch (error) {
         console.error("Error fetching questions:", error);
+      }
+    },
+    handleScroll() {
+      if (this.loadingMore || !this.hasMoreQuestions) return;
+      const scrollY = window.scrollY || window.pageYOffset;
+      const windowHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      // Jeśli użytkownik jest blisko dołu strony (np. 200px od dołu)
+      if (scrollY + windowHeight + 200 >= docHeight) {
+        this.loadingMore = true;
+        setTimeout(() => {
+          this.displayCount += 100;
+          this.loadingMore = false;
+        }, 200); // małe opóźnienie dla płynności
       }
     },
     async deleteQuestion(id) {

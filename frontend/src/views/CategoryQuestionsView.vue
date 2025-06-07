@@ -16,7 +16,7 @@
       </div>
       <ul v-else class="space-y-6">
         <li
-          v-for="q in filteredQuestions"
+          v-for="q in visibleQuestions"
           :key="q.ID"
           class="bg-white rounded-lg shadow p-4 sm:p-6 border"
         >
@@ -64,6 +64,9 @@
           </div>
         </li>
       </ul>
+      <div v-if="hasMoreQuestions" class="text-center py-4 text-gray-400">
+        Przewiń w dół, aby załadować więcej pytań...
+      </div>
     </div>
   </div>
 </template>
@@ -81,6 +84,8 @@ export default {
       questions: [],
       loading: true,
       searchQuery: "",
+      displayCount: 100,
+      loadingMore: false,
     };
   },
   computed: {
@@ -103,11 +108,36 @@ export default {
           (item.question && item.question.toLowerCase().includes(q))
       );
     },
+    visibleQuestions() {
+      return this.filteredQuestions.slice(0, this.displayCount);
+    },
+    hasMoreQuestions() {
+      return this.displayCount < this.filteredQuestions.length;
+    },
   },
   async created() {
     const res = await axios.get("/api/questions");
     this.questions = res.data.filter((q) => q.question);
     this.loading = false;
+    window.addEventListener("scroll", this.handleScroll);
+  },
+  beforeUnmount() {
+    window.removeEventListener("scroll", this.handleScroll);
+  },
+  methods: {
+    handleScroll() {
+      if (this.loadingMore || !this.hasMoreQuestions) return;
+      const scrollY = window.scrollY || window.pageYOffset;
+      const windowHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      if (scrollY + windowHeight + 200 >= docHeight) {
+        this.loadingMore = true;
+        setTimeout(() => {
+          this.displayCount += 100;
+          this.loadingMore = false;
+        }, 200);
+      }
+    },
   },
 };
 </script>

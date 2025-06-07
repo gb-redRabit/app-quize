@@ -6,5441 +6,143 @@
     "option": "dark",
     "history": [
       {
-        "data": "2023-10-01T12:00:00Z",
+        "data": "2025-06-07T19:31:46.185Z",
         "list": [
           {
-            "id_questions": 100,
-            "answer": "B"
-          },
-          {
-            "id_questions": 2,
+            "id_questions": 709,
             "answer": "A"
           },
           {
-            "id_questions": 3,
-            "answer": "C"
-          }
-        ]
-      },
-      {
-        "data": "2025-10-02T09:00:00Z",
-        "list": [
-          {
-            "id_questions": 1,
+            "id_questions": 1269,
             "answer": "A"
           },
           {
-            "id_questions": 2,
-            "answer": "B"
-          },
-          {
-            "id_questions": 3,
-            "answer": "C"
-          }
-        ]
-      },
-      {
-        "data": "2025-06-06T23:00:48.060Z",
-        "list": [
-          {
-            "id_questions": 490,
-            "answer": "B"
-          },
-          {
-            "id_questions": 377,
+            "id_questions": 2602,
             "answer": "A"
           },
           {
-            "id_questions": 804,
-            "answer": "B"
-          },
-          {
-            "id_questions": 466,
-            "answer": "C"
-          },
-          {
-            "id_questions": 329,
-            "answer": "C"
-          },
-          {
-            "id_questions": 765,
-            "answer": "B"
-          },
-          {
-            "id_questions": 571,
+            "id_questions": 835,
             "answer": "A"
           },
           {
-            "id_questions": 252,
-            "answer": "B"
-          },
-          {
-            "id_questions": 382,
+            "id_questions": 1365,
             "answer": "A"
           },
           {
-            "id_questions": 515,
-            "answer": "B"
-          }
-        ],
-        "correct": 3,
-        "wrong": 7,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-06T23:40:13.308Z",
-        "list": [
-          {
-            "id_questions": 491,
-            "answer": "B"
-          },
-          {
-            "id_questions": 401,
-            "answer": "B"
-          },
-          {
-            "id_questions": 433,
-            "answer": "B"
-          },
-          {
-            "id_questions": 487,
+            "id_questions": 1486,
             "answer": "A"
           },
           {
-            "id_questions": 229,
-            "answer": "B"
-          },
-          {
-            "id_questions": 751,
+            "id_questions": 1596,
             "answer": "A"
           },
           {
-            "id_questions": 775,
-            "answer": "B"
-          },
-          {
-            "id_questions": 100,
+            "id_questions": 1213,
             "answer": "A"
           },
           {
-            "id_questions": 266,
-            "answer": "B"
+            "id_questions": 1479,
+            "answer": "A"
           },
           {
-            "id_questions": 605,
+            "id_questions": 1203,
             "answer": "A"
           }
         ],
-        "correct": 3,
-        "wrong": 7,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T00:06:35.350Z",
-        "list": [
-          {
-            "id_questions": 729,
-            "answer": "B"
-          },
-          {
-            "id_questions": 182,
-            "answer": "B"
-          },
-          {
-            "id_questions": 656,
-            "answer": "B"
-          },
-          {
-            "id_questions": 191,
-            "answer": "B"
-          },
-          {
-            "id_questions": 12,
-            "answer": "B"
-          },
-          {
-            "id_questions": 401,
-            "answer": "C"
-          },
-          {
-            "id_questions": 189,
-            "answer": "B"
-          },
-          {
-            "id_questions": 368,
-            "answer": "B"
-          },
-          {
-            "id_questions": 123,
-            "answer": "C"
-          },
-          {
-            "id_questions": 294,
-            "answer": "A"
-          },
-          {
-            "id_questions": 249,
-            "answer": "C"
-          },
-          {
-            "id_questions": 300,
-            "answer": "B"
-          },
-          {
-            "id_questions": 802,
-            "answer": "B"
-          },
-          {
-            "id_questions": 379,
-            "answer": "A"
-          },
-          {
-            "id_questions": 380,
-            "answer": "B"
-          },
-          {
-            "id_questions": 236,
-            "answer": "B"
-          },
-          {
-            "id_questions": 335,
-            "answer": "B"
-          },
-          {
-            "id_questions": 399,
-            "answer": "B"
-          },
-          {
-            "id_questions": 202,
-            "answer": "B"
-          },
-          {
-            "id_questions": 278,
-            "answer": "B"
-          },
-          {
-            "id_questions": 563,
-            "answer": "B"
-          },
-          {
-            "id_questions": 311,
-            "answer": "B"
-          },
-          {
-            "id_questions": 15,
-            "answer": "C"
-          },
-          {
-            "id_questions": 110,
-            "answer": "B"
-          },
-          {
-            "id_questions": 613,
-            "answer": "A"
-          },
-          {
-            "id_questions": 523,
-            "answer": "B"
-          },
-          {
-            "id_questions": 643,
-            "answer": "B"
-          },
-          {
-            "id_questions": 638,
-            "answer": "A"
-          },
-          {
-            "id_questions": 665,
-            "answer": "A"
-          },
-          {
-            "id_questions": 796,
-            "answer": "A"
-          },
-          {
-            "id_questions": 488,
-            "answer": "B"
-          },
-          {
-            "id_questions": 234,
-            "answer": "B"
-          },
-          {
-            "id_questions": 842,
-            "answer": "B"
-          },
-          {
-            "id_questions": 272,
-            "answer": "B"
-          },
-          {
-            "id_questions": 654,
-            "answer": "B"
-          },
-          {
-            "id_questions": 637,
-            "answer": "A"
-          },
-          {
-            "id_questions": 479,
-            "answer": "A"
-          },
-          {
-            "id_questions": 357,
-            "answer": "C"
-          },
-          {
-            "id_questions": 322,
-            "answer": "B"
-          },
-          {
-            "id_questions": 609,
-            "answer": "B"
-          },
-          {
-            "id_questions": 444,
-            "answer": "B"
-          },
-          {
-            "id_questions": 602,
-            "answer": "A"
-          },
-          {
-            "id_questions": 366,
-            "answer": "B"
-          },
-          {
-            "id_questions": 679,
-            "answer": "B"
-          },
-          {
-            "id_questions": 51,
-            "answer": "B"
-          },
-          {
-            "id_questions": 342,
-            "answer": "B"
-          },
-          {
-            "id_questions": 491,
-            "answer": "B"
-          },
-          {
-            "id_questions": 125,
-            "answer": "C"
-          },
-          {
-            "id_questions": 618,
-            "answer": "B"
-          },
-          {
-            "id_questions": 836,
-            "answer": "B"
-          },
-          {
-            "id_questions": 57,
-            "answer": "B"
-          },
-          {
-            "id_questions": 587,
-            "answer": "B"
-          },
-          {
-            "id_questions": 218,
-            "answer": "C"
-          },
-          {
-            "id_questions": 310,
-            "answer": "B"
-          },
-          {
-            "id_questions": 816,
-            "answer": "B"
-          },
-          {
-            "id_questions": 548,
-            "answer": "C"
-          },
-          {
-            "id_questions": 175,
-            "answer": "B"
-          },
-          {
-            "id_questions": 527,
-            "answer": "A"
-          },
-          {
-            "id_questions": 730,
-            "answer": "B"
-          },
-          {
-            "id_questions": 38,
-            "answer": "C"
-          },
-          {
-            "id_questions": 102,
-            "answer": "C"
-          },
-          {
-            "id_questions": 27,
-            "answer": "C"
-          },
-          {
-            "id_questions": 283,
-            "answer": "B"
-          },
-          {
-            "id_questions": 670,
-            "answer": "A"
-          },
-          {
-            "id_questions": 213,
-            "answer": "B"
-          },
-          {
-            "id_questions": 727,
-            "answer": "C"
-          },
-          {
-            "id_questions": 493,
-            "answer": "C"
-          },
-          {
-            "id_questions": 634,
-            "answer": "B"
-          },
-          {
-            "id_questions": 721,
-            "answer": "B"
-          },
-          {
-            "id_questions": 544,
-            "answer": "C"
-          },
-          {
-            "id_questions": 320,
-            "answer": "B"
-          },
-          {
-            "id_questions": 394,
-            "answer": "B"
-          },
-          {
-            "id_questions": 575,
-            "answer": "C"
-          },
-          {
-            "id_questions": 533,
-            "answer": "B"
-          },
-          {
-            "id_questions": 505,
-            "answer": "B"
-          },
-          {
-            "id_questions": 458,
-            "answer": "C"
-          },
-          {
-            "id_questions": 370,
-            "answer": "B"
-          },
-          {
-            "id_questions": 617,
-            "answer": "B"
-          },
-          {
-            "id_questions": 701,
-            "answer": "C"
-          },
-          {
-            "id_questions": 516,
-            "answer": "A"
-          },
-          {
-            "id_questions": 20,
-            "answer": "B"
-          },
-          {
-            "id_questions": 143,
-            "answer": "C"
-          },
-          {
-            "id_questions": 513,
-            "answer": "B"
-          },
-          {
-            "id_questions": 565,
-            "answer": "C"
-          },
-          {
-            "id_questions": 259,
-            "answer": "B"
-          },
-          {
-            "id_questions": 225,
-            "answer": "C"
-          },
-          {
-            "id_questions": 146,
-            "answer": "A"
-          },
-          {
-            "id_questions": 56,
-            "answer": "C"
-          },
-          {
-            "id_questions": 80,
-            "answer": "B"
-          },
-          {
-            "id_questions": 187,
-            "answer": "B"
-          },
-          {
-            "id_questions": 315,
-            "answer": "A"
-          },
-          {
-            "id_questions": 235,
-            "answer": "B"
-          },
-          {
-            "id_questions": 129,
-            "answer": "B"
-          },
-          {
-            "id_questions": 462,
-            "answer": "A"
-          },
-          {
-            "id_questions": 140,
-            "answer": "B"
-          },
-          {
-            "id_questions": 536,
-            "answer": "B"
-          },
-          {
-            "id_questions": 299,
-            "answer": "B"
-          },
-          {
-            "id_questions": 421,
-            "answer": "A"
-          },
-          {
-            "id_questions": 447,
-            "answer": "B"
-          },
-          {
-            "id_questions": 680,
-            "answer": "A"
-          },
-          {
-            "id_questions": 75,
-            "answer": "C"
-          },
-          {
-            "id_questions": 111,
-            "answer": "B"
-          },
-          {
-            "id_questions": 472,
-            "answer": "A"
-          },
-          {
-            "id_questions": 689,
-            "answer": "B"
-          },
-          {
-            "id_questions": 419,
-            "answer": "A"
-          },
-          {
-            "id_questions": 794,
-            "answer": "C"
-          },
-          {
-            "id_questions": 742,
-            "answer": "A"
-          },
-          {
-            "id_questions": 652,
-            "answer": "C"
-          },
-          {
-            "id_questions": 739,
-            "answer": "B"
-          },
-          {
-            "id_questions": 822,
-            "answer": "A"
-          },
-          {
-            "id_questions": 726,
-            "answer": "B"
-          },
-          {
-            "id_questions": 266,
-            "answer": "A"
-          },
-          {
-            "id_questions": 605,
-            "answer": "C"
-          },
-          {
-            "id_questions": 594,
-            "answer": "B"
-          },
-          {
-            "id_questions": 116,
-            "answer": "B"
-          },
-          {
-            "id_questions": 508,
-            "answer": "A"
-          },
-          {
-            "id_questions": 788,
-            "answer": "A"
-          },
-          {
-            "id_questions": 808,
-            "answer": "B"
-          },
-          {
-            "id_questions": 681,
-            "answer": "B"
-          },
-          {
-            "id_questions": 520,
-            "answer": "B"
-          },
-          {
-            "id_questions": 360,
-            "answer": "B"
-          },
-          {
-            "id_questions": 478,
-            "answer": "A"
-          },
-          {
-            "id_questions": 288,
-            "answer": "B"
-          },
-          {
-            "id_questions": 426,
-            "answer": "B"
-          },
-          {
-            "id_questions": 353,
-            "answer": "B"
-          },
-          {
-            "id_questions": 18,
-            "answer": "B"
-          },
-          {
-            "id_questions": 412,
-            "answer": "C"
-          },
-          {
-            "id_questions": 150,
-            "answer": "B"
-          },
-          {
-            "id_questions": 199,
-            "answer": "B"
-          },
-          {
-            "id_questions": 204,
-            "answer": "B"
-          },
-          {
-            "id_questions": 470,
-            "answer": "B"
-          },
-          {
-            "id_questions": 546,
-            "answer": "B"
-          },
-          {
-            "id_questions": 376,
-            "answer": "A"
-          },
-          {
-            "id_questions": 673,
-            "answer": "B"
-          },
-          {
-            "id_questions": 137,
-            "answer": "B"
-          },
-          {
-            "id_questions": 136,
-            "answer": "B"
-          },
-          {
-            "id_questions": 253,
-            "answer": "C"
-          },
-          {
-            "id_questions": 844,
-            "answer": "B"
-          },
-          {
-            "id_questions": 468,
-            "answer": "C"
-          },
-          {
-            "id_questions": 251,
-            "answer": "B"
-          },
-          {
-            "id_questions": 55,
-            "answer": "C"
-          },
-          {
-            "id_questions": 321,
-            "answer": "A"
-          },
-          {
-            "id_questions": 24,
-            "answer": "B"
-          },
-          {
-            "id_questions": 463,
-            "answer": "C"
-          },
-          {
-            "id_questions": 651,
-            "answer": "B"
-          },
-          {
-            "id_questions": 438,
-            "answer": "C"
-          },
-          {
-            "id_questions": 789,
-            "answer": "B"
-          },
-          {
-            "id_questions": 551,
-            "answer": "C"
-          },
-          {
-            "id_questions": 190,
-            "answer": "B"
-          },
-          {
-            "id_questions": 557,
-            "answer": "C"
-          }
-        ],
-        "correct": 49,
-        "wrong": 101,
+        "correct": 5,
+        "wrong": 5,
         "type": "egzamin"
       },
       {
-        "data": "2025-06-07T00:14:33.563Z",
+        "data": "2025-06-07T19:31:53.862Z",
         "list": [
           {
-            "id_questions": 719,
-            "answer": "answer_a"
+            "id_questions": 2449,
+            "answer": "B"
           },
           {
-            "id_questions": 396,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 829,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 78,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 742,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 124,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 452,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 732,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 480,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 254,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 71,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 542,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 20,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 264,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 253,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 558,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 487,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 185,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 478,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 823,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 393,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 345,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 461,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 422,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 586,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 402,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 690,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 476,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 28,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 403,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 19,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 384,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 455,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 44,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 56,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 419,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 616,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 593,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 803,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 188,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 797,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 506,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 465,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 665,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 535,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 429,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 633,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 798,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 201,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 788,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 99,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 332,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 793,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 436,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 449,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 546,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 45,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 467,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 230,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 485,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 731,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 494,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 54,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 851,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 832,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 268,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 718,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 614,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 736,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 808,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 221,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 256,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 426,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 263,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 235,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 288,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 772,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 202,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 399,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 247,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 595,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 821,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 459,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 66,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 61,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 502,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 756,
-            "answer": "answer_c"
+            "id_questions": 1728,
+            "answer": "A"
           },
           {
             "id_questions": 98,
-            "answer": "answer_b"
+            "answer": "B"
           },
           {
-            "id_questions": 383,
-            "answer": "answer_a"
+            "id_questions": 1873,
+            "answer": "B"
           },
           {
-            "id_questions": 398,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 242,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 747,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 46,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 49,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 64,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 104,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 428,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 353,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 581,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 836,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 375,
-            "answer": "answer_b"
+            "id_questions": 1622,
+            "answer": "B"
           },
           {
             "id_questions": 276,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 58,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 191,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 589,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 841,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 714,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 301,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 766,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 245,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 209,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 176,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 246,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 22,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 65,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 204,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 349,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 331,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 507,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 134,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 319,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 167,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 281,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 303,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 721,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 145,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 29,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 379,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 48,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 297,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 232,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 849,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 704,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 554,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 763,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 677,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 442,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 730,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 757,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 162,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 802,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 528,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 193,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 468,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 552,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 120,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 280,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 572,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 183,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 632,
-            "answer": "answer_a"
-          }
-        ],
-        "correct": 52,
-        "wrong": 98,
-        "type": "egzamin"
-      },
-      {
-        "data": "2025-06-07T00:16:17.757Z",
-        "list": [
-          {
-            "id_questions": 294,
-            "answer": " "
-          },
-          {
-            "id_questions": 641,
-            "answer": " "
-          },
-          {
-            "id_questions": 376,
-            "answer": " "
-          },
-          {
-            "id_questions": 54,
-            "answer": " "
-          },
-          {
-            "id_questions": 518,
-            "answer": " "
-          },
-          {
-            "id_questions": 138,
-            "answer": " "
-          },
-          {
-            "id_questions": 753,
-            "answer": " "
-          },
-          {
-            "id_questions": 409,
-            "answer": " "
-          },
-          {
-            "id_questions": 810,
-            "answer": " "
-          },
-          {
-            "id_questions": 124,
-            "answer": " "
-          },
-          {
-            "id_questions": 74,
-            "answer": " "
-          },
-          {
-            "id_questions": 833,
-            "answer": " "
-          },
-          {
-            "id_questions": 462,
-            "answer": " "
-          },
-          {
-            "id_questions": 823,
-            "answer": " "
-          },
-          {
-            "id_questions": 597,
-            "answer": " "
-          },
-          {
-            "id_questions": 758,
-            "answer": " "
-          },
-          {
-            "id_questions": 626,
-            "answer": " "
-          },
-          {
-            "id_questions": 699,
-            "answer": " "
-          },
-          {
-            "id_questions": 480,
-            "answer": " "
-          },
-          {
-            "id_questions": 132,
-            "answer": " "
-          },
-          {
-            "id_questions": 247,
-            "answer": " "
-          },
-          {
-            "id_questions": 24,
-            "answer": " "
-          },
-          {
-            "id_questions": 433,
-            "answer": " "
-          },
-          {
-            "id_questions": 395,
-            "answer": " "
-          },
-          {
-            "id_questions": 488,
-            "answer": " "
-          },
-          {
-            "id_questions": 39,
-            "answer": " "
-          },
-          {
-            "id_questions": 540,
-            "answer": " "
-          },
-          {
-            "id_questions": 844,
-            "answer": " "
-          },
-          {
-            "id_questions": 320,
-            "answer": " "
-          },
-          {
-            "id_questions": 452,
-            "answer": " "
-          },
-          {
-            "id_questions": 246,
-            "answer": " "
-          },
-          {
-            "id_questions": 456,
-            "answer": " "
-          },
-          {
-            "id_questions": 347,
-            "answer": " "
-          },
-          {
-            "id_questions": 207,
-            "answer": " "
-          },
-          {
-            "id_questions": 643,
-            "answer": " "
-          },
-          {
-            "id_questions": 607,
-            "answer": " "
-          },
-          {
-            "id_questions": 140,
-            "answer": " "
-          },
-          {
-            "id_questions": 598,
-            "answer": " "
-          },
-          {
-            "id_questions": 627,
-            "answer": " "
-          },
-          {
-            "id_questions": 267,
-            "answer": " "
-          },
-          {
-            "id_questions": 824,
-            "answer": " "
-          },
-          {
-            "id_questions": 355,
-            "answer": " "
-          },
-          {
-            "id_questions": 380,
-            "answer": " "
-          },
-          {
-            "id_questions": 173,
-            "answer": " "
-          },
-          {
-            "id_questions": 489,
-            "answer": " "
-          },
-          {
-            "id_questions": 809,
-            "answer": " "
-          },
-          {
-            "id_questions": 79,
-            "answer": " "
-          },
-          {
-            "id_questions": 623,
-            "answer": " "
-          },
-          {
-            "id_questions": 608,
-            "answer": " "
-          },
-          {
-            "id_questions": 282,
-            "answer": " "
-          },
-          {
-            "id_questions": 535,
-            "answer": " "
-          },
-          {
-            "id_questions": 650,
-            "answer": " "
-          },
-          {
-            "id_questions": 735,
-            "answer": " "
-          },
-          {
-            "id_questions": 379,
-            "answer": " "
-          },
-          {
-            "id_questions": 14,
-            "answer": " "
-          },
-          {
-            "id_questions": 680,
-            "answer": " "
-          },
-          {
-            "id_questions": 653,
-            "answer": " "
-          },
-          {
-            "id_questions": 464,
-            "answer": " "
-          },
-          {
-            "id_questions": 350,
-            "answer": " "
-          },
-          {
-            "id_questions": 31,
-            "answer": " "
-          },
-          {
-            "id_questions": 779,
-            "answer": " "
-          },
-          {
-            "id_questions": 770,
-            "answer": " "
-          },
-          {
-            "id_questions": 630,
-            "answer": " "
-          },
-          {
-            "id_questions": 7,
-            "answer": " "
-          },
-          {
-            "id_questions": 113,
-            "answer": " "
-          },
-          {
-            "id_questions": 179,
-            "answer": " "
-          },
-          {
-            "id_questions": 298,
-            "answer": " "
-          },
-          {
-            "id_questions": 293,
-            "answer": " "
-          },
-          {
-            "id_questions": 244,
-            "answer": " "
-          },
-          {
-            "id_questions": 569,
-            "answer": " "
-          },
-          {
-            "id_questions": 625,
-            "answer": " "
-          },
-          {
-            "id_questions": 375,
-            "answer": " "
-          },
-          {
-            "id_questions": 316,
-            "answer": " "
-          },
-          {
-            "id_questions": 391,
-            "answer": " "
-          },
-          {
-            "id_questions": 321,
-            "answer": " "
-          },
-          {
-            "id_questions": 396,
-            "answer": " "
-          },
-          {
-            "id_questions": 490,
-            "answer": " "
-          },
-          {
-            "id_questions": 204,
-            "answer": " "
-          },
-          {
-            "id_questions": 40,
-            "answer": " "
-          },
-          {
-            "id_questions": 721,
-            "answer": " "
-          },
-          {
-            "id_questions": 606,
-            "answer": " "
-          },
-          {
-            "id_questions": 279,
-            "answer": " "
-          },
-          {
-            "id_questions": 714,
-            "answer": " "
-          },
-          {
-            "id_questions": 845,
-            "answer": " "
-          },
-          {
-            "id_questions": 227,
-            "answer": " "
-          },
-          {
-            "id_questions": 660,
-            "answer": " "
-          },
-          {
-            "id_questions": 438,
-            "answer": " "
-          },
-          {
-            "id_questions": 273,
-            "answer": " "
-          },
-          {
-            "id_questions": 236,
-            "answer": " "
-          },
-          {
-            "id_questions": 431,
-            "answer": " "
-          },
-          {
-            "id_questions": 18,
-            "answer": " "
-          },
-          {
-            "id_questions": 722,
-            "answer": " "
-          },
-          {
-            "id_questions": 309,
-            "answer": " "
-          },
-          {
-            "id_questions": 269,
-            "answer": " "
-          },
-          {
-            "id_questions": 68,
-            "answer": " "
-          },
-          {
-            "id_questions": 96,
-            "answer": " "
-          },
-          {
-            "id_questions": 276,
-            "answer": " "
-          },
-          {
-            "id_questions": 624,
-            "answer": " "
-          },
-          {
-            "id_questions": 712,
-            "answer": " "
-          },
-          {
-            "id_questions": 776,
-            "answer": " "
-          },
-          {
-            "id_questions": 615,
-            "answer": " "
-          },
-          {
-            "id_questions": 263,
-            "answer": " "
-          },
-          {
-            "id_questions": 238,
-            "answer": " "
-          },
-          {
-            "id_questions": 342,
-            "answer": " "
-          },
-          {
-            "id_questions": 648,
-            "answer": " "
-          },
-          {
-            "id_questions": 314,
-            "answer": " "
-          },
-          {
-            "id_questions": 222,
-            "answer": " "
-          },
-          {
-            "id_questions": 125,
-            "answer": " "
-          },
-          {
-            "id_questions": 467,
-            "answer": " "
-          },
-          {
-            "id_questions": 345,
-            "answer": " "
-          },
-          {
-            "id_questions": 112,
-            "answer": " "
-          },
-          {
-            "id_questions": 71,
-            "answer": " "
-          },
-          {
-            "id_questions": 682,
-            "answer": " "
-          },
-          {
-            "id_questions": 695,
-            "answer": " "
-          },
-          {
-            "id_questions": 154,
-            "answer": " "
-          },
-          {
-            "id_questions": 189,
-            "answer": " "
-          },
-          {
-            "id_questions": 118,
-            "answer": " "
-          },
-          {
-            "id_questions": 654,
-            "answer": " "
-          },
-          {
-            "id_questions": 195,
-            "answer": " "
-          },
-          {
-            "id_questions": 435,
-            "answer": " "
-          },
-          {
-            "id_questions": 631,
-            "answer": " "
-          },
-          {
-            "id_questions": 254,
-            "answer": " "
-          },
-          {
-            "id_questions": 210,
-            "answer": " "
-          },
-          {
-            "id_questions": 425,
-            "answer": " "
-          },
-          {
-            "id_questions": 245,
-            "answer": " "
-          },
-          {
-            "id_questions": 312,
-            "answer": " "
-          },
-          {
-            "id_questions": 110,
-            "answer": " "
-          },
-          {
-            "id_questions": 325,
-            "answer": " "
-          },
-          {
-            "id_questions": 501,
-            "answer": " "
-          },
-          {
-            "id_questions": 445,
-            "answer": " "
-          },
-          {
-            "id_questions": 159,
-            "answer": " "
-          },
-          {
-            "id_questions": 286,
-            "answer": " "
-          },
-          {
-            "id_questions": 775,
-            "answer": " "
-          },
-          {
-            "id_questions": 214,
-            "answer": " "
-          },
-          {
-            "id_questions": 44,
-            "answer": " "
-          },
-          {
-            "id_questions": 70,
-            "answer": " "
-          },
-          {
-            "id_questions": 288,
-            "answer": " "
-          },
-          {
-            "id_questions": 436,
-            "answer": " "
-          },
-          {
-            "id_questions": 760,
-            "answer": " "
-          },
-          {
-            "id_questions": 23,
-            "answer": " "
-          },
-          {
-            "id_questions": 129,
-            "answer": " "
-          },
-          {
-            "id_questions": 25,
-            "answer": " "
-          },
-          {
-            "id_questions": 840,
-            "answer": " "
-          },
-          {
-            "id_questions": 192,
-            "answer": " "
-          },
-          {
-            "id_questions": 21,
-            "answer": " "
-          },
-          {
-            "id_questions": 339,
-            "answer": " "
-          },
-          {
-            "id_questions": 185,
-            "answer": " "
-          },
-          {
-            "id_questions": 139,
-            "answer": " "
-          },
-          {
-            "id_questions": 307,
-            "answer": " "
-          },
-          {
-            "id_questions": 679,
-            "answer": ""
-          }
-        ],
-        "correct": 0,
-        "wrong": 150,
-        "type": "egzamin"
-      },
-      {
-        "data": "2025-06-07T11:07:32.151Z",
-        "list": [
-          {
-            "id_questions": 163,
             "answer": "A"
           },
           {
-            "id_questions": 150,
-            "answer": "C"
-          },
-          {
-            "id_questions": 177,
+            "id_questions": 1387,
             "answer": "A"
           },
           {
-            "id_questions": 49,
-            "answer": "B"
-          },
-          {
-            "id_questions": 244,
-            "answer": "C"
-          },
-          {
-            "id_questions": 48,
-            "answer": "B"
-          },
-          {
-            "id_questions": 94,
-            "answer": "B"
-          },
-          {
-            "id_questions": 249,
-            "answer": "B"
-          },
-          {
-            "id_questions": 13,
-            "answer": "B"
-          },
-          {
-            "id_questions": 228,
-            "answer": "B"
-          }
-        ],
-        "correct": 1,
-        "wrong": 9,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:09:22.882Z",
-        "list": [
-          {
-            "id_questions": 160,
-            "answer": "B"
-          },
-          {
-            "id_questions": 114,
-            "answer": "B"
-          },
-          {
-            "id_questions": 177,
+            "id_questions": 1705,
             "answer": "A"
           },
           {
-            "id_questions": 94,
-            "answer": "C"
-          },
-          {
-            "id_questions": 120,
+            "id_questions": 1260,
             "answer": "A"
           },
           {
-            "id_questions": 151,
-            "answer": "C"
-          },
-          {
-            "id_questions": 179,
-            "answer": "B"
-          },
-          {
-            "id_questions": 101,
-            "answer": "C"
-          },
-          {
-            "id_questions": 250,
-            "answer": "B"
-          },
-          {
-            "id_questions": 211,
-            "answer": "C"
-          }
-        ],
-        "correct": 2,
-        "wrong": 8,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:10:27.864Z",
-        "list": [
-          {
-            "id_questions": 538,
-            "answer": "B"
-          },
-          {
-            "id_questions": 744,
-            "answer": "A"
-          },
-          {
-            "id_questions": 679,
-            "answer": "B"
-          },
-          {
-            "id_questions": 176,
-            "answer": "C"
-          },
-          {
-            "id_questions": 235,
-            "answer": "B"
-          },
-          {
-            "id_questions": 212,
-            "answer": "C"
-          },
-          {
-            "id_questions": 579,
-            "answer": "B"
-          },
-          {
-            "id_questions": 308,
-            "answer": "A"
-          },
-          {
-            "id_questions": 651,
-            "answer": "B"
-          },
-          {
-            "id_questions": 656,
-            "answer": "C"
-          }
-        ],
-        "correct": 5,
-        "wrong": 5,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:11:56.039Z",
-        "list": [
-          {
-            "id_questions": 68,
-            "answer": "C"
-          },
-          {
-            "id_questions": 209,
-            "answer": "C"
-          },
-          {
-            "id_questions": 281,
-            "answer": "B"
-          },
-          {
-            "id_questions": 25,
-            "answer": "C"
-          },
-          {
-            "id_questions": 810,
-            "answer": "B"
-          },
-          {
-            "id_questions": 596,
-            "answer": "B"
-          },
-          {
-            "id_questions": 134,
-            "answer": "C"
-          },
-          {
-            "id_questions": 479,
-            "answer": "B"
-          },
-          {
-            "id_questions": 694,
-            "answer": "B"
-          },
-          {
-            "id_questions": 325,
-            "answer": "B"
-          }
-        ],
-        "correct": 3,
-        "wrong": 7,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:15:46.247Z",
-        "list": [
-          {
-            "id_questions": 599,
-            "answer": "B"
-          },
-          {
-            "id_questions": 313,
-            "answer": "B"
-          },
-          {
-            "id_questions": 690,
-            "answer": "B"
-          },
-          {
-            "id_questions": 374,
-            "answer": "B"
-          },
-          {
-            "id_questions": 763,
-            "answer": "B"
-          },
-          {
-            "id_questions": 112,
-            "answer": "B"
-          },
-          {
-            "id_questions": 140,
-            "answer": "B"
-          },
-          {
-            "id_questions": 146,
-            "answer": "B"
-          },
-          {
-            "id_questions": 747,
-            "answer": "B"
-          },
-          {
-            "id_questions": 610,
-            "answer": "C"
-          }
-        ],
-        "correct": 1,
-        "wrong": 9,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:16:06.597Z",
-        "list": [
-          {
-            "id_questions": 539,
-            "answer": "A"
-          },
-          {
-            "id_questions": 451,
-            "answer": "B"
-          },
-          {
-            "id_questions": 2,
-            "answer": "B"
-          },
-          {
-            "id_questions": 293,
-            "answer": "B"
-          },
-          {
-            "id_questions": 670,
-            "answer": "C"
-          },
-          {
-            "id_questions": 595,
-            "answer": "B"
-          },
-          {
-            "id_questions": 425,
-            "answer": "B"
-          },
-          {
-            "id_questions": 626,
-            "answer": "B"
-          },
-          {
-            "id_questions": 409,
-            "answer": "B"
-          },
-          {
-            "id_questions": 806,
-            "answer": "B"
-          }
-        ],
-        "correct": 2,
-        "wrong": 8,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:16:37.917Z",
-        "list": [
-          {
-            "id_questions": 181,
-            "answer": "A"
-          },
-          {
-            "id_questions": 622,
-            "answer": "B"
-          },
-          {
-            "id_questions": 475,
-            "answer": "B"
-          },
-          {
-            "id_questions": 123,
-            "answer": "C"
-          },
-          {
-            "id_questions": 216,
-            "answer": "B"
-          },
-          {
-            "id_questions": 716,
-            "answer": "B"
-          },
-          {
-            "id_questions": 845,
-            "answer": "B"
-          },
-          {
-            "id_questions": 173,
-            "answer": "B"
-          },
-          {
-            "id_questions": 378,
-            "answer": "B"
-          },
-          {
-            "id_questions": 591,
-            "answer": "C"
-          }
-        ],
-        "correct": 8,
-        "wrong": 2,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:18:13.171Z",
-        "list": [
-          {
-            "id_questions": 263,
-            "answer": "B"
-          },
-          {
-            "id_questions": 158,
-            "answer": "A"
-          },
-          {
-            "id_questions": 244,
-            "answer": "C"
-          },
-          {
-            "id_questions": 516,
-            "answer": "B"
-          },
-          {
-            "id_questions": 692,
-            "answer": "B"
-          },
-          {
-            "id_questions": 338,
-            "answer": "B"
-          },
-          {
-            "id_questions": 121,
-            "answer": "A"
-          },
-          {
-            "id_questions": 60,
-            "answer": "B"
-          },
-          {
-            "id_questions": 491,
-            "answer": "B"
-          },
-          {
-            "id_questions": 241,
-            "answer": "B"
-          }
-        ],
-        "correct": 2,
-        "wrong": 8,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:19:25.003Z",
-        "list": [
-          {
-            "id_questions": 698,
-            "answer": "C"
-          },
-          {
-            "id_questions": 504,
-            "answer": "C"
-          },
-          {
-            "id_questions": 813,
-            "answer": "B"
-          },
-          {
-            "id_questions": 527,
-            "answer": "B"
-          },
-          {
-            "id_questions": 145,
-            "answer": "B"
-          },
-          {
-            "id_questions": 112,
-            "answer": "B"
-          },
-          {
-            "id_questions": 39,
-            "answer": "C"
-          },
-          {
-            "id_questions": 754,
-            "answer": "B"
-          },
-          {
-            "id_questions": 140,
-            "answer": "C"
-          },
-          {
-            "id_questions": 674,
-            "answer": "B"
-          }
-        ],
-        "correct": 2,
-        "wrong": 8,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:20:33.567Z",
-        "list": [
-          {
-            "id_questions": 397,
-            "answer": "A"
-          },
-          {
-            "id_questions": 73,
-            "answer": "B"
-          },
-          {
-            "id_questions": 585,
-            "answer": "C"
-          },
-          {
-            "id_questions": 4,
-            "answer": "B"
-          },
-          {
-            "id_questions": 196,
-            "answer": "B"
-          },
-          {
-            "id_questions": 340,
-            "answer": "B"
-          },
-          {
-            "id_questions": 291,
-            "answer": "A"
-          },
-          {
-            "id_questions": 360,
-            "answer": "B"
-          },
-          {
-            "id_questions": 24,
-            "answer": "B"
-          },
-          {
-            "id_questions": 570,
-            "answer": "C"
-          }
-        ],
-        "correct": 5,
-        "wrong": 5,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:20:57.076Z",
-        "list": [
-          {
-            "id_questions": 801,
-            "answer": "B"
-          },
-          {
-            "id_questions": 670,
-            "answer": "B"
-          },
-          {
-            "id_questions": 476,
-            "answer": "B"
-          },
-          {
-            "id_questions": 394,
-            "answer": "C"
-          },
-          {
-            "id_questions": 750,
-            "answer": "C"
-          },
-          {
-            "id_questions": 92,
-            "answer": "C"
-          },
-          {
-            "id_questions": 593,
-            "answer": "C"
-          },
-          {
-            "id_questions": 468,
-            "answer": "C"
-          },
-          {
-            "id_questions": 447,
-            "answer": "C"
-          },
-          {
-            "id_questions": 745,
-            "answer": "C"
-          }
-        ],
-        "correct": 3,
-        "wrong": 7,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:22:07.820Z",
-        "list": [
-          {
-            "id_questions": 422,
-            "answer": "C"
-          },
-          {
-            "id_questions": 755,
-            "answer": "B"
-          },
-          {
-            "id_questions": 550,
-            "answer": "B"
-          },
-          {
-            "id_questions": 817,
-            "answer": "A"
-          },
-          {
-            "id_questions": 388,
-            "answer": "C"
-          },
-          {
-            "id_questions": 13,
-            "answer": "A"
-          },
-          {
-            "id_questions": 583,
-            "answer": "B"
-          },
-          {
-            "id_questions": 332,
-            "answer": "C"
-          },
-          {
-            "id_questions": 181,
-            "answer": "B"
-          },
-          {
-            "id_questions": 689,
-            "answer": "B"
-          }
-        ],
-        "correct": 2,
-        "wrong": 8,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:23:22.671Z",
-        "list": [
-          {
-            "id_questions": 345,
-            "answer": "A"
-          },
-          {
-            "id_questions": 549,
-            "answer": "C"
-          },
-          {
-            "id_questions": 127,
-            "answer": "B"
-          },
-          {
-            "id_questions": 309,
-            "answer": "B"
-          },
-          {
-            "id_questions": 368,
-            "answer": "C"
-          },
-          {
-            "id_questions": 198,
-            "answer": "C"
-          },
-          {
-            "id_questions": 512,
-            "answer": "C"
-          },
-          {
-            "id_questions": 567,
-            "answer": "C"
-          },
-          {
-            "id_questions": 499,
-            "answer": "C"
-          },
-          {
-            "id_questions": 779,
-            "answer": "C"
-          }
-        ],
-        "correct": 2,
-        "wrong": 8,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:25:58.293Z",
-        "list": [
-          {
-            "id_questions": 550,
-            "answer": "A"
-          },
-          {
-            "id_questions": 69,
-            "answer": "A"
-          },
-          {
-            "id_questions": 787,
-            "answer": "A"
-          },
-          {
-            "id_questions": 500,
-            "answer": "A"
-          },
-          {
-            "id_questions": 396,
-            "answer": "A"
-          },
-          {
-            "id_questions": 139,
-            "answer": "A"
-          },
-          {
-            "id_questions": 277,
-            "answer": "B"
-          },
-          {
-            "id_questions": 376,
-            "answer": "A"
-          },
-          {
-            "id_questions": 273,
-            "answer": "B"
-          },
-          {
-            "id_questions": 300,
+            "id_questions": 142,
             "answer": "A"
           }
         ],
         "correct": 4,
         "wrong": 6,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:27:27.156Z",
-        "list": [
-          {
-            "id_questions": 467,
-            "answer": "A"
-          },
-          {
-            "id_questions": 11,
-            "answer": "B"
-          },
-          {
-            "id_questions": 787,
-            "answer": "A"
-          },
-          {
-            "id_questions": 523,
-            "answer": "A"
-          },
-          {
-            "id_questions": 647,
-            "answer": "A"
-          },
-          {
-            "id_questions": 575,
-            "answer": "A"
-          },
-          {
-            "id_questions": 430,
-            "answer": "A"
-          },
-          {
-            "id_questions": 315,
-            "answer": "A"
-          },
-          {
-            "id_questions": 70,
-            "answer": "A"
-          },
-          {
-            "id_questions": 498,
-            "answer": "A"
-          }
-        ],
-        "correct": 2,
-        "wrong": 8,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T11:35:59.904Z",
-        "list": [
-          {
-            "id_questions": 828,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 323,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 71,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 105,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 288,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 89,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 68,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 21,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 147,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 274,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 840,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 170,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 437,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 548,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 173,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 154,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 502,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 217,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 436,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 424,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 547,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 282,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 806,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 378,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 498,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 127,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 688,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 714,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 430,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 262,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 304,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 85,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 507,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 230,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 242,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 192,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 345,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 793,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 450,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 526,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 833,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 559,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 478,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 769,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 185,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 229,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 748,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 845,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 35,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 564,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 660,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 102,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 110,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 224,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 194,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 301,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 318,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 791,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 10,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 634,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 629,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 156,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 534,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 831,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 8,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 336,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 556,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 777,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 567,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 592,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 476,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 348,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 583,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 617,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 13,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 778,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 197,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 235,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 587,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 396,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 188,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 384,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 554,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 603,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 243,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 575,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 2,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 308,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 535,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 272,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 841,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 387,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 667,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 376,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 585,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 342,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 168,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 6,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 601,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 599,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 414,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 614,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 516,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 615,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 794,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 209,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 338,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 530,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 49,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 672,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 584,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 571,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 212,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 161,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 44,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 361,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 250,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 333,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 54,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 429,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 555,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 382,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 562,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 363,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 747,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 141,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 79,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 527,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 822,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 434,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 597,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 397,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 541,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 472,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 246,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 72,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 140,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 490,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 722,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 5,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 632,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 595,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 723,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 267,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 730,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 241,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 61,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 403,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 390,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 317,
-            "answer": "answer_b"
-          }
-        ],
-        "correct": 45,
-        "wrong": 105,
         "type": "egzamin"
       },
       {
-        "data": "2025-06-07T11:37:43.625Z",
+        "data": "2025-06-07T19:54:22.403Z",
         "list": [
           {
-            "id_questions": 769,
-            "answer": "answer_b"
+            "id_questions": 2266,
+            "answer": "B"
           },
           {
-            "id_questions": 412,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 532,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 777,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 558,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 490,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 575,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 458,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 41,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 792,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 262,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 424,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 28,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 233,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 62,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 168,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 348,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 838,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 622,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 451,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 107,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 391,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 639,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 45,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 288,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 250,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 12,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 766,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 429,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 680,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 684,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 15,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 230,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 660,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 48,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 95,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 574,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 292,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 254,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 53,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 56,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 810,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 430,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 173,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 131,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 724,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 454,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 717,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 797,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 772,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 469,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 478,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 377,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 312,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 722,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 316,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 483,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 539,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 749,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 195,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 394,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 479,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 24,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 133,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 576,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 103,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 541,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 815,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 55,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 750,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 263,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 505,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 843,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 560,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 467,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 295,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 762,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 32,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 634,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 350,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 266,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 226,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 812,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 37,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 664,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 351,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 670,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 480,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 127,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 737,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 652,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 582,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 281,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 522,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 335,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 765,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 587,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 10,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 280,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 258,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 36,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 774,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 318,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 370,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 79,
-            "answer": "answer_b"
+            "id_questions": 2417,
+            "answer": "A"
           },
           {
             "id_questions": 619,
-            "answer": "answer_b"
+            "answer": "C"
           },
           {
-            "id_questions": 245,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 68,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 343,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 741,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 242,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 239,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 419,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 614,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 474,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 440,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 613,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 683,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 66,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 327,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 611,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 821,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 182,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 569,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 339,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 60,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 84,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 776,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 9,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 662,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 751,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 113,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 589,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 200,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 353,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 446,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 311,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 461,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 778,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 499,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 63,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 453,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 719,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 625,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 355,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 807,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 437,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 428,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 64,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 794,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 627,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 496,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 822,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 395,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 526,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 796,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 122,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 238,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 443,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 729,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 368,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 284,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 481,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 475,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 356,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 511,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 801,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 331,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 396,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 728,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 149,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 52,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 697,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 593,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 98,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 155,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 397,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 818,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 160,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 219,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 632,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 477,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 791,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 656,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 438,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 23,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 725,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 502,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 354,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 198,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 80,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 793,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 727,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 304,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 718,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 221,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 561,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 674,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 72,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 309,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 389,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 342,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 733,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 756,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 850,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 410,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 597,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 701,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 654,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 842,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 659,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 409,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 673,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 584,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 600,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 302,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 194,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 676,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 333,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 579,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 88,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 833,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 386,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 147,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 65,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 278,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 649,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 846,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 29,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 642,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 806,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 553,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 322,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 214,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 17,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 588,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 540,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 714,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 823,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 508,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 436,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 596,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 431,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 158,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 805,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 279,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 759,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 780,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 738,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 742,
-            "answer": "answer_b"
-          }
-        ],
-        "correct": 76,
-        "wrong": 174,
-        "type": "egzamin"
-      },
-      {
-        "data": "2025-06-07T11:50:22.257Z",
-        "list": [
-          {
-            "id_questions": 630,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 629,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 299,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 81,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 73,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 446,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 791,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 819,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 416,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 581,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 790,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 688,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 732,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 412,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 528,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 322,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 202,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 111,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 439,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 721,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 321,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 117,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 491,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 767,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 219,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 752,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 297,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 832,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 623,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 210,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 261,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 192,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 223,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 641,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 419,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 284,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 243,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 417,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 71,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 173,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 69,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 148,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 337,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 786,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 26,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 161,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 489,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 394,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 477,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 85,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 310,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 165,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 216,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 506,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 176,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 644,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 285,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 229,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 41,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 849,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 743,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 249,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 116,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 254,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 678,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 668,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 240,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 179,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 319,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 271,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 7,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 368,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 410,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 296,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 224,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 335,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 713,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 380,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 260,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 246,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 764,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 585,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 616,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 770,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 686,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 341,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 301,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 829,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 645,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 464,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 4,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 421,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 729,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 595,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 52,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 526,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 711,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 656,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 218,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 615,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 149,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 425,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 824,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 716,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 698,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 653,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 813,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 586,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 650,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 402,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 436,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 830,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 392,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 141,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 55,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 36,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 67,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 349,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 558,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 534,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 354,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 654,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 571,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 810,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 222,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 86,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 717,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 209,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 104,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 326,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 840,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 193,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 172,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 675,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 381,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 662,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 32,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 336,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 115,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 432,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 610,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 203,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 66,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 470,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 77,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 811,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 761,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 449,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 257,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 112,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 460,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 242,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 567,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 308,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 379,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 754,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 479,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 415,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 268,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 235,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 773,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 684,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 157,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 588,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 292,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 123,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 238,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 628,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 166,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 273,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 175,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 363,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 735,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 575,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 766,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 45,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 306,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 393,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 583,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 677,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 452,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 313,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 101,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 17,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 405,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 44,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 608,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 598,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 742,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 508,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 374,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 745,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 551,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 736,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 263,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 29,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 11,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 345,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 560,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 228,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 569,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 799,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 397,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 138,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 636,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 234,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 34,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 587,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 440,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 661,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 94,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 827,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 797,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 158,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 751,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 763,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 676,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 328,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 646,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 348,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 547,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 281,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 557,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 771,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 174,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 406,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 785,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 545,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 237,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 621,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 330,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 19,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 796,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 725,
-            "answer": "answer_c"
-          },
-          {
-            "id_questions": 521,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 186,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 693,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 554,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 264,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 627,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 456,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 204,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 441,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 802,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 190,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 685,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 756,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 68,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 724,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 816,
-            "answer": "answer_b"
-          }
-        ],
-        "correct": 71,
-        "wrong": 179,
-        "type": "egzamin"
-      },
-      {
-        "data": "2025-06-07T11:51:19.356Z",
-        "list": [
-          {
-            "id_questions": 412,
+            "id_questions": 2580,
             "answer": "B"
           },
           {
-            "id_questions": 461,
+            "id_questions": 1524,
             "answer": "A"
           },
           {
-            "id_questions": 630,
+            "id_questions": 564,
             "answer": "B"
           },
           {
-            "id_questions": 241,
+            "id_questions": 1893,
+            "answer": "C"
+          },
+          {
+            "id_questions": 1097,
             "answer": "B"
           },
           {
-            "id_questions": 218,
+            "id_questions": 898,
+            "answer": "A"
+          },
+          {
+            "id_questions": 903,
             "answer": "B"
-          },
-          {
-            "id_questions": 291,
-            "answer": "A"
-          },
-          {
-            "id_questions": 322,
-            "answer": "A"
-          },
-          {
-            "id_questions": 585,
-            "answer": "A"
-          },
-          {
-            "id_questions": 690,
-            "answer": "B"
-          },
-          {
-            "id_questions": 547,
-            "answer": "A"
-          }
-        ],
-        "correct": 2,
-        "wrong": 8,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T12:11:37.078Z",
-        "list": [
-          {
-            "id_questions": 796,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 624,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 669,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 632,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 828,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 196,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 762,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 103,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 474,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 165,
-            "answer": "answer_b"
-          }
-        ],
-        "correct": 5,
-        "wrong": 5,
-        "type": "egzamin"
-      },
-      {
-        "data": "2025-06-07T12:11:43.468Z",
-        "list": [
-          {
-            "id_questions": 1,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 250,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 101,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 60,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 155,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 611,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 459,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 566,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 682,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 724,
-            "answer": "answer_c"
           }
         ],
         "correct": 3,
@@ -5448,46 +150,94 @@
         "type": "egzamin"
       },
       {
-        "data": "2025-06-07T12:25:28.859Z",
+        "data": "2025-06-07T19:55:29.419Z",
         "list": [
           {
-            "id_questions": 654,
-            "answer": " "
+            "id_questions": 97,
+            "answer": "A"
           },
           {
-            "id_questions": 687,
-            "answer": " "
+            "id_questions": 37,
+            "answer": "A"
           },
           {
-            "id_questions": 185,
-            "answer": " "
+            "id_questions": 145,
+            "answer": "C"
           },
           {
-            "id_questions": 447,
-            "answer": " "
+            "id_questions": 132,
+            "answer": "A"
           },
           {
-            "id_questions": 600,
-            "answer": " "
+            "id_questions": 167,
+            "answer": "B"
           },
           {
-            "id_questions": 462,
-            "answer": " "
+            "id_questions": 46,
+            "answer": "A"
           },
           {
-            "id_questions": 288,
-            "answer": " "
+            "id_questions": 75,
+            "answer": "B"
           },
           {
-            "id_questions": 435,
-            "answer": " "
+            "id_questions": 271,
+            "answer": "C"
           },
           {
-            "id_questions": 244,
-            "answer": " "
+            "id_questions": 197,
+            "answer": "A"
           },
           {
-            "id_questions": 595,
+            "id_questions": 115,
+            "answer": "B"
+          }
+        ],
+        "correct": 5,
+        "wrong": 5,
+        "type": "quiz"
+      },
+      {
+        "data": "2025-06-07T20:05:34.424Z",
+        "list": [
+          {
+            "id_questions": 2420,
+            "answer": ""
+          },
+          {
+            "id_questions": 765,
+            "answer": ""
+          },
+          {
+            "id_questions": 1075,
+            "answer": ""
+          },
+          {
+            "id_questions": 929,
+            "answer": ""
+          },
+          {
+            "id_questions": 562,
+            "answer": ""
+          },
+          {
+            "id_questions": 919,
+            "answer": ""
+          },
+          {
+            "id_questions": 2301,
+            "answer": ""
+          },
+          {
+            "id_questions": 910,
+            "answer": ""
+          },
+          {
+            "id_questions": 2294,
+            "answer": ""
+          },
+          {
+            "id_questions": 2553,
             "answer": ""
           }
         ],
@@ -5496,191 +246,47 @@
         "type": "egzamin"
       },
       {
-        "data": "2025-06-07T12:38:14.960Z",
+        "data": "2025-06-07T20:06:04.455Z",
         "list": [
           {
-            "id_questions": 571,
-            "answer": "B"
-          },
-          {
-            "id_questions": 573,
+            "id_questions": 1834,
             "answer": "A"
           },
           {
-            "id_questions": 670,
-            "answer": "B"
-          },
-          {
-            "id_questions": 567,
-            "answer": "B"
-          },
-          {
-            "id_questions": 468,
-            "answer": "A"
-          },
-          {
-            "id_questions": 627,
-            "answer": "B"
-          },
-          {
-            "id_questions": 831,
+            "id_questions": 1689,
             "answer": "C"
           },
           {
-            "id_questions": 632,
+            "id_questions": 2165,
+            "answer": "B"
+          },
+          {
+            "id_questions": 2174,
             "answer": "A"
           },
           {
-            "id_questions": 344,
+            "id_questions": 1771,
             "answer": "B"
           },
           {
-            "id_questions": 651,
-            "answer": "C"
-          }
-        ],
-        "correct": 1,
-        "wrong": 9,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T12:46:45.092Z",
-        "list": [
-          {
-            "id_questions": 207,
+            "id_questions": 1253,
             "answer": "A"
           },
           {
-            "id_questions": 17,
+            "id_questions": 2151,
             "answer": "B"
           },
           {
-            "id_questions": 227,
-            "answer": "B"
-          },
-          {
-            "id_questions": 186,
-            "answer": "A"
-          },
-          {
-            "id_questions": 245,
-            "answer": "B"
-          },
-          {
-            "id_questions": 111,
-            "answer": "B"
-          },
-          {
-            "id_questions": 247,
-            "answer": "A"
-          },
-          {
-            "id_questions": 48,
-            "answer": "B"
-          },
-          {
-            "id_questions": 134,
-            "answer": "A"
-          },
-          {
-            "id_questions": 20,
-            "answer": "B"
-          }
-        ],
-        "correct": 7,
-        "wrong": 3,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T13:24:12.072Z",
-        "list": [
-          {
-            "id_questions": 404,
-            "answer": "B"
-          },
-          {
-            "id_questions": 344,
-            "answer": "A"
-          },
-          {
-            "id_questions": 368,
-            "answer": "B"
-          },
-          {
-            "id_questions": 16,
-            "answer": "B"
-          },
-          {
-            "id_questions": 156,
-            "answer": "A"
-          },
-          {
-            "id_questions": 825,
+            "id_questions": 2404,
             "answer": "C"
           },
           {
-            "id_questions": 569,
+            "id_questions": 2571,
+            "answer": "A"
+          },
+          {
+            "id_questions": 1335,
             "answer": "B"
-          },
-          {
-            "id_questions": 601,
-            "answer": "A"
-          },
-          {
-            "id_questions": 144,
-            "answer": "C"
-          },
-          {
-            "id_questions": 6,
-            "answer": "A"
-          }
-        ],
-        "correct": 4,
-        "wrong": 6,
-        "type": "quiz"
-      },
-      {
-        "data": "2025-06-07T13:24:58.813Z",
-        "list": [
-          {
-            "id_questions": 399,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 616,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 178,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 587,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 240,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 641,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 850,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 623,
-            "answer": "answer_a"
-          },
-          {
-            "id_questions": 255,
-            "answer": "answer_b"
-          },
-          {
-            "id_questions": 124,
-            "answer": "answer_a"
           }
         ],
         "correct": 2,
@@ -5688,100 +294,436 @@
         "type": "egzamin"
       },
       {
-        "data": "2025-06-07T13:49:16.941Z",
+        "data": "2025-06-07T20:07:23.946Z",
         "list": [
           {
-            "id_questions": 80,
-            "answer": "A"
-          },
-          {
-            "id_questions": 278,
+            "id_questions": 1392,
             "answer": "B"
           },
           {
-            "id_questions": 263,
-            "answer": "B"
-          },
-          {
-            "id_questions": 114,
+            "id_questions": 1893,
             "answer": "A"
           },
           {
-            "id_questions": 787,
+            "id_questions": 106,
             "answer": "C"
           },
           {
-            "id_questions": 161,
+            "id_questions": 802,
             "answer": "B"
           },
           {
-            "id_questions": 627,
+            "id_questions": 2150,
             "answer": "A"
           },
           {
-            "id_questions": 468,
+            "id_questions": 718,
             "answer": "B"
           },
           {
-            "id_questions": 640,
+            "id_questions": 907,
             "answer": "A"
           },
           {
-            "id_questions": 170,
+            "id_questions": 1280,
+            "answer": "B"
+          },
+          {
+            "id_questions": 900,
+            "answer": "A"
+          },
+          {
+            "id_questions": 846,
+            "answer": "C"
+          }
+        ],
+        "correct": 6,
+        "wrong": 4,
+        "type": "egzamin"
+      },
+      {
+        "data": "2025-06-07T20:08:44.123Z",
+        "list": [
+          {
+            "id_questions": 1561,
+            "answer": "B"
+          },
+          {
+            "id_questions": 1020,
+            "answer": "A"
+          },
+          {
+            "id_questions": 2276,
+            "answer": "B"
+          },
+          {
+            "id_questions": 102,
+            "answer": "C"
+          },
+          {
+            "id_questions": 1985,
+            "answer": "A"
+          },
+          {
+            "id_questions": 330,
+            "answer": "B"
+          },
+          {
+            "id_questions": 344,
+            "answer": "A"
+          },
+          {
+            "id_questions": 456,
+            "answer": "C"
+          },
+          {
+            "id_questions": 598,
+            "answer": "C"
+          },
+          {
+            "id_questions": 147,
             "answer": "B"
           }
         ],
-        "correct": 3,
-        "wrong": 7,
+        "correct": 4,
+        "wrong": 6,
         "type": "quiz"
       },
       {
-        "data": "2025-06-07T14:08:47.089Z",
+        "data": "2025-06-07T20:08:57.858Z",
         "list": [
           {
-            "id_questions": 29,
+            "id_questions": 2565,
+            "answer": "A"
+          },
+          {
+            "id_questions": 1058,
+            "answer": "B"
+          },
+          {
+            "id_questions": 2298,
+            "answer": "B"
+          },
+          {
+            "id_questions": 1842,
+            "answer": "A"
+          },
+          {
+            "id_questions": 576,
+            "answer": "B"
+          },
+          {
+            "id_questions": 688,
             "answer": "C"
           },
           {
-            "id_questions": 764,
+            "id_questions": 2555,
+            "answer": "A"
+          },
+          {
+            "id_questions": 1760,
             "answer": "B"
           },
           {
-            "id_questions": 187,
+            "id_questions": 727,
             "answer": "A"
           },
           {
-            "id_questions": 367,
-            "answer": "C"
-          },
-          {
-            "id_questions": 848,
-            "answer": "B"
-          },
-          {
-            "id_questions": 741,
-            "answer": "A"
-          },
-          {
-            "id_questions": 180,
-            "answer": "B"
-          },
-          {
-            "id_questions": 223,
-            "answer": "A"
-          },
-          {
-            "id_questions": 28,
-            "answer": "A"
-          },
-          {
-            "id_questions": 765,
+            "id_questions": 1834,
             "answer": "B"
           }
         ],
-        "correct": 3,
-        "wrong": 7,
+        "correct": 4,
+        "wrong": 6,
+        "type": "egzamin"
+      },
+      {
+        "data": "2025-06-07T20:10:15.367Z",
+        "list": [
+          {
+            "id_questions": 1124,
+            "answer": "B"
+          },
+          {
+            "id_questions": 1294,
+            "answer": "C"
+          },
+          {
+            "id_questions": 1286,
+            "answer": "B"
+          },
+          {
+            "id_questions": 2092,
+            "answer": "B"
+          },
+          {
+            "id_questions": 788,
+            "answer": "A"
+          },
+          {
+            "id_questions": 1059,
+            "answer": "A"
+          },
+          {
+            "id_questions": 2365,
+            "answer": "C"
+          },
+          {
+            "id_questions": 1026,
+            "answer": "B"
+          },
+          {
+            "id_questions": 464,
+            "answer": "A"
+          },
+          {
+            "id_questions": 1945,
+            "answer": "A"
+          }
+        ],
+        "correct": 5,
+        "wrong": 5,
+        "type": "egzamin"
+      },
+      {
+        "data": "2025-06-07T20:10:26.224Z",
+        "list": [
+          {
+            "id_questions": 1134,
+            "answer": "B"
+          },
+          {
+            "id_questions": 331,
+            "answer": "C"
+          },
+          {
+            "id_questions": 1936,
+            "answer": "B"
+          },
+          {
+            "id_questions": 6,
+            "answer": "A"
+          },
+          {
+            "id_questions": 1805,
+            "answer": "B"
+          },
+          {
+            "id_questions": 2209,
+            "answer": "A"
+          },
+          {
+            "id_questions": 701,
+            "answer": "B"
+          },
+          {
+            "id_questions": 509,
+            "answer": "C"
+          },
+          {
+            "id_questions": 1249,
+            "answer": "A"
+          },
+          {
+            "id_questions": 2297,
+            "answer": "B"
+          }
+        ],
+        "correct": 5,
+        "wrong": 5,
+        "type": "egzamin"
+      },
+      {
+        "data": "2025-06-07T20:10:49.036Z",
+        "list": [
+          {
+            "id_questions": 1672,
+            "answer": "B"
+          },
+          {
+            "id_questions": 209,
+            "answer": "A"
+          },
+          {
+            "id_questions": 1454,
+            "answer": "C"
+          },
+          {
+            "id_questions": 1022,
+            "answer": "B"
+          },
+          {
+            "id_questions": 1002,
+            "answer": "A"
+          },
+          {
+            "id_questions": 2549,
+            "answer": "C"
+          },
+          {
+            "id_questions": 2143,
+            "answer": "B"
+          },
+          {
+            "id_questions": 2281,
+            "answer": "A"
+          },
+          {
+            "id_questions": 2417,
+            "answer": "B"
+          },
+          {
+            "id_questions": 16,
+            "answer": "C"
+          }
+        ],
+        "correct": 2,
+        "wrong": 8,
         "type": "quiz"
+      },
+      {
+        "data": "2025-06-07T20:33:06.989Z",
+        "list": [
+          {
+            "id_questions": 1037,
+            "answer": "B"
+          },
+          {
+            "id_questions": 1044,
+            "answer": "B"
+          },
+          {
+            "id_questions": 1563,
+            "answer": "A"
+          },
+          {
+            "id_questions": 1279,
+            "answer": "B"
+          },
+          {
+            "id_questions": 2205,
+            "answer": "C"
+          },
+          {
+            "id_questions": 1771,
+            "answer": ""
+          },
+          {
+            "id_questions": 946,
+            "answer": ""
+          },
+          {
+            "id_questions": 878,
+            "answer": ""
+          },
+          {
+            "id_questions": 2577,
+            "answer": ""
+          },
+          {
+            "id_questions": 1516,
+            "answer": ""
+          }
+        ],
+        "correct": 2,
+        "wrong": 8,
+        "type": "egzamin"
+      },
+      {
+        "data": "2025-06-07T20:49:33.372Z",
+        "list": [
+          {
+            "id_questions": 1739,
+            "answer": "A"
+          },
+          {
+            "id_questions": 2084,
+            "answer": "B"
+          },
+          {
+            "id_questions": 2049,
+            "answer": "A"
+          },
+          {
+            "id_questions": 2367,
+            "answer": "B"
+          },
+          {
+            "id_questions": 68,
+            "answer": "A"
+          },
+          {
+            "id_questions": 1132,
+            "answer": "B"
+          },
+          {
+            "id_questions": 1272,
+            "answer": "A"
+          },
+          {
+            "id_questions": 2117,
+            "answer": "A"
+          },
+          {
+            "id_questions": 1577,
+            "answer": "B"
+          },
+          {
+            "id_questions": 121,
+            "answer": "A"
+          }
+        ],
+        "correct": 5,
+        "wrong": 5,
+        "type": "egzamin"
+      },
+      {
+        "data": "2025-06-07T20:50:40.049Z",
+        "list": [
+          {
+            "id_questions": 1979,
+            "answer": ""
+          },
+          {
+            "id_questions": 57,
+            "answer": ""
+          },
+          {
+            "id_questions": 1320,
+            "answer": ""
+          },
+          {
+            "id_questions": 403,
+            "answer": ""
+          },
+          {
+            "id_questions": 269,
+            "answer": ""
+          },
+          {
+            "id_questions": 1863,
+            "answer": ""
+          },
+          {
+            "id_questions": 294,
+            "answer": ""
+          },
+          {
+            "id_questions": 1762,
+            "answer": ""
+          },
+          {
+            "id_questions": 817,
+            "answer": ""
+          },
+          {
+            "id_questions": 1629,
+            "answer": ""
+          }
+        ],
+        "correct": 0,
+        "wrong": 10,
+        "type": "egzamin"
       }
     ]
   },

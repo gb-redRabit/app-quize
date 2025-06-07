@@ -30,13 +30,14 @@
         Egzamin 250 pytań (2h)
       </button>
     </div>
+    <RandomQuote />
     <div class="flex flex-col md:flex-row gap-8 w-full">
       <div
-        class="flex-1 flex flex-col gap-8 bg-white/95 rounded-3xl p-10 shadow-2xl border border-blue-100"
+        class="flex-1 flex flex-col gap-4 bg-white/95 rounded-3xl p-10 shadow-2xl border border-blue-100"
       >
-        <h2 class="text-3xl font-bold mb-4 text-blue-700">Quiz</h2>
-        <div class="mb-6">
-          <label class="block mb-2 text-gray-700 font-medium">Ile pytań?</label>
+        <h2 class="text-2xl font-bold mb-2 text-blue-700">Quiz</h2>
+        <div class="mb-1">
+          <label class="block mb-1 text-gray-700 font-medium">Ile pytań?</label>
           <div class="flex items-center gap-4">
             <input
               type="range"
@@ -57,13 +58,13 @@
           </div>
         </div>
         <label class="block mb-2 text-gray-700 font-medium">Kategorie:</label>
-        <div class="flex flex-wrap gap-2 mb-6">
+        <div class="flex flex-wrap gap-2 mb-2">
           <span
             v-for="cat in ['all', ...categories]"
             :key="cat"
             @click="toggleCategory(cat)"
             :class="[
-              'px-4 py-2 rounded-full cursor-pointer text-sm font-semibold border shadow transition',
+              'px-2 py-1 rounded-full cursor-pointer text-sm font-semibold border shadow transition',
               selectedCategories.includes(cat)
                 ? 'bg-blue-500 text-white border-blue-500 scale-105'
                 : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-blue-100',
@@ -87,50 +88,54 @@
       </div>
       <!-- Prawa kolumna: Statystyki i kategorie -->
       <div
-        class="flex-1 flex flex-col gap-8 bg-white/95 rounded-3xl p-10 shadow-2xl border border-blue-100"
+        class="flex-1 flex flex-col gap-6 bg-white/95 rounded-3xl p-6 shadow-2xl border border-blue-100"
       >
-        <h2 class="text-3xl font-bold mb-4 text-blue-700">Statystyki</h2>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div class="bg-blue-50 rounded-lg p-4 flex flex-col items-center">
-            <span class="text-2xl font-bold text-blue-700">{{
+        <h2 class="text-2xl font-bold mb-2 text-blue-700 text-right">
+          Statystyki
+        </h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center">
+          <div class="bg-blue-50 rounded-lg p-2 flex flex-col items-center">
+            <span class="text-lg font-bold text-blue-700">{{
               questionsCount
             }}</span>
-            <span class="text-gray-600">Liczba pytań</span>
+            <span class="text-xs text-gray-600">Pytań</span>
           </div>
-          <div class="bg-blue-50 rounded-lg p-4 flex flex-col items-center">
-            <span class="text-2xl font-bold text-blue-700">{{
+          <div class="bg-blue-50 rounded-lg p-2 flex flex-col items-center">
+            <span class="text-lg font-bold text-blue-700">{{
               stats.totalTests
             }}</span>
-            <span class="text-gray-600">Wszystkich testów</span>
-          </div>
-          <div class="bg-green-50 rounded-lg p-4 flex flex-col items-center">
-            <span class="text-2xl font-bold text-green-700">{{
-              stats.correct
-            }}</span>
-            <span class="text-gray-600">Poprawnych</span>
-          </div>
-          <div class="bg-red-50 rounded-lg p-4 flex flex-col items-center">
-            <span class="text-2xl font-bold text-red-700">{{
-              stats.wrong
-            }}</span>
-            <span class="text-gray-600">Błędnych</span>
+            <span class="text-xs text-gray-600">Testów</span>
           </div>
           <div
-            class="bg-yellow-50 rounded-lg p-4 flex flex-col items-center col-span-2"
+            class="bg-yellow-50 rounded-lg p-2 flex flex-col items-center col-span-2 sm:col-span-1"
           >
-            <span class="text-2xl font-bold text-yellow-700"
+            <span class="text-lg font-bold text-yellow-700"
               >{{ stats.avgScore }}%</span
             >
-            <span class="text-gray-600">Średni wynik</span>
+            <span class="text-xs text-gray-600">Śr. wynik</span>
+          </div>
+          <div class="bg-green-50 rounded-lg p-2 flex flex-col items-center">
+            <span class="text-lg font-bold text-green-700">{{
+              stats.correct
+            }}</span>
+            <span class="text-xs text-gray-600">Poprawnych</span>
+          </div>
+          <div class="bg-red-50 rounded-lg p-2 flex flex-col items-center">
+            <span class="text-lg font-bold text-red-700">{{
+              stats.wrong
+            }}</span>
+            <span class="text-xs text-gray-600">Błędnych</span>
           </div>
         </div>
-        <div class="mb-4 text-center text-lg">
-          <span class="font-semibold text-blue-700">Quizy:</span>
-          {{ stats.quiz.total }} (śr. {{ stats.quiz.avg }}%) &nbsp;|&nbsp;
-          <span class="font-semibold text-purple-700">Egzaminy:</span>
-          {{ stats.exam.total }} (śr. {{ stats.exam.avg }}%)
+        <div class="flex flex-wrap justify-center gap-2 text-xs mt-2">
+          <span class="bg-blue-100 px-2 py-1 rounded">
+            Quizy: {{ stats.quiz.total }} (śr. {{ stats.quiz.avg }}%)
+          </span>
+          <span class="bg-purple-100 px-2 py-1 rounded">
+            Egzaminy: {{ stats.exam.total }} (śr. {{ stats.exam.avg }}%)
+          </span>
         </div>
-        <div class="flex flex-wrap gap-2 justify-center">
+        <div class="flex flex-wrap gap-2 justify-center mt-2">
           <router-link
             v-for="cat in ['all', ...categories]"
             :key="cat"
@@ -139,7 +144,7 @@
                 ? { name: 'CategoryQuestions', params: { category: 'all' } }
                 : { name: 'CategoryQuestions', params: { category: cat } }
             "
-            class="px-4 py-2 rounded-full bg-gray-200 hover:bg-blue-400 hover:text-white text-gray-700 font-semibold text-sm shadow transition-all duration-200"
+            class="px-3 py-1 rounded-full bg-gray-200 hover:bg-blue-400 hover:text-white text-gray-700 font-semibold text-xs shadow transition-all duration-200"
           >
             {{ cat === "all" ? "Wszystkie pytania" : cat }}
           </router-link>
@@ -150,13 +155,17 @@
 </template>
 
 <script>
+import RandomQuote from "@/components/RandomQuote.vue";
 import axios from "axios";
 
 export default {
   name: "Home",
+  components: {
+    RandomQuote,
+  },
   data() {
     return {
-      selectedLength: 10,
+      selectedLength: 100,
       selectedCategories: ["all"],
       categories: [],
       questionsCount: 0,

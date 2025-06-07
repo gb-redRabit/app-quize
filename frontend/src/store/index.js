@@ -64,7 +64,8 @@ const store = createStore({
 
 // Przywracanie stanu po odświeżeniu
 const user = localStorage.getItem("user");
-if (user) {
+const token = localStorage.getItem("token");
+if (user && token) {
   store.commit("SET_USER", JSON.parse(user));
   store.commit("SET_AUTHENTICATED", true);
 }

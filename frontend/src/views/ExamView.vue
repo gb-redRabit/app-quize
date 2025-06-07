@@ -36,51 +36,16 @@
         </div>
       </div>
       <!-- Podsumowanie -->
-      <div v-else>
-        <div class="flex justify-between items-center mb-4">
-          <div class="flex flex-col gap-1">
-            <h2 class="text-2xl">Podsumowanie testu</h2>
-            <p class="">Twój wynik: {{ score }} / {{ examLength }}</p>
-          </div>
-          <button
-            class="bg-green-500 text-white p-2 rounded"
-            @click="restartExam"
-          >
-            Rozpocznij ponownie
-          </button>
-        </div>
-        <div class="space-y-6">
-          <div
-            v-for="(q, idx) in questions"
-            :key="idx"
-            class="border rounded-lg p-4"
-          >
-            <div class="font-semibold mb-2">
-              {{ idx + 1 }}. {{ q.question }}
-            </div>
-            <div>
-              <span class="font-bold">Twoja odpowiedź: </span>
-              <span
-                :class="{
-                  'text-green-700': isUserAnswerCorrect(idx),
-                  'text-red-700': !isUserAnswerCorrect(idx),
-                }"
-              >
-                {{
-                  userAnswerText(q, answersStatus[idx].selected) ||
-                  "Brak odpowiedzi"
-                }}
-              </span>
-            </div>
-            <div v-if="!isUserAnswerCorrect(idx)">
-              <span class="font-bold text-green-700">Poprawna odpowiedź:</span>
-              <span class="text-green-700">
-                {{ correctAnswerText(q) }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SummaryBox
+        v-else
+        :questions="questions"
+        :answersStatus="answersStatus"
+        :score="score"
+        :total="examLength"
+        :userAnswerText="userAnswerText"
+        :correctAnswerText="correctAnswerText"
+        @restart="restartExam"
+      />
     </div>
   </div>
 </template>
@@ -89,10 +54,14 @@
 import axios from "axios";
 import { mapActions } from "vuex";
 import QuestionList from "@/components/QuestionList.vue";
+import SummaryBox from "@/components/SummaryBox.vue";
 import { getRandomUniqueQuestions } from "@/utils/randomQuestions";
 
 export default {
-  components: { QuestionList },
+  components: {
+    QuestionList,
+    SummaryBox,
+  },
   data() {
     return {
       questions: [],
@@ -101,7 +70,7 @@ export default {
       loading: true,
       answersStatus: [],
       showSummary: false,
-      timeLeft: 60 * 60, // nieużywane po poprawce
+      timeLeft: 60 * 60,
       timer: null,
       examLength: 150,
       examTimeMinutes: 60,
@@ -182,9 +151,9 @@ export default {
       this.fetchQuestions();
       this.startTimer();
     },
-    startTimer() {
+    async startTimer() {
       clearInterval(this.timer);
-      this.timer = setInterval(() => {
+      this.timer = setInterval(async () => {
         if (this.timeLeft > 0) {
           this.timeLeft--;
         } else {
@@ -195,7 +164,7 @@ export default {
             a.answered ? a : { answered: true, selected: null }
           );
           this.countScore();
-          this.saveExamHistory();
+          await this.saveExamHistory(); // <-- tu dodaj await!
         }
       }, 1000);
     },
@@ -225,7 +194,7 @@ export default {
           },
           {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }
         );
@@ -236,8 +205,12 @@ export default {
     },
     userAnswerLetter(q, selectedIdx) {
       const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      if (selectedIdx === null || selectedIdx === undefined) return "";
-      return keys[selectedIdx];
+      if (selectedIdx == null) return "";
+      if (selectedIdx === 0) return "A";
+      if (selectedIdx === 1) return "B";
+      if (selectedIdx === 2) return "C";
+      if (selectedIdx === 3) return "D";
+      return "";
     },
     isUserAnswerCorrect(idx) {
       const q = this.questions[idx];
@@ -251,6 +224,9 @@ export default {
       return idx !== -1 && q[keys[idx]] && q[keys[idx]].answer
         ? q[keys[idx]].answer
         : "";
+    },
+    goToQuestion(idx) {
+      if (!this.showSummary) this.currentQuestionIndex = idx;
     },
   },
 };

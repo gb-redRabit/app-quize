@@ -57,12 +57,12 @@ export default {
     ...mapActions(["login"]),
     async handleLogin() {
       try {
-        const result = await this.login({
+        await this.login({
           login: this.loginInput,
           password: this.password,
         });
         this.$router.push({ name: "Home" });
-      } catch (error) {
+      } catch {
         this.errorMessage = "Login failed.";
       }
     },
