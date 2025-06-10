@@ -1,76 +1,58 @@
-const fs = require("fs");
-const path = require("path");
-const dataFilePath = path.join(__dirname, "../../data/data.json");
-const usersFilePath = path.join(__dirname, "../../data/users.json");
+const fileUtils = require("../utils/fileUtils");
 
-const readDataFile = () => {
-  const data = fs.readFileSync(dataFilePath);
-  return JSON.parse(data);
-};
-
-const writeDataFile = (data) => {
-  fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
-};
-
-const readUsersFile = () => {
-  const data = fs.readFileSync(usersFilePath);
-  return JSON.parse(data);
-};
-
-const writeUsersFile = (data) => {
-  fs.writeFileSync(usersFilePath, JSON.stringify(data, null, 2));
-};
-
-const getAllQuestions = (req, res) => {
-  const questions = readDataFile();
-  res.json(questions);
-};
-
-const addQuestion = (req, res) => {
-  const questions = readDataFile();
-  const newQuestion = req.body;
-
-  // Znajdź największy istniejący ID
-  const maxId = questions
-    .filter((q) => q.ID !== undefined)
-    .reduce((max, q) => Math.max(max, q.ID), 0);
-
-  newQuestion.ID = maxId + 1;
-
-  questions.push(newQuestion);
-  writeDataFile(questions);
-  res.status(201).json(newQuestion);
-};
-
-const updateQuestion = (req, res) => {
-  const questions = readDataFile();
-  const { id } = req.params;
-  const index = questions.findIndex((q) => q.ID === parseInt(id)); // <--- poprawka
-  if (index !== -1) {
-    questions[index] = { ...questions[index], ...req.body };
-    writeDataFile(questions);
-    res.json(questions[index]);
-  } else {
-    res.status(404).send("Question not found");
+exports.getAllQuestions = async (req, res) => {
+  try {
+    const questions = await fileUtils.getQuestions();
+    res.json(questions);
+  } catch (e) {
+    res.status(500).json({ error: "Błąd odczytu pytań" });
   }
 };
 
-const deleteQuestion = (req, res) => {
-  const questions = readDataFile();
-  const { id } = req.params;
-  const index = questions.findIndex((q) => q.ID === parseInt(id)); // <--- poprawka
-  if (index !== -1) {
-    questions.splice(index, 1);
-    writeDataFile(questions);
-    res.status(200).json({ message: "Question deleted" });
-  } else {
-    res.status(404).json({ message: "Question not found" });
+exports.addQuestion = async (req, res) => {
+  try {
+    const questions = await fileUtils.getQuestions();
+    const newQuestion = req.body;
+    const maxId = questions.reduce((max, q) => Math.max(max, q.ID || 0), 0);
+    newQuestion.ID = maxId + 1;
+    questions.push(newQuestion);
+    await fileUtils.saveQuestions(questions);
+    res.status(201).json(newQuestion);
+  } catch (e) {
+    res.status(500).json({ error: "Błąd dodawania pytania" });
   }
 };
 
-module.exports = {
-  getAllQuestions,
-  addQuestion,
-  updateQuestion,
-  deleteQuestion,
+exports.updateQuestion = async (req, res) => {
+  try {
+    const questions = await fileUtils.getQuestions();
+    const { id } = req.params;
+    const index = questions.findIndex((q) => q.ID === parseInt(id));
+    if (index !== -1) {
+      questions[index] = { ...questions[index], ...req.body };
+      await fileUtils.saveQuestions(questions);
+      res.json(questions[index]);
+    } else {
+      res.status(404).json({ error: "Question not found" });
+    }
+  } catch (e) {
+    res.status(500).json({ error: "Błąd edycji pytania" });
+  }
+};
+
+exports.deleteQuestion = async (req, res) => {
+  try {
+    const questions = await fileUtils.getQuestions();
+    const { id } = req.params;
+    const index = questions.findIndex((q) => q.ID === parseInt(id));
+    if (index !== -1) {
+      questions.splice(index, 1);
+      await fileUtils.saveQuestions(questions);
+      res.status(200).json({ message: "Question deleted" });
+    } else {
+      res.status(404).json({ error: "Question not found" });
+    }
+  } catch (e) {
+    res.status(500).json({ error: "Błąd usuwania pytania" });
+  }
 };

@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div>
     <h2 class="text-sm sm:text-2xl mb-6 font-semibold break-words sm:h-56">
       {{ question.question }}
     </h2>
@@ -32,7 +32,7 @@ export default {
   emits: ["select"],
   computed: {
     answers() {
-      return ["answer_a", "answer_b", "answer_c"]
+      return ["answer_a", "answer_b", "answer_c", "answer_d"]
         .map((k) => this.question[k])
         .filter(Boolean);
     },

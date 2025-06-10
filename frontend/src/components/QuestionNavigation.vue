@@ -44,22 +44,24 @@ export default {
         return "ring-4 ring-blue-400 bg-blue-500 text-white scale-110 shadow";
       }
       const status = this.answersStatus[idx];
-      if (status.answered && status.correct !== undefined && status.correct)
+      if (
+        status.answered &&
+        status.selected === this.questions[idx].correctIndex
+      )
         return "bg-green-500 text-white";
-      if (status.answered && status.correct !== undefined && !status.correct)
+      if (
+        status.answered &&
+        status.selected !== this.questions[idx].correctIndex
+      )
         return "bg-red-500 text-white";
-      if (status.answered && status.correct === undefined)
-        return "bg-blue-200 text-blue-800";
       return "bg-gray-200 text-gray-800";
     },
   },
   mounted() {
-    // Ustaw scroll na początek na mobile
     this.$refs.scrollNav && (this.$refs.scrollNav.scrollLeft = 0);
   },
   watch: {
     currentIdx() {
-      // Automatycznie przewiń do aktywnej kropki, jeśli jest poza ekranem
       this.$nextTick(() => {
         const nav = this.$refs.scrollNav;
         if (!nav) return;
@@ -68,7 +70,7 @@ export default {
           const navRect = nav.getBoundingClientRect();
           const btnRect = activeBtn.getBoundingClientRect();
           if (btnRect.left < navRect.left || btnRect.right > navRect.right) {
-            nav.scrollLeft += btnRect.left - navRect.left - 16; // 16px padding
+            nav.scrollLeft += btnRect.left - navRect.left - 16;
           }
         }
       });

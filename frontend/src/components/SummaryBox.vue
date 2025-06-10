@@ -5,12 +5,18 @@
         <h2 class="text-2xl">Podsumowanie testu</h2>
         <p>Twój wynik: {{ score }} / {{ total }}</p>
       </div>
-      <button
-        class="bg-green-500 text-white p-2 rounded"
-        @click="$emit('restart')"
-      >
-        Rozpocznij ponownie
-      </button>
+      <div class="flex gap-2">
+        <BaseButton color="green" @click="$emit('restart')">
+          Rozpocznij ponownie
+        </BaseButton>
+        <BaseButton
+          v-if="hasWrong"
+          color="yellow"
+          @click="$emit('retry-wrong')"
+        >
+          Popraw błędne odpowiedzi
+        </BaseButton>
+      </div>
     </div>
     <div class="space-y-6">
       <div
@@ -19,7 +25,7 @@
         class="border rounded-lg p-4"
       >
         <div class="font-semibold mb-2">{{ idx + 1 }}. {{ q.question }}</div>
-        <div v-if="answersStatus[idx].correct">
+        <div v-if="isCorrect(idx)">
           <span class="text-green-700 font-bold"
             >✔ {{ correctAnswerText(q) }}</span
           >
@@ -45,7 +51,9 @@
 </template>
 
 <script>
+import BaseButton from "@/components/BaseButton.vue";
 export default {
+  components: { BaseButton },
   props: {
     questions: Array,
     answersStatus: Array,
@@ -53,6 +61,25 @@ export default {
     total: Number,
     userAnswerText: Function,
     correctAnswerText: Function,
+  },
+  computed: {
+    hasWrong() {
+      return this.answersStatus.some(
+        (a, idx) =>
+          a.selected !== null &&
+          typeof this.questions[idx].correctIndex === "number" &&
+          a.selected !== this.questions[idx].correctIndex
+      );
+    },
+  },
+  methods: {
+    isCorrect(idx) {
+      return (
+        this.answersStatus[idx].selected !== null &&
+        typeof this.questions[idx].correctIndex === "number" &&
+        this.answersStatus[idx].selected === this.questions[idx].correctIndex
+      );
+    },
   },
 };
 </script>

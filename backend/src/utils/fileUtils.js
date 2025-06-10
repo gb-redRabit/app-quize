@@ -1,55 +1,25 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs").promises;
+const path = require("path");
 
-const dataFilePath = path.join(__dirname, '../../data/data.json');
-const usersFilePath = path.join(__dirname, '../../data/users.json');
+const dataFilePath = path.join(__dirname, "../../data/data.json");
+const usersFilePath = path.join(__dirname, "../../data/users.json");
 
-const readJSONFile = (filePath) => {
-    return new Promise((resolve, reject) => {
-        fs.readFile(filePath, 'utf8', (err, data) => {
-            if (err) {
-                return reject(err);
-            }
-            try {
-                const jsonData = JSON.parse(data);
-                resolve(jsonData);
-            } catch (parseError) {
-                reject(parseError);
-            }
-        });
-    });
-};
+async function readJson(filePath) {
+  const data = await fs.readFile(filePath, "utf8");
+  return JSON.parse(data);
+}
 
-const writeJSONFile = (filePath, data) => {
-    return new Promise((resolve, reject) => {
-        fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf8', (err) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve();
-        });
-    });
-};
-
-const getQuestions = () => {
-    return readJSONFile(dataFilePath);
-};
-
-const saveQuestions = (questions) => {
-    return writeJSONFile(dataFilePath, questions);
-};
-
-const getUsers = () => {
-    return readJSONFile(usersFilePath);
-};
-
-const saveUsers = (users) => {
-    return writeJSONFile(usersFilePath, users);
-};
+async function writeJson(filePath, obj) {
+  await fs.writeFile(filePath, JSON.stringify(obj, null, 2), "utf8");
+}
 
 module.exports = {
-    getQuestions,
-    saveQuestions,
-    getUsers,
-    saveUsers,
+  readJson,
+  writeJson,
+  getQuestions: () => readJson(dataFilePath),
+  saveQuestions: (questions) => writeJson(dataFilePath, questions),
+  getUsers: () => readJson(usersFilePath),
+  saveUsers: (users) => writeJson(usersFilePath, users),
+  dataFilePath,
+  usersFilePath,
 };

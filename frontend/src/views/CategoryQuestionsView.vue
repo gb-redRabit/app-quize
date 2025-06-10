@@ -1,5 +1,6 @@
 <template>
   <div class="container mx-auto p-2 sm:p-6">
+    <BaseLoader :show="loading" />
     <div
       class="flex flex-col sm:flex-row justify-between items-center gap-2 mb-4"
     >
@@ -72,16 +73,15 @@
 </template>
 
 <script>
-import axios from "axios";
+import { mapGetters } from "vuex";
 import SearchBar from "@/components/SearchBar.vue";
+import BaseLoader from "@/components/BaseLoader.vue";
+
 export default {
   name: "CategoryQuestionsView",
-  components: {
-    SearchBar,
-  },
+  components: { SearchBar, BaseLoader },
   data() {
     return {
-      questions: [],
       loading: true,
       searchQuery: "",
       displayCount: 100,
@@ -89,6 +89,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(["getQuestions"]),
     category() {
       return this.$route.params.category;
     },
@@ -98,8 +99,8 @@ export default {
     filteredQuestions() {
       let questions =
         this.category === "all"
-          ? this.questions
-          : this.questions.filter((q) => q.category === this.category);
+          ? this.getQuestions
+          : this.getQuestions.filter((q) => q.category === this.category);
       if (!this.searchQuery) return questions;
       const q = this.searchQuery.toLowerCase();
       return questions.filter(
@@ -116,8 +117,9 @@ export default {
     },
   },
   async created() {
-    const res = await axios.get("/api/questions");
-    this.questions = res.data.filter((q) => q.question);
+    if (!this.getQuestions.length) {
+      await this.$store.dispatch("fetchQuestions");
+    }
     this.loading = false;
     window.addEventListener("scroll", this.handleScroll);
   },

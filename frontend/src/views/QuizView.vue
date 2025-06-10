@@ -76,6 +76,7 @@
         :userAnswerText="userAnswerText"
         :correctAnswerText="correctAnswerText"
         @restart="restartQuiz"
+        @retry-wrong="retryWrongAnswers"
       />
     </div>
     <div class="container">
@@ -129,16 +130,16 @@ export default {
     ...mapActions(["fetchUserHistory"]),
     async fetchQuestions() {
       const response = await axios.get("/api/questions");
-      let filtered = response.data.filter((q) => q.question);
-      if (!this.selectedCategories.includes("all")) {
-        filtered = filtered.filter((q) =>
-          this.selectedCategories.includes(q.category)
-        );
-      }
-      this.questions = getRandomUniqueQuestions(filtered, this.quizLength);
+      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+      this.questions = getRandomUniqueQuestions(
+        response.data,
+        this.quizLength
+      ).map((q) => ({
+        ...q,
+        correctIndex: keys.findIndex((k) => q[k] && q[k].isCorret),
+      }));
       this.answersStatus = this.questions.map(() => ({
         answered: false,
-        correct: false,
         selected: null,
       }));
       this.loading = false;
@@ -235,6 +236,29 @@ export default {
       return idx !== -1 && q[keys[idx]] && q[keys[idx]].answer
         ? q[keys[idx]].answer
         : "";
+    },
+    retryWrongAnswers() {
+      // Zbierz indeksy błędnych odpowiedzi
+      const wrongIndexes = this.answersStatus
+        .map((a, idx) => (!a.correct ? idx : null))
+        .filter((v) => v !== null);
+
+      // Jeśli nie ma błędnych, nie rób nic
+      if (wrongIndexes.length === 0) return;
+
+      // Utwórz nową listę pytań tylko z błędnych
+      this.questions = wrongIndexes.map((idx) => this.questions[idx]);
+
+      // Zresetuj status odpowiedzi
+      this.answersStatus = this.questions.map(() => ({
+        answered: false,
+        correct: false,
+        selected: null,
+      }));
+
+      this.currentQuestionIndex = 0;
+      this.showSummary = false;
+      this.score = 0;
     },
   },
 };

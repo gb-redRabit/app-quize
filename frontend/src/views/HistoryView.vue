@@ -15,7 +15,6 @@
         :key="entry.data"
         class="bg-white rounded-lg shadow md:flex md:flex-row md:w-96 md:items-center md:justify-between p-6"
       >
-        <!-- Diagram po lewej -->
         <div class="flex flex-col items-center mr-8 sm:mr-auto">
           <svg width="70" height="70" viewBox="0 0 36 36" class="mb-2">
             <circle
@@ -64,10 +63,22 @@
             :class="
               entry.type === 'egzamin'
                 ? 'bg-purple-200 text-purple-800'
+                : entry.type === 'egzamin - poprawa błędów'
+                ? 'bg-yellow-200 text-yellow-800'
+                : entry.type === 'quiz - poprawa błędów'
+                ? 'bg-yellow-100 text-yellow-900'
                 : 'bg-blue-200 text-blue-800'
             "
           >
-            {{ entry.type === "egzamin" ? "Egzamin" : "Quiz" }}
+            {{
+              entry.type === "egzamin"
+                ? "Egzamin"
+                : entry.type === "egzamin - poprawa błędów"
+                ? "Egzamin - poprawa błędów"
+                : entry.type === "quiz - poprawa błędów"
+                ? "Quiz - poprawa błędów"
+                : "Quiz"
+            }}
           </span>
           <div class="font-semibold text-base">
             {{ new Date(entry.data).toLocaleString() }}
@@ -85,16 +96,10 @@
 </template>
 
 <script>
-import axios from "axios";
 import { mapState, mapActions } from "vuex";
 
 export default {
   name: "History",
-  data() {
-    return {
-      allQuestions: [],
-    };
-  },
   computed: {
     ...mapState(["user"]),
     history() {
@@ -112,52 +117,9 @@ export default {
       const percent = this.percentGood(entry);
       return `${percent} ${100 - percent}`;
     },
-    async fetchAllQuestions() {
-      try {
-        const res = await axios.get("/api/questions");
-        this.allQuestions = res.data;
-      } catch (e) {
-        this.allQuestions = [];
-      }
-    },
-    getQuestion(id) {
-      // ID może być różnie nazwane w bazie
-      return (
-        this.allQuestions.find(
-          (q) => q.ID == id || q.id == id || q.Id == id || q.id_question == id
-        ) || null
-      );
-    },
-    getUserAnswerText(item) {
-      const q = this.getQuestion(item.id_questions);
-      if (!q) return "Brak pytania";
-      const answerKey = item.answer ? item.answer.toUpperCase() : "";
-      const answerObj = q[`answer_${answerKey.toLowerCase()}`];
-      return answerObj && answerObj.answer
-        ? answerObj.answer
-        : "Brak odpowiedzi";
-    },
-    getCorrectAnswerText(item) {
-      const q = this.getQuestion(item.id_questions);
-      if (!q) return "Brak pytania";
-      const keys = ["a", "b", "c", "d"];
-      const correctKey = keys.find(
-        (k) => q[`answer_${k}`] && q[`answer_${k}`].isCorret
-      );
-      if (!correctKey) return "Brak poprawnej odpowiedzi";
-      return q[`answer_${correctKey}`].answer;
-    },
-    isUserAnswerCorrect(item) {
-      const q = this.getQuestion(item.id_questions);
-      if (!q) return false;
-      const answerKey = item.answer ? item.answer.toUpperCase() : "";
-      const answerObj = q[`answer_${answerKey.toLowerCase()}`];
-      return answerObj && answerObj.isCorret === true;
-    },
   },
   async created() {
     await this.fetchUserHistory();
-    await this.fetchAllQuestions();
   },
 };
 </script>

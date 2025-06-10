@@ -2,33 +2,43 @@
   <div
     class="container flex flex-col items-center justify-start bg-gradient-to-br"
   >
+    <BaseLoader :show="loading" />
+    <BaseAlert v-if="error" :message="error" @close="error = ''" />
     <div class="flex flex-wrap justify-center gap-4 mb-8">
-      <button
+      <BaseButton
         v-for="n in [100, 150, 250]"
         :key="n"
+        color="blue"
+        size="lg"
+        class="font-semibold shadow"
         @click="startQuickQuiz(n)"
-        class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow transition"
       >
         Szybki quiz {{ n }} pytań
-      </button>
-      <button
+      </BaseButton>
+      <BaseButton
+        color="purple"
+        size="lg"
+        class="font-semibold shadow"
         @click="startExam(10, 10)"
-        class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-semibold shadow transition"
       >
         Szybki egzamin
-      </button>
-      <button
+      </BaseButton>
+      <BaseButton
+        color="purple"
+        size="lg"
+        class="font-semibold shadow"
         @click="startExam(150, 60)"
-        class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-semibold shadow transition"
       >
         Egzamin 150 pytań (1h)
-      </button>
-      <button
+      </BaseButton>
+      <BaseButton
+        color="purple"
+        size="lg"
+        class="font-semibold shadow"
         @click="startExam(250, 120)"
-        class="bg-purple-700 hover:bg-purple-800 text-white px-6 py-3 rounded-full font-semibold shadow transition"
       >
         Egzamin 250 pytań (2h)
-      </button>
+      </BaseButton>
     </div>
     <RandomQuote />
     <div class="flex flex-col md:flex-row gap-8 w-full">
@@ -73,7 +83,10 @@
             {{ cat === "all" ? "Wszystkie" : cat }}
           </span>
         </div>
-        <router-link
+        <BaseButton
+          color="blue"
+          size="xl"
+          class="w-full text-xl font-semibold shadow mt-4"
           :to="{
             name: 'QuizView',
             query: {
@@ -81,10 +94,11 @@
               categories: selectedCategories.join(','),
             },
           }"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl text-xl font-semibold shadow transition text-center block"
+          tag="router-link"
+          :aria-label="'Rozpocznij Quiz'"
         >
           Rozpocznij Quiz
-        </router-link>
+        </BaseButton>
       </div>
       <!-- Prawa kolumna: Statystyki i kategorie -->
       <div
@@ -156,12 +170,18 @@
 
 <script>
 import RandomQuote from "@/components/RandomQuote.vue";
+import BaseButton from "@/components/BaseButton.vue";
+import BaseAlert from "@/components/BaseAlert.vue";
+import BaseLoader from "@/components/BaseLoader.vue";
 import axios from "axios";
 
 export default {
   name: "Home",
   components: {
     RandomQuote,
+    BaseButton,
+    BaseAlert,
+    BaseLoader,
   },
   data() {
     return {
@@ -177,6 +197,8 @@ export default {
         quiz: { total: 0, avg: 0, correct: 0, wrong: 0 },
         exam: { total: 0, avg: 0, correct: 0, wrong: 0 },
       },
+      loading: false,
+      error: "",
     };
   },
   created() {
@@ -184,91 +206,99 @@ export default {
   },
   methods: {
     async fetchCategoriesAndStats() {
-      const res = await axios.get("/api/questions");
-      this.categories = [
-        ...new Set(res.data.map((q) => q.category).filter(Boolean)),
-      ];
-      this.questionsCount = res.data.length;
-
-      // Pobierz historię użytkownika
+      this.loading = true;
       try {
-        const token = localStorage.getItem("token");
-        const historyRes = await axios.get("/api/users/history", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const history = historyRes.data || [];
+        const res = await axios.get("/api/questions");
+        this.categories = [
+          ...new Set(res.data.map((q) => q.category).filter(Boolean)),
+        ];
+        this.questionsCount = res.data.length;
 
-        // Statystyki ogólne
-        const all = history.reduce(
-          (acc, h) => {
-            acc.totalTests++;
-            acc.correct += h.correct || 0;
-            acc.wrong += h.wrong || 0;
-            acc.sumScore +=
-              ((h.correct || 0) / ((h.correct || 0) + (h.wrong || 0) || 1)) *
-              100;
-            if (h.type === "quiz") {
-              acc.quiz.total++;
-              acc.quiz.correct += h.correct || 0;
-              acc.quiz.wrong += h.wrong || 0;
-              acc.quiz.sumScore +=
+        // Pobierz historię użytkownika
+        try {
+          const token = localStorage.getItem("token");
+          const historyRes = await axios.get("/api/users/history", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const history = historyRes.data || [];
+
+          // Statystyki ogólne
+          const all = history.reduce(
+            (acc, h) => {
+              acc.totalTests++;
+              acc.correct += h.correct || 0;
+              acc.wrong += h.wrong || 0;
+              acc.sumScore +=
                 ((h.correct || 0) / ((h.correct || 0) + (h.wrong || 0) || 1)) *
                 100;
+              if (h.type === "quiz") {
+                acc.quiz.total++;
+                acc.quiz.correct += h.correct || 0;
+                acc.quiz.wrong += h.wrong || 0;
+                acc.quiz.sumScore +=
+                  ((h.correct || 0) /
+                    ((h.correct || 0) + (h.wrong || 0) || 1)) *
+                  100;
+              }
+              if (h.type === "egzamin") {
+                acc.exam.total++;
+                acc.exam.correct += h.correct || 0;
+                acc.exam.wrong += h.wrong || 0;
+                acc.exam.sumScore +=
+                  ((h.correct || 0) /
+                    ((h.correct || 0) + (h.wrong || 0) || 1)) *
+                  100;
+              }
+              return acc;
+            },
+            {
+              totalTests: 0,
+              correct: 0,
+              wrong: 0,
+              sumScore: 0,
+              quiz: { total: 0, correct: 0, wrong: 0, sumScore: 0 },
+              exam: { total: 0, correct: 0, wrong: 0, sumScore: 0 },
             }
-            if (h.type === "egzamin") {
-              acc.exam.total++;
-              acc.exam.correct += h.correct || 0;
-              acc.exam.wrong += h.wrong || 0;
-              acc.exam.sumScore +=
-                ((h.correct || 0) / ((h.correct || 0) + (h.wrong || 0) || 1)) *
-                100;
-            }
-            return acc;
-          },
-          {
+          );
+          this.stats = {
+            totalTests: all.totalTests,
+            avgScore: all.totalTests
+              ? Math.round(all.sumScore / all.totalTests)
+              : 0,
+            correct: all.correct,
+            wrong: all.wrong,
+            quiz: {
+              total: all.quiz.total,
+              avg: all.quiz.total
+                ? Math.round(all.quiz.sumScore / all.quiz.total)
+                : 0,
+              correct: all.quiz.correct,
+              wrong: all.quiz.wrong,
+            },
+            exam: {
+              total: all.exam.total,
+              avg: all.exam.total
+                ? Math.round(all.exam.sumScore / all.exam.total)
+                : 0,
+              correct: all.exam.correct,
+              wrong: all.exam.wrong,
+            },
+          };
+        } catch (e) {
+          // Brak historii lub nie zalogowany
+          this.stats = {
             totalTests: 0,
+            avgScore: 0,
             correct: 0,
             wrong: 0,
-            sumScore: 0,
-            quiz: { total: 0, correct: 0, wrong: 0, sumScore: 0 },
-            exam: { total: 0, correct: 0, wrong: 0, sumScore: 0 },
-          }
-        );
-        this.stats = {
-          totalTests: all.totalTests,
-          avgScore: all.totalTests
-            ? Math.round(all.sumScore / all.totalTests)
-            : 0,
-          correct: all.correct,
-          wrong: all.wrong,
-          quiz: {
-            total: all.quiz.total,
-            avg: all.quiz.total
-              ? Math.round(all.quiz.sumScore / all.quiz.total)
-              : 0,
-            correct: all.quiz.correct,
-            wrong: all.quiz.wrong,
-          },
-          exam: {
-            total: all.exam.total,
-            avg: all.exam.total
-              ? Math.round(all.exam.sumScore / all.exam.total)
-              : 0,
-            correct: all.exam.correct,
-            wrong: all.exam.wrong,
-          },
-        };
+            quiz: { total: 0, avg: 0, correct: 0, wrong: 0 },
+            exam: { total: 0, avg: 0, correct: 0, wrong: 0 },
+          };
+        }
       } catch (e) {
-        // Brak historii lub nie zalogowany
-        this.stats = {
-          totalTests: 0,
-          avgScore: 0,
-          correct: 0,
-          wrong: 0,
-          quiz: { total: 0, avg: 0, correct: 0, wrong: 0 },
-          exam: { total: 0, avg: 0, correct: 0, wrong: 0 },
-        };
+        this.error = "Błąd ładowania danych";
       }
+      this.loading = false;
     },
     toggleCategory(cat) {
       if (cat === "all") {

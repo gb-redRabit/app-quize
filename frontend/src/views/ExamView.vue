@@ -13,7 +13,7 @@
             >Pozostały czas: {{ formattedTime }}</span
           >
         </div>
-        <div v-if="loading" class="text-lg">Ładowanie pytań...</div>
+        <BaseLoader v-if="loading" />
         <div v-else>
           <QuestionList
             v-if="questions.length && currentQuestionIndex < questions.length"
@@ -45,6 +45,7 @@
         :userAnswerText="userAnswerText"
         :correctAnswerText="correctAnswerText"
         @restart="restartExam"
+        @retry-wrong="retryWrongQuestions"
       />
     </div>
   </div>
@@ -55,12 +56,14 @@ import axios from "axios";
 import { mapActions } from "vuex";
 import QuestionList from "@/components/QuestionList.vue";
 import SummaryBox from "@/components/SummaryBox.vue";
+import BaseLoader from "@/components/BaseLoader.vue";
 import { getRandomUniqueQuestions } from "@/utils/randomQuestions";
 
 export default {
   components: {
     QuestionList,
     SummaryBox,
+    BaseLoader,
   },
   data() {
     return {
@@ -74,6 +77,8 @@ export default {
       timer: null,
       examLength: 150,
       examTimeMinutes: 60,
+      isCorrection: false,
+      initialExamLength: 150, // ← dodaj to
     };
   },
   computed: {
@@ -89,6 +94,7 @@ export default {
     const length = parseInt(this.$route.query.length, 10);
     const time = parseInt(this.$route.query.time, 10);
     this.examLength = length && !isNaN(length) ? length : 150;
+    this.initialExamLength = this.examLength; // ← zapamiętaj oryginalną liczbę pytań
     this.examTimeMinutes = time && !isNaN(time) ? time : 60;
     this.timeLeft = this.examTimeMinutes * 60;
     this.fetchQuestions();
@@ -100,10 +106,14 @@ export default {
       try {
         this.loading = true;
         const response = await axios.get("/api/questions");
+        const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
         this.questions = getRandomUniqueQuestions(
           response.data,
-          this.examLength
-        );
+          this.examLength // ← używaj examLength
+        ).map((q) => ({
+          ...q,
+          correctIndex: keys.findIndex((k) => q[k] && q[k].isCorret),
+        }));
         this.answersStatus = this.questions.map(() => ({
           answered: false,
           selected: null,
@@ -147,6 +157,8 @@ export default {
       return q[key] && q[key].answer ? q[key].answer : "";
     },
     restartExam() {
+      this.isCorrection = false; // ← resetuj tryb poprawy
+      this.examLength = this.initialExamLength; // ← przywróć oryginalną liczbę pytań
       this.timeLeft = this.examTimeMinutes * 60;
       this.fetchQuestions();
       this.startTimer();
@@ -164,7 +176,7 @@ export default {
             a.answered ? a : { answered: true, selected: null }
           );
           this.countScore();
-          await this.saveExamHistory(); // <-- tu dodaj await!
+          await this.saveExamHistory();
         }
       }, 1000);
     },
@@ -190,7 +202,7 @@ export default {
             list,
             correct,
             wrong,
-            type: "egzamin",
+            type: this.isCorrection ? "egzamin - poprawa błędów" : "egzamin",
           },
           {
             headers: {
@@ -199,6 +211,7 @@ export default {
           }
         );
         await this.fetchUserHistory();
+        this.isCorrection = false;
       } catch (e) {
         console.error("Błąd zapisu historii egzaminu:", e);
       }
@@ -227,6 +240,35 @@ export default {
     },
     goToQuestion(idx) {
       if (!this.showSummary) this.currentQuestionIndex = idx;
+    },
+    retryWrongQuestions() {
+      // Zbierz indeksy błędnych odpowiedzi
+      const wrongIndexes = this.answersStatus
+        .map((a, idx) =>
+          a.selected !== this.getCorrectIndex(this.questions[idx]) ? idx : null
+        )
+        .filter((idx) => idx !== null);
+
+      // Jeśli nie ma błędnych, nie rób nic
+      if (!wrongIndexes.length) return;
+
+      // Przygotuj tylko błędne pytania
+      this.questions = wrongIndexes.map((idx) => this.questions[idx]);
+      this.answersStatus = this.questions.map(() => ({
+        answered: false,
+        selected: null,
+      }));
+      this.currentQuestionIndex = 0;
+      this.showSummary = false;
+      this.score = 0;
+      this.timeLeft = this.examTimeMinutes * 60;
+      this.examLength = this.questions.length; // ← liczba pytań do poprawy
+      this.isCorrection = true;
+      this.startTimer(); // ← DODAJ TO!
+    },
+    getCorrectIndex(q) {
+      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+      return keys.findIndex((k) => q[k] && q[k].isCorret);
     },
   },
 };
