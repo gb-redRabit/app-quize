@@ -1,4 +1,6 @@
 const fileUtils = require("../utils/fileUtils");
+const fs = require("fs");
+const path = require("path");
 
 exports.getAllQuestions = async (req, res) => {
   try {
@@ -40,19 +42,23 @@ exports.updateQuestion = async (req, res) => {
   }
 };
 
-exports.deleteQuestion = async (req, res) => {
-  try {
-    const questions = await fileUtils.getQuestions();
-    const { id } = req.params;
-    const index = questions.findIndex((q) => q.ID === parseInt(id));
-    if (index !== -1) {
-      questions.splice(index, 1);
-      await fileUtils.saveQuestions(questions);
-      res.status(200).json({ message: "Question deleted" });
-    } else {
-      res.status(404).json({ error: "Question not found" });
-    }
-  } catch (e) {
-    res.status(500).json({ error: "Błąd usuwania pytania" });
+exports.deleteQuestion = (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const filePath = path.join(__dirname, "../../data/data.json");
+  let questions = require(filePath);
+
+  const index = questions.findIndex((q) => q.ID === id);
+  if (index === -1) {
+    return res.status(404).json({ message: "Question not found" });
   }
+
+  questions.splice(index, 1);
+
+  fs.writeFile(filePath, JSON.stringify(questions, null, 2), (err) => {
+    if (err) {
+      console.error("Błąd zapisu pliku data.json:", err);
+      return res.status(500).json({ message: "Błąd zapisu pliku" });
+    }
+    res.json({ message: "Usunięto pytanie" });
+  });
 };

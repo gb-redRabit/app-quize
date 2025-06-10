@@ -701,16 +701,21 @@ export default {
       try {
         const token = localStorage.getItem("token");
         await axios.delete(`/api/questions/${this.questionToDelete.ID}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         this.showDeletePopup = false;
         this.questionToDelete = null;
         this.fetchQuestions();
       } catch (error) {
-        alert("Błąd podczas usuwania pytania!");
-        console.error(error);
+        if (error.response && error.response.status === 404) {
+          // Pytanie już nie istnieje, odśwież listę i nie pokazuj alertu
+          this.showDeletePopup = false;
+          this.questionToDelete = null;
+          this.fetchQuestions();
+        } else {
+          alert("Błąd podczas usuwania pytania!");
+          console.error(error);
+        }
       }
       this.loading = false;
     },
