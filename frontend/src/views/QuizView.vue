@@ -121,9 +121,14 @@ export default {
   },
   created() {
     const length = parseInt(this.$route.query.length, 10);
-    const categories = (this.$route.query.categories || "all").split(",");
-    this.quizLength = length && !isNaN(length) ? length : 10;
+    let categories = this.$route.query.categories || "all";
+    if (categories === "all") {
+      categories = ["all"];
+    } else if (typeof categories === "string") {
+      categories = categories.split(",");
+    }
     this.selectedCategories = categories;
+    this.quizLength = length && !isNaN(length) ? length : 10;
     this.fetchQuestions();
   },
   methods: {
@@ -131,8 +136,15 @@ export default {
     async fetchQuestions() {
       const response = await axios.get("/api/questions");
       const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+      const allQuestions = response.data;
+      const filteredQuestions =
+        this.selectedCategories[0] === "all"
+          ? allQuestions
+          : allQuestions.filter((q) =>
+              this.selectedCategories.includes(q.category)
+            );
       this.questions = getRandomUniqueQuestions(
-        response.data,
+        filteredQuestions,
         this.quizLength
       ).map((q) => ({
         ...q,

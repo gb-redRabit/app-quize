@@ -91,7 +91,11 @@
             name: 'QuizView',
             query: {
               length: selectedLength,
-              categories: selectedCategories.join(','),
+              categories:
+                selectedCategories.length === 1 &&
+                selectedCategories[0] === 'all'
+                  ? 'all'
+                  : selectedCategories.join(','),
             },
           }"
           tag="router-link"
@@ -203,6 +207,13 @@ export default {
   },
   created() {
     this.fetchCategoriesAndStats();
+    let categories = this.$route.query.categories || "all";
+    if (categories === "all") {
+      categories = ["all"];
+    } else if (typeof categories === "string") {
+      categories = categories.split(",");
+    }
+    this.selectedCategories = categories;
   },
   methods: {
     async fetchCategoriesAndStats() {
