@@ -4,7 +4,273 @@
     "login": "admin",
     "password": "$2b$10$YXYTWvxrgvnOCB3vrcljHOrUIlK5F49XKzQkV2BdSuG2bBe6bJzsm",
     "option": "light",
-    "history": []
+    "history": [
+      {
+        "data": "2025-06-15T19:37:36.489Z",
+        "list": [
+          {
+            "id_questions": 16393,
+            "answer": "B",
+            "correct": false
+          },
+          {
+            "id_questions": 2221,
+            "answer": "B",
+            "correct": false
+          },
+          {
+            "id_questions": 8416,
+            "answer": "B",
+            "correct": true
+          },
+          {
+            "id_questions": 14534,
+            "answer": "B",
+            "correct": false
+          },
+          {
+            "id_questions": 2300,
+            "answer": "B",
+            "correct": false
+          },
+          {
+            "id_questions": 5834,
+            "answer": "C",
+            "correct": true
+          },
+          {
+            "id_questions": 17985,
+            "answer": "B",
+            "correct": false
+          },
+          {
+            "id_questions": 7665,
+            "answer": "B",
+            "correct": false
+          },
+          {
+            "id_questions": 9063,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 3704,
+            "answer": "A",
+            "correct": false
+          }
+        ],
+        "correct": 2,
+        "wrong": 8,
+        "type": "egzamin"
+      },
+      {
+        "data": "2025-06-15T19:37:41.522Z",
+        "list": [
+          {
+            "id_questions": 16393,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 2221,
+            "answer": "C",
+            "correct": false
+          },
+          {
+            "id_questions": 14534,
+            "answer": "C",
+            "correct": true
+          },
+          {
+            "id_questions": 2300,
+            "answer": "B",
+            "correct": false
+          },
+          {
+            "id_questions": 17985,
+            "answer": "B",
+            "correct": false
+          },
+          {
+            "id_questions": 7665,
+            "answer": "B",
+            "correct": false
+          },
+          {
+            "id_questions": 9063,
+            "answer": "B",
+            "correct": true
+          },
+          {
+            "id_questions": 3704,
+            "answer": "A",
+            "correct": false
+          }
+        ],
+        "correct": 2,
+        "wrong": 6,
+        "type": "Egzamin - poprawa błędów"
+      },
+      {
+        "data": "2025-06-15T19:37:57.756Z",
+        "list": [
+          {
+            "id_questions": 15680,
+            "answer": "A",
+            "correct": true
+          },
+          {
+            "id_questions": 1603,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 2910,
+            "answer": "A",
+            "correct": true
+          },
+          {
+            "id_questions": 8192,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 1158,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 14407,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 917,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 13276,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 6416,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 10410,
+            "answer": "A",
+            "correct": true
+          }
+        ],
+        "correct": 3,
+        "wrong": 7,
+        "type": "egzamin"
+      },
+      {
+        "data": "2025-06-15T19:38:01.518Z",
+        "list": [
+          {
+            "id_questions": 1603,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 8192,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 1158,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 14407,
+            "answer": "B",
+            "correct": true
+          },
+          {
+            "id_questions": 917,
+            "answer": "B",
+            "correct": false
+          },
+          {
+            "id_questions": 13276,
+            "answer": "B",
+            "correct": true
+          },
+          {
+            "id_questions": 6416,
+            "answer": "B",
+            "correct": true
+          }
+        ],
+        "correct": 3,
+        "wrong": 4,
+        "type": "Egzamin - poprawa błędów"
+      },
+      {
+        "data": "2025-06-15T19:38:09.228Z",
+        "list": [
+          {
+            "id_questions": 4146,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 10425,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 13183,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 12538,
+            "answer": "A",
+            "correct": true
+          },
+          {
+            "id_questions": 8128,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 14922,
+            "answer": "A",
+            "correct": true
+          },
+          {
+            "id_questions": 10280,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 13578,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 12978,
+            "answer": "A",
+            "correct": false
+          },
+          {
+            "id_questions": 9989,
+            "answer": "A",
+            "correct": false
+          }
+        ],
+        "correct": 2,
+        "wrong": 8,
+        "type": "egzamin"
+      }
+    ]
   },
   {
     "id": 1750004371282,

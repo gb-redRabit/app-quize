@@ -71,9 +71,9 @@
             :class="
               entry.type === 'egzamin'
                 ? 'bg-purple-200 text-purple-800'
-                : entry.type === 'egzamin - poprawa błędów'
+                : entry.type === 'Egzamin - poprawa błędów'
                 ? 'bg-yellow-200 text-yellow-800'
-                : entry.type === 'quiz - poprawa błędów'
+                : entry.type === 'Quiz - poprawa błędów'
                 ? 'bg-yellow-100 text-yellow-900'
                 : 'bg-blue-200 text-blue-800'
             "
@@ -81,9 +81,9 @@
             {{
               entry.type === "egzamin"
                 ? "Egzamin"
-                : entry.type === "egzamin - poprawa błędów"
+                : entry.type === "Egzamin - poprawa błędów"
                 ? "Egzamin - poprawa błędów"
-                : entry.type === "quiz - poprawa błędów"
+                : entry.type === "Quiz - poprawa błędów"
                 ? "Quiz - poprawa błędów"
                 : "Quiz"
             }}

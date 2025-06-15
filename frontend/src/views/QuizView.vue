@@ -101,7 +101,6 @@ import QuestionNavigation from "@/components/QuestionNavigation.vue";
 import QuestionDescription from "@/components/QuestionDescription.vue";
 import SummaryBox from "@/components/SummaryBox.vue";
 import ProgressBar from "@/components/ProgressBar.vue";
-// import TimeStats from "@/components/TimeStats.vue"; // USUNIĘTO
 import { getRandomUniqueQuestions } from "@/utils/randomQuestions";
 
 export default {
@@ -111,7 +110,6 @@ export default {
     QuestionDescription,
     SummaryBox,
     ProgressBar,
-    // TimeStats, // USUNIĘTO
   },
   data() {
     return {
@@ -126,6 +124,8 @@ export default {
       startTime: null,
       questionTimes: [],
       timerInterval: null,
+      isCorrection: false,
+      isExamMode: false,
     };
   },
   created() {
@@ -211,59 +211,36 @@ export default {
     },
     async saveUserHistory() {
       try {
+        // ...odśwież token...
         const token = localStorage.getItem("token");
-        if (!token) {
-          alert("Brak tokena JWT – zaloguj się ponownie!");
-          return;
-        }
-        // Przed zapisem historii
-        await axios
-          .post(
-            "/api/auth/refresh",
-            {},
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            }
-          )
-          .then((res) => {
-            if (res.data.token) {
-              localStorage.setItem("token", res.data.token);
-            }
-          })
-          .catch(() => {
-            // Jeśli nie uda się odświeżyć, wyloguj użytkownika
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            window.location.href = "/login";
-          });
-        const categories = this.selectedCategories || ["all"];
+        if (!token) return;
         const list = this.questions.map((q, idx) => ({
           id_questions: q.ID || q.id || q.Id || q.id_question,
           answer: this.userAnswerLetter(q, this.answersStatus[idx].selected),
           correct: this.answersStatus[idx].correct === true,
         }));
         const correct = this.answersStatus.filter((a) => a.correct).length;
-        const wrong = this.answersStatus.filter(
-          (a) => a.answered && !a.correct
-        ).length;
+        const wrong = this.answersStatus.length - correct;
+
         await axios.put(
           "/api/users/update",
           {
             data: new Date().toISOString(),
-            categories,
+            categories: this.selectedCategories,
             list,
             correct,
             wrong,
-            type: "quiz",
+            type: this.isCorrection
+              ? "Quiz - poprawa błędów"
+              : this.isExamMode
+              ? "egzamin"
+              : "quiz",
           },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        await this.fetchUserHistory();
-      } catch (e) {
-        alert("Błąd zapisu historii: " + e.message);
-        console.error("Błąd zapisu historii:", e);
+        this.isCorrection = true;
+      } catch (error) {
+        // obsługa błędu
       }
     },
     userAnswerLetter(q, selectedIdx) {
@@ -325,6 +302,7 @@ export default {
       this.score = 0;
       this.startTime = Date.now();
       this.questionTimes = [];
+      this.isCorrection = true; // ← DODAJ TO!
     },
     handleKeydown(e) {
       // Obsługa podsumowania

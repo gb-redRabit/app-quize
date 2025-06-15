@@ -240,16 +240,11 @@ export default {
             list,
             correct,
             wrong,
-            type: this.isCorrection ? "egzamin - poprawa błędów" : "egzamin",
+            type: this.isCorrection ? "Egzamin - poprawa błędów" : "egzamin",
           },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-        await this.fetchUserHistory();
-        this.isCorrection = false;
+        this.isCorrection = true;
       } catch (e) {
         console.error("Błąd zapisu historii egzaminu:", e);
       }
