@@ -1,6 +1,6 @@
 <template>
   <div
-    class="container bg-white/90 rounded-xl shadow-lg p-6 my-6 mx-auto flex flex-col items-center"
+    class="bg-white/90 rounded-xl shadow-lg p-10 w-full my-2 mx-auto flex flex-col items-center"
   >
     <blockquote class="italic text-lg text-center mb-4 text-gray-700">
       "{{ quote.text }}"

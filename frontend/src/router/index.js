@@ -4,6 +4,7 @@ import QuizView from "../views/QuizView.vue";
 import AdminView from "../views/AdminView.vue";
 import NotFound from "../views/NotFound.vue";
 import Login from "../components/Login.vue";
+import Register from "../components/Register.vue";
 import History from "../views/HistoryView.vue";
 import ExamView from "../views/ExamView.vue";
 import CategoryQuestionsView from "../views/CategoryQuestionsView.vue";
@@ -18,6 +19,7 @@ const routes = [
     meta: { requiresAuth: true },
   },
   { path: "/login", name: "Login", component: Login },
+  { path: "/register", name: "Register", component: Register },
   {
     path: "/history",
     name: "History",
@@ -46,9 +48,16 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const isAuthenticated =
     !!localStorage.getItem("user") && !!localStorage.getItem("token");
-  if (to.name !== "Login" && !isAuthenticated) {
+  if (
+    to.name !== "Login" &&
+    to.name !== "Register" && // ← pozwól wejść na rejestrację bez logowania
+    !isAuthenticated
+  ) {
     next({ name: "Login" });
-  } else if (to.name === "Login" && isAuthenticated) {
+  } else if (
+    (to.name === "Login" || to.name === "Register") &&
+    isAuthenticated
+  ) {
     next({ name: "Home" });
   } else {
     next();

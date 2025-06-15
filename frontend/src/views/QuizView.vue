@@ -6,7 +6,7 @@
       <div class="flex-1 flex flex-col" v-if="!showSummary">
         <div v-if="loading" class="text-lg">Loading questions...</div>
         <div v-else>
-          <div class="flex justify-between items-center mb-3">
+          <div class="flex justify-between items-center mb-2">
             <button
               class="bg-blue-600 text-white md:px-6 md:py-3 rounded md:text-lg px-2 py-1"
               @click="prevQuestion"
@@ -15,7 +15,7 @@
               ← Poprzednie
             </button>
             <h1 class="text-3xl font-bold text-center sm:block hidden">
-              Kategoria {{ questions[currentQuestionIndex].category }}
+              {{ questions[currentQuestionIndex].category }}
             </h1>
             <button
               class="bg-blue-600 text-white md:px-6 md:py-3 rounded md:text-lg px-2 py-1"
@@ -88,6 +88,8 @@
         @goTo="goToQuestion"
       />
     </div>
+    <ProgressBar :current="answeredCount" :total="questions.length" />
+    <!-- Usunięto TimeStats -->
   </div>
 </template>
 
@@ -98,6 +100,8 @@ import QuestionList from "@/components/QuestionList.vue";
 import QuestionNavigation from "@/components/QuestionNavigation.vue";
 import QuestionDescription from "@/components/QuestionDescription.vue";
 import SummaryBox from "@/components/SummaryBox.vue";
+import ProgressBar from "@/components/ProgressBar.vue";
+// import TimeStats from "@/components/TimeStats.vue"; // USUNIĘTO
 import { getRandomUniqueQuestions } from "@/utils/randomQuestions";
 
 export default {
@@ -106,6 +110,8 @@ export default {
     QuestionNavigation,
     QuestionDescription,
     SummaryBox,
+    ProgressBar,
+    // TimeStats, // USUNIĘTO
   },
   data() {
     return {
@@ -117,6 +123,9 @@ export default {
       quizLength: 10,
       showSummary: false,
       selectedCategories: [],
+      startTime: null,
+      questionTimes: [],
+      timerInterval: null,
     };
   },
   created() {
@@ -130,6 +139,18 @@ export default {
     this.selectedCategories = categories;
     this.quizLength = length && !isNaN(length) ? length : 10;
     this.fetchQuestions();
+  },
+  mounted() {
+    window.addEventListener("keydown", this.handleKeydown);
+  },
+  beforeUnmount() {
+    window.removeEventListener("keydown", this.handleKeydown);
+    clearInterval(this.timerInterval);
+  },
+  computed: {
+    answeredCount() {
+      return this.answersStatus.filter((a) => a.answered).length;
+    },
   },
   methods: {
     ...mapActions(["fetchUserHistory"]),
@@ -158,6 +179,9 @@ export default {
       this.showSummary = false;
       this.score = 0;
       this.currentQuestionIndex = 0;
+      this.startTime = Date.now();
+      this.questionTimes = [];
+      this.startTimer();
     },
     selectAnswer(index) {
       if (this.answersStatus[this.currentQuestionIndex].answered) return;
@@ -171,12 +195,17 @@ export default {
         correct: isCorrect,
         selected: index,
       };
+      // ZAPISZ czas odpowiedzi na to pytanie
+      const now = Date.now();
+      this.questionTimes[this.currentQuestionIndex] =
+        (now - this.startTime) / 1000;
     },
     async nextOrFinish() {
       if (this.currentQuestionIndex < this.questions.length - 1) {
         this.currentQuestionIndex++;
       } else {
         this.showSummary = true;
+        clearInterval(this.timerInterval);
         await this.saveUserHistory();
       }
     },
@@ -187,9 +216,33 @@ export default {
           alert("Brak tokena JWT – zaloguj się ponownie!");
           return;
         }
+        // Przed zapisem historii
+        await axios
+          .post(
+            "/api/auth/refresh",
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          )
+          .then((res) => {
+            if (res.data.token) {
+              localStorage.setItem("token", res.data.token);
+            }
+          })
+          .catch(() => {
+            // Jeśli nie uda się odświeżyć, wyloguj użytkownika
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "/login";
+          });
+        const categories = this.selectedCategories || ["all"];
         const list = this.questions.map((q, idx) => ({
           id_questions: q.ID || q.id || q.Id || q.id_question,
           answer: this.userAnswerLetter(q, this.answersStatus[idx].selected),
+          correct: this.answersStatus[idx].correct === true,
         }));
         const correct = this.answersStatus.filter((a) => a.correct).length;
         const wrong = this.answersStatus.filter(
@@ -199,16 +252,13 @@ export default {
           "/api/users/update",
           {
             data: new Date().toISOString(),
+            categories,
             list,
             correct,
             wrong,
             type: "quiz",
           },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         await this.fetchUserHistory();
       } catch (e) {
@@ -236,6 +286,8 @@ export default {
       this.score = 0;
       this.loading = true;
       this.fetchQuestions();
+      this.startTime = Date.now();
+      this.questionTimes = [];
     },
     userAnswerText(q, selectedIdx) {
       const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
@@ -271,7 +323,64 @@ export default {
       this.currentQuestionIndex = 0;
       this.showSummary = false;
       this.score = 0;
+      this.startTime = Date.now();
+      this.questionTimes = [];
+    },
+    handleKeydown(e) {
+      // Obsługa podsumowania
+      if (this.showSummary) {
+        if (e.key === "ArrowUp") {
+          // Rozpocznij od nowa
+          this.restartQuiz();
+        }
+        if (e.key === "ArrowDown") {
+          // Popraw błędne odpowiedzi
+          this.retryWrongAnswers();
+        }
+        return;
+      }
+      if (this.loading) return;
+      // Odpowiedzi 1-4
+      if (
+        ["1", "2", "3", "4"].includes(e.key) &&
+        this.currentQuestionIndex < this.questions.length
+      ) {
+        const idx = parseInt(e.key, 10) - 1;
+        const status = this.answersStatus[this.currentQuestionIndex];
+        if (status && !status.answered) {
+          this.selectAnswer(idx);
+        }
+      }
+      // Strzałka w prawo – następne pytanie lub zakończenie testu
+      if (e.key === "ArrowRight" || e.key === "PageDown") {
+        if (
+          this.currentQuestionIndex < this.questions.length - 1 &&
+          this.answersStatus[this.currentQuestionIndex] &&
+          this.answersStatus[this.currentQuestionIndex].answered
+        ) {
+          this.nextOrFinish();
+        } else if (
+          this.answeredCount === this.questions.length &&
+          !this.showSummary
+        ) {
+          this.nextOrFinish();
+        }
+      }
+      // Strzałka w lewo – poprzednie pytanie
+      if (
+        (e.key === "ArrowLeft" || e.key === "PageUp") &&
+        this.currentQuestionIndex > 0
+      ) {
+        this.prevQuestion();
+      }
+    },
+    startTimer() {
+      if (this.timerInterval) clearInterval(this.timerInterval);
+      this.timerInterval = setInterval(() => {
+        this.$forceUpdate();
+      }, 1000);
     },
   },
+  // USUŃ computed: { totalTime, avgTime }
 };
 </script>

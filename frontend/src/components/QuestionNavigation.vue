@@ -1,7 +1,7 @@
 <template>
   <div
     ref="scrollNav"
-    class="w-full max-w-2xl mx-auto -mt-4 mb-2 sm:mb-0 sm:mt-5 overflow-x-auto pb-2 py-2 flex justify-start"
+    class="w-full max-w-2xl mx-auto -mt-4 mb-2 sm:mb-0 sm:mt-1 overflow-x-auto pb-2 py-2 flex justify-start"
     style="scrollbar-width: thin"
   >
     <div

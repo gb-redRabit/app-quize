@@ -13,6 +13,7 @@
             >Pozostały czas: {{ formattedTime }}</span
           >
         </div>
+        <!-- Dodaj ProgressBar -->
         <BaseLoader v-if="loading" />
         <div v-else>
           <QuestionList
@@ -48,6 +49,7 @@
         @retry-wrong="retryWrongQuestions"
       />
     </div>
+    <ProgressBar :current="answeredCount" :total="examLength" />
   </div>
 </template>
 
@@ -57,6 +59,7 @@ import { mapActions } from "vuex";
 import QuestionList from "@/components/QuestionList.vue";
 import SummaryBox from "@/components/SummaryBox.vue";
 import BaseLoader from "@/components/BaseLoader.vue";
+import ProgressBar from "@/components/ProgressBar.vue";
 import { getRandomUniqueQuestions } from "@/utils/randomQuestions";
 
 export default {
@@ -64,6 +67,7 @@ export default {
     QuestionList,
     SummaryBox,
     BaseLoader,
+    ProgressBar,
   },
   data() {
     return {
@@ -78,7 +82,7 @@ export default {
       examLength: 150,
       examTimeMinutes: 60,
       isCorrection: false,
-      initialExamLength: 150, // ← dodaj to
+      initialExamLength: 150,
     };
   },
   computed: {
@@ -88,6 +92,9 @@ export default {
         .padStart(2, "0");
       const sec = (this.timeLeft % 60).toString().padStart(2, "0");
       return `${min}:${sec}`;
+    },
+    answeredCount() {
+      return this.answersStatus.filter((a) => a.answered).length;
     },
   },
   created() {
@@ -99,6 +106,12 @@ export default {
     this.timeLeft = this.examTimeMinutes * 60;
     this.fetchQuestions();
     this.startTimer();
+  },
+  mounted() {
+    window.addEventListener("keydown", this.handleKeydown);
+  },
+  beforeUnmount() {
+    window.removeEventListener("keydown", this.handleKeydown);
   },
   methods: {
     ...mapActions(["fetchUserHistory"]),
@@ -182,11 +195,35 @@ export default {
     },
     async saveExamHistory() {
       try {
+        // Przed zapisem historii
+        await axios
+          .post(
+            "/api/auth/refresh",
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          )
+          .then((res) => {
+            if (res.data.token) {
+              localStorage.setItem("token", res.data.token);
+            }
+          })
+          .catch(() => {
+            // Jeśli nie uda się odświeżyć, wyloguj użytkownika
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "/login";
+          });
+
         const token = localStorage.getItem("token");
         if (!token) return;
         const list = this.questions.map((q, idx) => ({
           id_questions: q.ID || q.id || q.Id || q.id_question,
           answer: this.userAnswerLetter(q, this.answersStatus[idx].selected),
+          correct: this.answersStatus[idx].selected === q.correctIndex,
         }));
         const correct = this.answersStatus.reduce((acc, a, idx) => {
           const q = this.questions[idx];
@@ -195,6 +232,7 @@ export default {
           return acc + (a.selected === correctIdx ? 1 : 0);
         }, 0);
         const wrong = this.answersStatus.length - correct;
+
         await axios.put(
           "/api/users/update",
           {
@@ -269,6 +307,33 @@ export default {
     getCorrectIndex(q) {
       const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
       return keys.findIndex((k) => q[k] && q[k].isCorret);
+    },
+    handleKeydown(e) {
+      // Obsługa podsumowania
+      if (this.showSummary) {
+        if (e.key === "ArrowUp") {
+          // Rozpocznij egzamin od nowa
+          this.restartExam();
+        }
+        if (e.key === "ArrowDown") {
+          // Popraw błędne odpowiedzi
+          this.retryWrongQuestions();
+        }
+        return;
+      }
+      if (this.loading) return;
+      // Odpowiedzi 1-4
+      if (
+        ["1", "2", "3", "4"].includes(e.key) &&
+        this.currentQuestionIndex < this.questions.length
+      ) {
+        const idx = parseInt(e.key, 10) - 1;
+        const status = this.answersStatus[this.currentQuestionIndex];
+        if (status && !status.answered) {
+          this.selectAnswer(idx);
+        }
+      }
+      // Możesz dodać obsługę strzałek prawo/lewo jeśli chcesz
     },
   },
 };

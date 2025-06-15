@@ -1,15 +1,15 @@
 [
   {
-    "id": 1,
+    "id": 1750004094953,
     "login": "admin",
-    "password": "admin",
-    "option": "dark",
+    "password": "$2b$10$YXYTWvxrgvnOCB3vrcljHOrUIlK5F49XKzQkV2BdSuG2bBe6bJzsm",
+    "option": "light",
     "history": []
   },
   {
-    "id": 2,
+    "id": 1750004371282,
     "login": "dosia",
-    "password": "dosia",
+    "password": "$2b$10$gX9UMJYKbHgOBrhEdqLt0eds5rDBlT5B7CCdo8IkDebb/pUdJRuBq",
     "option": "light",
     "history": []
   }

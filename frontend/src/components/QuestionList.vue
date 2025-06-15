@@ -7,7 +7,7 @@
       <button
         v-for="(answer, idx) in answers"
         :key="idx"
-        class="p-2 sm:p-4 rounded mb-1 sm:mb-4 border text-sm sm:text-lg transition-colors flex items-center sm:h-20"
+        class="p-2 sm:p-4 rounded mb-1 sm:mb-4 border text-sm sm:text-lg transition-colors flex items-center sm:h-24"
         :class="buttonClass(idx)"
         @click="onSelect(idx)"
         :disabled="answered"

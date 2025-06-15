@@ -1,41 +1,54 @@
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
+const bcrypt = require("bcrypt"); // DODAJ TO
 const usersFilePath = path.join(__dirname, "../../data/users.json");
+
+const SALT_ROUNDS = 10;
 
 // Register a new user
 exports.register = async (req, res) => {
   const { login, password } = req.body;
 
-  // NIE haszuj hasła!
-  const newUser = {
-    id: Date.now(),
-    login,
-    password, // zapisujemy jako tekst
-    option: "light",
-    history: [],
-  };
+  try {
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-  fs.readFile(usersFilePath, "utf8", (err, data) => {
-    if (err)
-      return res.status(500).json({ message: "Error reading users file" });
+    const newUser = {
+      id: Date.now(),
+      login,
+      password: hashedPassword, // zapisujemy hash
+      option: "light",
+      history: [],
+    };
 
-    const users = JSON.parse(data);
-    users.push(newUser);
-
-    fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
+    fs.readFile(usersFilePath, "utf8", (err, data) => {
       if (err)
-        return res.status(500).json({ message: "Error writing to users file" });
-      res.status(201).json({ message: "User registered successfully" });
+        return res.status(500).json({ message: "Error reading users file" });
+
+      const users = JSON.parse(data);
+      if (users.find((u) => u.login === login)) {
+        return res.status(409).json({ message: "Login already exists" });
+      }
+      users.push(newUser);
+
+      fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
+        if (err)
+          return res
+            .status(500)
+            .json({ message: "Error writing to users file" });
+        res.status(201).json({ message: "User registered successfully" });
+      });
     });
-  });
+  } catch (e) {
+    res.status(500).json({ message: "Error hashing password" });
+  }
 };
 
 // Login user
 exports.login = async (req, res) => {
   const { login, password } = req.body;
 
-  fs.readFile(usersFilePath, "utf8", (err, data) => {
+  fs.readFile(usersFilePath, "utf8", async (err, data) => {
     if (err)
       return res.status(500).json({ message: "Error reading users file" });
 
@@ -44,8 +57,9 @@ exports.login = async (req, res) => {
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (password !== user.password)
-      return res.status(401).json({ message: "Invalid credentials" });
+    // Sprawdź hash hasła
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(401).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ id: user.id }, "your_jwt_secret", {
       expiresIn: "1h",

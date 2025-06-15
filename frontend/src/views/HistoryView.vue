@@ -3,6 +3,14 @@
     class="container mx-auto p-4 md:flex md:flex-col md:justify-start md:items-center"
   >
     <h1 class="text-2xl font-bold mb-4">Twoja historia quizów</h1>
+    <BaseButton
+      color="red"
+      class="mb-4"
+      @click="showConfirmModal = true"
+      v-if="history.length > 0"
+    >
+      Wyczyść historię
+    </BaseButton>
     <div v-if="history.length === 0" class="text-gray-500">
       Brak historii quizów.
     </div>
@@ -92,14 +100,38 @@
         </div>
       </div>
     </div>
+    <BaseModal :show="showConfirmModal" @close="showConfirmModal = false">
+      <div class="p-4 flex flex-col items-center">
+        <h2 class="text-lg font-bold mb-2 text-red-700">
+          Czy na pewno chcesz usunąć całą historię quizów?
+        </h2>
+        <div class="flex gap-4 mt-4">
+          <BaseButton color="red" @click="confirmClearHistory"
+            >Tak, usuń</BaseButton
+          >
+          <BaseButton color="gray" @click="showConfirmModal = false"
+            >Anuluj</BaseButton
+          >
+        </div>
+      </div>
+    </BaseModal>
   </div>
 </template>
 
 <script>
 import { mapState, mapActions } from "vuex";
+import BaseButton from "@/components/BaseButton.vue";
+import BaseModal from "@/components/BaseModal.vue";
+import axios from "axios";
 
 export default {
   name: "History",
+  components: { BaseButton, BaseModal },
+  data() {
+    return {
+      showConfirmModal: false,
+    };
+  },
   computed: {
     ...mapState(["user"]),
     history() {
@@ -116,6 +148,21 @@ export default {
     pieGood(entry) {
       const percent = this.percentGood(entry);
       return `${percent} ${100 - percent}`;
+    },
+    async confirmClearHistory() {
+      try {
+        const token = localStorage.getItem("token");
+        await axios.put(
+          "/api/users/update",
+          { clearHistory: true },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        await this.fetchUserHistory();
+        this.showConfirmModal = false;
+      } catch (e) {
+        alert("Błąd podczas czyszczenia historii.");
+        this.showConfirmModal = false;
+      }
     },
   },
   async created() {

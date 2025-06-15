@@ -1,6 +1,6 @@
 <template>
   <nav
-    class="w-full bg-white shadow flex items-center justify-between px-6 py-3 mb-6 relative"
+    class="w-full bg-white shadow flex items-center justify-between px-6 py-3 mb-2 relative"
   >
     <!-- Lewa strona: użytkownik -->
     <h1 class="ml-2 font-bold text-blue-600 capitalize-first-letter">

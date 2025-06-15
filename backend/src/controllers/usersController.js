@@ -20,11 +20,14 @@ exports.getUserHistory = async (req, res) => {
 exports.updateUserHistory = async (req, res) => {
   try {
     const userId = req.user.id;
-    const newHistoryEntry = req.body;
     const users = await fileUtils.getUsers();
     const userIndex = users.findIndex((u) => u.id === userId);
     if (userIndex !== -1) {
-      users[userIndex].history.push(newHistoryEntry);
+      if (req.body.clearHistory) {
+        users[userIndex].history = [];
+      } else {
+        users[userIndex].history.push(req.body);
+      }
       await fileUtils.saveUsers(users);
       res.status(200).json({ message: "User history updated successfully" });
     } else {
