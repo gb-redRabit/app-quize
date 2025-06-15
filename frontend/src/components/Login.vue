@@ -38,12 +38,12 @@
       <p v-if="errorMessage" class="mt-4 text-red-500 text-sm">
         {{ errorMessage }}
       </p>
-      <router-link
+      <!-- <router-link
         to="/register"
         class="block mt-4 text-blue-600 text-sm text-center hover:underline"
       >
         Nie masz konta? Zarejestruj się
-      </router-link>
+      </router-link> -->
     </form>
   </div>
 </template>

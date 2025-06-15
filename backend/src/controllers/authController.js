@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt"); // DODAJ TO
 const usersFilePath = path.join(__dirname, "../../data/users.json");
 
 const SALT_ROUNDS = 10;
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 // Register a new user
 exports.register = async (req, res) => {
@@ -61,7 +62,7 @@ exports.login = async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user.id }, "your_jwt_secret", {
+    const token = jwt.sign({ id: user.id }, JWT_SECRET, {
       expiresIn: "1h",
     });
     // Zwróć token i dane użytkownika (bez hasła!)
