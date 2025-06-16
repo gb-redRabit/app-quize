@@ -202,23 +202,24 @@ export default {
             {},
             {
               headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("token")}`,
               },
             }
           )
           .then((res) => {
             if (res.data.token) {
-              localStorage.setItem("token", res.data.token);
+              sessionStorage.setItem("token", res.data.token);
             }
           })
           .catch(() => {
             // Jeśli nie uda się odświeżyć, wyloguj użytkownika
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
+            sessionStorage.removeItem("token");
+            sessionStorage.removeItem("user");
             window.location.href = "/login";
           });
 
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
+        const user = JSON.parse(sessionStorage.getItem("user"));
         if (!token) return;
         const list = this.questions.map((q, idx) => ({
           id_questions: q.ID || q.id || q.Id || q.id_question,
@@ -242,7 +243,11 @@ export default {
             wrong,
             type: this.isCorrection ? "Egzamin - poprawa błędów" : "egzamin",
           },
-          { headers: { Authorization: `Bearer ${token}` } }
+          {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            },
+          }
         );
         this.isCorrection = true;
       } catch (e) {

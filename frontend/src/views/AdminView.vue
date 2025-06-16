@@ -642,7 +642,7 @@ export default {
     async saveEdit() {
       this.loading = true;
       try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         await axios.put(
           `/api/questions/${this.editQuestion.ID}`,
           this.editQuestion,
@@ -678,11 +678,9 @@ export default {
     async saveNewQuestion() {
       this.loading = true;
       try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         await axios.post("/api/questions", this.newQuestion, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         this.showAddPopup = false;
         this.fetchQuestions();
@@ -699,7 +697,7 @@ export default {
     async deleteQuestionConfirmed() {
       this.loading = true;
       try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         await axios.delete(`/api/questions/${this.questionToDelete.ID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -744,7 +742,7 @@ export default {
     async exportQuestionsExcel() {
       this.loading = true;
       try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         const response = await axios.get("/api/questions/export/excel", {
           responseType: "blob",
           headers: { Authorization: `Bearer ${token}` },
@@ -766,7 +764,7 @@ export default {
       if (!file) return;
       this.loading = true;
       try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         const formData = new FormData();
         formData.append("file", file);
 

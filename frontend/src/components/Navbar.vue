@@ -100,8 +100,8 @@ export default {
   },
   methods: {
     logout() {
-      localStorage.clear();
-      sessionStorage.clear();
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("user");
       this.$store.dispatch("logout");
       this.$router.push({ name: "Login" }).then(() => {
         window.location.reload();

@@ -212,7 +212,8 @@ export default {
     async saveUserHistory() {
       try {
         // ...odśwież token...
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
+        const user = JSON.parse(sessionStorage.getItem("user"));
         if (!token) return;
         const list = this.questions.map((q, idx) => ({
           id_questions: q.ID || q.id || q.Id || q.id_question,
@@ -236,7 +237,11 @@ export default {
               ? "egzamin"
               : "quiz",
           },
-          { headers: { Authorization: `Bearer ${token}` } }
+          {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            },
+          }
         );
         this.isCorrection = true;
       } catch (error) {

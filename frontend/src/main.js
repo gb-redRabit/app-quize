@@ -11,7 +11,7 @@ axios.defaults.baseURL = "https://app-quize.onrender.com";
 function scheduleTokenRefresh() {
   const refreshInterval = 10 * 60 * 1000; // 10 minut
   setInterval(async () => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token"); // ZAMIANA
     if (!token) return;
     try {
       const res = await axios.post(
@@ -22,19 +22,19 @@ function scheduleTokenRefresh() {
         }
       );
       if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
+        sessionStorage.setItem("token", res.data.token); // ZAMIANA
       }
     } catch (e) {
-      // Jeśli refresh się nie uda, wyloguj użytkownika
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      sessionStorage.removeItem("token"); // ZAMIANA
+      sessionStorage.removeItem("user"); // ZAMIANA
       window.location.href = "/login";
     }
   }, refreshInterval);
 }
 
 // Uruchom odświeżanie po zalogowaniu
-if (localStorage.getItem("token")) {
+if (sessionStorage.getItem("token")) {
+  // ZAMIANA
   scheduleTokenRefresh();
 }
 

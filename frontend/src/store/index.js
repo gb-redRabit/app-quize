@@ -30,11 +30,10 @@ const store = createStore({
     async fetchUserHistory({ commit }) {
       const response = await axios.get("/api/users/history", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
         },
       });
-      // Zaktualizuj user w store (jeśli masz getter getUser)
-      const user = JSON.parse(localStorage.getItem("user")) || {};
+      const user = JSON.parse(sessionStorage.getItem("user")) || {};
       user.history = response.data;
       commit("SET_USER", user);
       commit("SET_USER_HISTORY", response.data);
@@ -43,15 +42,15 @@ const store = createStore({
       const response = await axios.post("/api/auth/login", credentials);
       commit("SET_AUTHENTICATED", true);
       commit("SET_USER", response.data.user);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      sessionStorage.setItem("token", response.data.token);
+      sessionStorage.setItem("user", JSON.stringify(response.data.user));
     },
     async logout({ commit }) {
       await axios.post("/api/auth/logout");
       commit("SET_AUTHENTICATED", false);
       commit("SET_USER", null);
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("user");
     },
   },
   getters: {
@@ -63,8 +62,8 @@ const store = createStore({
 });
 
 // Przywracanie stanu po odświeżeniu
-const user = localStorage.getItem("user");
-const token = localStorage.getItem("token");
+const user = sessionStorage.getItem("user");
+const token = sessionStorage.getItem("token");
 if (user && token) {
   store.commit("SET_USER", JSON.parse(user));
   store.commit("SET_AUTHENTICATED", true);

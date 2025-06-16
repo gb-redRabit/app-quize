@@ -479,7 +479,7 @@ export default {
 
         // Pobierz historię użytkownika
         try {
-          const token = localStorage.getItem("token");
+          const token = sessionStorage.getItem("token");
           const historyRes = await axios.get("/api/users/history", {
             headers: { Authorization: `Bearer ${token}` },
           });

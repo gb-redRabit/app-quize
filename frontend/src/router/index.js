@@ -47,12 +47,8 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const isAuthenticated =
-    !!localStorage.getItem("user") && !!localStorage.getItem("token");
-  if (
-    to.name !== "Login" &&
-    to.name !== "Register" && // ← pozwól wejść na rejestrację bez logowania
-    !isAuthenticated
-  ) {
+    !!sessionStorage.getItem("user") && !!sessionStorage.getItem("token");
+  if (to.name !== "Login" && to.name !== "Register" && !isAuthenticated) {
     next({ name: "Login" });
   } else if (
     (to.name === "Login" || to.name === "Register") &&

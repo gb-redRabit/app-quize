@@ -151,7 +151,7 @@ export default {
     },
     async confirmClearHistory() {
       try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         await axios.put(
           "/api/users/update",
           { clearHistory: true },
