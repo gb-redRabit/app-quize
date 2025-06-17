@@ -38,14 +38,24 @@
       >
         Egzamin 250 pytań (2h)
       </BaseButton>
+    </div>
+    <div class="flex flex-row justify-center gap-4 mt-6 mb-8 w-full">
       <BaseButton
-        color="purple"
+        color="blue"
         size="lg"
-        class="font-semibold shadow"
+        class="font-semibold shadow w-1/2"
         @click="showExamPopup = true"
         :aria-label="'Rozpocznij Egzamin'"
       >
         Rozpocznij Egzamin z ubiegłych lat
+      </BaseButton>
+      <BaseButton
+        color="blue"
+        size="lg"
+        class="font-semibold shadow w-1/2"
+        @click="showOtherQuizPopup = true"
+      >
+        Rozpocznij Quiz z pozostałych kategorii
       </BaseButton>
     </div>
     <RandomQuote />
@@ -345,6 +355,74 @@
         </BaseModal>
       </div>
     </div>
+
+    <!-- Popup z innymi quizami -->
+    <BaseModal :show="showOtherQuizPopup" @close="showOtherQuizPopup = false">
+      <h3 class="text-lg font-bold mb-4">Wybierz kategorię quizu:</h3>
+      <div class="grid grid-cols-2 gap-2">
+        <BaseButton
+          v-for="cat in otherCategories"
+          :key="cat"
+          color="blue"
+          class="w-full flex flex-col items-start"
+          @click="startQuizFromCategory(cat)"
+        >
+          <div class="flex w-full items-end justify-between">
+            <!-- Pasek postępu -->
+            <div class="flex-1 mr-2">
+              <div
+                v-if="
+                  quizStatsByCategory[cat] && quizStatsByCategory[cat].total > 0
+                "
+                class="w-3/4 h-2 rounded bg-gray-200 my-1 flex overflow-hidden"
+              >
+                <div
+                  class="bg-green-400 h-2"
+                  :style="{
+                    width:
+                      (quizStatsByCategory[cat].correct /
+                        quizStatsByCategory[cat].total) *
+                        100 +
+                      '%',
+                  }"
+                ></div>
+                <div
+                  class="bg-red-400 h-2"
+                  :style="{
+                    width:
+                      (quizStatsByCategory[cat].wrong /
+                        quizStatsByCategory[cat].total) *
+                        100 +
+                      '%',
+                  }"
+                ></div>
+              </div>
+            </div>
+            <!-- Statystyki i nazwa kategorii -->
+            <div class="flex flex-col items-end min-w-[90px]">
+              <span class="font-bold">{{ cat }}</span>
+              <span
+                v-if="
+                  quizStatsByCategory[cat] && quizStatsByCategory[cat].total > 0
+                "
+                class="mt-1"
+              >
+                <span class="text-green-700 font-semibold">{{
+                  quizStatsByCategory[cat].correct
+                }}</span
+                >/<span class="text-red-700 font-semibold">{{
+                  quizStatsByCategory[cat].wrong
+                }}</span
+                >/<span class="text-gray-700 font-semibold">{{
+                  quizStatsByCategory[cat].total
+                }}</span>
+              </span>
+              <span v-else class="text-xs mt-1">Brak historii</span>
+            </div>
+          </div>
+        </BaseButton>
+      </div>
+    </BaseModal>
   </div>
 </template>
 
@@ -388,6 +466,7 @@ export default {
       showExamPopup: false,
       userHistory: [],
       examDuration: 30,
+      showOtherQuizPopup: false,
     };
   },
   computed: {
@@ -426,6 +505,32 @@ export default {
           .find(
             (entry) =>
               (entry.type === "quiz" || entry.type === "egzamin") &&
+              entry.categories &&
+              entry.categories.some(
+                (c) => c && c.toLowerCase() === cat.toLowerCase()
+              )
+          );
+        if (last) {
+          stats[cat] = {
+            correct: last.correct || 0,
+            wrong: last.wrong || 0,
+            total: (last.correct || 0) + (last.wrong || 0),
+          };
+        } else {
+          stats[cat] = { correct: 0, wrong: 0, total: 0 };
+        }
+      }
+      return stats;
+    },
+    quizStatsByCategory() {
+      if (!this.userHistory || !this.userHistory.length) return {};
+      const stats = {};
+      for (const cat of this.otherCategories) {
+        const last = [...this.userHistory]
+          .reverse()
+          .find(
+            (entry) =>
+              entry.type === "quiz" &&
               entry.categories &&
               entry.categories.some(
                 (c) => c && c.toLowerCase() === cat.toLowerCase()
@@ -671,6 +776,17 @@ export default {
               ? "all"
               : this.selectedCategories.join(","),
           time: this.examDuration,
+        },
+      });
+    },
+    startQuizFromCategory(cat) {
+      this.showOtherQuizPopup = false;
+      const max = this.categoryCounts[cat] || 10;
+      this.$router.push({
+        name: "QuizView",
+        query: {
+          length: 150,
+          categories: cat,
         },
       });
     },

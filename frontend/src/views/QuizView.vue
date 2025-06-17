@@ -15,7 +15,11 @@
               ← Poprzednie
             </button>
             <h1 class="text-3xl font-bold text-center sm:block hidden">
-              {{ questions[currentQuestionIndex].category }}
+              {{
+                questions[currentQuestionIndex].category.length > 60
+                  ? questions[currentQuestionIndex].category.slice(0, 60) + "…"
+                  : questions[currentQuestionIndex].category
+              }}
             </h1>
             <button
               class="bg-blue-600 text-white md:px-6 md:py-3 rounded md:text-lg px-2 py-1"
@@ -183,12 +187,13 @@ export default {
       this.questionTimes = [];
       this.startTimer();
     },
-    selectAnswer(index) {
+    async selectAnswer(index) {
       if (this.answersStatus[this.currentQuestionIndex].answered) return;
       const q = this.questions[this.currentQuestionIndex];
       const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
       const correctIdx = keys.findIndex((k) => q[k] && q[k].isCorret);
       const isCorrect = index === correctIdx;
+
       if (isCorrect) this.score++;
       this.answersStatus[this.currentQuestionIndex] = {
         answered: true,
@@ -199,6 +204,22 @@ export default {
       const now = Date.now();
       this.questionTimes[this.currentQuestionIndex] =
         (now - this.startTime) / 1000;
+
+      // --- DODAJ TO: wyślij do backendu ---
+      try {
+        // const token = sessionStorage.getItem("token");
+        // await axios.post(
+        //   "/api/users/hquestion",
+        //   {
+        //     id: q.ID || q.id || q.Id || q.id_question,
+        //     correct: isCorrect,
+        //     category: q.category || "",
+        //   },
+        //   {
+        //     headers: { Authorization: `Bearer ${token}` },
+        //   }
+        // );
+      } catch (e) {}
     },
     async nextOrFinish() {
       if (this.currentQuestionIndex < this.questions.length - 1) {

@@ -145,6 +145,27 @@ export default {
         answered: true,
         selected: index,
       };
+      // --- DODAJ TO: wyślij do backendu ---
+      try {
+        const q = this.questions[this.currentQuestionIndex];
+        const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+        const correctIdx = keys.findIndex((k) => q[k] && q[k].isCorret);
+        const isCorrect = index === correctIdx;
+        // const token = sessionStorage.getItem("token");
+        // await axios.post(
+        //   "/api/users/hquestion",
+        //   {
+        //     id: q.ID || q.id || q.Id || q.id_question,
+        //     correct: isCorrect,
+        //     category: q.category || "",
+        //   },
+        //   {
+        //     headers: { Authorization: `Bearer ${token}` },
+        //   }
+        // );
+      } catch (e) {
+        // Możesz dodać obsługę błędu, np. alert
+      }
       setTimeout(async () => {
         if (this.currentQuestionIndex < this.questions.length - 1) {
           this.currentQuestionIndex++;

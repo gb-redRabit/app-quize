@@ -1,13 +1,13 @@
 <template>
   <div>
-    <h2 class="text-sm sm:text-2xl mb-6 font-semibold break-words sm:h-56">
+    <h2 class="text-sm sm:text-2xl mb-6 font-semibold break-words">
       {{ question.question }}
     </h2>
     <div class="flex flex-col w-full">
       <button
         v-for="(answer, idx) in answers"
         :key="idx"
-        class="p-2 sm:p-4 rounded mb-1 sm:mb-4 border text-sm sm:text-lg transition-colors flex items-center sm:h-24"
+        class="p-2 sm:p-4 rounded mb-1 sm:mb-4 border text-sm sm:text-lg transition-colors flex items-center"
         :class="buttonClass(idx)"
         @click="onSelect(idx)"
         :disabled="answered"
@@ -22,6 +22,8 @@
 </template>
 
 <script>
+import { shuffleArray } from "@/utils/shuffleArray";
+
 export default {
   props: {
     question: { type: Object, required: true },
@@ -30,11 +32,27 @@ export default {
     showCorrect: Boolean,
   },
   emits: ["select"],
+  data() {
+    return {
+      shuffledAnswers: [],
+    };
+  },
+  watch: {
+    question: {
+      immediate: true,
+      handler() {
+        // Losuj odpowiedzi za każdym razem, gdy zmienia się pytanie
+        this.shuffledAnswers = shuffleArray(
+          ["answer_a", "answer_b", "answer_c", "answer_d"]
+            .map((k) => this.question[k])
+            .filter(Boolean)
+        );
+      },
+    },
+  },
   computed: {
     answers() {
-      return ["answer_a", "answer_b", "answer_c", "answer_d"]
-        .map((k) => this.question[k])
-        .filter(Boolean);
+      return this.shuffledAnswers;
     },
     correctIndex() {
       return this.answers.findIndex((a) => a.isCorret);
