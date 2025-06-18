@@ -96,6 +96,26 @@ export default {
     answeredCount() {
       return this.answersStatus.filter((a) => a.answered).length;
     },
+    shuffledAnswers() {
+      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+      if (
+        this.questions.length === 0 ||
+        this.currentQuestionIndex >= this.questions.length
+      ) {
+        return [];
+      }
+      const currentQuestion = this.questions[this.currentQuestionIndex];
+      const correctAnswer = currentQuestion[keys[currentQuestion.correctIndex]];
+      const wrongAnswers = keys
+        .filter((key) => key !== keys[currentQuestion.correctIndex])
+        .map((key) => currentQuestion[key]);
+      const allAnswers = [correctAnswer, ...wrongAnswers];
+      for (let i = allAnswers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allAnswers[i], allAnswers[j]] = [allAnswers[j], allAnswers[i]];
+      }
+      return allAnswers;
+    },
   },
   created() {
     const length = parseInt(this.$route.query.length, 10);

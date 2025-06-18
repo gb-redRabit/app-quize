@@ -30,6 +30,7 @@ export default {
     answered: Boolean,
     selected: Number,
     showCorrect: Boolean,
+    selectedKey: String,
   },
   emits: ["select"],
   data() {
@@ -41,10 +42,9 @@ export default {
     question: {
       immediate: true,
       handler() {
-        // Losuj odpowiedzi za każdym razem, gdy zmienia się pytanie
         this.shuffledAnswers = shuffleArray(
           ["answer_a", "answer_b", "answer_c", "answer_d"]
-            .map((k) => this.question[k])
+            .map((k) => this.question[k] && { ...this.question[k], key: k })
             .filter(Boolean)
         );
       },
@@ -57,16 +57,20 @@ export default {
     correctIndex() {
       return this.answers.findIndex((a) => a.isCorret);
     },
+    selectedIndex() {
+      if (!this.selectedKey) return null;
+      return this.answers.findIndex((a) => a.key === this.selectedKey);
+    },
   },
   methods: {
     onSelect(idx) {
-      this.$emit("select", idx);
+      this.$emit("select", idx, this.answers[idx].key);
     },
     buttonClass(idx) {
       if (!this.answered) return "bg-blue-500 text-white";
-      if (this.showCorrect && idx === this.correctIndex)
+      if (this.showCorrect && this.answers[idx].isCorret)
         return "bg-green-500 text-white";
-      if (idx === this.selected) return "bg-red-500 text-white";
+      if (idx === this.selectedIndex) return "bg-red-500 text-white";
       return "bg-gray-200 text-gray-700";
     },
     answerLetter(idx) {

@@ -54,6 +54,12 @@
                 ? answersStatus[currentQuestionIndex].selected
                 : null
             "
+            :selectedKey="
+              answersStatus.length > currentQuestionIndex &&
+              answersStatus[currentQuestionIndex]
+                ? answersStatus[currentQuestionIndex].selectedKey
+                : null
+            "
             :showCorrect="true"
             @select="selectAnswer"
           />
@@ -187,7 +193,39 @@ export default {
       this.questionTimes = [];
       this.startTimer();
     },
-    async selectAnswer(index) {
+    // ...w data lub computed...
+    shuffledAnswers: [],
+
+    // w watcherze question:
+    handler() {
+      this.shuffledAnswers = shuffleArray(
+        ["answer_a", "answer_b", "answer_c", "answer_d"]
+          .map((k) => this.question[k] && { ...this.question[k], key: k })
+          .filter(Boolean)
+      );
+    },
+
+    // computed:
+    answers() {
+      return this.shuffledAnswers;
+    },
+    selectedIndex() {
+      if (!this.selectedKey) return null;
+      return this.answers.findIndex((a) => a.key === this.selectedKey);
+    },
+
+    // methods:
+    onSelect(idx) {
+      this.$emit("select", idx, this.answers[idx].key);
+    },
+    buttonClass(idx) {
+      if (!this.answered) return "bg-blue-500 text-white";
+      if (this.showCorrect && this.answers[idx].isCorret)
+        return "bg-green-500 text-white";
+      if (idx === this.selectedIndex) return "bg-red-500 text-white";
+      return "bg-gray-200 text-gray-700";
+    },
+    async selectAnswer(index, selectedKey) {
       if (this.answersStatus[this.currentQuestionIndex].answered) return;
       const q = this.questions[this.currentQuestionIndex];
       const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
@@ -199,6 +237,7 @@ export default {
         answered: true,
         correct: isCorrect,
         selected: index,
+        selectedKey,
       };
       // ZAPISZ czas odpowiedzi na to pytanie
       const now = Date.now();
