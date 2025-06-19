@@ -14,6 +14,7 @@
           v-model="loginInput"
           id="login"
           required
+          autocomplete="username"
           class="mt-1 block w-full p-2 border border-gray-300 rounded"
         />
       </div>
@@ -26,6 +27,7 @@
           v-model="password"
           id="password"
           required
+          autocomplete="current-password"
           class="mt-1 block w-full p-2 border border-gray-300 rounded"
         />
       </div>

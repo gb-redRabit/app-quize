@@ -44,12 +44,59 @@ router.post("/hquestion", authMiddleware.verifyToken, (req, res) => {
     if (!user)
       return res.status(404).json({ message: "Nie znaleziono użytkownika" });
     if (!Array.isArray(user.hquestion)) user.hquestion = [];
-    user.hquestion.push({ id, correct, category });
-    fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
-      if (err) return res.status(500).json({ message: "Błąd zapisu" });
-      res.json({ message: "Dodano do hquestion" });
-    });
+
+    // Szukaj wpisu po id
+    const existing = user.hquestion.find((q) => q.id == id);
+
+    if (existing) {
+      if (correct === true) {
+        existing.correct = true;
+        return safeWriteUsers(users, res, "Poprawiono na poprawną odpowiedź");
+      } else if (existing.correct !== true) {
+        existing.correct = false;
+        return safeWriteUsers(users, res, "Zapisano jako błędną odpowiedź");
+      } else {
+        return res.json({ message: "Już poprawnie rozwiązane" });
+      }
+    } else {
+      // Nie istnieje – dodaj nowy wpis
+      user.hquestion.push({ id, correct, category });
+      return safeWriteUsers(users, res, "Dodano do hquestion");
+    }
   });
 });
+
+router.get("/me", authMiddleware.verifyToken, (req, res) => {
+  fs.readFile(usersFilePath, "utf8", (err, data) => {
+    if (err) return res.status(500).json({ message: "Błąd pliku users" });
+    const users = JSON.parse(data);
+    const user = users.find((u) => u.id === req.user.id);
+    if (!user)
+      return res.status(404).json({ message: "Nie znaleziono użytkownika" });
+    res.json(user); // user.hquestion jest w tym obiekcie
+  });
+});
+
+router.get("/hquestion", authMiddleware.verifyToken, (req, res) => {
+  const userId = req.user.id;
+  fs.readFile(usersFilePath, "utf8", (err, data) => {
+    if (err) return res.status(500).json({ message: "Błąd pliku users" });
+    const users = JSON.parse(data);
+    const user = users.find((u) => u.id === userId);
+    if (!user)
+      return res.status(404).json({ message: "Nie znaleziono użytkownika" });
+    res.json(user.hquestion || []);
+  });
+});
+
+const safeWriteUsers = (users, res, successMsg) => {
+  if (!Array.isArray(users)) {
+    return res.status(500).json({ message: "Błąd: users nie jest tablicą!" });
+  }
+  fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
+    if (err) return res.status(500).json({ message: "Błąd zapisu" });
+    res.json({ message: successMsg });
+  });
+};
 
 module.exports = router;

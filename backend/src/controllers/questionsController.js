@@ -62,3 +62,14 @@ exports.deleteQuestion = (req, res) => {
     res.json({ message: "Usunięto pytanie" });
   });
 };
+const safeWriteUsers = (users, res, successMsg) => {
+  // Walidacja: users musi być tablicą i mieć przynajmniej jednego użytkownika
+  if (!Array.isArray(users)) {
+    return res.status(500).json({ message: "Błąd: users nie jest tablicą!" });
+  }
+  // Zapisz bezpiecznie
+  fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
+    if (err) return res.status(500).json({ message: "Błąd zapisu" });
+    res.json({ message: successMsg });
+  });
+};

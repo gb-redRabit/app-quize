@@ -149,7 +149,16 @@ router.post(
           isCorret_c,
           category,
           description,
-        ] = row.values.slice(1); // ExcelJS: row.values[0] jest pusty
+        ] = row.values.slice(1).map((val) => {
+          if (val === null || val === undefined) return "";
+          if (val instanceof Date) {
+            // Zamień datę na oryginalny zapis liczbowy lub tekstowy
+            // ExcelJS nie przechowuje oryginalnej postaci, więc zamieniamy na ISO lub liczbowo
+            // Najlepiej zamienić na string liczbowy (Excel daty trzyma jako liczby float)
+            return val.toISOString();
+          }
+          return String(val);
+        });
 
         // Zamiana na wartość logiczną
         const toBool = (val) => {

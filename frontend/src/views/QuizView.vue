@@ -251,18 +251,18 @@ export default {
 
       // --- DODAJ TO: wyślij do backendu ---
       try {
-        // const token = sessionStorage.getItem("token");
-        // await axios.post(
-        //   "/api/users/hquestion",
-        //   {
-        //     id: q.ID || q.id || q.Id || q.id_question,
-        //     correct: isCorrect,
-        //     category: q.category || "",
-        //   },
-        //   {
-        //     headers: { Authorization: `Bearer ${token}` },
-        //   }
-        // );
+        const token = sessionStorage.getItem("token");
+        await axios.post(
+          "/api/users/hquestion",
+          {
+            id: q.ID || q.id || q.Id || q.id_question,
+            correct: isCorrect,
+            category: q.category || "",
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
       } catch (e) {}
     },
     async nextOrFinish() {
@@ -276,18 +276,14 @@ export default {
     },
     async saveUserHistory() {
       try {
-        // ...odśwież token...
         const token = sessionStorage.getItem("token");
-        const user = JSON.parse(sessionStorage.getItem("user"));
         if (!token) return;
         const list = this.questions.map((q, idx) => ({
           id_questions: q.ID || q.id || q.Id || q.id_question,
-          answer: this.answersStatus[idx].selectedKey
-            ? this.answersStatus[idx].selectedKey
-                .replace("answer_", "")
-                .toUpperCase()
-            : "",
           correct: this.answersStatus[idx].selectedKey === getCorrectKey(q),
+          answer: this.answersStatus[idx].selectedKey
+            ? ["A", "B", "C", "D"][this.answersStatus[idx].selected]
+            : null,
         }));
         const correct = this.answersStatus.filter((a) => a.correct).length;
         const wrong = this.answersStatus.length - correct;
@@ -295,22 +291,16 @@ export default {
         await axios.put(
           "/api/users/update",
           {
-            data: new Date().toISOString(),
-            categories: this.selectedCategories,
-            list,
-            correct,
-            wrong,
-            type: this.isCorrection
-              ? "Quiz - poprawa błędów"
-              : this.isExamMode
-              ? "egzamin"
-              : "quiz",
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            addHistory: {
+              type: this.isCorrection ? "Quiz - poprawa błędów" : "quiz",
+              correct,
+              categories: this.selectedCategories,
+              wrong,
+              list,
+              data: new Date().toISOString(),
             },
-          }
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         this.isCorrection = true;
       } catch (error) {
@@ -332,13 +322,55 @@ export default {
     goToQuestion(idx) {
       if (!this.showSummary) this.currentQuestionIndex = idx;
     },
-    restartQuiz() {
+    async restartQuiz() {
       this.currentQuestionIndex = 0;
       this.score = 0;
       this.loading = true;
-      this.fetchQuestions();
-      this.startTime = Date.now();
-      this.questionTimes = [];
+
+      // Jeśli quiz był uruchomiony z kategorią (np. powtórka błędnych/nieprzerobionych)
+      if (this.$route.query.categories) {
+        const cat = this.$route.query.categories;
+        const token = sessionStorage.getItem("token");
+        // Pobierz wszystkie pytania
+        const allQuestions = (await axios.get("/api/questions")).data;
+        // Pobierz historię użytkownika
+        const historyRes = await axios.get("/api/users/hquestion", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const hq = historyRes.data.filter((q) => q.category === cat);
+
+        // Wyznacz ID pytań z tej kategorii
+        const allIds = allQuestions
+          .filter((q) => q.category === cat)
+          .map((q) => q.ID || q.id || q.Id || q.id_question);
+
+        // Filtruj tylko błędne lub nieprzerobione
+        const wrongOrNotDoneIds = allIds.filter((id) => {
+          const entry = hq.find((q) => q.id == id);
+          return !entry || entry.correct === false;
+        });
+
+        const length = Math.min(
+          parseInt(this.$route.query.length, 10) || 10,
+          wrongOrNotDoneIds.length
+        );
+
+        // Przekieruj do QuizView z nową listą ids
+        this.$router.replace({
+          name: "QuizView",
+          query: {
+            ...this.$route.query,
+            ids: wrongOrNotDoneIds.join(","),
+            length,
+            r: Math.random().toString(36).substring(2, 8),
+          },
+        });
+      } else {
+        // Standardowo: losuj z kategorii/all
+        this.fetchQuestions();
+        this.startTime = Date.now();
+        this.questionTimes = [];
+      }
     },
     userAnswerText(q, selectedKey) {
       if (!selectedKey) return "";

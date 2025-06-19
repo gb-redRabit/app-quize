@@ -152,30 +152,38 @@ export default {
   methods: {
     ...mapActions(["fetchUserHistory"]),
     async fetchQuestions() {
-      try {
-        this.loading = true;
-        const response = await axios.get("/api/questions");
-        const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-        this.questions = getRandomUniqueQuestions(
-          response.data,
-          this.examLength
-        ).map((q) => ({
-          ...q,
-          correctKey: keys.find((k) => q[k] && q[k].isCorret),
-        }));
-        this.answersStatus = this.questions.map(() => ({
-          answered: false,
-          selected: null,
-          selectedKey: null,
-        }));
-        this.loading = false;
-        this.showSummary = false;
-        this.score = 0;
-        this.currentQuestionIndex = 0;
-      } catch (error) {
-        console.error("Error fetching questions:", error);
+      const response = await axios.get("/api/questions");
+      let filteredQuestions = response.data;
+
+      if (this.$route.query.ids) {
+        const ids = this.$route.query.ids.split(",").map((id) => id.trim());
+        filteredQuestions = filteredQuestions.filter((q) =>
+          ids.includes(String(q.ID || q.id || q.Id || q.id_question))
+        );
+      } else if (
+        this.selectedCategories &&
+        this.selectedCategories[0] !== "all"
+      ) {
+        filteredQuestions = filteredQuestions.filter((q) =>
+          this.selectedCategories.includes(q.category)
+        );
       }
+
+      this.questions = getRandomUniqueQuestions(
+        filteredQuestions,
+        this.examLength
+      );
+      this.answersStatus = this.questions.map(() => ({
+        answered: false,
+        selected: null,
+        selectedKey: null,
+      }));
+      this.loading = false;
+      this.showSummary = false;
+      this.score = 0;
+      this.currentQuestionIndex = 0;
     },
+
     async selectAnswer(index, selectedKey) {
       if (this.answersStatus[this.currentQuestionIndex].answered) return;
       const q = this.questions[this.currentQuestionIndex];
@@ -199,6 +207,20 @@ export default {
           await this.saveExamHistory();
         }
       }, 300);
+      try {
+        const token = sessionStorage.getItem("token");
+        await axios.post(
+          "/api/users/hquestion",
+          {
+            id: q.ID || q.id || q.Id || q.id_question,
+            correct: isCorrect,
+            category: q.category || "",
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+      } catch (e) {}
     },
     countScore() {
       this.score = this.answersStatus.reduce((acc, a, idx) => {
@@ -218,12 +240,50 @@ export default {
         ? q[correctKey].answer
         : "";
     },
-    restartExam() {
+    async restartExam() {
       this.isCorrection = false;
       this.examLength = this.initialExamLength;
       this.timeLeft = this.examTimeMinutes * 60;
-      this.fetchQuestions();
-      this.startTimer();
+
+      // Jeśli jest kategoria w query, pobierz nowe błędne/nieprzerobione pytania
+      if (this.$route.query.categories) {
+        const cat = this.$route.query.categories;
+        const token = sessionStorage.getItem("token");
+        // Pobierz wszystkie pytania
+        const allQuestions = (await axios.get("/api/questions")).data;
+        // Pobierz historię użytkownika
+        const historyRes = await axios.get("/api/users/hquestion", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const hq = historyRes.data.filter((q) => q.category === cat);
+
+        // Wyznacz ID pytań z tej kategorii
+        const allIds = allQuestions
+          .filter((q) => q.category === cat)
+          .map((q) => q.ID || q.id || q.Id || q.id_question);
+
+        // Filtruj tylko błędne lub nieprzerobione
+        const wrongOrNotDoneIds = allIds.filter((id) => {
+          const entry = hq.find((q) => q.id == id);
+          return !entry || entry.correct === false;
+        });
+
+        const length = Math.min(this.examLength, wrongOrNotDoneIds.length);
+
+        this.$router.replace({
+          name: "ExamView",
+          query: {
+            ...this.$route.query,
+            ids: wrongOrNotDoneIds.join(","),
+            length,
+            r: Math.random().toString(36).substring(2, 8),
+          },
+        });
+      } else {
+        // Standardowo: losuj z kategorii
+        this.fetchQuestions();
+        this.startTimer();
+      }
     },
     async startTimer() {
       clearInterval(this.timer);
@@ -245,58 +305,31 @@ export default {
     },
     async saveExamHistory() {
       try {
-        await axios
-          .post(
-            "/api/auth/refresh",
-            {},
-            {
-              headers: {
-                Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-              },
-            }
-          )
-          .then((res) => {
-            if (res.data.token) {
-              sessionStorage.setItem("token", res.data.token);
-            }
-          })
-          .catch(() => {
-            sessionStorage.removeItem("token");
-            sessionStorage.removeItem("user");
-            window.location.href = "/login";
-          });
-
         const token = sessionStorage.getItem("token");
         if (!token) return;
         const list = this.questions.map((q, idx) => ({
           id_questions: q.ID || q.id || q.Id || q.id_question,
-          answer: this.answersStatus[idx].selectedKey
-            ? this.answersStatus[idx].selectedKey
-                .replace("answer_", "")
-                .toUpperCase()
-            : "",
           correct: this.answersStatus[idx].selectedKey === getCorrectKey(q),
+          answer: this.answersStatus[idx].selectedKey
+            ? ["A", "B", "C", "D"][this.answersStatus[idx].selected]
+            : null,
         }));
-        const correct = this.answersStatus.reduce((acc, a, idx) => {
-          const q = this.questions[idx];
-          return acc + (a.selectedKey === getCorrectKey(q) ? 1 : 0);
-        }, 0);
+        const correct = this.answersStatus.filter((a) => a.correct).length;
         const wrong = this.answersStatus.length - correct;
 
         await axios.put(
           "/api/users/update",
           {
-            data: new Date().toISOString(),
-            list,
-            correct,
-            wrong,
-            type: this.isCorrection ? "Egzamin - poprawa błędów" : "egzamin",
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            addHistory: {
+              type: this.isCorrection ? "Egzamin - poprawa błędów" : "egzamin",
+              correct,
+              wrong,
+              list,
+              categories: this.selectedCategories,
+              data: new Date().toISOString(),
             },
-          }
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         this.isCorrection = true;
       } catch (e) {
