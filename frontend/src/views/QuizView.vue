@@ -16,9 +16,13 @@
             </button>
             <h1 class="text-3xl font-bold text-center sm:block hidden">
               {{
-                questions[currentQuestionIndex].category.length > 60
-                  ? questions[currentQuestionIndex].category.slice(0, 60) + "…"
-                  : questions[currentQuestionIndex].category
+                questions[currentQuestionIndex] &&
+                questions[currentQuestionIndex].category
+                  ? questions[currentQuestionIndex].category.length > 60
+                    ? questions[currentQuestionIndex].category.slice(0, 60) +
+                      "…"
+                    : questions[currentQuestionIndex].category
+                  : ""
               }}
             </h1>
             <button
