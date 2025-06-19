@@ -39,6 +39,7 @@
             </button>
           </div>
           <QuestionList
+            ref="questionList"
             class="sm:h-auto h-63vh"
             v-if="questions.length && currentQuestionIndex < questions.length"
             :question="questions[currentQuestionIndex]"
@@ -113,6 +114,11 @@ import SummaryBox from "@/components/SummaryBox.vue";
 import ProgressBar from "@/components/ProgressBar.vue";
 import { getRandomUniqueQuestions } from "@/utils/randomQuestions";
 
+function getCorrectKey(q) {
+  const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+  return keys.find((k) => q[k] && q[k].isCorret);
+}
+
 export default {
   components: {
     QuestionList,
@@ -136,6 +142,7 @@ export default {
       timerInterval: null,
       isCorrection: false,
       isExamMode: false,
+      shuffledAnswers: [],
     };
   },
   created() {
@@ -193,8 +200,6 @@ export default {
       this.questionTimes = [];
       this.startTimer();
     },
-    // ...w data lub computed...
-    shuffledAnswers: [],
 
     // w watcherze question:
     handler() {
@@ -229,8 +234,8 @@ export default {
       if (this.answersStatus[this.currentQuestionIndex].answered) return;
       const q = this.questions[this.currentQuestionIndex];
       const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      const correctIdx = keys.findIndex((k) => q[k] && q[k].isCorret);
-      const isCorrect = index === correctIdx;
+      const correctKey = keys.find((k) => q[k] && q[k].isCorret);
+      const isCorrect = selectedKey === correctKey;
 
       if (isCorrect) this.score++;
       this.answersStatus[this.currentQuestionIndex] = {
@@ -277,8 +282,12 @@ export default {
         if (!token) return;
         const list = this.questions.map((q, idx) => ({
           id_questions: q.ID || q.id || q.Id || q.id_question,
-          answer: this.userAnswerLetter(q, this.answersStatus[idx].selected),
-          correct: this.answersStatus[idx].correct === true,
+          answer: this.answersStatus[idx].selectedKey
+            ? this.answersStatus[idx].selectedKey
+                .replace("answer_", "")
+                .toUpperCase()
+            : "",
+          correct: this.answersStatus[idx].selectedKey === getCorrectKey(q),
         }));
         const correct = this.answersStatus.filter((a) => a.correct).length;
         const wrong = this.answersStatus.length - correct;
@@ -331,16 +340,17 @@ export default {
       this.startTime = Date.now();
       this.questionTimes = [];
     },
-    userAnswerText(q, selectedIdx) {
-      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      const key = keys[selectedIdx];
-      return q[key] && q[key].answer ? q[key].answer : "";
+    userAnswerText(q, selectedKey) {
+      if (!selectedKey) return "";
+      return q[selectedKey] && q[selectedKey].answer
+        ? q[selectedKey].answer
+        : "";
     },
     correctAnswerText(q) {
       const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      const idx = keys.findIndex((k) => q[k] && q[k].isCorret);
-      return idx !== -1 && q[keys[idx]] && q[keys[idx]].answer
-        ? q[keys[idx]].answer
+      const correctKey = keys.find((k) => q[k] && q[k].isCorret);
+      return correctKey && q[correctKey] && q[correctKey].answer
+        ? q[correctKey].answer
         : "";
     },
     retryWrongAnswers() {
@@ -370,18 +380,6 @@ export default {
       this.isCorrection = true; // ← DODAJ TO!
     },
     handleKeydown(e) {
-      // Obsługa podsumowania
-      if (this.showSummary) {
-        if (e.key === "ArrowUp") {
-          // Rozpocznij od nowa
-          this.restartQuiz();
-        }
-        if (e.key === "ArrowDown") {
-          // Popraw błędne odpowiedzi
-          this.retryWrongAnswers();
-        }
-        return;
-      }
       if (this.loading) return;
       // Odpowiedzi 1-4
       if (
@@ -389,9 +387,16 @@ export default {
         this.currentQuestionIndex < this.questions.length
       ) {
         const idx = parseInt(e.key, 10) - 1;
-        const status = this.answersStatus[this.currentQuestionIndex];
-        if (status && !status.answered) {
-          this.selectAnswer(idx);
+        // Pobierz aktualne przetasowane odpowiedzi
+        const answers = this.$refs.questionList
+          ? this.$refs.questionList.answers
+          : this.answers; // zależnie od implementacji
+        if (
+          !this.answersStatus[this.currentQuestionIndex].answered &&
+          answers &&
+          answers[idx]
+        ) {
+          this.selectAnswer(idx, answers[idx].key);
         }
       }
       // Strzałka w prawo – następne pytanie lub zakończenie testu

@@ -33,7 +33,7 @@
         <div v-else>
           <div>
             <span class="text-red-700 font-bold">Twoja odpowiedź: </span>
-            <span>{{ userAnswerText(q, answersStatus[idx].selected) }}</span>
+            <span>{{ userAnswerText(q, answersStatus[idx].selectedKey) }}</span>
           </div>
           <div>
             <span class="text-green-700 font-bold">Prawidłowa odpowiedź: </span>
@@ -66,20 +66,24 @@ export default {
     hasWrong() {
       return this.answersStatus.some(
         (a, idx) =>
-          a.selected !== null &&
-          typeof this.questions[idx].correctIndex === "number" &&
-          a.selected !== this.questions[idx].correctIndex
+          a.selectedKey &&
+          typeof this.questions[idx] !== "undefined" &&
+          a.selectedKey !== getCorrectKey(this.questions[idx])
       );
     },
   },
   methods: {
     isCorrect(idx) {
-      return (
-        this.answersStatus[idx].selected !== null &&
-        typeof this.questions[idx].correctIndex === "number" &&
-        this.answersStatus[idx].selected === this.questions[idx].correctIndex
-      );
+      const a = this.answersStatus[idx];
+      const q = this.questions[idx];
+      if (!a || !q) return false;
+      return a.selectedKey === getCorrectKey(q);
     },
   },
 };
+
+function getCorrectKey(q) {
+  const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+  return keys.find((k) => q[k] && q[k].isCorret);
+}
 </script>

@@ -67,10 +67,17 @@ export default {
       this.$emit("select", idx, this.answers[idx].key);
     },
     buttonClass(idx) {
+      // Jeśli nie udzielono odpowiedzi
       if (!this.answered) return "bg-blue-500 text-white";
-      if (this.showCorrect && this.answers[idx].isCorret)
+      // Jeśli pokazujemy poprawną i ta odpowiedź jest poprawna
+      if (this.showCorrect && this.answers[idx].isCorret) {
         return "bg-green-500 text-white";
-      if (idx === this.selectedIndex) return "bg-red-500 text-white";
+      }
+      // Jeśli to jest wybrana przez użytkownika odpowiedź i NIE jest poprawna
+      if (idx === this.selectedIndex && !this.answers[idx].isCorret) {
+        return "bg-red-500 text-white";
+      }
+      // Pozostałe
       return "bg-gray-200 text-gray-700";
     },
     answerLetter(idx) {

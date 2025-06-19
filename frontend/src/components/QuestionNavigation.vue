@@ -44,14 +44,21 @@ export default {
         return "ring-4 ring-blue-400 bg-blue-500 text-white scale-110 shadow";
       }
       const status = this.answersStatus[idx];
+      const question = this.questions[idx];
+      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+      // Znajdź klucz poprawnej odpowiedzi
+      const correctKey = keys.find((k) => question[k] && question[k].isCorret);
+
       if (
         status.answered &&
-        status.selected === this.questions[idx].correctIndex
+        status.selectedKey &&
+        status.selectedKey === correctKey
       )
         return "bg-green-500 text-white";
       if (
         status.answered &&
-        status.selected !== this.questions[idx].correctIndex
+        status.selectedKey &&
+        status.selectedKey !== correctKey
       )
         return "bg-red-500 text-white";
       return "bg-gray-200 text-gray-800";

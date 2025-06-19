@@ -17,6 +17,7 @@
         <BaseLoader v-if="loading" />
         <div v-else>
           <QuestionList
+            ref="questionList"
             v-if="questions.length && currentQuestionIndex < questions.length"
             :question="questions[currentQuestionIndex]"
             :answered="
@@ -25,10 +26,11 @@
                 ? answersStatus[currentQuestionIndex].answered
                 : false
             "
-            :selected="
+            :selected="selectedIndex"
+            :selectedKey="
               answersStatus.length > currentQuestionIndex &&
               answersStatus[currentQuestionIndex]
-                ? answersStatus[currentQuestionIndex].selected
+                ? answersStatus[currentQuestionIndex].selectedKey
                 : null
             "
             :showCorrect="false"
@@ -61,6 +63,12 @@ import SummaryBox from "@/components/SummaryBox.vue";
 import BaseLoader from "@/components/BaseLoader.vue";
 import ProgressBar from "@/components/ProgressBar.vue";
 import { getRandomUniqueQuestions } from "@/utils/randomQuestions";
+import { shuffleArray } from "@/utils/shuffleArray";
+
+function getCorrectKey(q) {
+  const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+  return keys.find((k) => q[k] && q[k].isCorret);
+}
 
 export default {
   components: {
@@ -83,6 +91,7 @@ export default {
       examTimeMinutes: 60,
       isCorrection: false,
       initialExamLength: 150,
+      shuffledAnswers: [],
     };
   },
   computed: {
@@ -96,32 +105,39 @@ export default {
     answeredCount() {
       return this.answersStatus.filter((a) => a.answered).length;
     },
-    shuffledAnswers() {
-      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      if (
-        this.questions.length === 0 ||
-        this.currentQuestionIndex >= this.questions.length
-      ) {
-        return [];
-      }
-      const currentQuestion = this.questions[this.currentQuestionIndex];
-      const correctAnswer = currentQuestion[keys[currentQuestion.correctIndex]];
-      const wrongAnswers = keys
-        .filter((key) => key !== keys[currentQuestion.correctIndex])
-        .map((key) => currentQuestion[key]);
-      const allAnswers = [correctAnswer, ...wrongAnswers];
-      for (let i = allAnswers.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [allAnswers[i], allAnswers[j]] = [allAnswers[j], allAnswers[i]];
-      }
-      return allAnswers;
+    answers() {
+      return this.shuffledAnswers;
+    },
+    selectedIndex() {
+      if (!this.answersStatus[this.currentQuestionIndex]) return null;
+      return this.answers.findIndex(
+        (a) =>
+          a.key === this.answersStatus[this.currentQuestionIndex].selectedKey
+      );
+    },
+  },
+  watch: {
+    currentQuestionIndex: {
+      immediate: true,
+      handler() {
+        const q = this.questions[this.currentQuestionIndex];
+        if (!q) {
+          this.shuffledAnswers = [];
+          return;
+        }
+        this.shuffledAnswers = shuffleArray(
+          ["answer_a", "answer_b", "answer_c", "answer_d"]
+            .map((k) => q[k] && { ...q[k], key: k })
+            .filter(Boolean)
+        );
+      },
     },
   },
   created() {
     const length = parseInt(this.$route.query.length, 10);
     const time = parseInt(this.$route.query.time, 10);
     this.examLength = length && !isNaN(length) ? length : 150;
-    this.initialExamLength = this.examLength; // ← zapamiętaj oryginalną liczbę pytań
+    this.initialExamLength = this.examLength;
     this.examTimeMinutes = time && !isNaN(time) ? time : 60;
     this.timeLeft = this.examTimeMinutes * 60;
     this.fetchQuestions();
@@ -142,14 +158,15 @@ export default {
         const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
         this.questions = getRandomUniqueQuestions(
           response.data,
-          this.examLength // ← używaj examLength
+          this.examLength
         ).map((q) => ({
           ...q,
-          correctIndex: keys.findIndex((k) => q[k] && q[k].isCorret),
+          correctKey: keys.find((k) => q[k] && q[k].isCorret),
         }));
         this.answersStatus = this.questions.map(() => ({
           answered: false,
           selected: null,
+          selectedKey: null,
         }));
         this.loading = false;
         this.showSummary = false;
@@ -159,33 +176,19 @@ export default {
         console.error("Error fetching questions:", error);
       }
     },
-    async selectAnswer(index) {
+    async selectAnswer(index, selectedKey) {
       if (this.answersStatus[this.currentQuestionIndex].answered) return;
+      const q = this.questions[this.currentQuestionIndex];
+      const correctKey = getCorrectKey(q);
+      const isCorrect = selectedKey === correctKey;
+
+      if (isCorrect) this.score++;
       this.answersStatus[this.currentQuestionIndex] = {
         answered: true,
+        correct: isCorrect,
         selected: index,
+        selectedKey,
       };
-      // --- DODAJ TO: wyślij do backendu ---
-      try {
-        const q = this.questions[this.currentQuestionIndex];
-        const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-        const correctIdx = keys.findIndex((k) => q[k] && q[k].isCorret);
-        const isCorrect = index === correctIdx;
-        // const token = sessionStorage.getItem("token");
-        // await axios.post(
-        //   "/api/users/hquestion",
-        //   {
-        //     id: q.ID || q.id || q.Id || q.id_question,
-        //     correct: isCorrect,
-        //     category: q.category || "",
-        //   },
-        //   {
-        //     headers: { Authorization: `Bearer ${token}` },
-        //   }
-        // );
-      } catch (e) {
-        // Możesz dodać obsługę błędu, np. alert
-      }
       setTimeout(async () => {
         if (this.currentQuestionIndex < this.questions.length - 1) {
           this.currentQuestionIndex++;
@@ -200,19 +203,24 @@ export default {
     countScore() {
       this.score = this.answersStatus.reduce((acc, a, idx) => {
         const q = this.questions[idx];
-        const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-        const correctIdx = keys.findIndex((k) => q[k] && q[k].isCorret);
-        return acc + (a.selected === correctIdx ? 1 : 0);
+        return acc + (a.selectedKey === getCorrectKey(q) ? 1 : 0);
       }, 0);
     },
-    userAnswerText(q, selectedIdx) {
-      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      const key = keys[selectedIdx];
-      return q[key] && q[key].answer ? q[key].answer : "";
+    userAnswerText(q, selectedKey) {
+      if (!selectedKey) return "";
+      return q[selectedKey] && q[selectedKey].answer
+        ? q[selectedKey].answer
+        : "";
+    },
+    correctAnswerText(q) {
+      const correctKey = getCorrectKey(q);
+      return correctKey && q[correctKey] && q[correctKey].answer
+        ? q[correctKey].answer
+        : "";
     },
     restartExam() {
-      this.isCorrection = false; // ← resetuj tryb poprawy
-      this.examLength = this.initialExamLength; // ← przywróć oryginalną liczbę pytań
+      this.isCorrection = false;
+      this.examLength = this.initialExamLength;
       this.timeLeft = this.examTimeMinutes * 60;
       this.fetchQuestions();
       this.startTimer();
@@ -225,9 +233,10 @@ export default {
         } else {
           clearInterval(this.timer);
           this.showSummary = true;
-          // Uzupełnij nieodpowiedziane jako błędne
           this.answersStatus = this.answersStatus.map((a) =>
-            a.answered ? a : { answered: true, selected: null }
+            a.answered
+              ? a
+              : { answered: true, selected: null, selectedKey: null }
           );
           this.countScore();
           await this.saveExamHistory();
@@ -236,7 +245,6 @@ export default {
     },
     async saveExamHistory() {
       try {
-        // Przed zapisem historii
         await axios
           .post(
             "/api/auth/refresh",
@@ -253,25 +261,25 @@ export default {
             }
           })
           .catch(() => {
-            // Jeśli nie uda się odświeżyć, wyloguj użytkownika
             sessionStorage.removeItem("token");
             sessionStorage.removeItem("user");
             window.location.href = "/login";
           });
 
         const token = sessionStorage.getItem("token");
-        const user = JSON.parse(sessionStorage.getItem("user"));
         if (!token) return;
         const list = this.questions.map((q, idx) => ({
           id_questions: q.ID || q.id || q.Id || q.id_question,
-          answer: this.userAnswerLetter(q, this.answersStatus[idx].selected),
-          correct: this.answersStatus[idx].selected === q.correctIndex,
+          answer: this.answersStatus[idx].selectedKey
+            ? this.answersStatus[idx].selectedKey
+                .replace("answer_", "")
+                .toUpperCase()
+            : "",
+          correct: this.answersStatus[idx].selectedKey === getCorrectKey(q),
         }));
         const correct = this.answersStatus.reduce((acc, a, idx) => {
           const q = this.questions[idx];
-          const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-          const correctIdx = keys.findIndex((k) => q[k] && q[k].isCorret);
-          return acc + (a.selected === correctIdx ? 1 : 0);
+          return acc + (a.selectedKey === getCorrectKey(q) ? 1 : 0);
         }, 0);
         const wrong = this.answersStatus.length - correct;
 
@@ -295,86 +303,52 @@ export default {
         console.error("Błąd zapisu historii egzaminu:", e);
       }
     },
-    userAnswerLetter(q, selectedIdx) {
-      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      if (selectedIdx == null) return "";
-      if (selectedIdx === 0) return "A";
-      if (selectedIdx === 1) return "B";
-      if (selectedIdx === 2) return "C";
-      if (selectedIdx === 3) return "D";
-      return "";
-    },
-    isUserAnswerCorrect(idx) {
-      const q = this.questions[idx];
-      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      const correctIdx = keys.findIndex((k) => q[k] && q[k].isCorret);
-      return this.answersStatus[idx].selected === correctIdx;
-    },
-    correctAnswerText(q) {
-      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      const idx = keys.findIndex((k) => q[k] && q[k].isCorret);
-      return idx !== -1 && q[keys[idx]] && q[keys[idx]].answer
-        ? q[keys[idx]].answer
-        : "";
-    },
     goToQuestion(idx) {
       if (!this.showSummary) this.currentQuestionIndex = idx;
     },
     retryWrongQuestions() {
-      // Zbierz indeksy błędnych odpowiedzi
       const wrongIndexes = this.answersStatus
         .map((a, idx) =>
-          a.selected !== this.getCorrectIndex(this.questions[idx]) ? idx : null
+          a.selectedKey !== getCorrectKey(this.questions[idx]) ? idx : null
         )
         .filter((idx) => idx !== null);
 
-      // Jeśli nie ma błędnych, nie rób nic
       if (!wrongIndexes.length) return;
 
-      // Przygotuj tylko błędne pytania
       this.questions = wrongIndexes.map((idx) => this.questions[idx]);
       this.answersStatus = this.questions.map(() => ({
         answered: false,
         selected: null,
+        selectedKey: null,
       }));
       this.currentQuestionIndex = 0;
       this.showSummary = false;
       this.score = 0;
       this.timeLeft = this.examTimeMinutes * 60;
-      this.examLength = this.questions.length; // ← liczba pytań do poprawy
+      this.examLength = this.questions.length;
       this.isCorrection = true;
-      this.startTimer(); // ← DODAJ TO!
-    },
-    getCorrectIndex(q) {
-      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      return keys.findIndex((k) => q[k] && q[k].isCorret);
+      this.startTimer();
     },
     handleKeydown(e) {
-      // Obsługa podsumowania
-      if (this.showSummary) {
-        if (e.key === "ArrowUp") {
-          // Rozpocznij egzamin od nowa
-          this.restartExam();
-        }
-        if (e.key === "ArrowDown") {
-          // Popraw błędne odpowiedzi
-          this.retryWrongQuestions();
-        }
-        return;
-      }
+      if (this.showSummary) return;
       if (this.loading) return;
-      // Odpowiedzi 1-4
       if (
         ["1", "2", "3", "4"].includes(e.key) &&
         this.currentQuestionIndex < this.questions.length
       ) {
         const idx = parseInt(e.key, 10) - 1;
-        const status = this.answersStatus[this.currentQuestionIndex];
-        if (status && !status.answered) {
-          this.selectAnswer(idx);
+        // Pobierz aktualne przetasowane odpowiedzi z ref
+        const answers = this.$refs.questionList
+          ? this.$refs.questionList.answers
+          : this.answers;
+        if (
+          !this.answersStatus[this.currentQuestionIndex].answered &&
+          answers &&
+          answers[idx]
+        ) {
+          this.selectAnswer(idx, answers[idx].key);
         }
       }
-      // Możesz dodać obsługę strzałek prawo/lewo jeśli chcesz
     },
   },
 };
