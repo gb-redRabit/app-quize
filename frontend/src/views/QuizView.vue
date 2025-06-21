@@ -179,12 +179,23 @@ export default {
       const response = await axios.get("/api/questions");
       const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
       const allQuestions = response.data;
-      const filteredQuestions =
-        this.selectedCategories[0] === "all"
-          ? allQuestions
-          : allQuestions.filter((q) =>
-              this.selectedCategories.includes(q.category)
-            );
+
+      let filteredQuestions;
+      if (this.$route.query.ids) {
+        // Jeśli są ids w query, pobierz tylko te pytania
+        const ids = this.$route.query.ids.split(",").map((id) => id.trim());
+        filteredQuestions = allQuestions.filter((q) =>
+          ids.includes(String(q.ID || q.id || q.Id || q.id_question))
+        );
+      } else {
+        filteredQuestions =
+          this.selectedCategories[0] === "all"
+            ? allQuestions
+            : allQuestions.filter((q) =>
+                this.selectedCategories.includes(q.category)
+              );
+      }
+
       this.questions = getRandomUniqueQuestions(
         filteredQuestions,
         this.quizLength
@@ -237,9 +248,12 @@ export default {
     async selectAnswer(index, selectedKey) {
       if (this.answersStatus[this.currentQuestionIndex].answered) return;
       const q = this.questions[this.currentQuestionIndex];
-      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      const correctKey = keys.find((k) => q[k] && q[k].isCorret);
-      const isCorrect = selectedKey === correctKey;
+      const id = q.ID || q.id || q.Id || q.id_question;
+      if (!id) {
+        console.warn("Brak ID pytania!", q);
+        return;
+      }
+      const isCorrect = selectedKey === getCorrectKey(q);
 
       if (isCorrect) this.score++;
       this.answersStatus[this.currentQuestionIndex] = {
@@ -253,21 +267,21 @@ export default {
       this.questionTimes[this.currentQuestionIndex] =
         (now - this.startTime) / 1000;
 
-      // --- DODAJ TO: wyślij do backendu ---
+      // Dodaj do hquestion
       try {
         const token = sessionStorage.getItem("token");
         await axios.post(
           "/api/users/hquestion",
           {
-            id: q.ID || q.id || q.Id || q.id_question,
+            id,
             correct: isCorrect,
-            category: q.category || "",
+            category: q.category,
           },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-      } catch (e) {}
+      } catch (e) {
+        // obsługa błędu
+      }
     },
     async nextOrFinish() {
       if (this.currentQuestionIndex < this.questions.length - 1) {
@@ -463,6 +477,22 @@ export default {
       this.timerInterval = setInterval(() => {
         this.$forceUpdate();
       }, 1000);
+    },
+    async saveAllQuestionsToHquestion() {
+      const token = sessionStorage.getItem("token");
+      for (let i = 0; i < this.questions.length; i++) {
+        const q = this.questions[i];
+        const status = this.answersStatus[i];
+        await axios.post(
+          "/api/users/hquestion",
+          {
+            id: q.ID || q.id || q.Id || q.id_question,
+            correct: status && status.answered ? status.correct : false,
+            category: q.category,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
     },
   },
   // USUŃ computed: { totalTime, avgTime }

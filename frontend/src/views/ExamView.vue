@@ -92,6 +92,8 @@ export default {
       isCorrection: false,
       initialExamLength: 150,
       shuffledAnswers: [],
+      questionTimes: [],
+      startTime: null,
     };
   },
   computed: {
@@ -187,8 +189,12 @@ export default {
     async selectAnswer(index, selectedKey) {
       if (this.answersStatus[this.currentQuestionIndex].answered) return;
       const q = this.questions[this.currentQuestionIndex];
-      const correctKey = getCorrectKey(q);
-      const isCorrect = selectedKey === correctKey;
+      const id = q.ID || q.id || q.Id || q.id_question; // użyj nullish coalescing
+      if (!id) {
+        console.warn("Brak ID pytania!", q);
+        return;
+      }
+      const isCorrect = selectedKey === getCorrectKey(q);
 
       if (isCorrect) this.score++;
       this.answersStatus[this.currentQuestionIndex] = {
@@ -197,6 +203,26 @@ export default {
         selected: index,
         selectedKey,
       };
+      // ZAPISZ czas odpowiedzi na to pytanie
+      const now = Date.now();
+      this.questionTimes[this.currentQuestionIndex] =
+        (now - this.startTime) / 1000;
+
+      // Dodaj do hquestion
+      try {
+        const token = sessionStorage.getItem("token");
+        await axios.post(
+          "/api/users/hquestion",
+          {
+            id,
+            correct: isCorrect,
+            category: q.category,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } catch (e) {
+        // obsługa błędu
+      }
       setTimeout(async () => {
         if (this.currentQuestionIndex < this.questions.length - 1) {
           this.currentQuestionIndex++;
@@ -336,6 +362,7 @@ export default {
         console.error("Błąd zapisu historii egzaminu:", e);
       }
     },
+
     goToQuestion(idx) {
       if (!this.showSummary) this.currentQuestionIndex = idx;
     },

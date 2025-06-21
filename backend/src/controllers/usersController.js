@@ -1,13 +1,17 @@
 const fs = require("fs");
 const path = require("path");
 const fileUtils = require("../utils/fileUtils");
+const { writeJsonQueued } = require("../utils/writeQueue");
 const usersFilePath = path.join(__dirname, "../../data/users.json");
 
 // Funkcja pomocnicza do bezpiecznego zapisu pliku users.json
-const safeWriteUsers = (users, res, successMessage) => {
-  fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
-    if (err) return res.status(500).json({ error: "Błąd zapisu" });
-    return res.json({ message: successMessage });
+const safeWriteUsers = (users, res, successMsg) => {
+  if (!Array.isArray(users)) {
+    return res.status(500).json({ message: "Błąd: users nie jest tablicą!" });
+  }
+  writeJsonQueued(usersFilePath, users, (err) => {
+    if (err) return res.status(500).json({ message: "Błąd zapisu" });
+    res.json({ message: successMsg });
   });
 };
 

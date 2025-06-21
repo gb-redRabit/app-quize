@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto p-2 sm:p-4 bg-gray-100 min-h-screen">
+  <div class="container mx-auto p-2 sm:p-4 min-h-screen">
     <BaseLoader :show="loading" />
     <h1 class="text-2xl font-bold mb-4">Panel administratora</h1>
     <div class="mb-4">

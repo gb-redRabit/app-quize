@@ -8,6 +8,7 @@ import Register from "../components/Register.vue";
 import History from "../views/HistoryView.vue";
 import ExamView from "../views/ExamView.vue";
 import CategoryQuestionsView from "../views/CategoryQuestionsView.vue";
+import UserPanel from "../views/UserPanel.vue";
 
 const routes = [
   { path: "/", name: "Home", component: Home },
@@ -36,6 +37,12 @@ const routes = [
     path: "/category/:category",
     name: "CategoryQuestions",
     component: CategoryQuestionsView,
+  },
+  {
+    path: "/user",
+    name: "UserPanel",
+    component: UserPanel,
+    meta: { requiresAuth: true },
   },
   { path: "/:pathMatch(.*)*", name: "NotFound", component: NotFound },
 ];

@@ -44,6 +44,13 @@ const store = createStore({
       commit("SET_USER", response.data.user);
       sessionStorage.setItem("token", response.data.token);
       sessionStorage.setItem("user", JSON.stringify(response.data.user));
+      // Dodaj:
+      if (response.data.user.option) {
+        document.documentElement.setAttribute(
+          "data-theme",
+          response.data.user.option
+        );
+      }
     },
     async logout({ commit }) {
       await axios.post("/api/auth/logout");

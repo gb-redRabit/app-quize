@@ -38,6 +38,9 @@
       <router-link to="/admin" class="hover:text-blue-600 font-medium"
         >Panel administracyjny</router-link
       >
+      <router-link to="/user" class="hover:text-blue-600 font-medium"
+        >Panel użytkownika</router-link
+      >
     </div>
     <!-- Prawa strona: wyloguj (desktop) -->
     <button
@@ -70,6 +73,12 @@
           class="py-2 w-full text-center hover:bg-blue-50 font-medium"
           @click="closeMenu"
           >Panel administracyjny</router-link
+        >
+        <router-link
+          to="/user"
+          class="py-2 w-full text-center hover:bg-blue-50 font-medium"
+          @click="closeMenu"
+          >Panel użytkownika</router-link
         >
         <button
           @click="logout"

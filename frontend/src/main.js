@@ -38,4 +38,10 @@ if (sessionStorage.getItem("token")) {
   scheduleTokenRefresh();
 }
 
+const user = sessionStorage.getItem("user");
+if (user) {
+  const option = JSON.parse(user).option || "light";
+  document.documentElement.setAttribute("data-theme", option);
+}
+
 createApp(App).use(router).use(store).mount("#app");

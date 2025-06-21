@@ -248,6 +248,10 @@
           v-for="cat in categories"
           :key="cat"
           class="bg-white rounded-lg shadow border border-gray-200 mb-4 p-4 flex flex-col gap-4"
+          :class="{
+            'bg-green-100': categoryStats(cat).correct === categoryCounts[cat],
+            'bg-red-100': categoryStats(cat).wrong === categoryCounts[cat],
+          }"
         >
           <!-- NAZWA KATEGORII WYŚRODKOWANA -->
           <div class="text-center font-semibold text-blue-700 text-lg mb-2">
@@ -752,14 +756,13 @@ export default {
       try {
         const token = sessionStorage.getItem("token");
         await axios.put(
-          "/api/users/update",
-          { clearCategory: cat },
+          "/api/users/clear-category",
+          { category: cat },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        // Odśwież dane po usunięciu
         await this.fetchCategoriesAndStats();
       } catch (e) {
-        alert("Błąd podczas usuwania historii pytań tej kategorii.");
+        alert("Błąd podczas czyszczenia pytań z kategorii.");
       }
     },
   },
