@@ -31,12 +31,7 @@
           class="mt-1 block w-full p-2 border border-gray-300 rounded"
         />
       </div>
-      <button
-        type="submit"
-        class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-      >
-        Login
-      </button>
+      <button type="submit" class="login-btn">Login</button>
       <p v-if="errorMessage" class="mt-4 text-red-500 text-sm">
         {{ errorMessage }}
       </p>

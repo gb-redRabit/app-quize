@@ -13,6 +13,17 @@
 .h-63vh {
   height: 63vh;
 }
+:root {
+  --bg: #f3f4f6;
+  --text: #1f2937;
+  --card: #fff;
+  --border: #e5e7eb;
+  --input-bg: #fff;
+  --input-border: #cbd5e1;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
 :root[data-theme="light"] {
   --bg: #f3f4f6;
   --text: #1f2937;
@@ -214,4 +225,17 @@ textarea:disabled {
 .BaseModal .bg-white {
   background: var(--card) !important;
   color: var(--text) !important;
+}
+
+/* Styl przycisku logowania dla obu motywów */
+.login-btn {
+  @apply w-full p-2 rounded font-semibold transition;
+  background: var(--primary);
+  color: #fff;
+}
+.login-btn:hover,
+.login-btn:focus {
+  background: var(--primary-hover);
+  color: #fff;
+  outline: none;
 }
