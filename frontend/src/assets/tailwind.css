@@ -232,6 +232,8 @@ textarea:disabled {
   @apply w-full p-2 rounded font-semibold transition;
   background: var(--primary);
   color: #fff;
+  border: none;
+  box-shadow: var(--shadow);
 }
 .login-btn:hover,
 .login-btn:focus {

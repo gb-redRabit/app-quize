@@ -1,6 +1,7 @@
 <template>
   <div class="container mx-auto p-2 sm:p-6">
     <BaseLoader :show="loading" />
+
     <div
       class="flex flex-col sm:flex-row justify-between items-center gap-2 mb-4"
     >
@@ -24,7 +25,14 @@
       </span>
       <span v-else class="text-gray-400">Brak podejścia w tej kategorii.</span>
     </div>
-
+    <BaseButton
+      color="green"
+      size="sm"
+      class="mb-4"
+      @click="downloadQuestionsTxt"
+    >
+      Pobierz pytania do Worda (TXT)
+    </BaseButton>
     <!-- Pasek wizualny poprawnych/błędnych -->
     <div
       v-if="lastAttemptStats.total > 0"
@@ -119,10 +127,10 @@
 import { mapGetters, mapState } from "vuex";
 import SearchBar from "@/components/SearchBar.vue";
 import BaseLoader from "@/components/BaseLoader.vue";
-
+import BaseButton from "@/components/BaseButton.vue";
 export default {
   name: "CategoryQuestionsView",
-  components: { SearchBar, BaseLoader },
+  components: { SearchBar, BaseLoader, BaseButton },
   data() {
     return {
       loading: true,
@@ -299,6 +307,42 @@ export default {
           this.loadingMore = false;
         }, 200);
       }
+    },
+    downloadQuestionsTxt() {
+      // Pobierz widoczne pytania z kategorii
+      const questions = this.sortedQuestions;
+      let txt = "";
+      questions.forEach((q, idx) => {
+        txt += `${idx + 1}. ${q.ID}. ${q.question}\n`;
+        const answers = [
+          { key: "A", obj: q.answer_a },
+          { key: "B", obj: q.answer_b },
+          { key: "C", obj: q.answer_c },
+          { key: "D", obj: q.answer_d },
+        ];
+        answers.forEach((ans) => {
+          if (ans.obj && ans.obj.answer) {
+            txt += `   ${ans.key}. ${ans.obj.answer}`;
+            if (ans.obj.isCorret) txt += "   [poprawna]";
+            txt += "\n";
+          }
+        });
+        if (q.description) txt += `   Opis: ${q.description}\n`;
+        txt += "\n";
+      });
+
+      // Utwórz i pobierz plik
+      const blob = new Blob([txt], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `pytania_${this.categoryLabel}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
     },
   },
 };
