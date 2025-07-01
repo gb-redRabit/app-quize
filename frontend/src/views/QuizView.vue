@@ -293,7 +293,7 @@ const saveUserHistory = async () => {
     const wrong = answersStatus.value.length - correct;
 
     await apiClient.put(
-      '/api/users/update',
+      '/users/update',
       {
         addHistory: {
           type: isCorrection.value ? 'Quiz - poprawa błędów' : 'quiz',

@@ -216,8 +216,8 @@ export default {
       }, 300);
       try {
         const token = sessionStorage.getItem('token');
-        await axios.post(
-          '/api/users/hquestion',
+        await apiClient.post(
+          '/users/hquestion',
           {
             id: q.ID || q.id || q.Id || q.id_question,
             correct: isCorrect,
@@ -254,7 +254,6 @@ export default {
         const token = sessionStorage.getItem('token');
         // Pobierz wszystkie pytania
         const allQuestions = (await apiClient.get('/questions')).data;
-        // Pobierz historię użytkownika
         const historyRes = await apiClient.get('/users/hquestion');
         const hq = historyRes.data.filter((q) => q.category === cat);
 
@@ -316,8 +315,8 @@ export default {
         const correct = this.answersStatus.filter((a) => a.correct).length;
         const wrong = this.answersStatus.length - correct;
 
-        await axios.put(
-          '/api/users/update',
+        await apiClient.put(
+          '/users/update',
           {
             addHistory: {
               type: this.isCorrection ? 'Egzamin - poprawa błędów' : 'egzamin',
