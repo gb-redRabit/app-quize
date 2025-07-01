@@ -258,16 +258,11 @@ const selectAnswer = async (index, selectedKey) => {
   questionTimes.value[currentQuestionIndex.value] = (now - startTime.value) / 1000;
 
   try {
-    const token = sessionStorage.getItem('token');
-    await axios.post(
-      '/api/users/hquestion',
-      {
-        id,
-        correct: isCorrect,
-        category: q.category,
-      },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    await apiClient.post('/users/hquestion', {
+      id,
+      correct: isCorrect,
+      category: q.category,
+    });
   } catch (e) {
     // obsługa błędu
   }
@@ -297,7 +292,7 @@ const saveUserHistory = async () => {
     const correct = answersStatus.value.filter((a) => a.correct).length;
     const wrong = answersStatus.value.length - correct;
 
-    await axios.put(
+    await apiClient.put(
       '/api/users/update',
       {
         addHistory: {
@@ -342,10 +337,8 @@ const restartQuiz = async () => {
   if (route.query.categories) {
     const cat = route.query.categories;
     const token = sessionStorage.getItem('token');
-    const allQuestions = (await axios.get('/api/questions')).data;
-    const historyRes = await axios.get('/api/users/hquestion', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const allQuestions = (await apiClient.get('/questions')).data;
+    const historyRes = await apiClient.get('/users/hquestion');
     const hq = historyRes.data.filter((q) => q.category === cat);
 
     const allIds = allQuestions
@@ -450,15 +443,11 @@ const saveAllQuestionsToHquestion = async () => {
   for (let i = 0; i < questions.value.length; i++) {
     const q = questions.value[i];
     const status = answersStatus.value[i];
-    await axios.post(
-      '/api/users/hquestion',
-      {
-        id: q.ID || q.id || q.Id || q.id_question,
-        correct: status && status.answered ? status.correct : false,
-        category: q.category,
-      },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    await apiClient.post('/users/hquestion', {
+      id: q.ID || q.id || q.Id || q.id_question,
+      correct: status && status.answered ? status.correct : false,
+      category: q.category,
+    });
   }
 };
 </script>

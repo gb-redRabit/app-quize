@@ -198,19 +198,12 @@ export default {
 
       // Dodaj do hquestion
       try {
-        const token = sessionStorage.getItem('token');
-        await axios.post(
-          '/api/users/hquestion',
-          {
-            id,
-            correct: isCorrect,
-            category: q.category,
-          },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      } catch (e) {
-        // obsługa błędu
-      }
+        await apiClient.post('/users/hquestion', {
+          id,
+          correct: isCorrect,
+          category: q.category,
+        });
+      } catch (e) {}
       setTimeout(async () => {
         if (this.currentQuestionIndex < this.questions.length - 1) {
           this.currentQuestionIndex++;
@@ -260,11 +253,9 @@ export default {
         const cat = this.$route.query.categories;
         const token = sessionStorage.getItem('token');
         // Pobierz wszystkie pytania
-        const allQuestions = (await axios.get('/api/questions')).data;
+        const allQuestions = (await apiClient.get('/questions')).data;
         // Pobierz historię użytkownika
-        const historyRes = await axios.get('/api/users/hquestion', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const historyRes = await apiClient.get('/users/hquestion');
         const hq = historyRes.data.filter((q) => q.category === cat);
 
         // Wyznacz ID pytań z tej kategorii
