@@ -1,8 +1,8 @@
 import axios from 'axios';
 import store from '../store';
-// 'https://app-quize.onrender.com/api
+// process.env.VUE_APP_API_URL ||'https://app-quize.onrender.com/api
 const apiClient = axios.create({
-  baseURL: process.env.VUE_APP_API_URL || 'https://app-quize.onrender.com/api',
+  baseURL: 'https://app-quize.onrender.com/api',
   headers: {
     'Content-Type': 'application/json',
   },
