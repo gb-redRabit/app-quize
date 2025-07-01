@@ -110,7 +110,7 @@ import SummaryBox from '@/components/SummaryBox.vue';
 import ProgressBar from '@/components/ProgressBar.vue';
 import { getRandomUniqueQuestions } from '@/utils/randomQuestions';
 import { shuffleArray } from '@/utils/shuffleArray'; // Zakładam, że istnieje taki plik
-
+const keys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
