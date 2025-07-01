@@ -2,7 +2,7 @@ import axios from 'axios';
 import store from '../store';
 // process.env.VUE_APP_API_URL ||'https://app-quize.onrender.com/api
 const apiClient = axios.create({
-  baseURL: 'https://app-quize.onrender.com/api',
+  baseURL: process.env.VUE_APP_API_URL || 'api',
   headers: {
     'Content-Type': 'application/json',
   },

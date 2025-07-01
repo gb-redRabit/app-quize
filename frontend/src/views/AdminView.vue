@@ -691,7 +691,12 @@ export default {
         const formData = new FormData();
         formData.append('file', file);
 
-        await apiClient.post('/questions/import', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await axios.post('/api/questions/import/excel', formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        });
         window.location.reload();
       } catch (e) {
         alert('Błąd importu pytań z Excela: ' + (e.message || e));

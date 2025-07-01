@@ -5,33 +5,7 @@
     "password": "$2b$10$2smQqHZHAcdjFOG7l3l4K.icGqqOHyUyDhfQqPFha04YjoGlSDfV.",
     "option": "light",
     "history": [],
-    "hquestion": [
-      {
-        "id": 8210,
-        "correct": true,
-        "category": "Kodeks cywilny"
-      },
-      {
-        "id": 6342,
-        "correct": false,
-        "category": "Kodeks cywilny"
-      },
-      {
-        "id": 16,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 50,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 103,
-        "correct": false,
-        "category": "Egzamin 2007"
-      }
-    ]
+    "hquestion": []
   },
   {
     "id": 1750004371282,
