@@ -3,7 +3,10 @@ const router = express.Router();
 const auth = require("../middleware/authMiddleware");
 const questionsController = require("../controllers/questionsController");
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
+const upload = multer({
+  dest: "uploads/",
+  limits: { fileSize: 10 * 1024 * 1024 },
+}); // 10MB
 const ExcelJS = require("exceljs");
 const fileUtils = require("../utils/fileUtils");
 const path = require("path");
