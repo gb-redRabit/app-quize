@@ -5,7 +5,7 @@ const path = require("path");
 exports.getAllQuestions = async (req, res) => {
   try {
     const questions = await fileUtils.getQuestions();
-    res.json(questions);
+    res.json(Array.isArray(questions) ? questions : []);
   } catch (e) {
     res.status(500).json({ error: "Błąd odczytu pytań" });
   }

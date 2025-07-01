@@ -551,10 +551,10 @@ export default {
       });
     },
     async startQuizNotDone(cat, limit = 150) {
-      // Pobierz wszystkie pytania z danej kategorii
       const res = await axios.get('/api/questions');
-      const questions = res.data.filter((q) => q.category === cat);
-      const allIds = questions.map((q) => q.ID || q.id || q.Id || q.id_question);
+      const questions = Array.isArray(res.data) ? res.data : [];
+      const filtered = questions.filter((q) => q.category === cat);
+      const allIds = filtered.map((q) => q.ID || q.id || q.Id || q.id_question);
 
       // Pobierz ID pytań przerobionych błędnie lub nieprzerobionych
       const hq = this.hquestion.filter((q) => q.category === cat);

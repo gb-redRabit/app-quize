@@ -5,7 +5,18 @@
     "password": "$2b$10$2smQqHZHAcdjFOG7l3l4K.icGqqOHyUyDhfQqPFha04YjoGlSDfV.",
     "option": "light",
     "history": [],
-    "hquestion": []
+    "hquestion": [
+      {
+        "id": 8210,
+        "correct": true,
+        "category": "Kodeks cywilny"
+      },
+      {
+        "id": 6342,
+        "correct": false,
+        "category": "Kodeks cywilny"
+      }
+    ]
   },
   {
     "id": 1750004371282,
