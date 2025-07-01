@@ -19,9 +19,11 @@ Nowoczesna aplikacja quizowa zbudowana w oparciu o **Vue.js** (frontend) oraz **
 - Rozwiązywanie quizów i egzaminów z losowymi pytaniami
 - Timer i automatyczne zakończenie testu po czasie
 - Historia quizów i egzaminów użytkownika
-- Panel administracyjny do zarządzania pytaniami (CRUD)
+- Panel użytkownika (zmiana motywu, zmiana hasła)
+- Panel administracyjny do zarządzania pytaniami (CRUD, import/eksport Excel)
 - Wyszukiwanie pytań po ID i treści
 - Przeglądanie pytań wg kategorii
+- Pobieranie pytań z kategorii do pliku TXT (do Worda)
 - Nowoczesny, responsywny interfejs (mobile/desktop)
 - Bezpieczna autoryzacja JWT
 
@@ -31,7 +33,7 @@ Nowoczesna aplikacja quizowa zbudowana w oparciu o **Vue.js** (frontend) oraz **
 
 ```
 app-quize
-├──backend/
+├── backend/
 │   ├── data/
 │   │   ├── data.json         # Pytania do quizów
 │   │   └── users.json        # Użytkownicy i ich historia
@@ -40,7 +42,7 @@ app-quize
 │   │   ├── controllers/      # Logika obsługi tras (usersController.js, questionsController.js, authController.js)
 │   │   ├── middleware/       # Middleware (authMiddleware.js)
 │   │   ├── routes/           # Definicje tras (users.js, questions.js, auth.js)
-│   │   └── utils/            # Narzędzia (fileUtils.js)
+│   │   └── utils/            # Narzędzia (fileUtils.js, writeQueue.js)
 │   ├── package.json
 │   ├── package-lock.json
 │   └── README.md
@@ -55,6 +57,12 @@ app-quize
 │   │   │   ├── SearchBar.vue
 │   │   │   ├── QuestionList.vue
 │   │   │   ├── Timer.vue
+│   │   │   ├── BaseButton.vue
+│   │   │   ├── BaseModal.vue
+│   │   │   ├── BaseLoader.vue
+│   │   │   ├── BaseAlert.vue
+│   │   │   ├── ProgressBar.vue
+│   │   │   ├── SummaryBox.vue
 │   │   │   └── ...
 │   │   ├── views/
 │   │   │   ├── Home.vue
@@ -64,13 +72,16 @@ app-quize
 │   │   │   ├── CategoryQuestionsView.vue
 │   │   │   ├── HistoryView.vue
 │   │   │   ├── HistoryDetailsView.vue
-│   │   │   └── NotFound.vue
+│   │   │   ├── UserPanel.vue
+│   │   │   ├── NotFound.vue
+│   │   │   └── ...
 │   │   ├── router/
 │   │   │   └── index.js
 │   │   ├── store/
 │   │   │   └── index.js
 │   │   ├── utils/
-│   │   │   └── randomQuestions.js
+│   │   │   ├── randomQuestions.js
+│   │   │   └── shuffleArray.js
 │   │   ├── App.vue
 │   │   └── main.js
 │   ├── tailwind.config.js
@@ -138,8 +149,11 @@ app-quize
 
 - Zarejestruj się lub zaloguj, aby korzystać z quizów.
 - Rozwiązuj quizy i egzaminy, przeglądaj statystyki i historię.
-- Jako admin możesz dodawać, edytować i usuwać pytania.
+- Jako admin możesz dodawać, edytować i usuwać pytania oraz importować/eksportować je z/do Excela.
 - Wyszukuj pytania po ID lub treści, przeglądaj wg kategorii.
+- Pobieraj pytania z danej kategorii do pliku TXT (do Worda).
+- Zmieniaj motyw aplikacji (jasny/ciemny) w panelu użytkownika.
+- Zmieniaj hasło w panelu użytkownika.
 
 ---
 

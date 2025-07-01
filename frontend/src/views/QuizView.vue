@@ -2,7 +2,7 @@
   <div
     class="container flex flex-col-reverse sm:flex-col items-center justify-start bg-gray-100 px-2"
   >
-    <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col gap-8 w-full">
+    <div v-if="!loading" class="bg-white rounded-lg shadow-lg p-4 flex flex-col gap-8 w-full">
       <div class="flex-1 flex flex-col" v-if="!showSummary">
         <div v-if="loading" class="text-lg">Loading questions...</div>
         <div v-else>
@@ -16,13 +16,11 @@
             </button>
             <h1 class="text-3xl font-bold text-center sm:block hidden">
               {{
-                questions[currentQuestionIndex] &&
-                questions[currentQuestionIndex].category
+                questions[currentQuestionIndex] && questions[currentQuestionIndex].category
                   ? questions[currentQuestionIndex].category.length > 60
-                    ? questions[currentQuestionIndex].category.slice(0, 60) +
-                      "…"
+                    ? questions[currentQuestionIndex].category.slice(0, 60) + '…'
                     : questions[currentQuestionIndex].category
-                  : ""
+                  : ''
               }}
             </h1>
             <button
@@ -35,11 +33,7 @@
                 )
               "
             >
-              {{
-                currentQuestionIndex === questions.length - 1
-                  ? "Zakończ test"
-                  : "Następne →"
-              }}
+              {{ currentQuestionIndex === questions.length - 1 ? 'Zakończ test' : 'Następne →' }}
             </button>
           </div>
           <QuestionList
@@ -48,20 +42,17 @@
             v-if="questions.length && currentQuestionIndex < questions.length"
             :question="questions[currentQuestionIndex]"
             :answered="
-              answersStatus.length > currentQuestionIndex &&
-              answersStatus[currentQuestionIndex]
+              answersStatus.length > currentQuestionIndex && answersStatus[currentQuestionIndex]
                 ? answersStatus[currentQuestionIndex].answered
                 : false
             "
             :selected="
-              answersStatus.length > currentQuestionIndex &&
-              answersStatus[currentQuestionIndex]
+              answersStatus.length > currentQuestionIndex && answersStatus[currentQuestionIndex]
                 ? answersStatus[currentQuestionIndex].selected
                 : null
             "
             :selectedKey="
-              answersStatus.length > currentQuestionIndex &&
-              answersStatus[currentQuestionIndex]
+              answersStatus.length > currentQuestionIndex && answersStatus[currentQuestionIndex]
                 ? answersStatus[currentQuestionIndex].selectedKey
                 : null
             "
@@ -75,8 +66,7 @@
               answersStatus[currentQuestionIndex].answered
             "
             :description="
-              questions[currentQuestionIndex] &&
-              questions[currentQuestionIndex].description
+              questions[currentQuestionIndex] && questions[currentQuestionIndex].description
             "
           />
         </div>
@@ -94,7 +84,7 @@
         @retry-wrong="retryWrongAnswers"
       />
     </div>
-    <div class="container">
+    <div v-if="!loading" class="container">
       <QuestionNavigation
         :questions="questions"
         :currentIdx="currentQuestionIndex"
@@ -103,398 +93,373 @@
         @goTo="goToQuestion"
       />
     </div>
-    <ProgressBar :current="answeredCount" :total="questions.length" />
+    <ProgressBar v-if="!loading" :current="answeredCount" :total="questions.length" />
     <!-- Usunięto TimeStats -->
   </div>
 </template>
 
-<script>
-import axios from "axios";
-import { mapActions } from "vuex";
-import QuestionList from "@/components/QuestionList.vue";
-import QuestionNavigation from "@/components/QuestionNavigation.vue";
-import QuestionDescription from "@/components/QuestionDescription.vue";
-import SummaryBox from "@/components/SummaryBox.vue";
-import ProgressBar from "@/components/ProgressBar.vue";
-import { getRandomUniqueQuestions } from "@/utils/randomQuestions";
+<script setup>
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { useStore } from 'vuex';
+import { useRoute, useRouter } from 'vue-router';
+import axios from 'axios';
+import QuestionList from '@/components/QuestionList.vue';
+import QuestionNavigation from '@/components/QuestionNavigation.vue';
+import QuestionDescription from '@/components/QuestionDescription.vue';
+import SummaryBox from '@/components/SummaryBox.vue';
+import ProgressBar from '@/components/ProgressBar.vue';
+import { getRandomUniqueQuestions } from '@/utils/randomQuestions';
+import { shuffleArray } from '@/utils/shuffleArray'; // Zakładam, że istnieje taki plik
 
+const store = useStore();
+const route = useRoute();
+const router = useRouter();
+
+// Data properties
+const questions = ref([]);
+const currentQuestionIndex = ref(0);
+const score = ref(0);
+const loading = ref(true);
+const answersStatus = ref([]);
+const quizLength = ref(10);
+const showSummary = ref(false);
+const selectedCategories = ref([]);
+const startTime = ref(null);
+const questionTimes = ref([]);
+const timerInterval = ref(null);
+const isCorrection = ref(false);
+const isExamMode = ref(false);
+const shuffledAnswers = ref([]);
+const questionList = ref(null); // dla ref="questionList"
+const forceUpdateKey = ref(0); // Zastępstwo dla $forceUpdate
+
+// Helper function
 function getCorrectKey(q) {
-  const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+  const keys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
   return keys.find((k) => q[k] && q[k].isCorret);
 }
 
-export default {
-  components: {
-    QuestionList,
-    QuestionNavigation,
-    QuestionDescription,
-    SummaryBox,
-    ProgressBar,
-  },
-  data() {
-    return {
-      questions: [],
-      currentQuestionIndex: 0,
-      score: 0,
-      loading: true,
-      answersStatus: [],
-      quizLength: 10,
-      showSummary: false,
-      selectedCategories: [],
-      startTime: null,
-      questionTimes: [],
-      timerInterval: null,
-      isCorrection: false,
-      isExamMode: false,
-      shuffledAnswers: [],
-    };
-  },
-  created() {
-    const length = parseInt(this.$route.query.length, 10);
-    let categories = this.$route.query.categories || "all";
-    if (categories === "all") {
-      categories = ["all"];
-    } else if (typeof categories === "string") {
-      categories = categories.split(",");
-    }
-    this.selectedCategories = categories;
-    this.quizLength = length && !isNaN(length) ? length : 10;
-    this.fetchQuestions();
-  },
-  mounted() {
-    window.addEventListener("keydown", this.handleKeydown);
-  },
-  beforeUnmount() {
-    window.removeEventListener("keydown", this.handleKeydown);
-    clearInterval(this.timerInterval);
-  },
-  computed: {
-    answeredCount() {
-      return this.answersStatus.filter((a) => a.answered).length;
-    },
-  },
-  methods: {
-    ...mapActions(["fetchUserHistory"]),
-    async fetchQuestions() {
-      const response = await axios.get("/api/questions");
-      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      const allQuestions = response.data;
+// Computed properties
+const answeredCount = computed(() => {
+  return answersStatus.value.filter((a) => a.answered).length;
+});
 
-      let filteredQuestions;
-      if (this.$route.query.ids) {
-        // Jeśli są ids w query, pobierz tylko te pytania
-        const ids = this.$route.query.ids.split(",").map((id) => id.trim());
-        filteredQuestions = allQuestions.filter((q) =>
-          ids.includes(String(q.ID || q.id || q.Id || q.id_question))
-        );
-      } else {
-        filteredQuestions =
-          this.selectedCategories[0] === "all"
-            ? allQuestions
-            : allQuestions.filter((q) =>
-                this.selectedCategories.includes(q.category)
-              );
-      }
+const currentQuestion = computed(() => questions.value[currentQuestionIndex.value] || null);
 
-      this.questions = getRandomUniqueQuestions(
-        filteredQuestions,
-        this.quizLength
-      ).map((q) => ({
-        ...q,
-        correctIndex: keys.findIndex((k) => q[k] && q[k].isCorret),
-      }));
-      this.answersStatus = this.questions.map(() => ({
-        answered: false,
-        selected: null,
-      }));
-      this.loading = false;
-      this.showSummary = false;
-      this.score = 0;
-      this.currentQuestionIndex = 0;
-      this.startTime = Date.now();
-      this.questionTimes = [];
-      this.startTimer();
-    },
+// Watcher
+watch(currentQuestion, (newQuestion) => {
+  if (newQuestion) {
+    shuffledAnswers.value = shuffleArray(
+      ['answer_a', 'answer_b', 'answer_c', 'answer_d']
+        .map((k) => newQuestion[k] && { ...newQuestion[k], key: k })
+        .filter(Boolean)
+    );
+  }
+});
 
-    // w watcherze question:
-    handler() {
-      this.shuffledAnswers = shuffleArray(
-        ["answer_a", "answer_b", "answer_c", "answer_d"]
-          .map((k) => this.question[k] && { ...this.question[k], key: k })
-          .filter(Boolean)
-      );
-    },
+// Methods
+const fetchUserHistory = () => store.dispatch('fetchUserHistory');
 
-    // computed:
-    answers() {
-      return this.shuffledAnswers;
-    },
-    selectedIndex() {
-      if (!this.selectedKey) return null;
-      return this.answers.findIndex((a) => a.key === this.selectedKey);
-    },
+const fetchQuestions = async () => {
+  const response = await axios.get('/api/questions');
+  const keys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
+  const allQuestions = response.data;
 
-    // methods:
-    onSelect(idx) {
-      this.$emit("select", idx, this.answers[idx].key);
-    },
-    buttonClass(idx) {
-      if (!this.answered) return "bg-blue-500 text-white";
-      if (this.showCorrect && this.answers[idx].isCorret)
-        return "bg-green-500 text-white";
-      if (idx === this.selectedIndex) return "bg-red-500 text-white";
-      return "bg-gray-200 text-gray-700";
-    },
-    async selectAnswer(index, selectedKey) {
-      if (this.answersStatus[this.currentQuestionIndex].answered) return;
-      const q = this.questions[this.currentQuestionIndex];
-      const id = q.ID || q.id || q.Id || q.id_question;
-      if (!id) {
-        console.warn("Brak ID pytania!", q);
-        return;
-      }
-      const isCorrect = selectedKey === getCorrectKey(q);
+  let filteredQuestions;
+  if (route.query.ids) {
+    const ids = route.query.ids.split(',').map((id) => id.trim());
+    filteredQuestions = allQuestions.filter((q) =>
+      ids.includes(String(q.ID || q.id || q.Id || q.id_question))
+    );
+  } else {
+    filteredQuestions =
+      selectedCategories.value[0] === 'all'
+        ? allQuestions
+        : allQuestions.filter((q) => selectedCategories.value.includes(q.category));
+  }
 
-      if (isCorrect) this.score++;
-      this.answersStatus[this.currentQuestionIndex] = {
-        answered: true,
+  questions.value = getRandomUniqueQuestions(filteredQuestions, quizLength.value).map((q) => ({
+    ...q,
+    correctIndex: keys.findIndex((k) => q[k] && q[k].isCorret),
+  }));
+  answersStatus.value = questions.value.map(() => ({
+    answered: false,
+    selected: null,
+  }));
+  loading.value = false;
+  showSummary.value = false;
+  score.value = 0;
+  currentQuestionIndex.value = 0;
+  startTime.value = Date.now();
+  questionTimes.value = [];
+  startTimer();
+};
+
+// Logika z `created`
+const length = parseInt(route.query.length, 10);
+let categories = route.query.categories || 'all';
+if (categories === 'all') {
+  categories = ['all'];
+} else if (typeof categories === 'string') {
+  categories = categories.split(',');
+}
+selectedCategories.value = categories;
+quizLength.value = length && !isNaN(length) ? length : 10;
+fetchQuestions();
+
+// Lifecycle hooks
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeydown);
+  clearInterval(timerInterval.value);
+});
+
+// Pozostałe metody
+const answers = () => {
+  return shuffledAnswers.value;
+};
+
+const selectedIndex = () => {
+  if (!selectedKey.value) return null;
+  return answers().findIndex((a) => a.key === selectedKey.value);
+};
+
+const onSelect = (idx) => {
+  emit('select', idx, answers()[idx].key);
+};
+
+const buttonClass = (idx) => {
+  if (!answered.value) return 'bg-blue-500 text-white';
+  if (showCorrect.value && answers()[idx].isCorret) return 'bg-green-500 text-white';
+  if (idx === selectedIndex()) return 'bg-red-500 text-white';
+  return 'bg-gray-200 text-gray-700';
+};
+
+const selectAnswer = async (index, selectedKey) => {
+  if (answersStatus.value[currentQuestionIndex.value].answered) return;
+  const q = questions.value[currentQuestionIndex.value];
+  const id = q.ID || q.id || q.Id || q.id_question;
+  if (!id) {
+    console.warn('Brak ID pytania!', q);
+    return;
+  }
+  const isCorrect = selectedKey === getCorrectKey(q);
+
+  if (isCorrect) score.value++;
+  answersStatus.value[currentQuestionIndex.value] = {
+    answered: true,
+    correct: isCorrect,
+    selected: index,
+    selectedKey,
+  };
+  const now = Date.now();
+  questionTimes.value[currentQuestionIndex.value] = (now - startTime.value) / 1000;
+
+  try {
+    const token = sessionStorage.getItem('token');
+    await axios.post(
+      '/api/users/hquestion',
+      {
+        id,
         correct: isCorrect,
-        selected: index,
-        selectedKey,
-      };
-      // ZAPISZ czas odpowiedzi na to pytanie
-      const now = Date.now();
-      this.questionTimes[this.currentQuestionIndex] =
-        (now - this.startTime) / 1000;
+        category: q.category,
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+  } catch (e) {
+    // obsługa błędu
+  }
+};
 
-      // Dodaj do hquestion
-      try {
-        const token = sessionStorage.getItem("token");
-        await axios.post(
-          "/api/users/hquestion",
-          {
-            id,
-            correct: isCorrect,
-            category: q.category,
-          },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      } catch (e) {
-        // obsługa błędu
-      }
-    },
-    async nextOrFinish() {
-      if (this.currentQuestionIndex < this.questions.length - 1) {
-        this.currentQuestionIndex++;
-      } else {
-        this.showSummary = true;
-        clearInterval(this.timerInterval);
-        await this.saveUserHistory();
-      }
-    },
-    async saveUserHistory() {
-      try {
-        const token = sessionStorage.getItem("token");
-        if (!token) return;
-        const list = this.questions.map((q, idx) => ({
-          id_questions: q.ID || q.id || q.Id || q.id_question,
-          correct: this.answersStatus[idx].selectedKey === getCorrectKey(q),
-          answer: this.answersStatus[idx].selectedKey
-            ? ["A", "B", "C", "D"][this.answersStatus[idx].selected]
-            : null,
-        }));
-        const correct = this.answersStatus.filter((a) => a.correct).length;
-        const wrong = this.answersStatus.length - correct;
+const nextOrFinish = async () => {
+  if (currentQuestionIndex.value < questions.value.length - 1) {
+    currentQuestionIndex.value++;
+  } else {
+    showSummary.value = true;
+    clearInterval(timerInterval.value);
+    await saveUserHistory();
+  }
+};
 
-        await axios.put(
-          "/api/users/update",
-          {
-            addHistory: {
-              type: this.isCorrection ? "Quiz - poprawa błędów" : "quiz",
-              correct,
-              categories: this.selectedCategories,
-              wrong,
-              list,
-              data: new Date().toISOString(),
-            },
-          },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        this.isCorrection = true;
-      } catch (error) {
-        // obsługa błędu
-      }
-    },
-    userAnswerLetter(q, selectedIdx) {
-      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      if (selectedIdx == null) return "";
-      if (selectedIdx === 0) return "A";
-      if (selectedIdx === 1) return "B";
-      if (selectedIdx === 2) return "C";
-      if (selectedIdx === 3) return "D";
-      return "";
-    },
-    prevQuestion() {
-      if (this.currentQuestionIndex > 0) this.currentQuestionIndex--;
-    },
-    goToQuestion(idx) {
-      if (!this.showSummary) this.currentQuestionIndex = idx;
-    },
-    async restartQuiz() {
-      this.currentQuestionIndex = 0;
-      this.score = 0;
-      this.loading = true;
+const saveUserHistory = async () => {
+  try {
+    const token = sessionStorage.getItem('token');
+    if (!token) return;
+    const list = questions.value.map((q, idx) => ({
+      id_questions: q.ID || q.id || q.Id || q.id_question,
+      correct: answersStatus.value[idx].selectedKey === getCorrectKey(q),
+      answer: answersStatus.value[idx].selectedKey
+        ? ['A', 'B', 'C', 'D'][answersStatus.value[idx].selected]
+        : null,
+    }));
+    const correct = answersStatus.value.filter((a) => a.correct).length;
+    const wrong = answersStatus.value.length - correct;
 
-      // Jeśli quiz był uruchomiony z kategorią (np. powtórka błędnych/nieprzerobionych)
-      if (this.$route.query.categories) {
-        const cat = this.$route.query.categories;
-        const token = sessionStorage.getItem("token");
-        // Pobierz wszystkie pytania
-        const allQuestions = (await axios.get("/api/questions")).data;
-        // Pobierz historię użytkownika
-        const historyRes = await axios.get("/api/users/hquestion", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const hq = historyRes.data.filter((q) => q.category === cat);
+    await axios.put(
+      '/api/users/update',
+      {
+        addHistory: {
+          type: isCorrection.value ? 'Quiz - poprawa błędów' : 'quiz',
+          correct,
+          categories: selectedCategories.value,
+          wrong,
+          list,
+          data: new Date().toISOString(),
+        },
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    isCorrection.value = true;
+  } catch (error) {
+    // obsługa błędu
+  }
+};
 
-        // Wyznacz ID pytań z tej kategorii
-        const allIds = allQuestions
-          .filter((q) => q.category === cat)
-          .map((q) => q.ID || q.id || q.Id || q.id_question);
+const userAnswerLetter = (q, selectedIdx) => {
+  if (selectedIdx == null) return '';
+  if (selectedIdx === 0) return 'A';
+  if (selectedIdx === 1) return 'B';
+  if (selectedIdx === 2) return 'C';
+  if (selectedIdx === 3) return 'D';
+  return '';
+};
 
-        // Filtruj tylko błędne lub nieprzerobione
-        const wrongOrNotDoneIds = allIds.filter((id) => {
-          const entry = hq.find((q) => q.id == id);
-          return !entry || entry.correct === false;
-        });
+const prevQuestion = () => {
+  if (currentQuestionIndex.value > 0) currentQuestionIndex.value--;
+};
 
-        const length = Math.min(
-          parseInt(this.$route.query.length, 10) || 10,
-          wrongOrNotDoneIds.length
-        );
+const goToQuestion = (idx) => {
+  if (!showSummary.value) currentQuestionIndex.value = idx;
+};
 
-        // Przekieruj do QuizView z nową listą ids
-        this.$router.replace({
-          name: "QuizView",
-          query: {
-            ...this.$route.query,
-            ids: wrongOrNotDoneIds.join(","),
-            length,
-            r: Math.random().toString(36).substring(2, 8),
-          },
-        });
-      } else {
-        // Standardowo: losuj z kategorii/all
-        this.fetchQuestions();
-        this.startTime = Date.now();
-        this.questionTimes = [];
-      }
-    },
-    userAnswerText(q, selectedKey) {
-      if (!selectedKey) return "";
-      return q[selectedKey] && q[selectedKey].answer
-        ? q[selectedKey].answer
-        : "";
-    },
-    correctAnswerText(q) {
-      const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
-      const correctKey = keys.find((k) => q[k] && q[k].isCorret);
-      return correctKey && q[correctKey] && q[correctKey].answer
-        ? q[correctKey].answer
-        : "";
-    },
-    retryWrongAnswers() {
-      // Zbierz indeksy błędnych odpowiedzi
-      const wrongIndexes = this.answersStatus
-        .map((a, idx) => (!a.correct ? idx : null))
-        .filter((v) => v !== null);
+const restartQuiz = async () => {
+  currentQuestionIndex.value = 0;
+  score.value = 0;
+  loading.value = true;
 
-      // Jeśli nie ma błędnych, nie rób nic
-      if (wrongIndexes.length === 0) return;
+  if (route.query.categories) {
+    const cat = route.query.categories;
+    const token = sessionStorage.getItem('token');
+    const allQuestions = (await axios.get('/api/questions')).data;
+    const historyRes = await axios.get('/api/users/hquestion', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const hq = historyRes.data.filter((q) => q.category === cat);
 
-      // Utwórz nową listę pytań tylko z błędnych
-      this.questions = wrongIndexes.map((idx) => this.questions[idx]);
+    const allIds = allQuestions
+      .filter((q) => q.category === cat)
+      .map((q) => q.ID || q.id || q.Id || q.id_question);
 
-      // Zresetuj status odpowiedzi
-      this.answersStatus = this.questions.map(() => ({
-        answered: false,
-        correct: false,
-        selected: null,
-      }));
+    const wrongOrNotDoneIds = allIds.filter((id) => {
+      const entry = hq.find((q) => q.id == id);
+      return !entry || entry.correct === false;
+    });
 
-      this.currentQuestionIndex = 0;
-      this.showSummary = false;
-      this.score = 0;
-      this.startTime = Date.now();
-      this.questionTimes = [];
-      this.isCorrection = true; // ← DODAJ TO!
-    },
-    handleKeydown(e) {
-      if (this.loading) return;
-      // Odpowiedzi 1-4
-      if (
-        ["1", "2", "3", "4"].includes(e.key) &&
-        this.currentQuestionIndex < this.questions.length
-      ) {
-        const idx = parseInt(e.key, 10) - 1;
-        // Pobierz aktualne przetasowane odpowiedzi
-        const answers = this.$refs.questionList
-          ? this.$refs.questionList.answers
-          : this.answers; // zależnie od implementacji
-        if (
-          !this.answersStatus[this.currentQuestionIndex].answered &&
-          answers &&
-          answers[idx]
-        ) {
-          this.selectAnswer(idx, answers[idx].key);
-        }
-      }
-      // Strzałka w prawo – następne pytanie lub zakończenie testu
-      if (e.key === "ArrowRight" || e.key === "PageDown") {
-        if (
-          this.currentQuestionIndex < this.questions.length - 1 &&
-          this.answersStatus[this.currentQuestionIndex] &&
-          this.answersStatus[this.currentQuestionIndex].answered
-        ) {
-          this.nextOrFinish();
-        } else if (
-          this.answeredCount === this.questions.length &&
-          !this.showSummary
-        ) {
-          this.nextOrFinish();
-        }
-      }
-      // Strzałka w lewo – poprzednie pytanie
-      if (
-        (e.key === "ArrowLeft" || e.key === "PageUp") &&
-        this.currentQuestionIndex > 0
-      ) {
-        this.prevQuestion();
-      }
-    },
-    startTimer() {
-      if (this.timerInterval) clearInterval(this.timerInterval);
-      this.timerInterval = setInterval(() => {
-        this.$forceUpdate();
-      }, 1000);
-    },
-    async saveAllQuestionsToHquestion() {
-      const token = sessionStorage.getItem("token");
-      for (let i = 0; i < this.questions.length; i++) {
-        const q = this.questions[i];
-        const status = this.answersStatus[i];
-        await axios.post(
-          "/api/users/hquestion",
-          {
-            id: q.ID || q.id || q.Id || q.id_question,
-            correct: status && status.answered ? status.correct : false,
-            category: q.category,
-          },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      }
-    },
-  },
-  // USUŃ computed: { totalTime, avgTime }
+    const length = Math.min(parseInt(route.query.length, 10) || 10, wrongOrNotDoneIds.length);
+
+    router.replace({
+      name: 'QuizView',
+      query: {
+        ...route.query,
+        ids: wrongOrNotDoneIds.join(','),
+        length,
+        r: Math.random().toString(36).substring(2, 8),
+      },
+    });
+  } else {
+    fetchQuestions();
+    startTime.value = Date.now();
+    questionTimes.value = [];
+  }
+};
+
+const userAnswerText = (q, selectedKey) => {
+  if (!selectedKey) return '';
+  return q[selectedKey] && q[selectedKey].answer ? q[selectedKey].answer : '';
+};
+
+const correctAnswerText = (q) => {
+  const keys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
+  const correctKey = keys.find((k) => q[k] && q[k].isCorret);
+  return correctKey && q[correctKey] && q[correctKey].answer ? q[correctKey].answer : '';
+};
+
+const retryWrongAnswers = () => {
+  const wrongIndexes = answersStatus.value
+    .map((a, idx) => (!a.correct ? idx : null))
+    .filter((v) => v !== null);
+
+  if (wrongIndexes.length === 0) return;
+
+  questions.value = wrongIndexes.map((idx) => questions.value[idx]);
+
+  answersStatus.value = questions.value.map(() => ({
+    answered: false,
+    correct: false,
+    selected: null,
+  }));
+
+  currentQuestionIndex.value = 0;
+  showSummary.value = false;
+  score.value = 0;
+  startTime.value = Date.now();
+  questionTimes.value = [];
+  isCorrection.value = true;
+};
+
+const handleKeydown = (e) => {
+  if (loading.value) return;
+  if (['1', '2', '3', '4'].includes(e.key) && currentQuestionIndex.value < questions.value.length) {
+    const idx = parseInt(e.key, 10) - 1;
+    const currentAnswers = questionList.value ? questionList.value.answers : answers();
+    if (
+      !answersStatus.value[currentQuestionIndex.value].answered &&
+      currentAnswers &&
+      currentAnswers[idx]
+    ) {
+      selectAnswer(idx, currentAnswers[idx].key);
+    }
+  }
+  if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+    if (
+      currentQuestionIndex.value < questions.value.length - 1 &&
+      answersStatus.value[currentQuestionIndex.value] &&
+      answersStatus.value[currentQuestionIndex.value].answered
+    ) {
+      nextOrFinish();
+    } else if (answeredCount.value === questions.value.length && !showSummary.value) {
+      nextOrFinish();
+    }
+  }
+  if ((e.key === 'ArrowLeft' || e.key === 'PageUp') && currentQuestionIndex.value > 0) {
+    prevQuestion();
+  }
+};
+
+const startTimer = () => {
+  if (timerInterval.value) clearInterval(timerInterval.value);
+  timerInterval.value = setInterval(() => {
+    forceUpdateKey.value++; // Zmiana wartości klucza wymusi re-render
+  }, 1000);
+};
+
+const saveAllQuestionsToHquestion = async () => {
+  const token = sessionStorage.getItem('token');
+  for (let i = 0; i < questions.value.length; i++) {
+    const q = questions.value[i];
+    const status = answersStatus.value[i];
+    await axios.post(
+      '/api/users/hquestion',
+      {
+        id: q.ID || q.id || q.Id || q.id_question,
+        correct: status && status.answered ? status.correct : false,
+        category: q.category,
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+  }
 };
 </script>

@@ -52,13 +52,13 @@
 
 <script>
 export default {
-  name: "BaseAlert",
+  name: 'BaseAlert',
   props: {
     show: Boolean,
     message: String,
-    type: { type: String, default: "error" }, // error, success
+    type: { type: String, default: 'error' }, // error, success
     timeout: { type: Number, default: 5000 }, // ms
-    customClass: { type: [String, Array, Object], default: "" },
+    customClass: { type: [String, Array, Object], default: '' },
   },
   data() {
     return {
@@ -72,10 +72,7 @@ export default {
   computed: {
     progressOffset() {
       // Im mniej sekund, tym większy offset (okrąg się "zamyka")
-      return (
-        this.circumference *
-        (1 - this.secondsLeft / Math.ceil(this.timeout / 1000))
-      );
+      return this.circumference * (1 - this.secondsLeft / Math.ceil(this.timeout / 1000));
     },
   },
   watch: {
@@ -115,7 +112,7 @@ export default {
       this.showInternal = false;
       clearInterval(this.interval);
       clearTimeout(this.timer);
-      this.$emit("close");
+      this.$emit('close');
     },
   },
 };

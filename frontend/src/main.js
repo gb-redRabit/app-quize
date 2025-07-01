@@ -1,47 +1,39 @@
-import { createApp } from "vue";
-import App from "./App.vue";
-import router from "./router";
-import store from "./store";
-import "./assets/tailwind.css";
-import axios from "axios";
-
-axios.defaults.baseURL = "https://app-quize.onrender.com";
+import { createApp } from 'vue';
+import App from './App.vue';
+import router from './router';
+import store from './store';
+import './assets/tailwind.css';
+import apiClient from './api'; // <-- ZMIANA
 
 // Funkcja do odświeżania tokena
 function scheduleTokenRefresh() {
   const refreshInterval = 10 * 60 * 1000; // 10 minut
   setInterval(async () => {
-    const token = sessionStorage.getItem("token"); // ZAMIANA
+    const token = sessionStorage.getItem('token');
     if (!token) return;
     try {
-      const res = await axios.post(
-        "/api/auth/refresh",
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      // Używamy apiClient, który już ma token w nagłówku
+      const res = await apiClient.post('/auth/refresh', {});
       if (res.data.token) {
-        sessionStorage.setItem("token", res.data.token); // ZAMIANA
+        sessionStorage.setItem('token', res.data.token);
       }
     } catch (e) {
-      sessionStorage.removeItem("token"); // ZAMIANA
-      sessionStorage.removeItem("user"); // ZAMIANA
-      window.location.href = "/login";
+      // Interceptor w apiClient sam obsłuży wylogowanie przy błędzie 401
+      console.error('Błąd odświeżania tokena:', e);
     }
   }, refreshInterval);
 }
 
-// Uruchom odświeżanie po zalogowaniu
-if (sessionStorage.getItem("token")) {
-  // ZAMIANA
+// Uruchom odświeżanie, jeśli token istnieje przy starcie aplikacji
+if (sessionStorage.getItem('token')) {
   scheduleTokenRefresh();
 }
 
-const user = sessionStorage.getItem("user");
+// Ustawianie motywu na podstawie danych użytkownika
+const user = sessionStorage.getItem('user');
 if (user) {
-  const option = JSON.parse(user).option || "light";
-  document.documentElement.setAttribute("data-theme", option);
+  const option = JSON.parse(user).option || 'light';
+  document.documentElement.setAttribute('data-theme', option);
 }
 
-createApp(App).use(router).use(store).mount("#app");
+createApp(App).use(router).use(store).mount('#app');

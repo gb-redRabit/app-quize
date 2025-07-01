@@ -7,33 +7,34 @@
     </div>
     <div class="mb-6 flex items-center gap-2">
       <label class="block font-semibold mb-1">Motyw:</label>
-      <select v-model="theme" class="p-2 border rounded">
+      <select
+        v-model="theme"
+        class="w-full p-2 border rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+      >
         <option value="light">Jasny</option>
         <option value="dark">Ciemny</option>
       </select>
-      <BaseButton color="blue" class="ml-2" @click="saveTheme"
-        >Zapisz motyw</BaseButton
-      >
+      <BaseButton color="blue" class="ml-2" @click="saveTheme">Zapisz motyw</BaseButton>
     </div>
-    <div class="mb-6">
+    <div class="mb-6 flex flex-col gap-2">
       <label class="block font-semibold mb-1">Zmień hasło:</label>
       <input
         v-model="oldPassword"
         type="password"
         placeholder="Stare hasło"
-        class="p-2 border rounded w-full mb-2"
+        class="w-full p-2 border rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
       />
       <input
         v-model="newPassword"
         type="password"
         placeholder="Nowe hasło"
-        class="p-2 border rounded w-full mb-2"
+        class="w-full p-2 border rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
       />
       <input
         v-model="newPassword2"
         type="password"
         placeholder="Powtórz nowe hasło"
-        class="p-2 border rounded w-full mb-2"
+        class="w-full p-2 border rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
       />
       <BaseButton color="green" @click="changePassword">Zmień hasło</BaseButton>
       <div v-if="passwordMsg" class="mt-2 text-sm" :class="passwordMsgType">
@@ -44,75 +45,67 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import BaseButton from "@/components/BaseButton.vue";
-import axios from "axios";
+import { mapState } from 'vuex';
+import BaseButton from '@/components/BaseButton.vue';
+import apiClient from '@/api'; // <-- ZMIANA
+
 export default {
   components: { BaseButton },
   data() {
     return {
-      theme: "light",
-      oldPassword: "",
-      newPassword: "",
-      newPassword2: "",
-      passwordMsg: "",
-      passwordMsgType: "text-green-600",
+      theme: 'light',
+      oldPassword: '',
+      newPassword: '',
+      newPassword2: '',
+      passwordMsg: '',
+      passwordMsgType: 'text-green-600',
     };
   },
   computed: {
-    ...mapState(["user"]),
+    ...mapState('user', ['user']), // <-- ZMIANA na mapState z namespace
   },
   mounted() {
-    this.theme = this.user.option || "light";
+    this.theme = this.user.option || 'light';
   },
   methods: {
     async saveTheme() {
       try {
-        const token = sessionStorage.getItem("token");
-        await axios.put(
-          "/api/users/update",
-          { option: this.theme },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        document.documentElement.setAttribute("data-theme", this.theme);
-        this.passwordMsg = "Motyw zapisany!";
-        this.passwordMsgType = "text-green-600";
+        await apiClient.put('/users/update', { option: this.theme }); // <-- ZMIANA
+        document.documentElement.setAttribute('data-theme', this.theme);
+        this.passwordMsg = 'Motyw zapisany!';
+        this.passwordMsgType = 'text-green-600';
       } catch {
-        this.passwordMsg = "Błąd zapisu motywu.";
-        this.passwordMsgType = "text-red-600";
+        this.passwordMsg = 'Błąd zapisu motywu.';
+        this.passwordMsgType = 'text-red-600';
       }
     },
     async changePassword() {
-      this.passwordMsg = "";
+      this.passwordMsg = '';
       if (!this.oldPassword || !this.newPassword || !this.newPassword2) {
-        this.passwordMsg = "Wypełnij wszystkie pola.";
-        this.passwordMsgType = "text-red-600";
+        this.passwordMsg = 'Wypełnij wszystkie pola.';
+        this.passwordMsgType = 'text-red-600';
         return;
       }
       if (this.newPassword !== this.newPassword2) {
-        this.passwordMsg = "Nowe hasła nie są takie same.";
-        this.passwordMsgType = "text-red-600";
+        this.passwordMsg = 'Nowe hasła nie są takie same.';
+        this.passwordMsgType = 'text-red-600';
         return;
       }
       try {
-        const token = sessionStorage.getItem("token");
-        await axios.put(
-          "/api/users/update",
-          {
-            changePassword: true,
-            oldPassword: this.oldPassword,
-            newPassword: this.newPassword,
-          },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        this.passwordMsg = "Hasło zmienione!";
-        this.passwordMsgType = "text-green-600";
-        this.oldPassword = "";
-        this.newPassword = "";
-        this.newPassword2 = "";
+        await apiClient.put('/users/update', {
+          // <-- ZMIANA
+          changePassword: true,
+          oldPassword: this.oldPassword,
+          newPassword: this.newPassword,
+        });
+        this.passwordMsg = 'Hasło zmienione!';
+        this.passwordMsgType = 'text-green-600';
+        this.oldPassword = '';
+        this.newPassword = '';
+        this.newPassword2 = '';
       } catch (e) {
-        this.passwordMsg = "Błąd zmiany hasła.";
-        this.passwordMsgType = "text-red-600";
+        this.passwordMsg = 'Błąd zmiany hasła.';
+        this.passwordMsgType = 'text-red-600';
       }
     },
   },

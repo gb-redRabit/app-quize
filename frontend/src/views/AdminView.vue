@@ -3,15 +3,13 @@
     <BaseLoader :show="loading" />
     <h1 class="text-2xl font-bold mb-4">Panel administratora</h1>
     <div class="mb-4">
-      <BaseButton color="gray" @click="showExcelInfo = true">
-        Jak przygotować plik Excel do importu?
-      </BaseButton>
+      <BaseButton color="gray" @click="showExcelInfo = true"> Jak importować z Excela? </BaseButton>
     </div>
     <BaseModal :show="showExcelInfo" @close="showExcelInfo = false">
       <h2 class="text-xl font-bold mb-4 text-center">Import pytań z Excela</h2>
       <p class="mb-4">
-        Plik Excel powinien mieć następujące kolumny (pierwszy wiersz to
-        nagłówki):
+        Aby zaimportować pytania, przygotuj plik Excel (.xlsx) z następującymi kolumnami w pierwszym
+        arkuszu:
       </p>
       <div class="overflow-x-auto mb-4">
         <table class="min-w-full border text-xs">
@@ -47,30 +45,20 @@
       </div>
       <ul class="mb-4 list-disc pl-6 text-sm">
         <li>
-          W kolumnach <b>Poprawna A/B/C</b> wpisz <b>true/tak/yes/1/x</b> jeśli
-          odpowiedź jest poprawna, w przeciwnym razie zostaw puste lub wpisz
-          false/0
+          W kolumnach <b>Poprawna A/B/C</b> wpisz <b>true/tak/yes/1/x</b> jeśli odpowiedź jest
+          poprawna, w przeciwnym razie zostaw puste lub wpisz false/0
         </li>
         <li>Pierwszy wiersz musi zawierać nagłówki jak powyżej.</li>
       </ul>
       <div class="text-center">
-        <BaseButton color="blue" @click="showExcelInfo = false">
-          Zamknij
-        </BaseButton>
+        <BaseButton color="blue" @click="showExcelInfo = false"> Zamknij </BaseButton>
       </div>
     </BaseModal>
 
-    <div
-      class="flex flex-col sm:flex-row justify-between items-center mb-2 gap-2"
-    >
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-2 gap-4">
       <div class="flex">
-        <BaseButton color="blue" @click="openAddPopup">
-          Dodaj pytanie
-        </BaseButton>
-        <BaseButton
-          color="blue"
-          class="ml-2 mb-2 sm:mb-0 relative overflow-hidden"
-        >
+        <BaseButton color="blue" @click="openAddPopup"> Dodaj pytanie </BaseButton>
+        <BaseButton color="blue" class="ml-2 mb-2 sm:mb-0 relative overflow-hidden">
           <span>Importuj pytania z Excela</span>
           <input
             type="file"
@@ -81,12 +69,12 @@
             title="Importuj pytania z Excela"
           />
         </BaseButton>
-        <BaseButton
-          color="green"
-          class="ml-2 mb-2 sm:mb-0"
-          @click="exportQuestionsExcel"
-        >
+        <BaseButton color="green" class="ml-2" @click="exportQuestionsExcel">
           Eksportuj do Excela
+        </BaseButton>
+        <!-- Przycisk do czyszczenia bazy pytań -->
+        <BaseButton color="red" class="ml-2" @click="showClearQuestionsModal = true">
+          Wyczyść wszystkie pytania
         </BaseButton>
       </div>
       <SearchBar v-model:search="searchQuery" class="w-full sm:w-80" />
@@ -118,11 +106,7 @@
               stroke-width="2"
               viewBox="0 0 24 24"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M19 9l-7 7-7-7"
-              />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </div>
           <div v-if="expandedRows.includes(question.ID)" class="px-4 pb-4">
@@ -160,20 +144,12 @@
                   stroke-width="2"
                   viewBox="0 0 24 24"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </IconButton>
             </div>
-            <div class="text-xs text-gray-600 mb-1">
-              Kategoria: {{ question.category }}
-            </div>
-            <div class="text-xs text-gray-600 mb-1">
-              Opis: {{ question.description }}
-            </div>
+            <div class="text-xs text-gray-600 mb-1">Kategoria: {{ question.category }}</div>
+            <div class="text-xs text-gray-600 mb-1">Opis: {{ question.description }}</div>
           </div>
         </div>
       </div>
@@ -238,11 +214,7 @@
                   stroke-width="2"
                   viewBox="0 0 24 24"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </IconButton>
             </td>
@@ -250,15 +222,24 @@
         </tbody>
       </table>
     </div>
-
+    <!-- Modal potwierdzający -->
+    <BaseModal :show="showClearQuestionsModal" @close="showClearQuestionsModal = false">
+      <h2 class="text-xl font-bold mb-4 text-center text-red-600">Potwierdź operację!</h2>
+      <p class="mb-6 text-center text-base">
+        Czy na pewno chcesz usunąć <b>WSZYSTKIE PYTANIA</b>?<br />
+        <b class="text-red-700">Tej operacji nie można cofnąć!</b>
+      </p>
+      <div class="flex justify-center gap-4">
+        <BaseButton color="red" @click="clearQuestions">Tak, wyczyść pytania</BaseButton>
+        <BaseButton color="gray" @click="showClearQuestionsModal = false">Anuluj</BaseButton>
+      </div>
+    </BaseModal>
     <!-- Popup edycji pytania -->
     <BaseModal :show="showEditPopup" @close="closeEditPopup">
       <h2 class="text-xl font-bold mb-4">Edytuj pytanie</h2>
       <form @submit.prevent="saveEdit">
         <div class="mb-4">
-          <label class="block font-semibold mb-1" for="edit-question"
-            >Treść pytania</label
-          >
+          <label class="block font-semibold mb-1" for="edit-question">Treść pytania</label>
           <input
             v-model="editQuestion.question"
             class="w-full border rounded p-2"
@@ -268,9 +249,7 @@
           />
         </div>
         <div class="mb-4">
-          <label class="block font-semibold mb-1" for="edit-answer-a"
-            >Odpowiedź A</label
-          >
+          <label class="block font-semibold mb-1" for="edit-answer-a">Odpowiedź A</label>
           <input
             v-model="editQuestion.answer_a.answer"
             class="w-full border rounded p-2"
@@ -290,9 +269,7 @@
           </label>
         </div>
         <div class="mb-4">
-          <label class="block font-semibold mb-1" for="edit-answer-b"
-            >Odpowiedź B</label
-          >
+          <label class="block font-semibold mb-1" for="edit-answer-b">Odpowiedź B</label>
           <input
             v-model="editQuestion.answer_b.answer"
             class="w-full border rounded p-2"
@@ -312,9 +289,7 @@
           </label>
         </div>
         <div class="mb-4">
-          <label class="block font-semibold mb-1" for="edit-answer-c"
-            >Odpowiedź C</label
-          >
+          <label class="block font-semibold mb-1" for="edit-answer-c">Odpowiedź C</label>
           <input
             v-model="editQuestion.answer_c.answer"
             class="w-full border rounded p-2"
@@ -334,9 +309,7 @@
           </label>
         </div>
         <div class="mb-4">
-          <label class="block font-semibold mb-1" for="edit-category"
-            >Kategoria</label
-          >
+          <label class="block font-semibold mb-1" for="edit-category">Kategoria</label>
           <select
             v-model="editQuestion.category"
             class="w-full border rounded p-2"
@@ -350,10 +323,7 @@
             </option>
             <option value="__nowa__">[Dodaj nową kategorię]</option>
           </select>
-          <div
-            v-if="editQuestion.category === '__nowa__'"
-            class="flex gap-2 mt-2"
-          >
+          <div v-if="editQuestion.category === '__nowa__'" class="flex gap-2 mt-2">
             <input
               v-model="newCategoryInput"
               class="w-full border rounded p-2"
@@ -361,11 +331,7 @@
               id="edit-new-category"
               name="edit-new-category"
             />
-            <BaseButton
-              color="green"
-              type="button"
-              @click="confirmNewCategory('edit')"
-            >
+            <BaseButton color="green" type="button" @click="confirmNewCategory('edit')">
               Dodaj
             </BaseButton>
           </div>
@@ -390,9 +356,7 @@
       <h2 class="text-xl font-bold mb-4">Dodaj pytanie</h2>
       <form @submit.prevent="saveNewQuestion">
         <div class="mb-4">
-          <label class="block font-semibold mb-1" for="new-question"
-            >Treść pytania</label
-          >
+          <label class="block font-semibold mb-1" for="new-question">Treść pytania</label>
           <input
             v-model="newQuestion.question"
             class="w-full border rounded p-2"
@@ -402,9 +366,7 @@
           />
         </div>
         <div class="mb-4">
-          <label class="block font-semibold mb-1" for="new-answer-a"
-            >Odpowiedź A</label
-          >
+          <label class="block font-semibold mb-1" for="new-answer-a">Odpowiedź A</label>
           <input
             v-model="newQuestion.answer_a.answer"
             class="w-full border rounded p-2"
@@ -424,9 +386,7 @@
           </label>
         </div>
         <div class="mb-4">
-          <label class="block font-semibold mb-1" for="new-answer-b"
-            >Odpowiedź B</label
-          >
+          <label class="block font-semibold mb-1" for="new-answer-b">Odpowiedź B</label>
           <input
             v-model="newQuestion.answer_b.answer"
             class="w-full border rounded p-2"
@@ -446,9 +406,7 @@
           </label>
         </div>
         <div class="mb-4">
-          <label class="block font-semibold mb-1" for="new-answer-c"
-            >Odpowiedź C</label
-          >
+          <label class="block font-semibold mb-1" for="new-answer-c">Odpowiedź C</label>
           <input
             v-model="newQuestion.answer_c.answer"
             class="w-full border rounded p-2"
@@ -468,9 +426,7 @@
           </label>
         </div>
         <div class="mb-4">
-          <label class="block font-semibold mb-1" for="new-category"
-            >Kategoria</label
-          >
+          <label class="block font-semibold mb-1" for="new-category">Kategoria</label>
           <select
             v-model="newQuestion.category"
             class="w-full border rounded p-2"
@@ -484,10 +440,7 @@
             </option>
             <option value="__nowa__">[Dodaj nową kategorię]</option>
           </select>
-          <div
-            v-if="newQuestion.category === '__nowa__'"
-            class="flex gap-2 mt-2"
-          >
+          <div v-if="newQuestion.category === '__nowa__'" class="flex gap-2 mt-2">
             <input
               v-model="newCategoryInput"
               class="w-full border rounded p-2"
@@ -495,11 +448,7 @@
               id="new-new-category"
               name="new-new-category"
             />
-            <BaseButton
-              color="green"
-              type="button"
-              @click="confirmNewCategory('new')"
-            >
+            <BaseButton color="green" type="button" @click="confirmNewCategory('new')">
               Dodaj
             </BaseButton>
           </div>
@@ -521,9 +470,7 @@
 
     <!-- Popup potwierdzenia usunięcia -->
     <BaseModal :show="showDeletePopup" @close="cancelDelete">
-      <h2 class="text-xl font-bold mb-4 text-center text-red-600">
-        Potwierdź usunięcie
-      </h2>
+      <h2 class="text-xl font-bold mb-4 text-center text-red-600">Potwierdź usunięcie</h2>
       <p class="mb-6 text-center">
         Czy na pewno chcesz usunąć to pytanie?<br />
         <span class="font-semibold text-gray-700">
@@ -531,9 +478,7 @@
         </span>
       </p>
       <div class="flex justify-center gap-4">
-        <BaseButton color="red" @click="deleteQuestionConfirmed">
-          Tak, usuń
-        </BaseButton>
+        <BaseButton color="red" @click="deleteQuestionConfirmed"> Tak, usuń </BaseButton>
         <BaseButton color="gray" @click="cancelDelete"> Anuluj </BaseButton>
       </div>
     </BaseModal>
@@ -541,12 +486,13 @@
 </template>
 
 <script>
-import axios from "axios";
-import SearchBar from "@/components/SearchBar.vue";
-import BaseButton from "@/components/BaseButton.vue";
-import IconButton from "@/components/IconButton.vue";
-import BaseModal from "@/components/BaseModal.vue";
-import BaseLoader from "@/components/BaseLoader.vue";
+import SearchBar from '@/components/SearchBar.vue';
+import BaseButton from '@/components/BaseButton.vue';
+import IconButton from '@/components/IconButton.vue';
+import BaseModal from '@/components/BaseModal.vue';
+import BaseLoader from '@/components/BaseLoader.vue';
+import apiClient from '@/api'; // <-- ZMIANA
+import axios from 'axios';
 
 export default {
   components: { SearchBar, BaseButton, IconButton, BaseModal, BaseLoader },
@@ -558,39 +504,35 @@ export default {
       editQuestion: null,
       showAddPopup: false,
       newQuestion: {
-        question: "",
-        answer_a: { answer: "", isCorret: false },
-        answer_b: { answer: "", isCorret: false },
-        answer_c: { answer: "", isCorret: false },
-        category: "",
-        description: "",
+        description: '',
       },
       showDeletePopup: false,
       questionToDelete: null,
-      newCategoryInput: "",
-      searchQuery: "",
+      newCategoryInput: '',
+      searchQuery: '',
       displayCount: 100,
       loadingMore: false,
       showExcelInfo: false,
       expandedRows: [],
       loading: false,
+      showClearQuestionsModal: false,
     };
   },
   created() {
     this.fetchQuestions();
-    window.addEventListener("scroll", this.handleScroll);
+    window.addEventListener('scroll', this.handleScroll);
   },
   beforeUnmount() {
-    window.removeEventListener("scroll", this.handleScroll);
+    window.removeEventListener('scroll', this.handleScroll);
   },
   computed: {
     filteredQuestions() {
       if (!this.searchQuery) return this.questions;
       const q = this.searchQuery.toLowerCase();
       return this.questions.filter(
-        (item) =>
-          (item.ID && item.ID.toString().includes(q)) ||
-          (item.question && item.question.toLowerCase().includes(q))
+        (question) =>
+          question.question.toLowerCase().includes(q) ||
+          (question.ID && question.ID.toString().includes(q))
       );
     },
     visibleQuestions() {
@@ -601,20 +543,26 @@ export default {
     },
   },
   methods: {
+    async clearQuestions() {
+      this.showClearQuestionsModal = false;
+      this.loading = true;
+      try {
+        await apiClient.post('/questions/clear');
+        alert('Baza pytań została wyczyszczona!');
+        await this.fetchQuestions();
+      } catch (e) {
+        alert('Błąd czyszczenia bazy pytań.');
+      }
+      this.loading = false;
+    },
     async fetchQuestions() {
       this.loading = true;
       try {
-        const response = await axios.get("/api/questions");
-        this.questions = response.data;
-        this.categories = [
-          ...new Set(
-            response.data
-              .map((q) => q.category)
-              .filter((cat) => cat && cat.trim() !== "")
-          ),
-        ];
+        const res = await apiClient.get('/questions'); // <-- ZMIANA
+        this.questions = res.data;
+        this.categories = [...new Set(res.data.map((q) => q.category).filter(Boolean))];
       } catch (error) {
-        console.error("Error fetching questions:", error);
+        console.error('Błąd ładowania pytań:', error);
       }
       this.loading = false;
     },
@@ -628,7 +576,7 @@ export default {
         setTimeout(() => {
           this.displayCount += 100;
           this.loadingMore = false;
-        }, 200);
+        }, 300);
       }
     },
     openEditPopup(question) {
@@ -642,34 +590,24 @@ export default {
     async saveEdit() {
       this.loading = true;
       try {
-        const token = sessionStorage.getItem("token");
-        await axios.put(
-          `/api/questions/${this.editQuestion.ID}`,
-          this.editQuestion,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        this.showEditPopup = false;
-        this.editQuestion = null;
+        await apiClient.put(`/questions/${this.editQuestion.ID}`, this.editQuestion); // <-- ZMIANA
+        this.closeEditPopup();
         this.fetchQuestions();
       } catch (error) {
-        alert("Błąd podczas zapisu edycji pytania!");
-        console.error(error);
+        console.error('Błąd zapisu pytania:', error);
       }
       this.loading = false;
     },
     openAddPopup() {
       this.showAddPopup = true;
       this.newQuestion = {
-        question: "",
-        answer_a: { answer: "", isCorret: false },
-        answer_b: { answer: "", isCorret: false },
-        answer_c: { answer: "", isCorret: false },
-        category: "",
-        description: "",
+        question: '',
+        description: '',
+        category: '',
+        answer_a: { answer: '', isCorret: false },
+        answer_b: { answer: '', isCorret: false },
+        answer_c: { answer: '', isCorret: false },
+        answer_d: { answer: '', isCorret: false },
       };
     },
     closeAddPopup() {
@@ -678,15 +616,11 @@ export default {
     async saveNewQuestion() {
       this.loading = true;
       try {
-        const token = sessionStorage.getItem("token");
-        await axios.post("/api/questions", this.newQuestion, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        this.showAddPopup = false;
+        await apiClient.post('/questions', this.newQuestion); // <-- ZMIANA
+        this.closeAddPopup();
         this.fetchQuestions();
       } catch (error) {
-        alert("Błąd podczas dodawania pytania!");
-        console.error(error);
+        console.error('Błąd dodawania pytania:', error);
       }
       this.loading = false;
     },
@@ -697,23 +631,11 @@ export default {
     async deleteQuestionConfirmed() {
       this.loading = true;
       try {
-        const token = sessionStorage.getItem("token");
-        await axios.delete(`/api/questions/${this.questionToDelete.ID}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        this.showDeletePopup = false;
-        this.questionToDelete = null;
+        await apiClient.delete(`/questions/${this.questionToDelete.ID}`); // <-- ZMIANA
+        this.cancelDelete();
         this.fetchQuestions();
       } catch (error) {
-        if (error.response && error.response.status === 404) {
-          // Pytanie już nie istnieje, odśwież listę i nie pokazuj alertu
-          this.showDeletePopup = false;
-          this.questionToDelete = null;
-          this.fetchQuestions();
-        } else {
-          alert("Błąd podczas usuwania pytania!");
-          console.error(error);
-        }
+        console.error('Błąd usuwania pytania:', error);
       }
       this.loading = false;
     },
@@ -727,12 +649,12 @@ export default {
       if (!this.categories.includes(newCat)) {
         this.categories.push(newCat);
       }
-      if (type === "new") {
+      if (type === 'new') {
         this.newQuestion.category = newCat;
-      } else if (type === "edit") {
+      } else if (type === 'edit') {
         this.editQuestion.category = newCat;
       }
-      this.newCategoryInput = "";
+      this.newCategoryInput = '';
     },
     toggleRow(id) {
       const idx = this.expandedRows.indexOf(id);
@@ -740,22 +662,23 @@ export default {
       else this.expandedRows.splice(idx, 1);
     },
     async exportQuestionsExcel() {
+      if (this.loading) return; // ZABEZPIECZENIE przed wielokrotnym kliknięciem
       this.loading = true;
       try {
-        const token = sessionStorage.getItem("token");
-        const response = await axios.get("/api/questions/export/excel", {
-          responseType: "blob",
+        const token = sessionStorage.getItem('token');
+        const response = await axios.get('/api/questions/export/excel', {
+          responseType: 'blob',
           headers: { Authorization: `Bearer ${token}` },
         });
         const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement("a");
+        const link = document.createElement('a');
         link.href = url;
-        link.setAttribute("download", "pytania.xlsx");
+        link.setAttribute('download', 'pytania.xlsx');
         document.body.appendChild(link);
         link.click();
         link.remove();
       } catch (e) {
-        alert("Błąd eksportu do Excela: " + (e.message || e));
+        alert('Błąd eksportu do Excela: ' + (e.message || e));
       }
       this.loading = false;
     },
@@ -764,22 +687,22 @@ export default {
       if (!file) return;
       this.loading = true;
       try {
-        const token = sessionStorage.getItem("token");
+        const token = sessionStorage.getItem('token');
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append('file', file);
 
-        await axios.post("/api/questions/import/excel", formData, {
+        await axios.post('/api/questions/import/excel', formData, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
+            'Content-Type': 'multipart/form-data',
           },
         });
         window.location.reload();
       } catch (e) {
-        alert("Błąd importu pytań z Excela: " + (e.message || e));
+        alert('Błąd importu pytań z Excela: ' + (e.message || e));
       }
       this.loading = false;
-      event.target.value = "";
+      event.target.value = '';
     },
   },
 };

@@ -2,9 +2,7 @@
   <div class="container flex flex-col items-center justify-start px-2">
     <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col gap-8 w-full">
       <div v-if="!showSummary">
-        <h1 class="text-3xl font-bold mb-6 text-center">
-          Egzamin – {{ examLength }} pytań
-        </h1>
+        <h1 class="text-3xl font-bold mb-6 text-center">Egzamin – {{ examLength }} pytań</h1>
         <div class="flex justify-between items-center mb-4">
           <span class="text-lg font-semibold"
             >Pytanie {{ currentQuestionIndex + 1 }} / {{ examLength }}</span
@@ -21,15 +19,13 @@
             v-if="questions.length && currentQuestionIndex < questions.length"
             :question="questions[currentQuestionIndex]"
             :answered="
-              answersStatus.length > currentQuestionIndex &&
-              answersStatus[currentQuestionIndex]
+              answersStatus.length > currentQuestionIndex && answersStatus[currentQuestionIndex]
                 ? answersStatus[currentQuestionIndex].answered
                 : false
             "
             :selected="selectedIndex"
             :selectedKey="
-              answersStatus.length > currentQuestionIndex &&
-              answersStatus[currentQuestionIndex]
+              answersStatus.length > currentQuestionIndex && answersStatus[currentQuestionIndex]
                 ? answersStatus[currentQuestionIndex].selectedKey
                 : null
             "
@@ -56,17 +52,17 @@
 </template>
 
 <script>
-import axios from "axios";
-import { mapActions } from "vuex";
-import QuestionList from "@/components/QuestionList.vue";
-import SummaryBox from "@/components/SummaryBox.vue";
-import BaseLoader from "@/components/BaseLoader.vue";
-import ProgressBar from "@/components/ProgressBar.vue";
-import { getRandomUniqueQuestions } from "@/utils/randomQuestions";
-import { shuffleArray } from "@/utils/shuffleArray";
+import axios from 'axios';
+import { mapActions } from 'vuex';
+import QuestionList from '@/components/QuestionList.vue';
+import SummaryBox from '@/components/SummaryBox.vue';
+import BaseLoader from '@/components/BaseLoader.vue';
+import ProgressBar from '@/components/ProgressBar.vue';
+import { getRandomUniqueQuestions } from '@/utils/randomQuestions';
+import { shuffleArray } from '@/utils/shuffleArray';
 
 function getCorrectKey(q) {
-  const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+  const keys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
   return keys.find((k) => q[k] && q[k].isCorret);
 }
 
@@ -100,8 +96,8 @@ export default {
     formattedTime() {
       const min = Math.floor(this.timeLeft / 60)
         .toString()
-        .padStart(2, "0");
-      const sec = (this.timeLeft % 60).toString().padStart(2, "0");
+        .padStart(2, '0');
+      const sec = (this.timeLeft % 60).toString().padStart(2, '0');
       return `${min}:${sec}`;
     },
     answeredCount() {
@@ -113,8 +109,7 @@ export default {
     selectedIndex() {
       if (!this.answersStatus[this.currentQuestionIndex]) return null;
       return this.answers.findIndex(
-        (a) =>
-          a.key === this.answersStatus[this.currentQuestionIndex].selectedKey
+        (a) => a.key === this.answersStatus[this.currentQuestionIndex].selectedKey
       );
     },
   },
@@ -128,7 +123,7 @@ export default {
           return;
         }
         this.shuffledAnswers = shuffleArray(
-          ["answer_a", "answer_b", "answer_c", "answer_d"]
+          ['answer_a', 'answer_b', 'answer_c', 'answer_d']
             .map((k) => q[k] && { ...q[k], key: k })
             .filter(Boolean)
         );
@@ -146,35 +141,29 @@ export default {
     this.startTimer();
   },
   mounted() {
-    window.addEventListener("keydown", this.handleKeydown);
+    window.addEventListener('keydown', this.handleKeydown);
   },
   beforeUnmount() {
-    window.removeEventListener("keydown", this.handleKeydown);
+    window.removeEventListener('keydown', this.handleKeydown);
   },
   methods: {
-    ...mapActions(["fetchUserHistory"]),
+    ...mapActions(['fetchUserHistory']),
     async fetchQuestions() {
-      const response = await axios.get("/api/questions");
+      const response = await axios.get('/api/questions');
       let filteredQuestions = response.data;
 
       if (this.$route.query.ids) {
-        const ids = this.$route.query.ids.split(",").map((id) => id.trim());
+        const ids = this.$route.query.ids.split(',').map((id) => id.trim());
         filteredQuestions = filteredQuestions.filter((q) =>
           ids.includes(String(q.ID || q.id || q.Id || q.id_question))
         );
-      } else if (
-        this.selectedCategories &&
-        this.selectedCategories[0] !== "all"
-      ) {
+      } else if (this.selectedCategories && this.selectedCategories[0] !== 'all') {
         filteredQuestions = filteredQuestions.filter((q) =>
           this.selectedCategories.includes(q.category)
         );
       }
 
-      this.questions = getRandomUniqueQuestions(
-        filteredQuestions,
-        this.examLength
-      );
+      this.questions = getRandomUniqueQuestions(filteredQuestions, this.examLength);
       this.answersStatus = this.questions.map(() => ({
         answered: false,
         selected: null,
@@ -191,7 +180,7 @@ export default {
       const q = this.questions[this.currentQuestionIndex];
       const id = q.ID || q.id || q.Id || q.id_question; // użyj nullish coalescing
       if (!id) {
-        console.warn("Brak ID pytania!", q);
+        console.warn('Brak ID pytania!', q);
         return;
       }
       const isCorrect = selectedKey === getCorrectKey(q);
@@ -205,14 +194,13 @@ export default {
       };
       // ZAPISZ czas odpowiedzi na to pytanie
       const now = Date.now();
-      this.questionTimes[this.currentQuestionIndex] =
-        (now - this.startTime) / 1000;
+      this.questionTimes[this.currentQuestionIndex] = (now - this.startTime) / 1000;
 
       // Dodaj do hquestion
       try {
-        const token = sessionStorage.getItem("token");
+        const token = sessionStorage.getItem('token');
         await axios.post(
-          "/api/users/hquestion",
+          '/api/users/hquestion',
           {
             id,
             correct: isCorrect,
@@ -234,13 +222,13 @@ export default {
         }
       }, 300);
       try {
-        const token = sessionStorage.getItem("token");
+        const token = sessionStorage.getItem('token');
         await axios.post(
-          "/api/users/hquestion",
+          '/api/users/hquestion',
           {
             id: q.ID || q.id || q.Id || q.id_question,
             correct: isCorrect,
-            category: q.category || "",
+            category: q.category || '',
           },
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -255,16 +243,12 @@ export default {
       }, 0);
     },
     userAnswerText(q, selectedKey) {
-      if (!selectedKey) return "";
-      return q[selectedKey] && q[selectedKey].answer
-        ? q[selectedKey].answer
-        : "";
+      if (!selectedKey) return '';
+      return q[selectedKey] && q[selectedKey].answer ? q[selectedKey].answer : '';
     },
     correctAnswerText(q) {
       const correctKey = getCorrectKey(q);
-      return correctKey && q[correctKey] && q[correctKey].answer
-        ? q[correctKey].answer
-        : "";
+      return correctKey && q[correctKey] && q[correctKey].answer ? q[correctKey].answer : '';
     },
     async restartExam() {
       this.isCorrection = false;
@@ -274,11 +258,11 @@ export default {
       // Jeśli jest kategoria w query, pobierz nowe błędne/nieprzerobione pytania
       if (this.$route.query.categories) {
         const cat = this.$route.query.categories;
-        const token = sessionStorage.getItem("token");
+        const token = sessionStorage.getItem('token');
         // Pobierz wszystkie pytania
-        const allQuestions = (await axios.get("/api/questions")).data;
+        const allQuestions = (await axios.get('/api/questions')).data;
         // Pobierz historię użytkownika
-        const historyRes = await axios.get("/api/users/hquestion", {
+        const historyRes = await axios.get('/api/users/hquestion', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const hq = historyRes.data.filter((q) => q.category === cat);
@@ -297,10 +281,10 @@ export default {
         const length = Math.min(this.examLength, wrongOrNotDoneIds.length);
 
         this.$router.replace({
-          name: "ExamView",
+          name: 'ExamView',
           query: {
             ...this.$route.query,
-            ids: wrongOrNotDoneIds.join(","),
+            ids: wrongOrNotDoneIds.join(','),
             length,
             r: Math.random().toString(36).substring(2, 8),
           },
@@ -320,9 +304,7 @@ export default {
           clearInterval(this.timer);
           this.showSummary = true;
           this.answersStatus = this.answersStatus.map((a) =>
-            a.answered
-              ? a
-              : { answered: true, selected: null, selectedKey: null }
+            a.answered ? a : { answered: true, selected: null, selectedKey: null }
           );
           this.countScore();
           await this.saveExamHistory();
@@ -331,23 +313,23 @@ export default {
     },
     async saveExamHistory() {
       try {
-        const token = sessionStorage.getItem("token");
+        const token = sessionStorage.getItem('token');
         if (!token) return;
         const list = this.questions.map((q, idx) => ({
           id_questions: q.ID || q.id || q.Id || q.id_question,
           correct: this.answersStatus[idx].selectedKey === getCorrectKey(q),
           answer: this.answersStatus[idx].selectedKey
-            ? ["A", "B", "C", "D"][this.answersStatus[idx].selected]
+            ? ['A', 'B', 'C', 'D'][this.answersStatus[idx].selected]
             : null,
         }));
         const correct = this.answersStatus.filter((a) => a.correct).length;
         const wrong = this.answersStatus.length - correct;
 
         await axios.put(
-          "/api/users/update",
+          '/api/users/update',
           {
             addHistory: {
-              type: this.isCorrection ? "Egzamin - poprawa błędów" : "egzamin",
+              type: this.isCorrection ? 'Egzamin - poprawa błędów' : 'egzamin',
               correct,
               wrong,
               list,
@@ -359,7 +341,7 @@ export default {
         );
         this.isCorrection = true;
       } catch (e) {
-        console.error("Błąd zapisu historii egzaminu:", e);
+        console.error('Błąd zapisu historii egzaminu:', e);
       }
     },
 
@@ -368,9 +350,7 @@ export default {
     },
     retryWrongQuestions() {
       const wrongIndexes = this.answersStatus
-        .map((a, idx) =>
-          a.selectedKey !== getCorrectKey(this.questions[idx]) ? idx : null
-        )
+        .map((a, idx) => (a.selectedKey !== getCorrectKey(this.questions[idx]) ? idx : null))
         .filter((idx) => idx !== null);
 
       if (!wrongIndexes.length) return;
@@ -393,19 +373,13 @@ export default {
       if (this.showSummary) return;
       if (this.loading) return;
       if (
-        ["1", "2", "3", "4"].includes(e.key) &&
+        ['1', '2', '3', '4'].includes(e.key) &&
         this.currentQuestionIndex < this.questions.length
       ) {
         const idx = parseInt(e.key, 10) - 1;
         // Pobierz aktualne przetasowane odpowiedzi z ref
-        const answers = this.$refs.questionList
-          ? this.$refs.questionList.answers
-          : this.answers;
-        if (
-          !this.answersStatus[this.currentQuestionIndex].answered &&
-          answers &&
-          answers[idx]
-        ) {
+        const answers = this.$refs.questionList ? this.$refs.questionList.answers : this.answers;
+        if (!this.answersStatus[this.currentQuestionIndex].answered && answers && answers[idx]) {
           this.selectAnswer(idx, answers[idx].key);
         }
       }

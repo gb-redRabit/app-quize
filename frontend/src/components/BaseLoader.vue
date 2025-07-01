@@ -1,15 +1,8 @@
 <template>
   <transition name="fade">
-    <div
-      v-if="show"
-      class="fixed left-0 right-0 top-0 z-50"
-      style="pointer-events: none"
-    >
+    <div v-if="show" class="fixed left-0 right-0 top-0 z-50" style="pointer-events: none">
       <div class="w-full h-1 bg-blue-200">
-        <div
-          class="h-full bg-blue-500 animate-loader-bar"
-          :style="{ width: progress + '%' }"
-        ></div>
+        <div class="h-full bg-blue-500 animate-loader-bar" :style="{ width: progress + '%' }"></div>
       </div>
     </div>
   </transition>

@@ -5,7 +5,7 @@
       @input="$emit('update:search', search)"
       type="text"
       placeholder="Szukaj po ID lub treści pytania..."
-      class="w-full p-2 border rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400"
+      class="w-full p-2 border rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
     />
     <button
       v-if="search"
@@ -25,7 +25,7 @@ export default {
   },
   data() {
     return {
-      search: this.modelValue || "",
+      search: this.modelValue || '',
     };
   },
   watch: {
@@ -35,8 +35,8 @@ export default {
   },
   methods: {
     clear() {
-      this.search = "";
-      this.$emit("update:search", "");
+      this.search = '';
+      this.$emit('update:search', '');
     },
   },
 };

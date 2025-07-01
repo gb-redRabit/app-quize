@@ -14,20 +14,14 @@
         <span
           class="inline-block px-3 py-1 rounded-full text-xs font-bold"
           :class="
-            entry.type === 'egzamin'
-              ? 'bg-purple-200 text-purple-800'
-              : 'bg-blue-200 text-blue-800'
+            entry.type === 'egzamin' ? 'bg-purple-200 text-purple-800' : 'bg-blue-200 text-blue-800'
           "
         >
-          {{ entry.type === "egzamin" ? "Egzamin" : "Quiz" }}
+          {{ entry.type === 'egzamin' ? 'Egzamin' : 'Quiz' }}
         </span>
       </div>
       <ul class="space-y-4">
-        <li
-          v-for="(item, i) in entry.list"
-          :key="i"
-          class="p-3 bg-gray-50 rounded shadow"
-        >
+        <li class="p-3 bg-gray-50 rounded shadow">
           <div class="font-semibold mb-1">
             <span class="text-gray-500">ID: {{ item.id_questions }}</span>
             <span v-if="getQuestion(item.id_questions)">
@@ -35,10 +29,7 @@
             </span>
           </div>
           <div
-            v-if="
-              getQuestion(item.id_questions) &&
-              getQuestion(item.id_questions).description
-            "
+            v-if="getQuestion(item.id_questions) && getQuestion(item.id_questions).description"
             class="text-gray-500 text-sm mt-1"
           >
             Opis: {{ getQuestion(item.id_questions).description }}
@@ -67,11 +58,11 @@
 </template>
 
 <script>
-import axios from "axios";
-import { mapState } from "vuex";
+import { mapGetters, mapActions } from 'vuex';
+import apiClient from '@/api'; // <-- ZMIANA
 
 export default {
-  name: "HistoryDetailsView",
+  name: 'HistoryDetailsView',
   data() {
     return {
       entry: null,
@@ -79,12 +70,13 @@ export default {
     };
   },
   computed: {
-    ...mapState(["user"]),
+    ...mapGetters('user', ['getUserHistory']),
     history() {
-      return this.user.history || [];
+      return this.getUserHistory || [];
     },
   },
   methods: {
+    ...mapActions('user', ['fetchUserHistory']),
     getQuestion(id) {
       return (
         this.allQuestions.find(
@@ -94,33 +86,29 @@ export default {
     },
     getUserAnswerText(item) {
       const q = this.getQuestion(item.id_questions);
-      if (!q) return "Brak pytania";
-      const answerKey = item.answer ? item.answer.toUpperCase() : "";
+      if (!q) return 'Brak pytania';
+      const answerKey = item.answer ? item.answer.toUpperCase() : '';
       const answerObj = q[`answer_${answerKey.toLowerCase()}`];
-      return answerObj && answerObj.answer
-        ? answerObj.answer
-        : "Brak odpowiedzi";
+      return answerObj && answerObj.answer ? answerObj.answer : 'Brak odpowiedzi';
     },
     getCorrectAnswerText(item) {
       const q = this.getQuestion(item.id_questions);
-      if (!q) return "Brak pytania";
-      const keys = ["a", "b", "c", "d"];
-      const correctKey = keys.find(
-        (k) => q[`answer_${k}`] && q[`answer_${k}`].isCorret
-      );
-      if (!correctKey) return "Brak poprawnej odpowiedzi";
+      if (!q) return 'Brak pytania';
+      const keys = ['a', 'b', 'c', 'd'];
+      const correctKey = keys.find((k) => q[`answer_${k}`] && q[`answer_${k}`].isCorret);
+      if (!correctKey) return 'Brak poprawnej odpowiedzi';
       return q[`answer_${correctKey}`].answer;
     },
     isUserAnswerCorrect(item) {
       const q = this.getQuestion(item.id_questions);
       if (!q) return false;
-      const answerKey = item.answer ? item.answer.toUpperCase() : "";
+      const answerKey = item.answer ? item.answer.toUpperCase() : '';
       const answerObj = q[`answer_${answerKey.toLowerCase()}`];
       return answerObj && answerObj.isCorret === true;
     },
     async fetchAllQuestions() {
       try {
-        const res = await axios.get("/api/questions");
+        const res = await apiClient.get('/questions'); // <-- ZMIANA
         this.allQuestions = res.data;
       } catch (e) {
         this.allQuestions = [];
@@ -129,6 +117,9 @@ export default {
   },
   async created() {
     await this.fetchAllQuestions();
+    if (!this.history.length) {
+      await this.fetchUserHistory();
+    }
     const idx = this.$route.params.idx;
     this.entry = this.history[idx] || null;
   },

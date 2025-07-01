@@ -9,11 +9,7 @@
       style="max-height: 77vh; max-width: 76.5vw"
     >
       <slot />
-      <button
-        class="absolute top-2 right-2 text-2xl"
-        @click="$emit('close')"
-        aria-label="Zamknij"
-      >
+      <button class="absolute top-2 right-2 text-2xl" @click="$emit('close')" aria-label="Zamknij">
         &times;
       </button>
     </div>

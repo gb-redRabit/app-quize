@@ -1,7 +1,5 @@
 <template>
-  <nav
-    class="w-full bg-white shadow flex items-center justify-between px-6 py-3 mb-2 relative"
-  >
+  <nav class="w-full bg-white shadow flex items-center justify-between px-6 py-3 mb-2 relative">
     <!-- Lewa strona: użytkownik -->
     <h1 class="ml-2 font-bold text-blue-600 capitalize-first-letter">
       {{ userName }}
@@ -29,12 +27,8 @@
 
     <!-- Środek: menu (desktop) -->
     <div class="hidden md:flex gap-6">
-      <router-link to="/" class="hover:text-blue-600 font-medium"
-        >Strona główna</router-link
-      >
-      <router-link to="/history" class="hover:text-blue-600 font-medium"
-        >Historia</router-link
-      >
+      <router-link to="/" class="hover:text-blue-600 font-medium">Strona główna</router-link>
+      <router-link to="/history" class="hover:text-blue-600 font-medium">Historia</router-link>
       <router-link to="/admin" class="hover:text-blue-600 font-medium"
         >Panel administracyjny</router-link
       >
@@ -42,6 +36,7 @@
         >Panel użytkownika</router-link
       >
     </div>
+
     <!-- Prawa strona: wyloguj (desktop) -->
     <button
       @click="logout"
@@ -92,7 +87,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from 'vuex';
 export default {
   data() {
     return {
@@ -100,19 +95,18 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["getUser"]),
+    ...mapGetters('user', ['getUser', 'isAuthenticated']),
     userName() {
-      return this.getUser && this.getUser.login
-        ? this.getUser.login
-        : "nieznany";
+      return this.getUser && this.getUser.login ? this.getUser.login : 'nieznany';
     },
   },
   methods: {
+    ...mapActions('user', ['login']),
     logout() {
-      sessionStorage.removeItem("token");
-      sessionStorage.removeItem("user");
-      this.$store.dispatch("logout");
-      this.$router.push({ name: "Login" }).then(() => {
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+      this.$store.dispatch('user/logout');
+      this.$router.push({ name: 'Login' }).then(() => {
         window.location.reload();
       });
     },

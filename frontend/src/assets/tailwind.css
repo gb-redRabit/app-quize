@@ -13,231 +13,26 @@
 .h-63vh {
   height: 63vh;
 }
-:root {
-  --bg: #f3f4f6;
-  --text: #1f2937;
-  --card: #fff;
-  --border: #e5e7eb;
-  --input-bg: #fff;
-  --input-border: #cbd5e1;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-:root[data-theme="light"] {
-  --bg: #f3f4f6;
-  --text: #1f2937;
-  --card: #fff;
-  --border: #e5e7eb;
-  --input-bg: #fff;
-  --input-border: #cbd5e1;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --success: #22c55e;
-  --error: #ef4444;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-:root[data-theme="dark"] {
-  --bg: #23272f; /* jaśniejsze tło */
-  --text: #f3f4f6; /* jasny tekst */
-  --card: #2d323c; /* jaśniejsze karty */
-  --border: #3b4252; /* jaśniejsze ramki */
-  --input-bg: #262b34; /* tło inputów */
-  --input-border: #444b5a;
-  --primary: #4f8cff; /* niebieski dla przycisków */
-  --primary-hover: #6ea8fe;
-  --success: #4ade80;
-  --error: #f87171;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-}
 
-/* Ogólne tło i tekst */
-body,
-#app {
-  background: var(--bg);
-  color: var(--text);
+/* Karty/statystyki */
+.stat-tile {
+  @apply rounded-xl p-6 flex flex-col items-center shadow border transition-all duration-200 bg-opacity-90;
+  min-height: 100px;
+  background-clip: padding-box;
 }
-
-/* Karty, boxy, modale */
-.bg-white,
-.bg-card,
-.BaseModal .bg-white {
-  background: var(--card) !important;
-  color: var(--text) !important;
+.stat-value {
+  @apply text-3xl font-extrabold mb-1 drop-shadow;
 }
-
-/* Cienie */
-.shadow,
-.shadow-lg,
-.shadow-md {
-  box-shadow: var(--shadow) !important;
+.stat-label {
+  @apply text-base font-semibold tracking-wide;
 }
-
-/* Inputy, selecty, textarea */
-input,
-select,
-textarea {
-  background: var(--input-bg) !important;
-  color: var(--text) !important;
-  border-color: var(--input-border) !important;
+.stat-tile-min {
+  @apply flex flex-col items-center justify-center border border-gray-100 rounded h-20 bg-gray-50;
+  min-height: 80px;
 }
-
-input:focus,
-select:focus,
-textarea:focus {
-  outline: 2px solid var(--primary);
-  border-color: var(--primary);
+.stat-value-min {
+  @apply text-xl font-bold;
 }
-
-/* Ramki */
-.border,
-.border-gray-200,
-.border-gray-300,
-.border-gray-400 {
-  border-color: var(--border) !important;
-}
-
-/* Tekst */
-.text-gray-700,
-.text-gray-800,
-.text-gray-900 {
-  color: var(--text) !important;
-}
-
-/* Tła neutralne */
-.bg-gray-100,
-.bg-gray-200,
-.bg-gray-50 {
-  background: var(--input-bg) !important;
-}
-
-/* Przycisk główny */
-.bg-blue-500,
-.bg-blue-600 {
-  background: var(--primary) !important;
-  color: #fff !important;
-}
-
-/* Przycisk sukces */
-.bg-green-500,
-.bg-green-600 {
-  background: var(--success) !important;
-  color: #fff !important;
-}
-
-/* Przycisk błąd */
-.bg-red-500,
-.bg-red-600 {
-  background: var(--error) !important;
-  color: #fff !important;
-}
-
-/* Przycisk ostrzeżenie */
-.bg-yellow-500,
-.bg-yellow-600 {
-  background: #facc15 !important;
-  color: #23272f !important;
-}
-
-/* Przycisk fioletowy */
-.bg-purple-500,
-.bg-purple-600 {
-  background: #a78bfa !important;
-  color: #23272f !important;
-}
-
-/* Alerty i kafelki */
-.bg-green-100 {
-  background: #c5f8cb !important;
-  color: #a7f3d0 !important;
-}
-.bg-red-100 {
-  background: #4b2323 !important;
-  color: #fecaca !important;
-}
-.bg-yellow-100 {
-  background: #4b4423 !important;
-  color: #fde68a !important;
-}
-.bg-blue-100 {
-  background: #23314b !important;
-  color: #bfdbfe !important;
-}
-
-/* Linki */
-a,
-.router-link-active {
-  color: #2563eb !important;
-}
-a:hover {
-  color: var(--primary-hover) !important;
-}
-
-/* Przycisk uniwersalny */
-button,
-.BaseButton {
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  box-shadow: var(--shadow);
-}
-button:hover,
-.BaseButton:hover {
-  background: var(--primary-hover);
-}
-
-/* Dla kart i ramek */
-.rounded-lg,
-.rounded,
-.border {
-  border-color: var(--border) !important;
-}
-
-/* Dla loaderów, pasków postępu */
-.bg-blue-200 {
-  background: #90cdf4 !important;
-}
-.bg-blue-400 {
-  background: #60a5fa !important;
-}
-.bg-green-400 {
-  background: #4ade80 !important;
-}
-.bg-red-400 {
-  background: #f87171 !important;
-}
-
-/* Dla tekstu pomocniczego */
-.text-gray-500,
-.text-gray-600 {
-  color: #a1a1aa !important;
-}
-
-/* Dla inputów disabled */
-input:disabled,
-select:disabled,
-textarea:disabled {
-  background: #444b5a !important;
-  color: #a1a1aa !important;
-}
-
-/* Dla modali */
-.BaseModal .bg-white {
-  background: var(--card) !important;
-  color: var(--text) !important;
-}
-
-/* Styl przycisku logowania dla obu motywów */
-.login-btn {
-  @apply w-full p-2 rounded font-semibold transition;
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  box-shadow: var(--shadow);
-}
-.login-btn:hover,
-.login-btn:focus {
-  background: var(--primary-hover);
-  color: #fff;
-  outline: none;
+.stat-label-min {
+  @apply text-xs text-gray-500;
 }

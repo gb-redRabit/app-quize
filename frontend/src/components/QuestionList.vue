@@ -7,8 +7,8 @@
       <button
         v-for="(answer, idx) in answers"
         :key="idx"
-        class="p-2 sm:p-4 rounded mb-1 sm:mb-4 border text-sm sm:text-lg transition-colors flex items-center"
-        :class="buttonClass(idx)"
+        class="p-2 sm:p-4 rounded mb-1 sm:mb-4 border text-sm sm:text-lg transition-colors flex items-center hover:scale-125 focus:ring-2 focus:ring-blue-400"
+        :class="buttonClass(answer, idx)"
         @click="onSelect(idx)"
         :disabled="answered"
       >
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { shuffleArray } from "@/utils/shuffleArray";
+import { shuffleArray } from '@/utils/shuffleArray';
 
 export default {
   props: {
@@ -32,7 +32,7 @@ export default {
     showCorrect: Boolean,
     selectedKey: String,
   },
-  emits: ["select"],
+  emits: ['select'],
   data() {
     return {
       shuffledAnswers: [],
@@ -43,7 +43,7 @@ export default {
       immediate: true,
       handler() {
         this.shuffledAnswers = shuffleArray(
-          ["answer_a", "answer_b", "answer_c", "answer_d"]
+          ['answer_a', 'answer_b', 'answer_c', 'answer_d']
             .map((k) => this.question[k] && { ...this.question[k], key: k })
             .filter(Boolean)
         );
@@ -63,22 +63,32 @@ export default {
     },
   },
   methods: {
-    onSelect(idx) {
-      this.$emit("select", idx, this.answers[idx].key);
+    onSelect(index) {
+      this.$emit('select', index, this.answers[index].key);
     },
-    buttonClass(idx) {
-      // Jeśli nie udzielono odpowiedzi
-      if (!this.answered) return "bg-blue-500 text-white";
-      // Jeśli pokazujemy poprawną i ta odpowiedź jest poprawna
-      if (this.showCorrect && this.answers[idx].isCorret) {
-        return "bg-green-500 text-white";
+    buttonClass(answer, index) {
+      if (!this.answered) {
+        return 'bg-blue-500 hover:bg-blue-600 text-white';
       }
-      // Jeśli to jest wybrana przez użytkownika odpowiedź i NIE jest poprawna
-      if (idx === this.selectedIndex && !this.answers[idx].isCorret) {
-        return "bg-red-500 text-white";
+
+      // Tryb egzaminu: tylko zaznaczona odpowiedź na czerwono, reszta szara
+      if (!this.showCorrect) {
+        return this.selectedIndex === index
+          ? 'bg-red-500 text-white'
+          : 'bg-gray-200 text-gray-700 cursor-not-allowed';
       }
-      // Pozostałe
-      return "bg-gray-200 text-gray-700";
+
+      // Tryb quizu: klasyczne zachowanie
+      const isSelected = this.selectedIndex === index;
+      const isCorrect = answer.isCorrect || answer.isCorret;
+
+      if (isSelected) {
+        return isCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white';
+      }
+      if (this.showCorrect && isCorrect) {
+        return 'bg-green-500 text-white';
+      }
+      return 'bg-gray-200 text-gray-700 cursor-not-allowed';
     },
     answerLetter(idx) {
       return String.fromCharCode(65 + idx);

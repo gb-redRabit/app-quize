@@ -1,19 +1,10 @@
 <template>
-  <div
-    class="container mx-auto p-4 md:flex md:flex-col md:justify-start md:items-center"
-  >
+  <div class="container mx-auto p-4 md:flex md:flex-col md:justify-start md:items-center">
     <h1 class="text-2xl font-bold mb-4">Twoja historia quizów</h1>
-    <BaseButton
-      color="red"
-      class="mb-4"
-      @click="showConfirmModal = true"
-      v-if="history.length > 0"
-    >
+    <BaseButton color="red" class="mb-4" @click="showConfirmModal = true" v-if="history.length > 0">
       Wyczyść historię
     </BaseButton>
-    <div v-if="history.length === 0" class="text-gray-500">
-      Brak historii quizów.
-    </div>
+    <div v-if="history.length === 0" class="text-gray-500">Brak historii quizów.</div>
     <div
       v-else
       class="space-y-6 md:space-y-0 md:flex md:flex-row md:flex-wrap md:gap-6 md:justify-center"
@@ -25,14 +16,7 @@
       >
         <div class="flex flex-col items-center mr-8 sm:mr-auto">
           <svg width="70" height="70" viewBox="0 0 36 36" class="mb-2">
-            <circle
-              cx="18"
-              cy="18"
-              r="15"
-              fill="none"
-              stroke="#e5e7eb"
-              stroke-width="6"
-            />
+            <circle cx="18" cy="18" r="15" fill="none" stroke="#e5e7eb" stroke-width="6" />
             <circle
               cx="18"
               cy="18"
@@ -56,9 +40,7 @@
             </text>
           </svg>
           <div class="text-xs text-gray-600">
-            <span class="text-green-600 font-bold">{{
-              entry.correct || 0
-            }}</span>
+            <span class="text-green-600 font-bold">{{ entry.correct || 0 }}</span>
             /
             <span class="text-red-600 font-bold">{{ entry.wrong || 0 }}</span>
           </div>
@@ -72,20 +54,20 @@
               entry.type === 'egzamin'
                 ? 'bg-purple-200 text-purple-800'
                 : entry.type === 'Egzamin - poprawa błędów'
-                ? 'bg-yellow-200 text-yellow-800'
-                : entry.type === 'Quiz - poprawa błędów'
-                ? 'bg-yellow-100 text-yellow-900'
-                : 'bg-blue-200 text-blue-800'
+                  ? 'bg-yellow-200 text-yellow-800'
+                  : entry.type === 'Quiz - poprawa błędów'
+                    ? 'bg-yellow-100 text-yellow-900'
+                    : 'bg-blue-200 text-blue-800'
             "
           >
             {{
-              entry.type === "egzamin"
-                ? "Egzamin"
-                : entry.type === "Egzamin - poprawa błędów"
-                ? "Egzamin - poprawa błędów"
-                : entry.type === "Quiz - poprawa błędów"
-                ? "Quiz - poprawa błędów"
-                : "Quiz"
+              entry.type === 'egzamin'
+                ? 'Egzamin'
+                : entry.type === 'Egzamin - poprawa błędów'
+                  ? 'Egzamin - poprawa błędów'
+                  : entry.type === 'Quiz - poprawa błędów'
+                    ? 'Quiz - poprawa błędów'
+                    : 'Quiz'
             }}
           </span>
           <div class="font-semibold text-base">
@@ -106,12 +88,8 @@
           Czy na pewno chcesz usunąć całą historię quizów?
         </h2>
         <div class="flex gap-4 mt-4">
-          <BaseButton color="red" @click="confirmClearHistory"
-            >Tak, usuń</BaseButton
-          >
-          <BaseButton color="gray" @click="showConfirmModal = false"
-            >Anuluj</BaseButton
-          >
+          <BaseButton color="red" @click="confirmClearHistory">Tak, usuń</BaseButton>
+          <BaseButton color="gray" @click="showConfirmModal = false">Anuluj</BaseButton>
         </div>
       </div>
     </BaseModal>
@@ -119,13 +97,13 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
-import BaseButton from "@/components/BaseButton.vue";
-import BaseModal from "@/components/BaseModal.vue";
-import axios from "axios";
+import { mapActions, mapGetters } from 'vuex';
+import BaseButton from '@/components/BaseButton.vue';
+import BaseModal from '@/components/BaseModal.vue';
+import apiClient from '@/api'; // <-- ZMIANA
 
 export default {
-  name: "History",
+  name: 'History',
   components: { BaseButton, BaseModal },
   data() {
     return {
@@ -133,13 +111,13 @@ export default {
     };
   },
   computed: {
-    ...mapState(["user"]),
+    ...mapGetters('user', ['getUserHistory']),
     history() {
-      return this.user.history || [];
+      return this.getUserHistory || [];
     },
   },
   methods: {
-    ...mapActions(["fetchUserHistory"]),
+    ...mapActions('user', ['fetchUserHistory']),
     percentGood(entry) {
       const total = (entry.correct || 0) + (entry.wrong || 0);
       if (!total) return 0;
@@ -151,22 +129,19 @@ export default {
     },
     async confirmClearHistory() {
       try {
-        const token = sessionStorage.getItem("token");
-        await axios.put(
-          "/api/users/update",
-          { clearHistory: true },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await apiClient.put('/users/update', { clearHistory: true }); // <-- ZMIANA
         await this.fetchUserHistory();
         this.showConfirmModal = false;
       } catch (e) {
-        alert("Błąd podczas czyszczenia historii.");
+        alert('Błąd podczas czyszczenia historii.');
         this.showConfirmModal = false;
       }
     },
   },
   async created() {
-    await this.fetchUserHistory();
+    if (!this.history.length) {
+      await this.fetchUserHistory();
+    }
   },
 };
 </script>

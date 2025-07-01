@@ -11,15 +11,14 @@
 
 <script>
 export default {
-  name: "ProgressBar",
+  name: 'ProgressBar',
   props: {
-    current: { type: Number, required: true }, // liczba odpowiedzi udzielonych
-    total: { type: Number, required: true }, // liczba wszystkich pytań
+    current: { type: Number, required: true },
+    total: { type: Number, required: true },
   },
   computed: {
     percent() {
       if (!this.total) return 0;
-      // 0% na starcie, 100% dopiero po odpowiedzi na wszystkie
       return Math.round((this.current / this.total) * 100);
     },
   },

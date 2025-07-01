@@ -2,9 +2,7 @@
   <div class="container mx-auto p-2 sm:p-6">
     <BaseLoader :show="loading" />
 
-    <div
-      class="flex flex-col sm:flex-row justify-between items-center gap-2 mb-4"
-    >
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-2 mb-4">
       <h1 class="text-2xl font-bold mb-2 sm:mb-0">
         Pytania z kategorii:
         <span class="text-blue-700">{{ categoryLabel }}</span>
@@ -16,21 +14,14 @@
         Z ostatniego podejścia w tej kategorii było
         <span class="font-bold">{{ lastAttemptStats.total }}</span>
         pytań, w tym
-        <span class="font-bold text-green-600">{{
-          lastAttemptStats.correct
-        }}</span>
+        <span class="font-bold text-green-600">{{ lastAttemptStats.correct }}</span>
         /
         <span class="font-bold text-red-600">{{ lastAttemptStats.wrong }}</span>
         (prawidłowe/nieprawidłowe)
       </span>
       <span v-else class="text-gray-400">Brak podejścia w tej kategorii.</span>
     </div>
-    <BaseButton
-      color="green"
-      size="sm"
-      class="mb-4"
-      @click="downloadQuestionsTxt"
-    >
+    <BaseButton color="green" size="sm" class="mb-4" @click="downloadQuestionsTxt">
       Pobierz pytania do Worda (TXT)
     </BaseButton>
     <!-- Pasek wizualny poprawnych/błędnych -->
@@ -41,8 +32,7 @@
       <div
         v-if="lastAttemptStats.correct > 0"
         :style="{
-          width:
-            (lastAttemptStats.correct / lastAttemptStats.total) * 100 + '%',
+          width: (lastAttemptStats.correct / lastAttemptStats.total) * 100 + '%',
         }"
         class="bg-green-400 h-full transition-all"
         title="Poprawne"
@@ -62,11 +52,11 @@
       <div v-if="filteredQuestions.length === 0" class="text-gray-500">
         Brak pytań w tej kategorii.
       </div>
-      <ul v-else class="space-y-6">
+      <ul class="space-y-6">
         <li
           v-for="q in visibleQuestions"
           :key="q.ID"
-          class="bg-white rounded-lg shadow p-4 sm:p-6 border"
+          class="bg-white rounded-lg shadow border p-4"
           :class="{
             'bg-green-100 border-green-400': lastAttemptMap[q.ID] === true,
             'bg-red-100 border-red-400': lastAttemptMap[q.ID] === false,
@@ -78,36 +68,28 @@
           <div class="mb-2 text-gray-700">
             <span class="font-bold">A:</span>
             {{ q.answer_a && q.answer_a.answer }}
-            <span
-              v-if="q.answer_a && q.answer_a.isCorret"
-              class="text-green-600 font-bold ml-2"
+            <span v-if="q.answer_a && q.answer_a.isCorret" class="text-green-600 font-bold ml-2"
               >(poprawna)</span
             >
           </div>
           <div class="mb-2 text-gray-700">
             <span class="font-bold">B:</span>
             {{ q.answer_b && q.answer_b.answer }}
-            <span
-              v-if="q.answer_b && q.answer_b.isCorret"
-              class="text-green-600 font-bold ml-2"
+            <span v-if="q.answer_b && q.answer_b.isCorret" class="text-green-600 font-bold ml-2"
               >(poprawna)</span
             >
           </div>
           <div class="mb-2 text-gray-700">
             <span class="font-bold">C:</span>
             {{ q.answer_c && q.answer_c.answer }}
-            <span
-              v-if="q.answer_c && q.answer_c.isCorret"
-              class="text-green-600 font-bold ml-2"
+            <span v-if="q.answer_c && q.answer_c.isCorret" class="text-green-600 font-bold ml-2"
               >(poprawna)</span
             >
           </div>
           <div v-if="q.answer_d" class="mb-2 text-gray-700">
             <span class="font-bold">D:</span>
             {{ q.answer_d && q.answer_d.answer }}
-            <span
-              v-if="q.answer_d && q.answer_d.isCorret"
-              class="text-green-600 font-bold ml-2"
+            <span v-if="q.answer_d && q.answer_d.isCorret" class="text-green-600 font-bold ml-2"
               >(poprawna)</span
             >
           </div>
@@ -124,29 +106,30 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
-import SearchBar from "@/components/SearchBar.vue";
-import BaseLoader from "@/components/BaseLoader.vue";
-import BaseButton from "@/components/BaseButton.vue";
+import { mapGetters, mapState } from 'vuex';
+import SearchBar from '@/components/SearchBar.vue';
+import BaseLoader from '@/components/BaseLoader.vue';
+import BaseButton from '@/components/BaseButton.vue';
 export default {
-  name: "CategoryQuestionsView",
+  name: 'CategoryQuestionsView',
   components: { SearchBar, BaseLoader, BaseButton },
   data() {
     return {
       loading: true,
-      searchQuery: "",
+      searchQuery: '',
       displayCount: 100,
       loadingMore: false,
     };
   },
   computed: {
-    ...mapGetters(["getQuestions"]),
-    ...mapState(["user"]),
+    ...mapGetters('questions', ['getQuestions']),
+    ...mapGetters('user', ['getUser']),
+    ...mapState(['user']),
     category() {
       return this.$route.params.category;
     },
     categoryLabel() {
-      return this.category === "all" ? "Wszystkie" : this.category;
+      return this.category === 'all' ? 'Wszystkie' : this.category;
     },
     // Ostatnie podejście (quiz/egzamin, bez poprawy) w tej kategorii
     lastAttempt() {
@@ -155,7 +138,7 @@ export default {
       return (
         [...this.user.history].reverse().find(
           (entry) =>
-            (entry.type === "quiz" || entry.type === "egzamin") &&
+            (entry.type === 'quiz' || entry.type === 'egzamin') &&
             entry.list.some((item) => {
               const q = this.getQuestions.find(
                 (qq) =>
@@ -164,9 +147,7 @@ export default {
                   qq.Id == item.id_questions ||
                   qq.id_question == item.id_questions
               );
-              return (
-                this.category === "all" || (q && q.category === this.category)
-              );
+              return this.category === 'all' || (q && q.category === this.category);
             })
         ) || null
       );
@@ -177,7 +158,7 @@ export default {
       const map = {};
       for (const item of this.lastAttempt.list) {
         // Jeśli jest pole correct, użyj go
-        if (typeof item.correct === "boolean") {
+        if (typeof item.correct === 'boolean') {
           map[item.id_questions] = item.correct;
         } else if (item.answer) {
           // Jeśli nie ma correct, sprawdź czy answer jest poprawny
@@ -190,9 +171,9 @@ export default {
           );
           if (q) {
             // znajdź poprawną literę
-            const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+            const keys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
             const correctIdx = keys.findIndex((k) => q[k] && q[k].isCorret);
-            const correctLetter = ["A", "B", "C", "D"][correctIdx];
+            const correctLetter = ['A', 'B', 'C', 'D'][correctIdx];
             map[item.id_questions] = item.answer === correctLetter;
           }
         }
@@ -213,16 +194,16 @@ export default {
             qq.Id == item.id_questions ||
             qq.id_question == item.id_questions
         );
-        if (this.category === "all" || (q && q.category === this.category)) {
+        if (this.category === 'all' || (q && q.category === this.category)) {
           total++;
           // Sprawdź poprawność jak wyżej
           let isCorrect = null;
-          if (typeof item.correct === "boolean") {
+          if (typeof item.correct === 'boolean') {
             isCorrect = item.correct;
           } else if (item.answer && q) {
-            const keys = ["answer_a", "answer_b", "answer_c", "answer_d"];
+            const keys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
             const correctIdx = keys.findIndex((k) => q[k] && q[k].isCorret);
-            const correctLetter = ["A", "B", "C", "D"][correctIdx];
+            const correctLetter = ['A', 'B', 'C', 'D'][correctIdx];
             isCorrect = item.answer === correctLetter;
           }
           if (isCorrect === true) correct++;
@@ -243,9 +224,7 @@ export default {
                   qq.Id == item.id_questions ||
                   qq.id_question == item.id_questions
               );
-              return (
-                this.category === "all" || (q && q.category === this.category)
-              );
+              return this.category === 'all' || (q && q.category === this.category);
             })
             .map((item) => item.id_questions)
         : [];
@@ -266,7 +245,7 @@ export default {
     },
     filteredQuestions() {
       let questions =
-        this.category === "all"
+        this.category === 'all'
           ? this.getQuestions
           : this.getQuestions.filter((q) => q.category === this.category);
       if (!this.searchQuery) return questions;
@@ -286,13 +265,13 @@ export default {
   },
   async created() {
     if (!this.getQuestions.length) {
-      await this.$store.dispatch("fetchQuestions");
+      await this.$store.dispatch('fetchQuestionsAndCategories');
     }
     this.loading = false;
-    window.addEventListener("scroll", this.handleScroll);
+    window.addEventListener('scroll', this.handleScroll);
   },
   beforeUnmount() {
-    window.removeEventListener("scroll", this.handleScroll);
+    window.removeEventListener('scroll', this.handleScroll);
   },
   methods: {
     handleScroll() {
@@ -311,30 +290,30 @@ export default {
     downloadQuestionsTxt() {
       // Pobierz widoczne pytania z kategorii
       const questions = this.sortedQuestions;
-      let txt = "";
+      let txt = '';
       questions.forEach((q, idx) => {
         txt += `${idx + 1}. ${q.ID}. ${q.question}\n`;
         const answers = [
-          { key: "A", obj: q.answer_a },
-          { key: "B", obj: q.answer_b },
-          { key: "C", obj: q.answer_c },
-          { key: "D", obj: q.answer_d },
+          { key: 'A', obj: q.answer_a },
+          { key: 'B', obj: q.answer_b },
+          { key: 'C', obj: q.answer_c },
+          { key: 'D', obj: q.answer_d },
         ];
         answers.forEach((ans) => {
           if (ans.obj && ans.obj.answer) {
             txt += `   ${ans.key}. ${ans.obj.answer}`;
-            if (ans.obj.isCorret) txt += "   [poprawna]";
-            txt += "\n";
+            if (ans.obj.isCorret) txt += '   [poprawna]';
+            txt += '\n';
           }
         });
         if (q.description) txt += `   Opis: ${q.description}\n`;
-        txt += "\n";
+        txt += '\n';
       });
 
       // Utwórz i pobierz plik
-      const blob = new Blob([txt], { type: "text/plain;charset=utf-8" });
+      const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = url;
       a.download = `pytania_${this.categoryLabel}.txt`;
       document.body.appendChild(a);

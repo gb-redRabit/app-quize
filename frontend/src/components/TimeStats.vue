@@ -9,20 +9,24 @@
       <span class="font-mono">{{ formatTime(avgTime) }}</span>
     </div>
   </div>
+  <div class="rounded-xl p-6 flex flex-col items-center shadow border bg-white min-h-[100px]">
+    <div class="text-3xl font-extrabold mb-1 drop-shadow">{{ value }}</div>
+    <div class="text-base font-semibold tracking-wide">{{ label }}</div>
+  </div>
 </template>
 
 <script>
 export default {
-  name: "TimeStats",
+  name: 'TimeStats',
   props: {
-    totalTime: { type: Number, required: true }, // w sekundach
-    avgTime: { type: Number, required: true }, // w sekundach
+    totalTime: { type: Number, required: true },
+    avgTime: { type: Number, required: true },
   },
   methods: {
     formatTime(sec) {
       const m = Math.floor(sec / 60);
       const s = Math.floor(sec % 60);
-      return `${m}:${s.toString().padStart(2, "0")}`;
+      return `${m}:${s.toString().padStart(2, '0')}`;
     },
   },
 };

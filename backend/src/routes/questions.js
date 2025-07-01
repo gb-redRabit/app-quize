@@ -48,7 +48,14 @@ router.post("/import", auth.verifyToken, async (req, res) => {
     res.status(500).json({ error: "Błąd importu pytań: " + e.message });
   }
 });
-
+router.post("/clear", async (req, res) => {
+  try {
+    await fileUtils.saveQuestions([]);
+    res.json({ message: "Baza pytań została wyczyszczona." });
+  } catch (e) {
+    res.status(500).json({ message: "Błąd czyszczenia bazy pytań." });
+  }
+});
 router.get("/export/excel", auth.verifyToken, async (req, res) => {
   try {
     const questions = await fileUtils.readJson(DATA_PATH);
