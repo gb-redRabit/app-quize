@@ -162,8 +162,7 @@ const fetchUserHistory = () => store.dispatch('fetchUserHistory');
 
 const fetchQuestions = async () => {
   const response = await axios.get('/api/questions');
-  const keys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
-  const allQuestions = response.data;
+  const allQuestions = Array.isArray(response.data) ? response.data : [];
 
   let filteredQuestions;
   if (route.query.ids) {

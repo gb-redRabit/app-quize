@@ -150,7 +150,7 @@ export default {
     ...mapActions(['fetchUserHistory']),
     async fetchQuestions() {
       const response = await axios.get('/api/questions');
-      let filteredQuestions = response.data;
+      let filteredQuestions = Array.isArray(response.data) ? response.data : [];
 
       if (this.$route.query.ids) {
         const ids = this.$route.query.ids.split(',').map((id) => id.trim());

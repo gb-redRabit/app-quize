@@ -580,7 +580,8 @@ export default {
     async startExamNotDone(cat) {
       // Pobierz wszystkie pytania z danej kategorii
       const res = await axios.get('/api/questions');
-      const questions = res.data.filter((q) => q.category === cat);
+      const questionsArr = Array.isArray(res.data) ? res.data : [];
+      const questions = questionsArr.filter((q) => q.category === cat);
       const allIds = questions.map((q) => q.ID || q.id || q.Id || q.id_question);
 
       // Pobierz ID pytań przerobionych błędnie lub nieprzerobionych
@@ -592,7 +593,7 @@ export default {
 
       const length = Math.min(150, wrongOrNotDoneIds.length);
       this.$router.push({
-        name: 'ExamView', // <-- tu zmiana!
+        name: 'ExamView',
         query: {
           length,
           categories: cat,
