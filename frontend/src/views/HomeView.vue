@@ -551,55 +551,59 @@ export default {
       });
     },
     async startQuizNotDone(cat, limit = 150) {
-      const res = await axios.get('/api/questions');
-      const questions = Array.isArray(res.data) ? res.data : [];
-      const filtered = questions.filter((q) => q.category === cat);
-      const allIds = filtered.map((q) => q.ID || q.id || q.Id || q.id_question);
+      try {
+        const res = await axios.get('/api/questions');
+        const questions = Array.isArray(res.data) ? res.data : [];
+        const filtered = questions.filter((q) => q.category === cat);
+        const allIds = filtered.map((q) => q.ID || q.id || q.Id || q.id_question);
 
-      // Pobierz ID pytań przerobionych błędnie lub nieprzerobionych
-      const hq = this.hquestion.filter((q) => q.category === cat);
-      const wrongOrNotDoneIds = allIds.filter((id) => {
-        const entry = hq.find((q) => q.id == id);
-        return !entry || entry.correct === false;
-      });
+        const hq = this.hquestion.filter((q) => q.category === cat);
+        const wrongOrNotDoneIds = allIds.filter((id) => {
+          const entry = hq.find((q) => q.id == id);
+          return !entry || entry.correct === false;
+        });
 
-      // Jeśli limit = 0, to bierz wszystkie
-      const length =
-        limit === 0 ? wrongOrNotDoneIds.length : Math.min(limit, wrongOrNotDoneIds.length);
+        // Jeśli nie ma żadnych nieprzerobionych/błędnych, użyj wszystkich pytań
+        const idsToUse = wrongOrNotDoneIds.length > 0 ? wrongOrNotDoneIds : allIds;
+        const length = limit === 0 ? idsToUse.length : Math.min(limit, idsToUse.length);
 
-      this.$router.push({
-        name: 'QuizView',
-        query: {
-          length,
-          categories: cat,
-          onlyNotDone: true,
-          ids: wrongOrNotDoneIds.join(','),
-        },
-      });
+        this.$router.push({
+          name: 'QuizView',
+          query: {
+            length,
+            categories: cat,
+            onlyNotDone: wrongOrNotDoneIds.length > 0,
+            ids: idsToUse.join(','),
+          },
+        });
+      } catch (e) {
+        alert('Błąd pobierania pytań z serwera.');
+      }
     },
     async startExamNotDone(cat) {
-      // Pobierz wszystkie pytania z danej kategorii
       const res = await axios.get('/api/questions');
       const questionsArr = Array.isArray(res.data) ? res.data : [];
       const questions = questionsArr.filter((q) => q.category === cat);
       const allIds = questions.map((q) => q.ID || q.id || q.Id || q.id_question);
 
-      // Pobierz ID pytań przerobionych błędnie lub nieprzerobionych
       const hq = this.hquestion.filter((q) => q.category === cat);
       const wrongOrNotDoneIds = allIds.filter((id) => {
         const entry = hq.find((q) => q.id == id);
         return !entry || entry.correct === false;
       });
 
-      const length = Math.min(150, wrongOrNotDoneIds.length);
+      // Jeśli nie ma żadnych nieprzerobionych/błędnych, użyj wszystkich pytań
+      const idsToUse = wrongOrNotDoneIds.length > 0 ? wrongOrNotDoneIds : allIds;
+      const length = Math.min(150, idsToUse.length);
+
       this.$router.push({
         name: 'ExamView',
         query: {
           length,
           categories: cat,
           time: 60,
-          onlyNotDone: true,
-          ids: wrongOrNotDoneIds.join(','),
+          onlyNotDone: wrongOrNotDoneIds.length > 0,
+          ids: idsToUse.join(','),
         },
       });
     },

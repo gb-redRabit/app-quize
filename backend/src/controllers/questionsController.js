@@ -7,7 +7,8 @@ exports.getAllQuestions = async (req, res) => {
     const questions = await fileUtils.getQuestions();
     res.json(Array.isArray(questions) ? questions : []);
   } catch (e) {
-    res.status(500).json({ error: "Błąd odczytu pytań" });
+    console.error("Błąd pobierania pytań:", e);
+    res.status(500).json({ error: "Błąd pobierania pytań" });
   }
 };
 

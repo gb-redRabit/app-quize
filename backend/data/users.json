@@ -15,6 +15,21 @@
         "id": 6342,
         "correct": false,
         "category": "Kodeks cywilny"
+      },
+      {
+        "id": 16,
+        "correct": false,
+        "category": "Egzamin 2007"
+      },
+      {
+        "id": 50,
+        "correct": true,
+        "category": "Egzamin 2007"
+      },
+      {
+        "id": 103,
+        "correct": false,
+        "category": "Egzamin 2007"
       }
     ]
   },
