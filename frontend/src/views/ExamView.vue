@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import apiClient from '@/api';
 import { mapActions } from 'vuex';
 import QuestionList from '@/components/QuestionList.vue';
 import SummaryBox from '@/components/SummaryBox.vue';
@@ -149,7 +149,7 @@ export default {
   methods: {
     ...mapActions(['fetchUserHistory']),
     async fetchQuestions() {
-      const response = await axios.get('/api/questions');
+      const response = await apiClient.get('/questions');
       let filteredQuestions = Array.isArray(response.data) ? response.data : [];
 
       if (this.$route.query.ids) {

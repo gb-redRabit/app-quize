@@ -331,7 +331,7 @@ import BaseAlert from '@/components/BaseAlert.vue';
 import BaseLoader from '@/components/BaseLoader.vue';
 import BaseModal from '@/components/BaseModal.vue';
 import { mapGetters, mapState } from 'vuex';
-import axios from 'axios';
+import apiClient from '@/api';
 export default {
   name: 'Home',
   components: {
@@ -552,7 +552,7 @@ export default {
     },
     async startQuizNotDone(cat, limit = 150) {
       try {
-        const res = await axios.get('/api/questions');
+        const res = await apiClient.get('/questions');
         const questions = Array.isArray(res.data) ? res.data : [];
         const filtered = questions.filter((q) => q.category === cat);
         const allIds = filtered.map((q) => q.ID || q.id || q.Id || q.id_question);
@@ -581,7 +581,7 @@ export default {
       }
     },
     async startExamNotDone(cat) {
-      const res = await axios.get('/api/questions');
+      const res = await apiClient.get('/questions');
       const questionsArr = Array.isArray(res.data) ? res.data : [];
       const questions = questionsArr.filter((q) => q.category === cat);
       const allIds = questions.map((q) => q.ID || q.id || q.Id || q.id_question);

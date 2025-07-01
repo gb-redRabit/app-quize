@@ -492,7 +492,6 @@ import IconButton from '@/components/IconButton.vue';
 import BaseModal from '@/components/BaseModal.vue';
 import BaseLoader from '@/components/BaseLoader.vue';
 import apiClient from '@/api'; // <-- ZMIANA
-import axios from 'axios';
 
 export default {
   components: { SearchBar, BaseButton, IconButton, BaseModal, BaseLoader },
@@ -691,7 +690,7 @@ export default {
         const formData = new FormData();
         formData.append('file', file);
 
-        await axios.post('/api/questions/import/excel', formData, {
+        await apiClient.post('/questions/import/excel', formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',

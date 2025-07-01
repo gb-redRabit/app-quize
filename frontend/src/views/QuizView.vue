@@ -102,7 +102,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
-import axios from 'axios';
+import apiClient from '@/api';
 import QuestionList from '@/components/QuestionList.vue';
 import QuestionNavigation from '@/components/QuestionNavigation.vue';
 import QuestionDescription from '@/components/QuestionDescription.vue';
@@ -161,7 +161,7 @@ watch(currentQuestion, (newQuestion) => {
 const fetchUserHistory = () => store.dispatch('fetchUserHistory');
 
 const fetchQuestions = async () => {
-  const response = await axios.get('/api/questions');
+  const response = await apiClient.get('/questions');
   const allQuestions = Array.isArray(response.data) ? response.data : [];
 
   let filteredQuestions;
