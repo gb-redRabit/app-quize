@@ -63,7 +63,7 @@
           <input
             type="file"
             accept=".xlsx"
-            @change="handleExcelUpload"
+            @change="importQuestions"
             class="absolute inset-0 opacity-0 cursor-pointer"
             style="width: 100%; height: 100%"
             title="Importuj pytania z Excela"
@@ -703,6 +703,36 @@ export default {
       }
       this.loading = false;
       event.target.value = '';
+    },
+    async importQuestions(event) {
+      const file = event.target.files[0];
+      if (!file) {
+        alert('Proszę wybrać plik do importu.');
+        return;
+      }
+
+      const formData = new FormData();
+      // Upewnij się, że klucz 'file' pasuje do tego, czego oczekuje multer na backendzie
+      formData.append('file', file);
+
+      this.loading = true;
+      try {
+        // WAŻNE: Nadpisujemy domyślny Content-Type z apiClient
+        await apiClient.post('/questions/import/excel', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        alert('Pytania zostały pomyślnie zaimportowane!');
+        await this.fetchQuestions(); // Odśwież listę pytań
+      } catch (error) {
+        console.error('Błąd importu pliku:', error);
+        const errorMessage = error.response?.data?.error || 'Nieznany błąd serwera.';
+        alert(`Wystąpił błąd podczas importu: ${errorMessage}`);
+      } finally {
+        this.loading = false;
+      }
     },
   },
 };
