@@ -62,7 +62,6 @@ router.post("/clear", async (req, res) => {
 router.get("/export/excel", auth.verifyToken, async (req, res) => {
   try {
     const questions = await fileUtils.readJson(DATA_PATH);
-
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Pytania");
 
@@ -94,13 +93,18 @@ router.get("/export/excel", auth.verifyToken, async (req, res) => {
       });
     });
 
+    // --- POCZĄTEK POPRAWKI ---
+    // Ustaw nagłówki, które poinstruują proxy, aby nie modyfikowało odpowiedzi
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
     res.setHeader("Content-Disposition", "attachment; filename=pytania.xlsx");
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // Nie buforuj
+    res.setHeader("Pragma", "no-cache"); // Kompatybilność z HTTP/1.0
+    res.setHeader("Expires", "0"); // Natychmiastowa dezaktualizacja
+    // --- KONIEC POPRAWKI ---
 
-    // POPRAWKA: użyj writeBuffer i res.send
     const buffer = await workbook.xlsx.writeBuffer();
     res.send(buffer);
   } catch (e) {
