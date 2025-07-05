@@ -59,6 +59,7 @@ router.post("/clear", async (req, res) => {
     res.status(500).json({ message: "Błąd czyszczenia bazy pytań." });
   }
 });
+// Eksport pytań do Excela
 router.get("/export/excel", auth.verifyToken, async (req, res) => {
   try {
     const questions = await fileUtils.readJson(DATA_PATH);
@@ -93,23 +94,27 @@ router.get("/export/excel", auth.verifyToken, async (req, res) => {
       });
     });
 
-    // --- POCZĄTEK POPRAWKI ---
-    // Ustaw nagłówki, które poinstruują proxy, aby nie modyfikowało odpowiedzi
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    );
-    res.setHeader("Content-Disposition", "attachment; filename=pytania.xlsx");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // Nie buforuj
-    res.setHeader("Pragma", "no-cache"); // Kompatybilność z HTTP/1.0
-    res.setHeader("Expires", "0"); // Natychmiastowa dezaktualizacja
-    // --- KONIEC POPRAWKI ---
-
     const buffer = await workbook.xlsx.writeBuffer();
-    res.send(buffer);
+
+    // --- POCZĄTEK KLUCZOWEJ POPRAWKI ---
+    // Ustawiamy nagłówki ręcznie i kończymy odpowiedź za pomocą res.end
+    res.writeHead(200, {
+      "Content-Type":
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "Content-Disposition": "attachment; filename=pytania.xlsx",
+      "Content-Length": buffer.length, // Bardzo ważny nagłówek!
+    });
+
+    res.end(buffer); // Używamy res.end() zamiast res.send()
+    // --- KONIEC KLUCZOWEJ POPRAWKI ---
   } catch (e) {
     console.error("Błąd eksportu do Excela:", e);
-    res.status(500).json({ error: "Błąd eksportu do Excela: " + e.message });
+    // Jeśli wystąpi błąd, upewnij się, że wysyłasz odpowiedź JSON
+    if (!res.headersSent) {
+      res
+        .status(500)
+        .json({ error: "Błąd serwera podczas eksportu do Excela." });
+    }
   }
 });
 
