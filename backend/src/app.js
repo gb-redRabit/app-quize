@@ -1,12 +1,27 @@
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
+const compression = require("compression"); // <-- 1. Dodaj import
 const authRoutes = require("./routes/auth");
 const questionsRoutes = require("./routes/questions");
 const usersRoutes = require("./routes/users");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// <-- 2. Dodaj middleware do kompresji z warunkiem
+app.use(
+  compression({
+    filter: (req, res) => {
+      // Nie kompresuj, jeśli to żądanie eksportu do Excela
+      if (req.path.includes("/export/excel")) {
+        return false;
+      }
+      // W przeciwnym razie, użyj domyślnego progu kompresji
+      return compression.filter(req, res);
+    },
+  })
+);
 
 // RĘCZNE ustawianie nagłówków CORS dla każdej odpowiedzi
 app.use((req, res, next) => {
