@@ -43,25 +43,29 @@ exports.updateQuestion = async (req, res) => {
   }
 };
 
-exports.deleteQuestion = (req, res) => {
+exports.deleteQuestion = async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const filePath = path.join(__dirname, "../../data/data.json");
-  let questions = require(filePath);
 
-  const index = questions.findIndex((q) => q.ID === id);
-  if (index === -1) {
-    return res.status(404).json({ message: "Question not found" });
-  }
+  try {
+    // Wczytaj aktualne pytania z pliku
+    const questions = await fileUtils.readJson(filePath);
 
-  questions.splice(index, 1);
-
-  fs.writeFile(filePath, JSON.stringify(questions, null, 2), (err) => {
-    if (err) {
-      console.error("Błąd zapisu pliku data.json:", err);
-      return res.status(500).json({ message: "Błąd zapisu pliku" });
+    const index = questions.findIndex((q) => q.ID === id);
+    if (index === -1) {
+      return res.status(404).json({ message: "Question not found" });
     }
+
+    questions.splice(index, 1);
+
+    // Zapisz zaktualizowaną listę
+    await fileUtils.writeJson(filePath, questions);
+
     res.json({ message: "Usunięto pytanie" });
-  });
+  } catch (err) {
+    console.error("Błąd usuwania pytania:", err);
+    res.status(500).json({ message: "Błąd usuwania pytania" });
+  }
 };
 const safeWriteUsers = (users, res, successMsg) => {
   // Walidacja: users musi być tablicą i mieć przynajmniej jednego użytkownika

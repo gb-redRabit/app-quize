@@ -1,7 +1,9 @@
 <template>
-  <div>
-    <h2 class="text-sm sm:text-2xl mb-6 font-semibold break-words">
-      {{ question.question }}
+  <div class="relative">
+    <h2 class="text-sm sm:text-2xl mb-6 font-semibold break-words flex">
+      <QuestionActions :question="question" @deleted="onDeleted" @edit="onEdit" />{{
+        question.question
+      }}
     </h2>
     <div class="flex flex-col w-full">
       <button
@@ -23,6 +25,7 @@
 
 <script>
 import { shuffleArray } from '@/utils/shuffleArray';
+import QuestionActions from './QuestionActions.vue';
 
 export default {
   props: {
@@ -31,8 +34,10 @@ export default {
     selected: Number,
     showCorrect: Boolean,
     selectedKey: String,
+    showActions: { type: Boolean, default: false }, // <-- dodaj ten prop
   },
-  emits: ['select'],
+  emits: ['select', 'edit', 'delete'],
+  components: { QuestionActions },
   data() {
     return {
       shuffledAnswers: [],
@@ -63,8 +68,26 @@ export default {
     },
   },
   methods: {
+    async refreshQuestions() {
+      const res = await apiClient.get('/questions');
+      this.questions = res.data;
+    },
     onSelect(index) {
       this.$emit('select', index, this.answers[index].key);
+    },
+    onDeleted(q) {
+      // Usuń pytanie z lokalnej listy
+      this.$emit('deleted', q); // przekaż wyżej jeśli trzeba
+      if (Array.isArray(this.questions)) {
+        this.questions = this.questions.filter((qq) => qq.ID !== q.ID);
+      }
+    },
+    onEdit(q) {
+      // Otwórz modal edycji pytania (tak jak w AdminView)
+      this.$emit('edit', q); // przekaż wyżej jeśli trzeba
+      // lub otwórz lokalny modal edycji
+      this.editQuestion = { ...q };
+      this.showEditPopup = true;
     },
     buttonClass(answer, index) {
       if (!this.answered) {
@@ -92,6 +115,17 @@ export default {
     },
     answerLetter(idx) {
       return String.fromCharCode(65 + idx);
+    },
+    onQuestionDeleted(q) {
+      // Usuń pytanie z lokalnej listy bez przeładowania strony
+      this.questions = this.questions.filter((qq) => qq.ID !== q.ID);
+    },
+    onQuestionEdited(editedQ) {
+      // Zaktualizuj pytanie w lokalnej liście
+      const idx = this.questions.findIndex((q) => q.ID === editedQ.ID);
+      if (idx !== -1) {
+        this.questions.splice(idx, 1, editedQ);
+      }
     },
   },
 };

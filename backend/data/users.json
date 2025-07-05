@@ -4,8 +4,36 @@
     "login": "admin",
     "password": "$2b$10$2smQqHZHAcdjFOG7l3l4K.icGqqOHyUyDhfQqPFha04YjoGlSDfV.",
     "option": "light",
-    "history": [],
-    "hquestion": []
+    "history": [
+      {
+        "type": "quiz",
+        "correct": 0,
+        "categories": [
+          "Egzamin 2007"
+        ],
+        "wrong": 2,
+        "list": [
+          {
+            "id_questions": 2,
+            "correct": false,
+            "answer": null
+          },
+          {
+            "id_questions": 1,
+            "correct": false,
+            "answer": "A"
+          }
+        ],
+        "data": "2025-07-05T10:39:42.195Z"
+      }
+    ],
+    "hquestion": [
+      {
+        "id": 1,
+        "correct": false,
+        "category": "Egzamin 2007"
+      }
+    ]
   },
   {
     "id": 1750004371282,

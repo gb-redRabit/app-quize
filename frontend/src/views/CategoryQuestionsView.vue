@@ -24,6 +24,14 @@
     <BaseButton color="green" size="sm" class="mb-4" @click="downloadQuestionsTxt">
       Pobierz pytania do Worda (TXT)
     </BaseButton>
+    <BaseButton
+      color="yellow"
+      size="sm"
+      class="mb-4 ml-2"
+      @click="showDuplicates = !showDuplicates"
+    >
+      {{ showDuplicates ? 'Pokaż wszystkie pytania' : 'Pokaż duplikaty pytań' }}
+    </BaseButton>
     <!-- Pasek wizualny poprawnych/błędnych -->
     <div
       v-if="lastAttemptStats.total > 0"
@@ -62,8 +70,11 @@
             'bg-red-100 border-red-400': lastAttemptMap[q.ID] === false,
           }"
         >
-          <div class="font-semibold text-base sm:text-lg mb-2 break-words">
-            <span class="text-gray-500">ID: {{ q.ID }} -</span> {{ q.question }}
+          <div class="flex items-start justify-between">
+            <div class="font-semibold text-base sm:text-lg mb-2 break-words">
+              <span class="text-gray-500">ID: {{ q.ID }} -</span> {{ q.question }}
+            </div>
+            <QuestionActions :question="q" @deleted="onQuestionDeleted" @edit="onQuestionEdited" />
           </div>
           <div class="mb-2 text-gray-700">
             <span class="font-bold">A:</span>
@@ -110,15 +121,19 @@ import { mapGetters, mapState } from 'vuex';
 import SearchBar from '@/components/SearchBar.vue';
 import BaseLoader from '@/components/BaseLoader.vue';
 import BaseButton from '@/components/BaseButton.vue';
+import QuestionActions from '@/components/QuestionActions.vue'; // <-- DODAJ TO
 export default {
   name: 'CategoryQuestionsView',
-  components: { SearchBar, BaseLoader, BaseButton },
+  components: { SearchBar, BaseLoader, BaseButton, QuestionActions }, // <-- DODAJ TU
   data() {
     return {
       loading: true,
       searchQuery: '',
       displayCount: 100,
       loadingMore: false,
+      localQuestions: [],
+      showDuplicates: false,
+      showDuplicates: false,
     };
   },
   computed: {
@@ -246,15 +261,35 @@ export default {
     filteredQuestions() {
       let questions =
         this.category === 'all'
-          ? this.getQuestions
-          : this.getQuestions.filter((q) => q.category === this.category);
-      if (!this.searchQuery) return questions;
+          ? this.localQuestions
+          : this.localQuestions.filter((q) => q.category === this.category);
+      if (!this.searchQuery) return this.showDuplicates ? this.duplicateQuestions : questions;
       const q = this.searchQuery.toLowerCase();
-      return questions.filter(
+      const base = this.showDuplicates ? this.duplicateQuestions : questions;
+      return base.filter(
         (item) =>
           (item.ID && item.ID.toString().includes(q)) ||
           (item.question && item.question.toLowerCase().includes(q))
       );
+    },
+    duplicateQuestions() {
+      // Najpierw filtruj po kategorii
+      const questions =
+        this.category === 'all'
+          ? this.localQuestions
+          : this.localQuestions.filter((q) => q.category === this.category);
+
+      // Szukaj duplikatów po oczyszczeniu końcówki pytania
+      const map = {};
+      for (const q of questions) {
+        const norm = this.normalizeQuestion(q.question);
+        if (!map[norm]) map[norm] = [];
+        map[norm].push(q);
+      }
+      // Zwróć tylko te, które mają więcej niż jeden wpis
+      return Object.values(map)
+        .filter((arr) => arr.length > 1)
+        .flat();
     },
     visibleQuestions() {
       return this.sortedQuestions.slice(0, this.displayCount);
@@ -265,8 +300,9 @@ export default {
   },
   async created() {
     if (!this.getQuestions.length) {
-      await this.$store.dispatch('fetchQuestionsAndCategories');
+      await this.$store.dispatch('questions/fetchQuestionsAndCategories');
     }
+    this.localQuestions = [...this.getQuestions];
     this.loading = false;
     window.addEventListener('scroll', this.handleScroll);
   },
@@ -322,6 +358,23 @@ export default {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       }, 100);
+    },
+    onQuestionDeleted(deletedQuestion) {
+      this.localQuestions = this.localQuestions.filter((q) => q.ID !== deletedQuestion.ID);
+    },
+    onQuestionEdited(editedQuestion) {
+      const idx = this.localQuestions.findIndex((q) => q.ID === editedQuestion.ID);
+      if (idx !== -1) {
+        this.localQuestions.splice(idx, 1, editedQuestion);
+      }
+    },
+    normalizeQuestion(text) {
+      return text
+        ? text
+            .trim()
+            .replace(/[\s:.\?!]+$/, '')
+            .toLowerCase()
+        : '';
     },
   },
 };
