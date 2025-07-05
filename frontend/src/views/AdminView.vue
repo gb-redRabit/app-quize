@@ -662,14 +662,14 @@ export default {
       else this.expandedRows.splice(idx, 1);
     },
     async exportQuestionsExcel() {
-      if (this.loading) return; // ZABEZPIECZENIE przed wielokrotnym kliknięciem
+      if (this.loading) return;
       this.loading = true;
       try {
-        const token = sessionStorage.getItem('token');
-        const response = await axios.get('/api/questions/export/excel', {
-          responseType: 'blob',
-          headers: { Authorization: `Bearer ${token}` },
+        // Używamy apiClient, który ma poprawny baseURL i automatycznie dodaje token
+        const response = await apiClient.get('/questions/export/excel', {
+          responseType: 'blob', // Ważne, aby otrzymać plik jako dane binarne
         });
+
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
@@ -678,9 +678,11 @@ export default {
         link.click();
         link.remove();
       } catch (e) {
-        alert('Błąd eksportu do Excela: ' + (e.message || e));
+        const errorMessage = e.response?.data?.error || e.message || 'Nieznany błąd';
+        alert(`Błąd eksportu do Excela: ${errorMessage}`);
+      } finally {
+        this.loading = false;
       }
-      this.loading = false;
     },
     async handleExcelUpload(event) {
       const file = event.target.files[0];
