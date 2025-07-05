@@ -492,6 +492,7 @@ import IconButton from '@/components/IconButton.vue';
 import BaseModal from '@/components/BaseModal.vue';
 import BaseLoader from '@/components/BaseLoader.vue';
 import apiClient from '@/api'; // <-- ZMIANA
+import axios from 'axios';
 
 export default {
   components: { SearchBar, BaseButton, IconButton, BaseModal, BaseLoader },
