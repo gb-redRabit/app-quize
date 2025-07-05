@@ -100,8 +100,9 @@ router.get("/export/excel", auth.verifyToken, async (req, res) => {
     );
     res.setHeader("Content-Disposition", "attachment; filename=pytania.xlsx");
 
-    await workbook.xlsx.write(res);
-    res.end();
+    // POPRAWKA: użyj writeBuffer i res.send
+    const buffer = await workbook.xlsx.writeBuffer();
+    res.send(buffer);
   } catch (e) {
     console.error("Błąd eksportu do Excela:", e);
     res.status(500).json({ error: "Błąd eksportu do Excela: " + e.message });
