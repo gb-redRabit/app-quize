@@ -24,12 +24,7 @@
     <BaseButton color="green" size="sm" class="mb-4" @click="downloadQuestionsTxt">
       Pobierz pytania do Worda (TXT)
     </BaseButton>
-    <BaseButton
-      color="yellow"
-      size="sm"
-      class="mb-4 ml-2"
-      @click="showDuplicates = !showDuplicates"
-    >
+    <BaseButton color="yellow" size="sm" class="mb-4" @click="showDuplicates = !showDuplicates">
       {{ showDuplicates ? 'Pokaż wszystkie pytania' : 'Pokaż duplikaty pytań' }}
     </BaseButton>
     <!-- Pasek wizualny poprawnych/błędnych -->
@@ -286,10 +281,11 @@ export default {
         if (!map[norm]) map[norm] = [];
         map[norm].push(q);
       }
-      // Zwróć tylko te, które mają więcej niż jeden wpis
+      // Zwróć tylko te, które mają więcej niż jeden wpis i posortuj alfabetycznie po pytaniu
       return Object.values(map)
         .filter((arr) => arr.length > 1)
-        .flat();
+        .flat()
+        .sort((a, b) => a.question.localeCompare(b.question));
     },
     visibleQuestions() {
       return this.sortedQuestions.slice(0, this.displayCount);
