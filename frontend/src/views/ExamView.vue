@@ -1,19 +1,42 @@
 <template>
-  <div class="container flex flex-col items-center justify-start px-2">
-    <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col gap-8 w-full">
-      <div v-if="!showSummary">
-        <h1 class="text-3xl font-bold mb-6 text-center">Egzamin – {{ examLength }} pytań</h1>
-        <div class="flex justify-between items-center mb-4">
-          <span class="text-lg font-semibold"
-            >Pytanie {{ currentQuestionIndex + 1 }} / {{ examLength }}</span
-          >
-          <span class="text-lg font-semibold text-blue-700"
-            >Pozostały czas: {{ formattedTime }}</span
-          >
+  <div class="exam-container">
+    <div class="exam-wrapper">
+      <div v-if="!showSummary" class="exam-content">
+        <div class="exam-header">
+          <h1 class="exam-title">Egzamin – {{ examLength }} pytań</h1>
+          <div class="exam-timer-badge" :class="{ warning: timeLeft < 300 }">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>{{ formattedTime }}</span>
+          </div>
         </div>
-        <!-- Dodaj ProgressBar -->
-        <BaseLoader v-if="loading" />
-        <div v-else>
+
+        <div class="question-indicator">
+          <div class="indicator-text">
+            Pytanie {{ currentQuestionIndex + 1 }} z {{ examLength }}
+          </div>
+          <div class="progress-mini">
+            <div
+              class="progress-mini-bar"
+              :style="{ width: `${((currentQuestionIndex + 1) / examLength) * 100}%` }"
+            ></div>
+          </div>
+        </div>
+
+        <BaseLoader v-if="loading" class="exam-loader" />
+
+        <div v-else class="question-container">
           <QuestionList
             ref="questionList"
             v-if="questions.length && currentQuestionIndex < questions.length"
@@ -34,6 +57,7 @@
           />
         </div>
       </div>
+
       <!-- Podsumowanie -->
       <SummaryBox
         v-else
@@ -45,9 +69,9 @@
         :correctAnswerText="correctAnswerText"
         @restart="restartExam"
         @retry-wrong="retryWrongQuestions"
+        class="summary-box"
       />
     </div>
-    <ProgressBar :current="answeredCount" :total="examLength" />
   </div>
 </template>
 
@@ -139,46 +163,53 @@ export default {
     this.timeLeft = this.examTimeMinutes * 60;
     this.fetchQuestions();
     this.startTimer();
+    this.startTime = Date.now();
   },
   mounted() {
     window.addEventListener('keydown', this.handleKeydown);
   },
   beforeUnmount() {
     window.removeEventListener('keydown', this.handleKeydown);
+    clearInterval(this.timer);
   },
   methods: {
     ...mapActions(['fetchUserHistory']),
     async fetchQuestions() {
-      const response = await apiClient.get('/questions');
-      let filteredQuestions = Array.isArray(response.data) ? response.data : [];
+      try {
+        const response = await apiClient.get('/questions');
+        let filteredQuestions = Array.isArray(response.data) ? response.data : [];
 
-      if (this.$route.query.ids) {
-        const ids = this.$route.query.ids.split(',').map((id) => id.trim());
-        filteredQuestions = filteredQuestions.filter((q) =>
-          ids.includes(String(q.ID || q.id || q.Id || q.id_question))
-        );
-      } else if (this.selectedCategories && this.selectedCategories[0] !== 'all') {
-        filteredQuestions = filteredQuestions.filter((q) =>
-          this.selectedCategories.includes(q.category)
-        );
+        if (this.$route.query.ids) {
+          const ids = this.$route.query.ids.split(',').map((id) => id.trim());
+          filteredQuestions = filteredQuestions.filter((q) =>
+            ids.includes(String(q.ID || q.id || q.Id || q.id_question))
+          );
+        } else if (this.selectedCategories && this.selectedCategories[0] !== 'all') {
+          filteredQuestions = filteredQuestions.filter((q) =>
+            this.selectedCategories.includes(q.category)
+          );
+        }
+
+        this.questions = getRandomUniqueQuestions(filteredQuestions, this.examLength);
+        this.answersStatus = this.questions.map(() => ({
+          answered: false,
+          selected: null,
+          selectedKey: null,
+        }));
+      } catch (error) {
+        console.error('Błąd podczas pobierania pytań:', error);
+      } finally {
+        this.loading = false;
+        this.showSummary = false;
+        this.score = 0;
+        this.currentQuestionIndex = 0;
       }
-
-      this.questions = getRandomUniqueQuestions(filteredQuestions, this.examLength);
-      this.answersStatus = this.questions.map(() => ({
-        answered: false,
-        selected: null,
-        selectedKey: null,
-      }));
-      this.loading = false;
-      this.showSummary = false;
-      this.score = 0;
-      this.currentQuestionIndex = 0;
     },
 
     async selectAnswer(index, selectedKey) {
       if (this.answersStatus[this.currentQuestionIndex].answered) return;
       const q = this.questions[this.currentQuestionIndex];
-      const id = q.ID || q.id || q.Id || q.id_question; // użyj nullish coalescing
+      const id = q.ID || q.id || q.Id || q.id_question;
       if (!id) {
         console.warn('Brak ID pytania!', q);
         return;
@@ -247,6 +278,7 @@ export default {
       this.isCorrection = false;
       this.examLength = this.initialExamLength;
       this.timeLeft = this.examTimeMinutes * 60;
+      this.startTime = Date.now();
 
       // Jeśli jest kategoria w query, pobierz nowe błędne/nieprzerobione pytania
       if (this.$route.query.categories) {
@@ -358,6 +390,7 @@ export default {
       this.examLength = this.questions.length;
       this.isCorrection = true;
       this.startTimer();
+      this.startTime = Date.now();
     },
     handleKeydown(e) {
       if (this.showSummary) return;
@@ -379,5 +412,115 @@ export default {
 </script>
 
 <style scoped>
-/* Dodaj własne style, jeśli potrzebujesz */
+.exam-container {
+  @apply flex flex-col items-center justify-start w-full  py-6 px-4 sm:px-6 container;
+}
+
+.exam-wrapper {
+  @apply w-full  bg-white rounded-2xl  overflow-hidden mb-6;
+}
+
+.exam-content {
+  @apply p-6 sm:p-8;
+}
+
+.exam-header {
+  @apply flex flex-col sm:flex-row justify-between items-center mb-6 gap-4;
+}
+
+.exam-title {
+  @apply text-2xl sm:text-3xl font-bold text-gray-800;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.exam-timer-badge {
+  @apply flex items-center gap-2 py-2 px-4 rounded-full bg-blue-50 text-blue-600 font-medium;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.exam-timer-badge svg {
+  @apply w-5 h-5;
+}
+
+.exam-timer-badge.warning {
+  @apply bg-red-50 text-red-600;
+  border-color: rgba(239, 68, 68, 0.2);
+  animation: pulse 2s infinite;
+}
+
+.question-indicator {
+  @apply mb-6;
+}
+
+.indicator-text {
+  @apply text-sm text-gray-500 mb-2 font-medium;
+}
+
+.progress-mini {
+  @apply w-full h-1.5 bg-gray-100 rounded-full overflow-hidden;
+}
+
+.progress-mini-bar {
+  @apply h-full bg-blue-500;
+  transition: width 0.3s ease-in-out;
+}
+
+.exam-loader {
+  @apply my-12;
+}
+
+.question-container {
+  @apply mb-8;
+}
+
+.keyboard-shortcuts {
+  @apply mt-6 flex justify-center;
+}
+
+.keyboard-hint {
+  @apply flex items-center gap-2 text-sm text-gray-500;
+}
+
+.key-badge {
+  @apply px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-mono;
+}
+
+.exam-progress {
+  @apply w-full max-w-4xl;
+}
+
+.summary-box {
+  @apply p-6 sm:p-8;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Responsywność */
+@media (max-width: 640px) {
+  .exam-header {
+    @apply flex-col items-center mb-4 gap-3;
+  }
+
+  .exam-title {
+    @apply text-xl text-center;
+  }
+
+  .exam-content {
+    @apply p-4;
+  }
+
+  .exam-timer-badge {
+    @apply text-sm py-1.5 px-3;
+  }
+}
 </style>

@@ -1,7 +1,7 @@
 module.exports = {
   presets: ['@vue/cli-plugin-babel/preset'],
   plugins: [
-    // Dodaj tę linię, aby włączyć obsługę optional chaining
     '@babel/plugin-proposal-optional-chaining',
+    '@babel/plugin-proposal-nullish-coalescing-operator', // <-- DODAJ TĘ LINIĘ
   ],
 };

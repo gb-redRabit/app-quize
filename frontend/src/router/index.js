@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/HomeView.vue';
-import NotFound from '../views/NotFound.vue';
 
 import authRoutes from './auth';
 import quizRoutes from './quiz';
@@ -8,12 +7,16 @@ import userRoutes from './user';
 import adminRoutes from './admin';
 
 const routes = [
-  { path: '/', name: 'Home', component: Home },
+  { path: '/', name: 'Home', component: Home, meta: { requiresAuth: true } },
   ...authRoutes,
   ...quizRoutes,
   ...userRoutes,
   ...adminRoutes,
-  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import(/* webpackChunkName: "notfound" */ '../views/NotFound.vue'),
+  },
 ];
 
 const router = createRouter({

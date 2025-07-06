@@ -2,18 +2,18 @@ export default {
   namespaced: true,
   state: {
     loading: false,
-    error: '',
   },
   mutations: {
-    SET_LOADING(state, loading) {
-      state.loading = loading;
+    SET_LOADING(state, isLoading) {
+      state.loading = isLoading;
     },
-    SET_ERROR(state, error) {
-      state.error = error;
+  },
+  actions: {
+    setLoading({ commit }, isLoading) {
+      commit('SET_LOADING', isLoading);
     },
   },
   getters: {
     isLoading: (state) => state.loading,
-    getError: (state) => state.error,
   },
 };

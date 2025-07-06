@@ -1,16 +1,14 @@
-import UserPanel from '../views/UserPanel.vue';
-import History from '../views/HistoryView.vue';
 export default [
   {
     path: '/user',
     name: 'UserPanel',
-    component: UserPanel,
+    component: () => import('../views/UserPanel.vue'),
     meta: { requiresAuth: true },
   },
   {
     path: '/history',
     name: 'History',
-    component: History,
+    component: () => import('../views/HistoryView.vue'),
     meta: { requiresAuth: true },
   },
   {

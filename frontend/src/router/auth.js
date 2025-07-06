@@ -1,7 +1,12 @@
-import Login from '../views/LoginView.vue';
-import Register from '../views/RegisterView.vue';
-
 export default [
-  { path: '/login', name: 'Login', component: Login },
-  { path: '/register', name: 'Register', component: Register },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import(/* webpackChunkName: "login" */ '../views/LoginView.vue'),
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import(/* webpackChunkName: "register" */ '../views/RegisterView.vue'),
+  },
 ];

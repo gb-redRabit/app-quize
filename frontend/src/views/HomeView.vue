@@ -1,103 +1,569 @@
 <template>
-  <div class="container flex flex-col items-center justify-start min-h-screen">
-    <BaseLoader :show="loading" />
+  <div class="container mx-auto">
+    <div class="mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <BaseLoader :show="loading" />
 
-    <section class="w-full py-6 px-2 sm:px-0">
-      <div class="mx-auto flex flex-col gap-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-          <!-- LEWA KOLUMNA: PYTANIA -->
-          <div class="bg-white rounded-lg shadow border border-gray-200 p-4 flex flex-col gap-4">
-            <div class="grid grid-cols-2 gap-3">
-              <div class="stat-tile-min col-span-2">
-                <span class="stat-value-min text-blue-800">{{ questionsCount }}</span>
-                <span class="stat-label-min">Wszystkich</span>
+      <!-- Sekcja powitalna z cytatem -->
+      <section class="mb-10">
+        <div class="flex flex-col md:flex-row gap-6 items-center">
+          <div class="flex-1">
+            <h1 class="text-3xl font-bold text-gray-800">Witaj w systemie nauki!</h1>
+            <p class="mt-2 text-gray-600">Monitoruj swoje postępy i kontynuuj naukę</p>
+          </div>
+          <div class="flex-1">
+            <RandomQuote />
+          </div>
+        </div>
+      </section>
+
+      <!-- Sekcja statystyk -->
+      <section class="mb-10">
+        <h2 class="text-xl font-bold text-gray-700 mb-4 px-1">Twoje statystyki</h2>
+        <div class="grid grid-cols-2 lg:grid-cols-6 gap-3">
+          <!-- Lewa kolumna - statystyki pytań -->
+          <div class="stat-card bg-blue-50 border-blue-200 text-blue-800">
+            <span class="stat-value">{{ questionsCount }}</span>
+            <span class="stat-label">Wszystkich</span>
+          </div>
+          <div class="stat-card bg-green-50 border-green-200 text-green-800">
+            <span class="stat-value">{{ hqStats.correct }}</span>
+            <span class="stat-label">Poprawnie</span>
+          </div>
+          <div class="stat-card bg-red-50 border-red-200 text-red-700">
+            <span class="stat-value">{{ hqStats.wrong }}</span>
+            <span class="stat-label">Błędnie</span>
+          </div>
+          <!-- Prawa kolumna - statystyki historii -->
+          <div class="stat-card bg-indigo-50 border-indigo-200 text-indigo-800">
+            <span class="stat-value">{{ historyStats.quizCount }}</span>
+            <span class="stat-label">Quizy</span>
+          </div>
+          <div class="stat-card bg-purple-50 border-purple-200 text-purple-800">
+            <span class="stat-value">{{ historyStats.examCount }}</span>
+            <span class="stat-label">Egzaminy</span>
+          </div>
+          <div class="stat-card bg-yellow-50 border-yellow-200 text-yellow-800">
+            <span class="stat-value">{{ historyStats.avg }}%</span>
+            <span class="stat-label">Średnia</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Przyciski szybkiego dostępu -->
+      <section class="mb-10">
+        <div class="flex flex-col sm:flex-row gap-4">
+          <BaseButton
+            color="blue"
+            class="flex-1 py-4 rounded-xl shadow-md hover:shadow-lg transition-all text-center font-semibold"
+            @click="showExamPopup = true"
+          >
+            <div class="flex items-center justify-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>Rozpocznij egzamin z ubiegłych lat</span>
+            </div>
+          </BaseButton>
+          <BaseButton
+            color="blue"
+            class="flex-1 py-4 rounded-xl shadow-md hover:shadow-lg transition-all text-center font-semibold"
+            @click="showOtherQuizPopup = true"
+          >
+            <div class="flex items-center justify-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>Rozpocznij quiz z pozostałych kategorii</span>
+            </div>
+          </BaseButton>
+        </div>
+      </section>
+
+      <!-- Lista kategorii -->
+      <section>
+        <div class="mb-6 border-b border-gray-200">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-gray-700 px-1">Lista kategorii</h2>
+
+            <!-- Kontrolki widoku -->
+            <div class="flex items-center space-x-2">
+              <!-- Przełącznik widoku kafelki/lista -->
+              <div class="bg-gray-100 rounded-lg p-1 flex">
+                <button
+                  @click="viewType = 'grid'"
+                  class="p-1.5 rounded-md"
+                  :class="viewType === 'grid' ? 'bg-white shadow-sm' : 'text-gray-500'"
+                  title="Widok kafelków"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  @click="viewType = 'list'"
+                  class="p-1.5 rounded-md"
+                  :class="viewType === 'list' ? 'bg-white shadow-sm' : 'text-gray-500'"
+                  title="Widok listy"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 6h16M4 10h16M4 14h16M4 18h16"
+                    />
+                  </svg>
+                </button>
               </div>
-              <div class="stat-tile-min">
-                <span class="stat-value-min text-green-700">{{ hqStats.correct }}</span>
-                <span class="stat-label-min">Poprawnie</span>
-              </div>
-              <div class="stat-tile-min">
-                <span class="stat-value-min text-red-600">{{ hqStats.wrong }}</span>
-                <span class="stat-label-min">Błędnie</span>
-              </div>
-              <div class="stat-tile-min col-span-2">
-                <span class="stat-value-min text-gray-700">{{ hqStats.notDone }}</span>
-                <span class="stat-label-min">Nie przerobione</span>
+
+              <!-- Ilość kolumn w siatce -->
+              <div v-if="viewType === 'grid'" class="bg-gray-100 rounded-lg p-1 flex">
+                <button
+                  v-for="cols in [2, 3, 4]"
+                  :key="cols"
+                  @click="gridColumns = cols"
+                  class="px-2.5 py-1.5 rounded-md text-xs font-medium"
+                  :class="gridColumns === cols ? 'bg-white shadow-sm' : 'text-gray-500'"
+                >
+                  {{ cols }}
+                </button>
               </div>
             </div>
           </div>
-          <!-- PRAWA KOLUMNA: QUIZY, EGZAMINY, POPRAWKI, ŚREDNIE -->
-          <div class="bg-white rounded-lg shadow border border-gray-200 p-4 flex flex-col gap-4">
-            <div class="grid grid-cols-2 gap-3">
-              <div class="stat-tile-min">
-                <span class="stat-label-min">Quizy</span>
-                <span class="stat-value-min text-blue-900">{{ historyStats.quizCount }}</span>
+
+          <!-- Wyszukiwarka kategorii -->
+          <div class="flex mb-4">
+            <div class="relative w-full">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
               </div>
-              <div class="stat-tile-min">
-                <span class="stat-label-min">Egzaminy</span>
-                <span class="stat-value-min text-blue-900">{{ historyStats.examCount }}</span>
+              <input
+                type="text"
+                v-model="searchQuery"
+                placeholder="Szukaj kategorii..."
+                class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+
+          <div class="flex overflow-x-auto hide-scrollbar">
+            <button
+              @click="activeFilter = 'all'"
+              class="px-4 py-3 text-sm font-medium whitespace-nowrap"
+              :class="
+                activeFilter === 'all'
+                  ? 'border-b-2 border-blue-500 text-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              "
+            >
+              Wszystkie kategorie
+            </button>
+            <button
+              @click="activeFilter = 'exam'"
+              class="px-4 py-3 text-sm font-medium whitespace-nowrap"
+              :class="
+                activeFilter === 'exam'
+                  ? 'border-b-2 border-blue-500 text-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              "
+            >
+              Egzaminy
+            </button>
+            <button
+              @click="activeFilter = 'other'"
+              class="px-4 py-3 text-sm font-medium whitespace-nowrap"
+              :class="
+                activeFilter === 'other'
+                  ? 'border-b-2 border-blue-500 text-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              "
+            >
+              Pozostałe
+            </button>
+          </div>
+        </div>
+
+        <!-- Widok siatki kafelek - zmodyfikowany aby uwzględniać filtr -->
+        <div v-if="viewType === 'grid'" :class="gridLayoutClass">
+          <div
+            v-for="cat in searchedCategories"
+            :key="cat"
+            class="category-card"
+            :class="getCategoryCardClass(cat)"
+          >
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="font-semibold text-gray-800 truncate max-w-[70%]" :title="cat">
+                {{ cat }}
+              </h3>
+              <div class="flex items-center gap-2">
+                <span
+                  class="text-xs font-medium px-2 py-1 rounded-full"
+                  :class="{
+                    'bg-green-100 text-green-800': categoryPercentComplete(cat) > 75,
+                    'bg-yellow-100 text-yellow-800':
+                      categoryPercentComplete(cat) > 25 && categoryPercentComplete(cat) <= 75,
+                    'bg-gray-100 text-gray-800': categoryPercentComplete(cat) <= 25,
+                  }"
+                >
+                  {{ categoryPercentComplete(cat) }}%
+                </span>
+
+                <span
+                  v-if="getCategoryStatus(cat)"
+                  class="text-xs font-medium px-2 py-1 rounded-full"
+                  :class="getCategoryStatusClass(cat)"
+                >
+                  {{ getCategoryStatus(cat) }}
+                </span>
               </div>
-              <div class="stat-tile-min">
-                <span class="stat-label-min">Poprawki</span>
-                <span class="stat-value-min text-gray-700">{{ historyStats.corrections }}</span>
+            </div>
+
+            <!-- Pasek postępu -->
+            <div class="w-full h-2 rounded-full bg-gray-200 flex overflow-hidden mb-3">
+              <div
+                class="bg-green-400 h-full"
+                :style="{ width: categoryPercentage(cat).correct + '%' }"
+              ></div>
+              <div
+                class="bg-red-400 h-full"
+                :style="{ width: categoryPercentage(cat).wrong + '%' }"
+              ></div>
+            </div>
+
+            <!-- Statystyki -->
+            <div class="flex justify-between text-xs text-gray-600 mb-4">
+              <div class="flex gap-2">
+                <span class="flex items-center"
+                  ><span class="w-2 h-2 inline-block bg-green-400 rounded-full mr-1"></span>
+                  {{ categoryStats(cat).correct }}</span
+                >
+                <span class="flex items-center"
+                  ><span class="w-2 h-2 inline-block bg-red-400 rounded-full mr-1"></span>
+                  {{ categoryStats(cat).wrong }}</span
+                >
+                <span class="flex items-center"
+                  ><span class="w-2 h-2 inline-block bg-gray-400 rounded-full mr-1"></span>
+                  {{ categoryStats(cat).notDone }}</span
+                >
               </div>
-              <div class="stat-tile-min">
-                <span class="stat-label-min">Śr. quizy+egz.</span>
-                <span class="stat-value-min text-green-800">{{ historyStats.avg }}%</span>
+              <span class="font-medium">Łącznie: {{ categoryCounts[cat] || 0 }}</span>
+            </div>
+
+            <!-- Przyciski -->
+            <div class="grid grid-cols-3 gap-2">
+              <BaseButton
+                color="blue"
+                size="sm"
+                class="text-xs"
+                @click="goToCategoryQuestions(cat)"
+              >
+                <span class="truncate">Pytania</span>
+              </BaseButton>
+              <div class="relative">
+                <BaseButton
+                  color="green"
+                  size="sm"
+                  class="w-full text-xs"
+                  :disabled="categoryStats(cat).notDone === 0 && categoryStats(cat).wrong === 0"
+                  @click="showQuizOptions[cat] = !showQuizOptions[cat]"
+                >
+                  <span class="truncate">Quiz</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-3 w-3 ml-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </BaseButton>
+                <!-- Dropdown menu -->
+                <div v-if="showQuizOptions[cat]" class="absolute z-10 w-full mt-1">
+                  <div class="bg-white border rounded-md shadow-lg py-1">
+                    <a
+                      class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      @click="
+                        startQuizNotDone(cat, 150);
+                        showQuizOptions[cat] = false;
+                      "
+                    >
+                      Max 150 pytań
+                    </a>
+                    <a
+                      class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      @click="
+                        startQuizNotDone(cat, 0);
+                        showQuizOptions[cat] = false;
+                      "
+                    >
+                      Cała pula
+                    </a>
+                  </div>
+                </div>
               </div>
-              <div class="stat-tile-min">
-                <span class="stat-label-min">Śr. quizy.</span>
-                <span class="stat-value-min text-green-800">{{ historyStats.quizAvg }}%</span>
-              </div>
-              <div class="stat-tile-min">
-                <span class="stat-label-min">Śr. egzaminy</span>
-                <span class="stat-value-min text-green-800">{{ historyStats.examAvg }}%</span>
+              <div class="flex gap-1">
+                <BaseButton
+                  color="purple"
+                  size="sm"
+                  class="flex-1 text-xs"
+                  :disabled="categoryStats(cat).notDone === 0 && categoryStats(cat).wrong === 0"
+                  @click="startExamNotDone(cat)"
+                >
+                  <span class="truncate">Egzamin</span>
+                </BaseButton>
+                <BaseButton color="red" size="sm" class="px-2" @click="clearCategoryHistory(cat)">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </BaseButton>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- Reszta kodu (przyciski, popupy, cytat) -->
-    <div class="flex flex-row justify-center gap-4 mb-2 w-full">
-      <BaseButton
-        color="blue"
-        size="lg"
-        class="font-semibold shadow w-1/2"
-        @click="showExamPopup = true"
-        :aria-label="'Rozpocznij Egzamin'"
-      >
-        Rozpocznij Egzamin z ubiegłych lat
-      </BaseButton>
-      <BaseButton
-        color="blue"
-        size="lg"
-        class="font-semibold shadow w-1/2"
-        @click="showOtherQuizPopup = true"
-      >
-        Rozpocznij Quiz z pozostałych kategorii
-      </BaseButton>
+        <!-- Widok listy -->
+        <div v-else class="divide-y divide-gray-200">
+          <div
+            v-for="cat in searchedCategories"
+            :key="cat"
+            class="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-gray-50 rounded-lg px-3 transition-colors"
+          >
+            <div class="flex-1">
+              <div class="flex items-start justify-between mb-2">
+                <h3 class="font-semibold text-gray-800" :title="cat">
+                  {{ cat }}
+                </h3>
+                <div class="flex items-center gap-2 ml-3">
+                  <span
+                    class="text-xs font-medium px-2 py-1 rounded-full"
+                    :class="{
+                      'bg-green-100 text-green-800': categoryPercentComplete(cat) > 75,
+                      'bg-yellow-100 text-yellow-800':
+                        categoryPercentComplete(cat) > 25 && categoryPercentComplete(cat) <= 75,
+                      'bg-gray-100 text-gray-800': categoryPercentComplete(cat) <= 25,
+                    }"
+                  >
+                    {{ categoryPercentComplete(cat) }}%
+                  </span>
+                  <span
+                    v-if="getCategoryStatus(cat)"
+                    class="text-xs font-medium px-2 py-1 rounded-full"
+                    :class="getCategoryStatusClass(cat)"
+                  >
+                    {{ getCategoryStatus(cat) }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4 mb-2">
+                <!-- Pasek postępu -->
+                <div class="w-full h-2 rounded-full bg-gray-200 flex overflow-hidden">
+                  <div
+                    class="bg-green-400 h-full"
+                    :style="{ width: categoryPercentage(cat).correct + '%' }"
+                  ></div>
+                  <div
+                    class="bg-red-400 h-full"
+                    :style="{ width: categoryPercentage(cat).wrong + '%' }"
+                  ></div>
+                </div>
+                <span class="text-xs font-medium whitespace-nowrap">
+                  Łącznie: {{ categoryCounts[cat] || 0 }}
+                </span>
+              </div>
+
+              <!-- Statystyki -->
+              <div class="flex gap-3 text-xs text-gray-600">
+                <span class="flex items-center"
+                  ><span class="w-2 h-2 inline-block bg-green-400 rounded-full mr-1"></span>
+                  {{ categoryStats(cat).correct }}</span
+                >
+                <span class="flex items-center"
+                  ><span class="w-2 h-2 inline-block bg-red-400 rounded-full mr-1"></span>
+                  {{ categoryStats(cat).wrong }}</span
+                >
+                <span class="flex items-center"
+                  ><span class="w-2 h-2 inline-block bg-gray-400 rounded-full mr-1"></span>
+                  {{ categoryStats(cat).notDone }}</span
+                >
+              </div>
+            </div>
+
+            <!-- Przyciski w widoku listy -->
+            <div class="flex flex-wrap gap-2 justify-end">
+              <BaseButton
+                color="blue"
+                size="sm"
+                class="text-xs"
+                @click="goToCategoryQuestions(cat)"
+              >
+                Pytania
+              </BaseButton>
+              <div class="relative">
+                <BaseButton
+                  color="green"
+                  size="sm"
+                  class="text-xs"
+                  :disabled="categoryStats(cat).notDone === 0 && categoryStats(cat).wrong === 0"
+                  @click="showQuizOptions[cat] = !showQuizOptions[cat]"
+                >
+                  Quiz
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-3 w-3 ml-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </BaseButton>
+                <!-- Dropdown menu -->
+                <div v-if="showQuizOptions[cat]" class="absolute z-10 w-full mt-1">
+                  <div class="bg-white border rounded-md shadow-lg py-1">
+                    <a
+                      class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      @click="
+                        startQuizNotDone(cat, 150);
+                        showQuizOptions[cat] = false;
+                      "
+                    >
+                      Max 150 pytań
+                    </a>
+                    <a
+                      class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      @click="
+                        startQuizNotDone(cat, 0);
+                        showQuizOptions[cat] = false;
+                      "
+                    >
+                      Cała pula
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <BaseButton
+                color="purple"
+                size="sm"
+                class="text-xs"
+                :disabled="categoryStats(cat).notDone === 0 && categoryStats(cat).wrong === 0"
+                @click="startExamNotDone(cat)"
+              >
+                Egzamin
+              </BaseButton>
+              <BaseButton color="red" size="sm" class="px-2" @click="clearCategoryHistory(cat)">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              </BaseButton>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
-    <RandomQuote />
 
-    <!-- Popup z egzaminami -->
+    <!-- Modal z wyborem egzaminu -->
     <BaseModal :show="showExamPopup" @close="showExamPopup = false">
-      <h3 class="text-lg font-bold mb-4">Wybierz kategorię egzaminu:</h3>
-      <div class="grid grid-cols-2 gap-2">
-        <BaseButton
+      <h3 class="text-lg font-bold mb-6 text-gray-800">Wybierz kategorię egzaminu:</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div
           v-for="cat in examCategories"
           :key="cat"
-          color="purple"
-          class="w-full flex flex-col items-start"
+          class="exam-choice-card"
           @click="startExamFromCategory(cat)"
         >
-          <div class="flex w-full items-end justify-between">
-            <!-- Pasek postępu -->
-            <div class="flex-1 mr-2">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex-1">
+              <h4 class="font-medium text-gray-800 mb-1">{{ cat }}</h4>
+              <!-- Progress bar -->
               <div
                 v-if="examStatsByCategory[cat] && examStatsByCategory[cat].total > 0"
-                class="w-3/4 h-2 rounded bg-gray-200 my-1 flex overflow-hidden"
+                class="w-full h-2 rounded bg-gray-200 flex overflow-hidden"
               >
                 <div
                   class="bg-green-400 h-2"
@@ -116,46 +582,30 @@
                 ></div>
               </div>
             </div>
-            <!-- Statystyki i nazwa kategorii -->
-            <div class="flex flex-col items-end min-w-[90px]">
-              <span class="font-bold">{{ cat }}</span>
-              <span
-                v-if="examStatsByCategory[cat] && examStatsByCategory[cat].total > 0"
-                class="mt-1"
-              >
-                <span class="text-green-700 font-semibold">{{
-                  examStatsByCategory[cat].correct
-                }}</span
-                >/<span class="text-red-700 font-semibold">{{
-                  examStatsByCategory[cat].wrong
-                }}</span
-                >/<span class="text-gray-700 font-semibold">{{
-                  examStatsByCategory[cat].total
-                }}</span>
+
+            <div class="stats-pill">
+              <span v-if="examStatsByCategory[cat] && examStatsByCategory[cat].total > 0">
+                {{ examStatsByCategory[cat].correct }}/{{ examStatsByCategory[cat].total }}
               </span>
-              <span v-else class="text-xs mt-1">Brak historii</span>
+              <span v-else>Nowy</span>
             </div>
           </div>
-        </BaseButton>
+        </div>
       </div>
     </BaseModal>
 
-    <!-- Popup z innymi quizami -->
+    <!-- Modal z wyborem quizu -->
     <BaseModal :show="showOtherQuizPopup" @close="showOtherQuizPopup = false">
-      <h3 class="text-lg font-bold mb-4">Wybierz kategorię quizu:</h3>
-      <div class="grid grid-cols-2 gap-2">
-        <BaseButton
-          v-for="cat in otherCategories"
-          :key="cat"
-          color="blue"
-          class="w-full flex flex-col items-start"
-        >
-          <div class="flex w-full items-end justify-between">
-            <!-- Pasek postępu -->
-            <div class="flex-1 mr-2">
+      <h3 class="text-lg font-bold mb-6 text-gray-800">Wybierz kategorię quizu:</h3>
+      <div class="grid grid-cols-1 gap-3">
+        <div v-for="cat in otherCategories" :key="cat" class="quiz-choice-card">
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <div class="flex-1">
+              <h4 class="font-medium text-gray-800 mb-1">{{ cat }}</h4>
+              <!-- Progress bar -->
               <div
                 v-if="quizStatsByCategory[cat] && quizStatsByCategory[cat].total > 0"
-                class="w-3/4 h-2 rounded bg-gray-200 my-1 flex overflow-hidden"
+                class="w-full h-2 rounded bg-gray-200 flex overflow-hidden"
               >
                 <div
                   class="bg-green-400 h-2"
@@ -174,119 +624,16 @@
                 ></div>
               </div>
             </div>
-            <!-- Statystyki i nazwa kategorii -->
-            <div class="flex flex-col items-end min-w-[90px]">
-              <span class="font-bold">{{ cat }}</span>
-              <span
-                v-if="quizStatsByCategory[cat] && quizStatsByCategory[cat].total > 0"
-                class="mt-1"
-              >
-                <span class="text-green-700 font-semibold">{{
-                  quizStatsByCategory[cat].correct
-                }}</span
-                >/<span class="text-red-700 font-semibold">{{
-                  quizStatsByCategory[cat].wrong
-                }}</span
-                >/<span class="text-gray-700 font-semibold">{{
-                  quizStatsByCategory[cat].total
-                }}</span>
-              </span>
-              <span v-else class="text-xs mt-1">Brak historii</span>
-            </div>
-          </div>
-          <div class="flex w-full gap-2 mt-2">
-            <BaseButton
-              color="green"
-              size="sm"
-              class="flex-1"
-              :disabled="categoryStats(cat).notDone === 0 && categoryStats(cat).wrong === 0"
-              @click="startQuizNotDone(cat, 150)"
-            >
-              Quiz (max 150 pytań)
-            </BaseButton>
-            <BaseButton
-              color="green"
-              size="sm"
-              class="flex-1"
-              :disabled="categoryStats(cat).notDone === 0 && categoryStats(cat).wrong === 0"
-              @click="startQuizNotDone(cat, 0)"
-            >
-              Quiz z całej puli
-            </BaseButton>
-          </div>
-        </BaseButton>
-      </div>
-    </BaseModal>
 
-    <!-- DODANY DIV Z KATEGORIAMI I STATYSTYKAMI NA DOLE -->
-    <div class="w-full mx-auto mt-10 mb-8">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div
-          v-for="cat in categories"
-          :key="cat"
-          class="bg-white rounded-lg shadow border border-gray-200 mb-4 p-4 flex flex-col gap-4"
-          :class="{
-            'bg-green-100': categoryStats(cat).correct === categoryCounts[cat],
-            'bg-red-100': categoryStats(cat).wrong === categoryCounts[cat],
-          }"
-        >
-          <!-- NAZWA KATEGORII WYŚRODKOWANA -->
-          <div class="text-center font-semibold text-blue-700 text-lg mb-2">
-            {{ cat }}
-          </div>
-          <!-- Pasek postępu + statystyki w jednej linii -->
-          <div class="flex items-center w-full gap-2">
-            <div class="flex-1">
-              <div class="w-full h-4 rounded bg-gray-200 flex overflow-hidden">
-                <div
-                  class="bg-green-400 h-4"
-                  :style="{
-                    width: categoryCounts[cat]
-                      ? ((categoryStats(cat).correct / categoryCounts[cat]) * 100).toFixed(1) + '%'
-                      : '0%',
-                  }"
-                ></div>
-                <div
-                  class="bg-red-400 h-4"
-                  :style="{
-                    width: categoryCounts[cat]
-                      ? ((categoryStats(cat).wrong / categoryCounts[cat]) * 100).toFixed(1) + '%'
-                      : '0%',
-                  }"
-                ></div>
-                <div
-                  class="bg-gray-400 h-4"
-                  :style="{
-                    width: categoryCounts[cat]
-                      ? ((categoryStats(cat).notDone / categoryCounts[cat]) * 100).toFixed(1) + '%'
-                      : '0%',
-                  }"
-                ></div>
-              </div>
-            </div>
-            <div class="flex gap-1 min-w-[120px] justify-end text-base font-bold ml-2">
-              <span class="text-green-700" :title="'Poprawnie'">
-                {{ categoryStats(cat).correct }}
+            <div class="stats-pill">
+              <span v-if="quizStatsByCategory[cat] && quizStatsByCategory[cat].total > 0">
+                {{ quizStatsByCategory[cat].correct }}/{{ quizStatsByCategory[cat].total }}
               </span>
-              <span>/</span>
-              <span class="text-red-700" :title="'Błędnie'">
-                {{ categoryStats(cat).wrong }}
-              </span>
-              <span>/</span>
-              <span class="text-gray-700" :title="'Nie przerobione'">
-                {{ categoryStats(cat).notDone }}
-              </span>
-              <span>/</span>
-              <span class="text-blue-700" :title="'Wszystkich pytań'">
-                {{ categoryCounts[cat] || 0 }}
-              </span>
+              <span v-else>Nowy</span>
             </div>
           </div>
-          <!-- Przyciski w jednym rzędzie, równa szerokość -->
-          <div class="flex flex-row gap-2 mt-2">
-            <BaseButton color="blue" size="sm" class="flex-1" @click="goToCategoryQuestions(cat)">
-              Pytania
-            </BaseButton>
+
+          <div class="flex gap-2">
             <BaseButton
               color="green"
               size="sm"
@@ -294,7 +641,7 @@
               :disabled="categoryStats(cat).notDone === 0 && categoryStats(cat).wrong === 0"
               @click="startQuizNotDone(cat, 150)"
             >
-              Quiz (max 150 pytań)
+              Max 150 pytań
             </BaseButton>
             <BaseButton
               color="green"
@@ -303,24 +650,12 @@
               :disabled="categoryStats(cat).notDone === 0 && categoryStats(cat).wrong === 0"
               @click="startQuizNotDone(cat, 0)"
             >
-              Quiz z całej puli
-            </BaseButton>
-            <BaseButton
-              color="purple"
-              size="sm"
-              class="flex-1"
-              :disabled="categoryStats(cat).notDone === 0 && categoryStats(cat).wrong === 0"
-              @click="startExamNotDone(cat)"
-            >
-              Egzamin
-            </BaseButton>
-            <BaseButton color="red" size="sm" class="flex-1" @click="clearCategoryHistory(cat)">
-              Wyczyść
+              Cała pula
             </BaseButton>
           </div>
         </div>
       </div>
-    </div>
+    </BaseModal>
   </div>
 </template>
 
@@ -332,6 +667,7 @@ import BaseLoader from '@/components/BaseLoader.vue';
 import BaseModal from '@/components/BaseModal.vue';
 import { mapGetters, mapState } from 'vuex';
 import apiClient from '@/api';
+
 export default {
   name: 'Home',
   components: {
@@ -345,14 +681,17 @@ export default {
     return {
       showExamPopup: false,
       showOtherQuizPopup: false,
-      // ...inne zmienne jeśli potrzebujesz
+      showQuizOptions: {},
+      activeFilter: 'all',
+      viewType: 'grid', // 'grid' lub 'list'
+      gridColumns: 3, // 2, 3 lub 4 kolumny
+      searchQuery: '', // zapytanie wyszukiwania
     };
   },
   computed: {
     ...mapGetters('questions', ['getQuestions', 'getCategories', 'getCategoryCounts']),
     ...mapGetters('user', ['getUser', 'getUserHistory', 'getHquestion', 'isAuthenticated']),
     ...mapGetters('ui', ['isLoading', 'getError']),
-    // ...pozostałe computed jak wcześniej, ale korzystaj z danych z Vuex!
     categories() {
       return this.getCategories;
     },
@@ -504,17 +843,53 @@ export default {
         examAvg,
       };
     },
+    filteredCategories() {
+      if (this.activeFilter === 'exam') {
+        return this.examCategories;
+      } else if (this.activeFilter === 'other') {
+        return this.otherCategories;
+      } else {
+        return this.categories;
+      }
+    },
+    searchedCategories() {
+      if (!this.searchQuery) {
+        return this.filteredCategories;
+      }
+
+      const query = this.searchQuery.toLowerCase();
+      return this.filteredCategories.filter((cat) => cat.toLowerCase().includes(query));
+    },
+    gridLayoutClass() {
+      switch (this.gridColumns) {
+        case 2:
+          return 'grid grid-cols-1 md:grid-cols-2 gap-4';
+        case 4:
+          return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4';
+        case 3:
+        default:
+          return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+      }
+    },
   },
   async created() {
     await this.$store.dispatch('questions/fetchQuestionsAndCategories');
     await this.$store.dispatch('user/fetchUserHistoryAndHQ');
+
+    // Inicjalizacja opcji rozwijanej listy dla każdej kategorii
+    // W Vue 3 nie używamy $set - bezpośrednio przypisujemy właściwości
+    const options = {};
+    for (const cat of this.categories) {
+      options[cat] = false;
+    }
+    this.showQuizOptions = options;
   },
   methods: {
     startExamFromCategory(cat) {
       this.showExamPopup = false;
       const max = this.categoryCounts[cat] || 10;
       this.$router.push({
-        name: 'QuizView', // <-- tu zmiana!
+        name: 'QuizView',
         query: {
           length: max,
           categories: cat,
@@ -543,6 +918,21 @@ export default {
         wrong,
         notDone: notDone < 0 ? 0 : notDone,
       };
+    },
+    categoryPercentage(cat) {
+      const stats = this.categoryStats(cat);
+      const total = this.categoryCounts[cat] || 0;
+      if (total === 0) return { correct: 0, wrong: 0 };
+      return {
+        correct: (stats.correct / total) * 100,
+        wrong: (stats.wrong / total) * 100,
+      };
+    },
+    categoryPercentComplete(cat) {
+      const stats = this.categoryStats(cat);
+      const total = this.categoryCounts[cat] || 0;
+      if (total === 0) return 0;
+      return Math.round(((stats.correct + stats.wrong) / total) * 100);
     },
     goToCategoryQuestions(cat) {
       this.$router.push({
@@ -609,10 +999,130 @@ export default {
     },
     async clearCategoryHistory(cat) {
       try {
-        await this.$store.dispatch('user/clearCategoryHistory', cat);
-        await this.$store.dispatch('user/fetchUserHistoryAndHQ');
+        if (confirm(`Czy na pewno chcesz wyczyścić historię dla kategorii "${cat}"?`)) {
+          await this.$store.dispatch('user/clearCategoryHistory', cat);
+          await this.$store.dispatch('user/fetchUserHistoryAndHQ');
+        }
       } catch (e) {
         alert('Błąd podczas czyszczenia pytań z kategorii.');
+      }
+    },
+    // Metoda obsługująca zmianę opcji quizu - używamy zwykłego przypisania zamiast $set
+    toggleQuizOption(cat) {
+      // Tworzymy nowy obiekt z aktualnymi wartościami
+      const updatedOptions = { ...this.showQuizOptions };
+      // Zmieniamy wartość dla danej kategorii na przeciwną
+      updatedOptions[cat] = !updatedOptions[cat];
+      // Przypisujemy zaktualizowany obiekt
+      this.showQuizOptions = updatedOptions;
+    },
+    getCategoryCardClass(cat) {
+      const stats = this.categoryStats(cat);
+      const total = this.categoryCounts[cat] || 0;
+
+      // Jeśli nie ma pytań w tej kategorii, zwróć domyślny styl
+      if (total === 0) return 'bg-white border-gray-200';
+
+      const percentDone = ((stats.correct + stats.wrong) / total) * 100;
+      const percentCorrect =
+        stats.correct > 0 ? (stats.correct / (stats.correct + stats.wrong)) * 100 : 0;
+
+      // Kategoria nierozpoczęta (0% ukończonych)
+      if (percentDone === 0) {
+        return 'bg-gray-50 border-gray-300';
+      }
+
+      // Kategoria w pełni ukończona poprawnie (100% poprawnych)
+      if (stats.correct === total) {
+        return 'bg-green-200 border-green-500 shadow-lg text-green-900';
+      }
+
+      // Kategoria w pełni ukończona błędnie (100% błędnych)
+      if (stats.wrong === total) {
+        return 'bg-red-200 border-red-500 shadow-lg text-red-900';
+      }
+
+      // Wysoki procent ukończonych z dobrymi wynikami (>70% poprawnych)
+      if (percentDone > 50 && percentCorrect > 70) {
+        return 'bg-green-100 border-green-400 shadow-md text-green-800';
+      }
+
+      // Wysoki procent ukończonych, średnie wyniki (40-70% poprawnych)
+      if (percentDone > 50 && percentCorrect >= 40 && percentCorrect <= 70) {
+        return 'bg-yellow-100 border-yellow-400 shadow-md text-yellow-800';
+      }
+
+      // Wysoki procent ukończonych z słabymi wynikami (<40% poprawnych)
+      if (percentDone > 50 && percentCorrect < 40) {
+        return 'bg-red-100 border-red-400 shadow-md text-red-800';
+      }
+
+      // Niski procent ukończonych, dobre wyniki
+      if (percentDone <= 50 && percentCorrect > 70) {
+        return 'bg-emerald-100 border-emerald-300 text-emerald-800';
+      }
+
+      // Niski procent ukończonych, średnie wyniki
+      if (percentDone <= 50 && percentCorrect >= 40 && percentCorrect <= 70) {
+        return 'bg-amber-100 border-amber-300 text-amber-800';
+      }
+
+      // Niski procent ukończonych, słabe wyniki
+      if (percentDone <= 50 && percentCorrect < 40) {
+        return 'bg-orange-100 border-orange-300 text-orange-800';
+      }
+
+      // Domyślny kolor w przypadku innych kombinacji
+      return 'bg-blue-50 border-blue-300';
+    },
+    getCategoryStatus(cat) {
+      const stats = this.categoryStats(cat);
+      const total = this.categoryCounts[cat] || 0;
+
+      if (total === 0) return '';
+
+      const percentDone = ((stats.correct + stats.wrong) / total) * 100;
+
+      if (percentDone === 0) return 'Nowa';
+      if (percentDone === 100) {
+        const percentCorrect = (stats.correct / total) * 100;
+        if (percentCorrect === 100) return 'Opanowana';
+        if (percentCorrect >= 80) return 'Bardzo dobra';
+        if (percentCorrect >= 60) return 'Dobra';
+        if (percentCorrect >= 40) return 'Średnia';
+        return 'Do poprawy';
+      }
+
+      if (percentDone >= 75) return 'W trakcie';
+      if (percentDone >= 50) return 'Połowa';
+      if (percentDone >= 25) return 'Rozpoczęta';
+      return 'Nowa';
+    },
+
+    getCategoryStatusClass(cat) {
+      const status = this.getCategoryStatus(cat);
+
+      switch (status) {
+        case 'Opanowana':
+          return 'bg-green-100 text-green-800';
+        case 'Bardzo dobra':
+          return 'bg-emerald-100 text-emerald-800';
+        case 'Dobra':
+          return 'bg-teal-100 text-teal-800';
+        case 'Średnia':
+          return 'bg-yellow-100 text-yellow-800';
+        case 'Do poprawy':
+          return 'bg-red-100 text-red-800';
+        case 'W trakcie':
+          return 'bg-blue-100 text-blue-800';
+        case 'Połowa':
+          return 'bg-indigo-100 text-indigo-800';
+        case 'Rozpoczęta':
+          return 'bg-purple-100 text-purple-800';
+        case 'Nowa':
+          return 'bg-gray-100 text-gray-800';
+        default:
+          return 'bg-gray-100 text-gray-800';
       }
     },
   },
@@ -620,25 +1130,33 @@ export default {
 </script>
 
 <style scoped>
-.stat-tile {
-  @apply rounded-xl p-6 flex flex-col items-center shadow border transition-all duration-200 bg-opacity-90;
-  min-height: 100px;
-  background-clip: padding-box;
+.stat-card {
+  @apply p-4 rounded-xl shadow-sm border flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow;
 }
 .stat-value {
-  @apply text-3xl font-extrabold mb-1 drop-shadow;
+  @apply text-2xl font-bold mb-1;
 }
 .stat-label {
-  @apply text-base font-semibold tracking-wide;
+  @apply text-xs font-medium;
 }
-.stat-tile-min {
-  @apply flex flex-col items-center justify-center border border-gray-100 rounded h-20 bg-gray-50;
-  min-height: 80px;
+.category-card {
+  @apply rounded-lg border-2 shadow-sm p-4 transition-all duration-300 hover:shadow-lg;
 }
-.stat-value-min {
-  @apply text-xl font-bold;
+
+.exam-choice-card {
+  @apply bg-white rounded-lg border border-gray-200 p-3 cursor-pointer transition-all duration-200 hover:bg-blue-50 hover:border-blue-300;
 }
-.stat-label-min {
-  @apply text-xs text-gray-500;
+.quiz-choice-card {
+  @apply bg-white rounded-lg border border-gray-200 p-3 transition-all;
+}
+.stats-pill {
+  @apply px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full whitespace-nowrap;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 </style>

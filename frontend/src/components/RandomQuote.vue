@@ -1,9 +1,18 @@
 <template>
-  <div class="bg-white/90 rounded-xl shadow-lg p-10 w-full my-2 mx-auto flex flex-col items-center">
-    <blockquote class="italic text-lg text-center mb-4 text-gray-700">
-      "{{ quote.text }}"
-    </blockquote>
-    <div class="text-right w-full text-blue-700 font-semibold">— {{ quote.author }}</div>
+  <div class="quote-wrapper">
+    <div class="quote-card" :key="quoteKey">
+      <div class="quote-content">
+        <blockquote class="quote-text">
+          <span class="typewriter-text">{{ displayedText }}</span>
+          <span class="cursor" :class="{ typing: isTyping }"></span>
+        </blockquote>
+
+        <div class="quote-author-container">
+          <div class="quote-line"></div>
+          <div class="quote-author" :class="{ 'fade-in': authorVisible }">— {{ quote.author }}</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -204,7 +213,212 @@ export default {
   data() {
     return {
       quote: quotes[Math.floor(Math.random() * quotes.length)],
+      displayedText: '',
+      typingSpeed: 30, // ms na znak
+      quoteInterval: null,
+      typingTimeout: null,
+      quoteKey: 0,
+      isTyping: false,
+      authorVisible: false,
     };
+  },
+  methods: {
+    // Efekt pisania maszynowego
+    typeWriter(text, index = 0) {
+      this.isTyping = true;
+
+      if (index < text.length) {
+        this.displayedText = text.substring(0, index + 1);
+        this.typingTimeout = setTimeout(() => {
+          this.typeWriter(text, index + 1);
+        }, this.typingSpeed);
+      } else {
+        // Zakończono pisanie
+        this.isTyping = false;
+        setTimeout(() => {
+          this.authorVisible = true;
+        }, 400);
+      }
+    },
+
+    // Zmiana cytatu
+    changeQuote() {
+      // Resetowanie stanu
+      this.authorVisible = false;
+
+      // Wyczyszczenie timeoutów
+      if (this.typingTimeout) {
+        clearTimeout(this.typingTimeout);
+      }
+
+      // Animacja znikania
+      this.displayedText = '';
+      this.quoteKey++; // Wymuszenie re-renderowania
+
+      // Wybór nowego losowego cytatu (różnego od obecnego)
+      let newIndex;
+      do {
+        newIndex = Math.floor(Math.random() * quotes.length);
+      } while (quotes[newIndex].text === this.quote.text && quotes.length > 1);
+
+      this.quote = quotes[newIndex];
+
+      // Rozpoczęcie animacji pisania po krótkim opóźnieniu
+      setTimeout(() => {
+        this.typeWriter(this.quote.text);
+      }, 300);
+    },
+
+    startTypewriter() {
+      this.displayedText = '';
+      this.authorVisible = false;
+      this.typeWriter(this.quote.text);
+    },
+  },
+  mounted() {
+    // Uruchomienie efektu pisania na starcie
+    this.startTypewriter();
+
+    // Ustawienie interwału zmiany co 30 sekund
+    this.quoteInterval = setInterval(this.changeQuote, 30000);
+  },
+  beforeUnmount() {
+    // Czyszczenie interwałów przed odmontowaniem
+    clearInterval(this.quoteInterval);
+    clearTimeout(this.typingTimeout);
   },
 };
 </script>
+
+<style scoped>
+.quote-wrapper {
+  @apply w-full py-4;
+}
+
+.quote-card {
+  @apply bg-white rounded-xl shadow-md p-6 mx-auto max-w-3xl relative overflow-hidden;
+  border: 1px solid rgba(59, 130, 246, 0.1);
+
+  animation: card-enter 0.6s ease-out forwards;
+}
+
+.quote-icon {
+  @apply absolute top-4 left-4 opacity-10;
+}
+
+.quote-icon svg {
+  @apply w-16 h-16 text-blue-400;
+}
+
+.quote-content {
+  @apply pt-6 pb-2 px-4;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.quote-text {
+  @apply text-gray-700 text-xl md:text-2xl text-center font-medium mb-8 relative z-10;
+  line-height: 1.6;
+  min-height: 3em; /* Zapobiega skakaniu */
+}
+
+/* Efekt pisania maszynowego */
+.typewriter-text {
+  display: inline;
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.15em;
+  height: 1.2em;
+  background-color: #3b82f6;
+  margin-left: 0.1em;
+  vertical-align: middle;
+  opacity: 1;
+}
+
+.cursor.typing {
+  animation: blink 0.8s step-end infinite;
+}
+
+.quote-author-container {
+  @apply flex flex-col items-center w-full;
+}
+
+.quote-line {
+  @apply w-24 h-0.5 bg-gradient-to-r from-transparent via-blue-300 to-transparent mb-3;
+}
+
+.quote-author {
+  @apply text-blue-600 font-medium text-lg opacity-0;
+  transition: opacity 0.8s ease;
+}
+
+.fade-in {
+  opacity: 1;
+}
+
+/* Animacje */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes card-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dekoracje */
+.quote-card::before {
+  content: '';
+  position: absolute;
+  top: -15%;
+  right: -15%;
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.08), transparent 70%);
+  z-index: 0;
+}
+
+.quote-card::after {
+  content: '';
+  position: absolute;
+  bottom: -10%;
+  left: -10%;
+  width: 40%;
+  height: 40%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.05), transparent 70%);
+  z-index: 0;
+}
+
+/* Responsywność */
+@media (max-width: 640px) {
+  .quote-text {
+    @apply text-lg;
+  }
+
+  .quote-content {
+    min-height: 150px;
+  }
+
+  .quote-icon svg {
+    @apply w-12 h-12;
+  }
+}
+</style>

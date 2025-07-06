@@ -1,10 +1,8 @@
-import AdminView from '../views/AdminView.vue';
-
 export default [
   {
     path: '/admin',
     name: 'AdminView',
-    component: AdminView,
+    component: () => import('../views/AdminView.vue'),
     meta: { requiresAuth: true },
   },
 ];

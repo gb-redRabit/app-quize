@@ -1,30 +1,95 @@
 <template>
-  <div
-    class="container flex flex-col-reverse sm:flex-col items-center justify-start bg-gray-100 px-2"
-  >
-    <div v-if="!loading" class="bg-white rounded-lg shadow-lg p-4 flex flex-col gap-8 w-full">
-      <div class="flex-1 flex flex-col" v-if="!showSummary">
-        <div v-if="loading" class="text-lg">Loading questions...</div>
-        <div v-else>
-          <div class="flex justify-between items-center mb-2">
-            <button
-              class="bg-blue-600 text-white md:px-6 md:py-3 rounded md:text-lg px-2 py-1"
-              @click="prevQuestion"
-              :disabled="currentQuestionIndex === 0"
+  <div class="py-2 px-4 container">
+    <!-- Loader -->
+    <div v-if="loading" class="flex flex-col items-center justify-center min-h-screen -mt-20">
+      <svg class="h-12 w-12 animate-spin" viewBox="0 0 50 50">
+        <circle
+          class="path stroke-current text-blue-500 stroke-2 fill-transparent"
+          cx="25"
+          cy="25"
+          r="20"
+          stroke-width="4"
+        ></circle>
+      </svg>
+      <p class="mt-4 text-lg font-medium text-gray-600">Wczytywanie pytań...</p>
+    </div>
+    <div v-else class="mx-auto">
+      <!-- Quiz Content -->
+
+      <div v-if="!showSummary" class="flex flex-col space-y-6">
+        <!-- Nagłówek quizu z kategorią i paskiem postępu -->
+        <div
+          class="bg-white rounded-xl shadow-sm p-4 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4"
+        >
+          <div class="flex items-center space-x-3">
+            <div
+              class="flex items-center justify-center h-10 w-10 rounded-full bg-blue-100 text-blue-600 shadow-2xl flex-shrink-0"
             >
-              ← Poprzednie
-            </button>
-            <h1 class="text-3xl font-bold text-center sm:block hidden">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
               {{
                 questions[currentQuestionIndex] && questions[currentQuestionIndex].category
                   ? questions[currentQuestionIndex].category.length > 60
                     ? questions[currentQuestionIndex].category.slice(0, 60) + '…'
                     : questions[currentQuestionIndex].category
-                  : ''
+                  : 'Quiz'
               }}
             </h1>
+          </div>
+          <div class="w-full max-w-sm">
+            <ProgressBar
+              :current="answeredCount"
+              :total="questions.length"
+              class="flex-grow sm:w-48"
+            />
+          </div>
+        </div>
+        <div class="flex flex-col space-y-5">
+          <!-- Przyciski nawigacji -->
+          <div class="grid grid-cols-2 gap-4">
             <button
-              class="bg-blue-600 text-white md:px-6 md:py-3 rounded md:text-lg px-2 py-1"
+              class="flex items-center justify-center px-4 py-3 rounded-xl text-white font-medium text-base transition-all duration-200 shadow-sm bg-gray-600 hover:bg-gray-700"
+              :class="{ 'opacity-50 cursor-not-allowed': currentQuestionIndex === 0 }"
+              @click="prevQuestion"
+              :disabled="currentQuestionIndex === 0"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 mr-2"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <span>Poprzednie</span>
+            </button>
+
+            <button
+              class="flex items-center justify-center px-4 py-3 rounded-xl text-white font-medium text-base transition-all duration-200 shadow-sm"
+              :class="{
+                'opacity-50 cursor-not-allowed': !(
+                  answersStatus[currentQuestionIndex] &&
+                  answersStatus[currentQuestionIndex].answered
+                ),
+                'bg-green-600 hover:bg-green-700': currentQuestionIndex === questions.length - 1,
+                'bg-blue-600 hover:bg-blue-700': currentQuestionIndex !== questions.length - 1,
+              }"
               @click="nextOrFinish"
               :disabled="
                 !(
@@ -33,68 +98,86 @@
                 )
               "
             >
-              {{ currentQuestionIndex === questions.length - 1 ? 'Zakończ test' : 'Następne →' }}
+              <span>{{
+                currentQuestionIndex === questions.length - 1 ? 'Zakończ quiz' : 'Następne'
+              }}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 ml-2"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clip-rule="evenodd"
+                />
+              </svg>
             </button>
           </div>
-          <QuestionList
-            ref="questionList"
-            class="sm:h-auto h-63vh"
-            v-if="questions.length && currentQuestionIndex < questions.length"
-            :question="questions[currentQuestionIndex]"
-            :answered="
-              answersStatus.length > currentQuestionIndex && answersStatus[currentQuestionIndex]
-                ? answersStatus[currentQuestionIndex].answered
-                : false
-            "
-            :selected="
-              answersStatus.length > currentQuestionIndex && answersStatus[currentQuestionIndex]
-                ? answersStatus[currentQuestionIndex].selected
-                : null
-            "
-            :selectedKey="
-              answersStatus.length > currentQuestionIndex && answersStatus[currentQuestionIndex]
-                ? answersStatus[currentQuestionIndex].selectedKey
-                : null
-            "
-            :showCorrect="true"
-            @select="selectAnswer"
-          />
-          <QuestionDescription
-            :answered="
-              answersStatus.length > currentQuestionIndex &&
-              answersStatus[currentQuestionIndex] &&
-              answersStatus[currentQuestionIndex].answered
-            "
-            :description="
-              questions[currentQuestionIndex] && questions[currentQuestionIndex].description
-            "
+        </div>
+
+        <!-- Główna zawartość pytania -->
+        <div class="bg-white rounded-xl shadow-sm p-5 sm:p-6 relative">
+          <transition name="fade" mode="out-in">
+            <QuestionList
+              ref="questionList"
+              :key="currentQuestionIndex"
+              :question="questions[currentQuestionIndex]"
+              :answered="
+                answersStatus.length > currentQuestionIndex && answersStatus[currentQuestionIndex]
+                  ? answersStatus[currentQuestionIndex].answered
+                  : false
+              "
+              :selected="
+                answersStatus.length > currentQuestionIndex && answersStatus[currentQuestionIndex]
+                  ? answersStatus[currentQuestionIndex].selected
+                  : null
+              "
+              :selectedKey="
+                answersStatus.length > currentQuestionIndex && answersStatus[currentQuestionIndex]
+                  ? answersStatus[currentQuestionIndex].selectedKey
+                  : null
+              "
+              :showCorrect="true"
+              :questionNumber="currentQuestionIndex + 1"
+              @select="selectAnswer"
+            />
+          </transition>
+
+          <!-- Opis pytania (wyjaśnienie) -->
+        </div>
+
+        <!-- Nawigacja między pytaniami -->
+        <div class="flex flex-col space-y-5">
+          <!-- Paginacja pytań -->
+          <QuestionNavigation
+            :questions="questions"
+            :currentIdx="currentQuestionIndex"
+            :answersStatus="answersStatus"
+            :showSummary="showSummary"
+            @goTo="goToQuestion"
+            class="mt-4"
           />
         </div>
       </div>
-      <!-- Podsumowanie -->
-      <SummaryBox
-        v-else
-        :questions="questions"
-        :answersStatus="answersStatus"
-        :score="score"
-        :total="questions.length"
-        :userAnswerText="userAnswerText"
-        :correctAnswerText="correctAnswerText"
-        @restart="restartQuiz"
-        @retry-wrong="retryWrongAnswers"
-      />
+
+      <!-- Podsumowanie quizu -->
+      <transition name="slide-up" mode="out-in">
+        <SummaryBox
+          v-if="showSummary"
+          :questions="questions"
+          :answersStatus="answersStatus"
+          :score="score"
+          :total="questions.length"
+          :userAnswerText="userAnswerText"
+          :correctAnswerText="correctAnswerText"
+          @restart="restartQuiz"
+          @retry-wrong="retryWrongAnswers"
+          class="bg-white rounded-xl shadow-sm p-6"
+        />
+      </transition>
     </div>
-    <div v-if="!loading" class="container">
-      <QuestionNavigation
-        :questions="questions"
-        :currentIdx="currentQuestionIndex"
-        :answersStatus="answersStatus"
-        :showSummary="showSummary"
-        @goTo="goToQuestion"
-      />
-    </div>
-    <ProgressBar v-if="!loading" :current="answeredCount" :total="questions.length" />
-    <!-- Usunięto TimeStats -->
   </div>
 </template>
 
@@ -105,11 +188,11 @@ import { useRoute, useRouter } from 'vue-router';
 import apiClient from '@/api';
 import QuestionList from '@/components/QuestionList.vue';
 import QuestionNavigation from '@/components/QuestionNavigation.vue';
-import QuestionDescription from '@/components/QuestionDescription.vue';
 import SummaryBox from '@/components/SummaryBox.vue';
 import ProgressBar from '@/components/ProgressBar.vue';
 import { getRandomUniqueQuestions } from '@/utils/randomQuestions';
-import { shuffleArray } from '@/utils/shuffleArray'; // Zakładam, że istnieje taki plik
+import { shuffleArray } from '@/utils/shuffleArray';
+
 const keys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
 const store = useStore();
 const route = useRoute();
@@ -130,8 +213,8 @@ const timerInterval = ref(null);
 const isCorrection = ref(false);
 const isExamMode = ref(false);
 const shuffledAnswers = ref([]);
-const questionList = ref(null); // dla ref="questionList"
-const forceUpdateKey = ref(0); // Zastępstwo dla $forceUpdate
+const questionList = ref(null);
+const forceUpdateKey = ref(0);
 
 // Helper function
 function getCorrectKey(q) {
@@ -226,17 +309,6 @@ const selectedIndex = () => {
   return answers().findIndex((a) => a.key === selectedKey.value);
 };
 
-const onSelect = (idx) => {
-  emit('select', idx, answers()[idx].key);
-};
-
-const buttonClass = (idx) => {
-  if (!answered.value) return 'bg-blue-500 text-white';
-  if (showCorrect.value && answers()[idx].isCorret) return 'bg-green-500 text-white';
-  if (idx === selectedIndex()) return 'bg-red-500 text-white';
-  return 'bg-gray-200 text-gray-700';
-};
-
 const selectAnswer = async (index, selectedKey) => {
   if (answersStatus.value[currentQuestionIndex.value].answered) return;
   const q = questions.value[currentQuestionIndex.value];
@@ -310,15 +382,6 @@ const saveUserHistory = async () => {
   } catch (error) {
     // obsługa błędu
   }
-};
-
-const userAnswerLetter = (q, selectedIdx) => {
-  if (selectedIdx == null) return '';
-  if (selectedIdx === 0) return 'A';
-  if (selectedIdx === 1) return 'B';
-  if (selectedIdx === 2) return 'C';
-  if (selectedIdx === 3) return 'D';
-  return '';
 };
 
 const prevQuestion = () => {
@@ -434,20 +497,58 @@ const handleKeydown = (e) => {
 const startTimer = () => {
   if (timerInterval.value) clearInterval(timerInterval.value);
   timerInterval.value = setInterval(() => {
-    forceUpdateKey.value++; // Zmiana wartości klucza wymusi re-render
+    forceUpdateKey.value++;
   }, 1000);
 };
-
-const saveAllQuestionsToHquestion = async () => {
-  const token = sessionStorage.getItem('token');
-  for (let i = 0; i < questions.value.length; i++) {
-    const q = questions.value[i];
-    const status = answersStatus.value[i];
-    await apiClient.post('/users/hquestion', {
-      id: q.ID || q.id || q.Id || q.id_question,
-      correct: status && status.answered ? status.correct : false,
-      category: q.category,
-    });
-  }
-};
 </script>
+
+<style scoped>
+/* Zastępujemy niestandardowe style bezpośrednio w HTML używając natywnych klas Tailwind */
+/* Zostawiamy tylko niezbędne animacje, których nie można zastąpić klasami Tailwind */
+
+.spinner .path {
+  stroke-linecap: round;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+/* Transition animations */
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.3s ease-out;
+}
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(30px);
+}
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+</style>
