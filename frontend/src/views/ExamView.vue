@@ -36,25 +36,24 @@
 
         <BaseLoader v-if="loading" class="exam-loader" />
 
-        <div v-else class="question-container">
-          <QuestionList
-            ref="questionList"
-            v-if="questions.length && currentQuestionIndex < questions.length"
-            :question="questions[currentQuestionIndex]"
-            :answered="
-              answersStatus.length > currentQuestionIndex && answersStatus[currentQuestionIndex]
-                ? answersStatus[currentQuestionIndex].answered
-                : false
-            "
-            :selected="selectedIndex"
-            :selectedKey="
-              answersStatus.length > currentQuestionIndex && answersStatus[currentQuestionIndex]
-                ? answersStatus[currentQuestionIndex].selectedKey
-                : null
-            "
-            :showCorrect="false"
-            @select="selectAnswer"
-          />
+        <div v-else>
+          <!-- Zamiast używać vue-virtual-scroll-list używamy v-show do optymalizacji -->
+          <div
+            v-for="(q, index) in questions"
+            :key="q.ID || index"
+            v-show="currentQuestionIndex === index"
+            class="question-container"
+          >
+            <QuestionList
+              :question="q"
+              :answered="answersStatus[index].answered"
+              :selected="answersStatus[index].selected"
+              :selectedKey="answersStatus[index].selectedKey"
+              :showCorrect="showResults"
+              :questionNumber="`${index + 1} `"
+              @select="selectAnswer"
+            />
+          </div>
         </div>
       </div>
 
@@ -97,6 +96,7 @@ export default {
     BaseLoader,
     ProgressBar,
   },
+  inject: ['showAlert', 'showLoader', 'hideLoader'],
   data() {
     return {
       questions: [],
@@ -135,6 +135,11 @@ export default {
       return this.answers.findIndex(
         (a) => a.key === this.answersStatus[this.currentQuestionIndex].selectedKey
       );
+    },
+    // Dodaj tę właściwość
+    showResults() {
+      // W trybie egzaminu nie pokazujemy poprawnych odpowiedzi podczas rozwiązywania
+      return false;
     },
   },
   watch: {
@@ -176,33 +181,39 @@ export default {
     ...mapActions(['fetchUserHistory']),
     async fetchQuestions() {
       try {
-        const response = await apiClient.get('/questions');
-        let filteredQuestions = Array.isArray(response.data) ? response.data : [];
+        this.showLoader('Ładowanie pytań egzaminu...');
 
-        if (this.$route.query.ids) {
-          const ids = this.$route.query.ids.split(',').map((id) => id.trim());
-          filteredQuestions = filteredQuestions.filter((q) =>
-            ids.includes(String(q.ID || q.id || q.Id || q.id_question))
-          );
-        } else if (this.selectedCategories && this.selectedCategories[0] !== 'all') {
-          filteredQuestions = filteredQuestions.filter((q) =>
-            this.selectedCategories.includes(q.category)
+        const category = this.$route.query.categories || 'all';
+        const response = await apiClient.get('/questions');
+        const allQuestions = Array.isArray(response.data) ? response.data : [];
+
+        let filteredQuestions = allQuestions;
+        if (category !== 'all') {
+          filteredQuestions = allQuestions.filter(
+            (q) => q.category === category || q.category === decodeURIComponent(category)
           );
         }
 
         this.questions = getRandomUniqueQuestions(filteredQuestions, this.examLength);
         this.answersStatus = this.questions.map(() => ({
-          answered: false,
           selected: null,
-          selectedKey: null,
+          answered: false,
         }));
+
+        if (this.questions.length < this.examLength) {
+          this.showAlert(
+            'warning',
+            `Znaleziono tylko ${this.questions.length} pytań w tej kategorii`
+          );
+        }
+
+        this.hideLoader();
       } catch (error) {
+        this.hideLoader();
+        this.showAlert('error', 'Błąd podczas pobierania pytań egzaminu');
         console.error('Błąd podczas pobierania pytań:', error);
       } finally {
         this.loading = false;
-        this.showSummary = false;
-        this.score = 0;
-        this.currentQuestionIndex = 0;
       }
     },
 
@@ -335,35 +346,29 @@ export default {
     },
     async saveExamHistory() {
       try {
-        const token = sessionStorage.getItem('token');
-        if (!token) return;
-        const list = this.questions.map((q, idx) => ({
-          id_questions: q.ID || q.id || q.Id || q.id_question,
-          correct: this.answersStatus[idx].selectedKey === getCorrectKey(q),
-          answer: this.answersStatus[idx].selectedKey
-            ? ['A', 'B', 'C', 'D'][this.answersStatus[idx].selected]
-            : null,
-        }));
-        const correct = this.answersStatus.filter((a) => a.correct).length;
-        const wrong = this.answersStatus.length - correct;
+        this.showLoader('Zapisywanie wyników...');
+        // Tworzenie obiektu historii
+        const historyItem = {
+          type: this.isCorrection ? 'Egzamin - poprawa błędów' : 'egzamin',
+          category: this.$route.query.categories || 'all',
+          correct: this.score,
+          wrong: this.questions.length - this.score,
+          data: new Date().toISOString(),
+          time: this.examTimeMinutes * 60 - this.timeLeft,
+          questionTimes: this.questionTimes,
+          list: this.questions.map((q, idx) => ({
+            id_questions: q.ID || q.id || q.Id,
+            answer: this.answersStatus[idx].selectedKey,
+            correct: this.answersStatus[idx].selectedKey === getCorrectKey(q),
+          })),
+        };
 
-        await apiClient.put(
-          '/users/update',
-          {
-            addHistory: {
-              type: this.isCorrection ? 'Egzamin - poprawa błędów' : 'egzamin',
-              correct,
-              wrong,
-              list,
-              categories: this.selectedCategories,
-              data: new Date().toISOString(),
-            },
-          },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        this.isCorrection = true;
-      } catch (e) {
-        console.error('Błąd zapisu historii egzaminu:', e);
+        await apiClient.put('/users/update', { addHistory: historyItem });
+        this.hideLoader();
+      } catch (error) {
+        this.hideLoader();
+        this.showAlert('error', 'Błąd podczas zapisywania wyników');
+        console.error('Błąd zapisu historii:', error);
       }
     },
 

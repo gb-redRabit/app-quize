@@ -210,7 +210,10 @@
               </div>
 
               <!-- Przycisk szczegółów -->
-              <router-link :to="{ name: 'HistoryDetails', params: { idx } }" class="details-button">
+              <router-link
+                :to="{ name: 'HistoryDetails', params: { id: entry.id || String(idx) } }"
+                class="details-button"
+              >
                 <span>Pokaż szczegóły</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -295,10 +298,12 @@ import apiClient from '@/api';
 export default {
   name: 'History',
   components: { BaseButton, BaseModal },
+  inject: ['showAlert', 'showLoader', 'hideLoader'],
+
   data() {
     return {
       showConfirmModal: false,
-      activeFilter: 'all', // 'all', 'quiz', 'exam'
+      activeFilter: 'all',
     };
   },
   computed: {
@@ -333,61 +338,52 @@ export default {
   },
   methods: {
     ...mapActions('user', ['fetchUserHistory']),
+
+    ensureHistoryIds() {
+      const updatedHistory = [...this.history];
+
+      updatedHistory.forEach((entry, index) => {
+        if (!entry.id) {
+          entry.id = `hist_${index}_${Date.now()}`;
+        }
+      });
+
+      this.$store.commit('user/SET_USER_HISTORY', updatedHistory);
+    },
+
     percentGood(entry) {
       const total = (entry.correct || 0) + (entry.wrong || 0);
       if (!total) return 0;
       return Math.round(((entry.correct || 0) / total) * 100);
     },
-    pieGood(entry) {
-      const percent = this.percentGood(entry);
-      return `${percent} ${100 - percent}`;
-    },
-    getCircumference() {
-      const radius = 35;
-      return 2 * Math.PI * radius;
-    },
-    getDashOffset(entry) {
-      const percent = this.percentGood(entry);
-      const circumference = this.getCircumference();
-      return circumference - (percent / 100) * circumference;
-    },
-    getBadgeClass(type) {
-      if (type === 'egzamin') return 'bg-purple-100 text-purple-800';
-      if (type === 'Egzamin - poprawa błędów') return 'bg-yellow-100 text-yellow-800';
-      if (type === 'Quiz - poprawa błędów') return 'bg-amber-100 text-amber-800';
-      return 'bg-blue-100 text-blue-800';
-    },
-    getTypeName(type) {
-      if (type === 'egzamin') return 'Egzamin';
-      if (type === 'Egzamin - poprawa błędów') return 'Egzamin - poprawa';
-      if (type === 'Quiz - poprawa błędów') return 'Quiz - poprawa';
-      return 'Quiz';
-    },
-    formatDate(dateString) {
-      const date = new Date(dateString);
-      const options = {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      };
-      return date.toLocaleDateString('pl-PL', options);
-    },
+
     async confirmClearHistory() {
       try {
+        this.showLoader('Czyszczenie historii...');
         await apiClient.put('/users/update', { clearHistory: true });
+        this.hideLoader();
+        this.showAlert('success', 'Historia została pomyślnie wyczyszczona');
         await this.fetchUserHistory();
         this.showConfirmModal = false;
       } catch (e) {
-        alert('Błąd podczas czyszczenia historii.');
+        this.hideLoader();
+        this.showAlert('error', 'Błąd podczas czyszczenia historii.');
         this.showConfirmModal = false;
       }
     },
   },
   async created() {
-    if (!this.history.length) {
-      await this.fetchUserHistory();
+    this.showLoader('Pobieranie historii...');
+    try {
+      if (!this.history.length) {
+        await this.fetchUserHistory();
+      }
+      // Dodaj identyfikatory do historii
+      this.ensureHistoryIds();
+    } catch (error) {
+      this.showAlert('error', 'Błąd podczas pobierania historii');
+    } finally {
+      this.hideLoader();
     }
   },
 };
@@ -396,10 +392,14 @@ export default {
 <style scoped>
 .history-card {
   @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-200;
+  background-color: var(--color-card-bg);
+  border-color: var(--color-border);
 }
 
 .history-card-header {
-  @apply flex justify-between items-center p-3 border-b border-gray-100 bg-gray-50;
+  @apply flex justify-between items-center p-3 border-b bg-gray-50;
+  border-color: var(--color-border);
+  background-color: var(--color-bg-accent);
 }
 
 .badge {

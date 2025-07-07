@@ -1,24 +1,27 @@
 <template>
   <div class="container mx-auto">
     <div class="mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      <BaseLoader :show="loading" />
-
       <!-- Sekcja powitalna z cytatem -->
       <section class="mb-10">
         <div class="flex flex-col md:flex-row gap-6 items-center">
           <div class="flex-1">
-            <h1 class="text-3xl font-bold text-gray-800">Witaj w systemie nauki!</h1>
-            <p class="mt-2 text-gray-600">Monitoruj swoje postępy i kontynuuj naukę</p>
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">
+              Witaj w systemie nauki!
+            </h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-300">
+              Monitoruj swoje postępy i kontynuuj naukę
+            </p>
           </div>
           <div class="flex-1">
             <RandomQuote />
           </div>
         </div>
       </section>
-
       <!-- Sekcja statystyk -->
       <section class="mb-10">
-        <h2 class="text-xl font-bold text-gray-700 mb-4 px-1">Twoje statystyki</h2>
+        <h2 class="text-xl font-bold text-gray-700 dark:text-gray-200 mb-4 px-1">
+          Twoje statystyki
+        </h2>
         <div class="grid grid-cols-2 lg:grid-cols-6 gap-3">
           <!-- Lewa kolumna - statystyki pytań -->
           <div class="stat-card bg-blue-50 border-blue-200 text-blue-800">
@@ -48,7 +51,6 @@
           </div>
         </div>
       </section>
-
       <!-- Przyciski szybkiego dostępu -->
       <section class="mb-10">
         <div class="flex flex-col sm:flex-row gap-4">
@@ -100,21 +102,23 @@
           </BaseButton>
         </div>
       </section>
-
       <!-- Lista kategorii -->
       <section>
-        <div class="mb-6 border-b border-gray-200">
+        <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-gray-700 px-1">Lista kategorii</h2>
-
+            <h2 class="text-xl font-bold text-gray-700 dark:text-gray-200 px-1">Lista kategorii</h2>
             <!-- Kontrolki widoku -->
             <div class="flex items-center space-x-2">
               <!-- Przełącznik widoku kafelki/lista -->
-              <div class="bg-gray-100 rounded-lg p-1 flex">
+              <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-1 flex">
                 <button
                   @click="viewType = 'grid'"
                   class="p-1.5 rounded-md"
-                  :class="viewType === 'grid' ? 'bg-white shadow-sm' : 'text-gray-500'"
+                  :class="
+                    viewType === 'grid'
+                      ? 'bg-white dark:bg-gray-700 shadow-sm'
+                      : 'text-gray-500 dark:text-gray-400'
+                  "
                   title="Widok kafelków"
                 >
                   <svg
@@ -135,7 +139,11 @@
                 <button
                   @click="viewType = 'list'"
                   class="p-1.5 rounded-md"
-                  :class="viewType === 'list' ? 'bg-white shadow-sm' : 'text-gray-500'"
+                  :class="
+                    viewType === 'list'
+                      ? 'bg-white dark:bg-gray-700 shadow-sm'
+                      : 'text-gray-500 dark:text-gray-400'
+                  "
                   title="Widok listy"
                 >
                   <svg
@@ -154,22 +162,27 @@
                   </svg>
                 </button>
               </div>
-
               <!-- Ilość kolumn w siatce -->
-              <div v-if="viewType === 'grid'" class="bg-gray-100 rounded-lg p-1 flex">
+              <div
+                v-if="viewType === 'grid'"
+                class="bg-gray-100 dark:bg-gray-800 rounded-lg p-1 flex"
+              >
                 <button
                   v-for="cols in [2, 3, 4]"
                   :key="cols"
                   @click="gridColumns = cols"
                   class="px-2.5 py-1.5 rounded-md text-xs font-medium"
-                  :class="gridColumns === cols ? 'bg-white shadow-sm' : 'text-gray-500'"
+                  :class="
+                    gridColumns === cols
+                      ? 'bg-white dark:bg-gray-700 shadow-sm'
+                      : 'text-gray-500 dark:text-gray-400'
+                  "
                 >
                   {{ cols }}
                 </button>
               </div>
             </div>
           </div>
-
           <!-- Wyszukiwarka kategorii -->
           <div class="flex mb-4">
             <div class="relative w-full">
@@ -193,7 +206,7 @@
                 type="text"
                 v-model="searchQuery"
                 placeholder="Szukaj kategorii..."
-                class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200"
               />
             </div>
           </div>
@@ -204,8 +217,8 @@
               class="px-4 py-3 text-sm font-medium whitespace-nowrap"
               :class="
                 activeFilter === 'all'
-                  ? 'border-b-2 border-blue-500 text-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               "
             >
               Wszystkie kategorie
@@ -215,8 +228,8 @@
               class="px-4 py-3 text-sm font-medium whitespace-nowrap"
               :class="
                 activeFilter === 'exam'
-                  ? 'border-b-2 border-blue-500 text-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               "
             >
               Egzaminy
@@ -226,15 +239,14 @@
               class="px-4 py-3 text-sm font-medium whitespace-nowrap"
               :class="
                 activeFilter === 'other'
-                  ? 'border-b-2 border-blue-500 text-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               "
             >
               Pozostałe
             </button>
           </div>
         </div>
-
         <!-- Widok siatki kafelek - zmodyfikowany aby uwzględniać filtr -->
         <div v-if="viewType === 'grid'" :class="gridLayoutClass">
           <div
@@ -244,7 +256,10 @@
             :class="getCategoryCardClass(cat)"
           >
             <div class="flex justify-between items-start mb-3">
-              <h3 class="font-semibold text-gray-800 truncate max-w-[70%]" :title="cat">
+              <h3
+                class="font-semibold text-gray-800 dark:text-gray-100 truncate max-w-[70%]"
+                :title="cat"
+              >
                 {{ cat }}
               </h3>
               <div class="flex items-center gap-2">
@@ -259,7 +274,6 @@
                 >
                   {{ categoryPercentComplete(cat) }}%
                 </span>
-
                 <span
                   v-if="getCategoryStatus(cat)"
                   class="text-xs font-medium px-2 py-1 rounded-full"
@@ -269,9 +283,10 @@
                 </span>
               </div>
             </div>
-
             <!-- Pasek postępu -->
-            <div class="w-full h-2 rounded-full bg-gray-200 flex overflow-hidden mb-3">
+            <div
+              class="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700 flex overflow-hidden mb-3"
+            >
               <div
                 class="bg-green-400 h-full"
                 :style="{ width: categoryPercentage(cat).correct + '%' }"
@@ -281,9 +296,8 @@
                 :style="{ width: categoryPercentage(cat).wrong + '%' }"
               ></div>
             </div>
-
             <!-- Statystyki -->
-            <div class="flex justify-between text-xs text-gray-600 mb-4">
+            <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-4">
               <div class="flex gap-2">
                 <span class="flex items-center"
                   ><span class="w-2 h-2 inline-block bg-green-400 rounded-full mr-1"></span>
@@ -300,7 +314,6 @@
               </div>
               <span class="font-medium">Łącznie: {{ categoryCounts[cat] || 0 }}</span>
             </div>
-
             <!-- Przyciski -->
             <div class="grid grid-cols-3 gap-2">
               <BaseButton
@@ -337,9 +350,20 @@
                 </BaseButton>
                 <!-- Dropdown menu -->
                 <div v-if="showQuizOptions[cat]" class="absolute z-10 w-full mt-1">
-                  <div class="bg-white border rounded-md shadow-lg py-1">
+                  <div
+                    class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg py-1"
+                  >
                     <a
-                      class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      class="block px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                      @click="
+                        startQuizNotDone(cat, 50);
+                        showQuizOptions[cat] = false;
+                      "
+                    >
+                      Max 50 pytań
+                    </a>
+                    <a
+                      class="block px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                       @click="
                         startQuizNotDone(cat, 150);
                         showQuizOptions[cat] = false;
@@ -348,7 +372,7 @@
                       Max 150 pytań
                     </a>
                     <a
-                      class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      class="block px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                       @click="
                         startQuizNotDone(cat, 0);
                         showQuizOptions[cat] = false;
@@ -391,15 +415,15 @@
         </div>
 
         <!-- Widok listy -->
-        <div v-else class="divide-y divide-gray-200">
+        <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
           <div
             v-for="cat in searchedCategories"
             :key="cat"
-            class="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-gray-50 rounded-lg px-3 transition-colors"
+            class="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg px-3 transition-colors"
           >
             <div class="flex-1">
               <div class="flex items-start justify-between mb-2">
-                <h3 class="font-semibold text-gray-800" :title="cat">
+                <h3 class="font-semibold text-gray-800 dark:text-gray-100" :title="cat">
                   {{ cat }}
                 </h3>
                 <div class="flex items-center gap-2 ml-3">
@@ -426,7 +450,9 @@
 
               <div class="flex items-center gap-4 mb-2">
                 <!-- Pasek postępu -->
-                <div class="w-full h-2 rounded-full bg-gray-200 flex overflow-hidden">
+                <div
+                  class="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700 flex overflow-hidden"
+                >
                   <div
                     class="bg-green-400 h-full"
                     :style="{ width: categoryPercentage(cat).correct + '%' }"
@@ -436,13 +462,13 @@
                     :style="{ width: categoryPercentage(cat).wrong + '%' }"
                   ></div>
                 </div>
-                <span class="text-xs font-medium whitespace-nowrap">
+                <span class="text-xs font-medium whitespace-nowrap dark:text-gray-300">
                   Łącznie: {{ categoryCounts[cat] || 0 }}
                 </span>
               </div>
 
               <!-- Statystyki -->
-              <div class="flex gap-3 text-xs text-gray-600">
+              <div class="flex gap-3 text-xs text-gray-600 dark:text-gray-400">
                 <span class="flex items-center"
                   ><span class="w-2 h-2 inline-block bg-green-400 rounded-full mr-1"></span>
                   {{ categoryStats(cat).correct }}</span
@@ -494,9 +520,11 @@
                 </BaseButton>
                 <!-- Dropdown menu -->
                 <div v-if="showQuizOptions[cat]" class="absolute z-10 w-full mt-1">
-                  <div class="bg-white border rounded-md shadow-lg py-1">
+                  <div
+                    class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg py-1"
+                  >
                     <a
-                      class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      class="block px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                       @click="
                         startQuizNotDone(cat, 150);
                         showQuizOptions[cat] = false;
@@ -505,7 +533,7 @@
                       Max 150 pytań
                     </a>
                     <a
-                      class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      class="block px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                       @click="
                         startQuizNotDone(cat, 0);
                         showQuizOptions[cat] = false;
@@ -549,7 +577,9 @@
 
     <!-- Modal z wyborem egzaminu -->
     <BaseModal :show="showExamPopup" @close="showExamPopup = false">
-      <h3 class="text-lg font-bold mb-6 text-gray-800">Wybierz kategorię egzaminu:</h3>
+      <h3 class="text-lg font-bold mb-6 text-gray-800 dark:text-gray-100">
+        Wybierz kategorię egzaminu:
+      </h3>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div
           v-for="cat in examCategories"
@@ -559,11 +589,11 @@
         >
           <div class="flex items-center justify-between gap-3">
             <div class="flex-1">
-              <h4 class="font-medium text-gray-800 mb-1">{{ cat }}</h4>
+              <h4 class="font-medium text-gray-800 dark:text-gray-200 mb-1">{{ cat }}</h4>
               <!-- Progress bar -->
               <div
                 v-if="examStatsByCategory[cat] && examStatsByCategory[cat].total > 0"
-                class="w-full h-2 rounded bg-gray-200 flex overflow-hidden"
+                class="w-full h-2 rounded bg-gray-200 dark:bg-gray-700 flex overflow-hidden"
               >
                 <div
                   class="bg-green-400 h-2"
@@ -596,16 +626,18 @@
 
     <!-- Modal z wyborem quizu -->
     <BaseModal :show="showOtherQuizPopup" @close="showOtherQuizPopup = false">
-      <h3 class="text-lg font-bold mb-6 text-gray-800">Wybierz kategorię quizu:</h3>
+      <h3 class="text-lg font-bold mb-6 text-gray-800 dark:text-gray-100">
+        Wybierz kategorię quizu:
+      </h3>
       <div class="grid grid-cols-1 gap-3">
         <div v-for="cat in otherCategories" :key="cat" class="quiz-choice-card">
           <div class="flex items-center justify-between gap-3 mb-2">
             <div class="flex-1">
-              <h4 class="font-medium text-gray-800 mb-1">{{ cat }}</h4>
+              <h4 class="font-medium text-gray-800 dark:text-gray-200 mb-1">{{ cat }}</h4>
               <!-- Progress bar -->
               <div
                 v-if="quizStatsByCategory[cat] && quizStatsByCategory[cat].total > 0"
-                class="w-full h-2 rounded bg-gray-200 flex overflow-hidden"
+                class="w-full h-2 rounded bg-gray-200 dark:bg-gray-700 flex overflow-hidden"
               >
                 <div
                   class="bg-green-400 h-2"
@@ -639,9 +671,9 @@
               size="sm"
               class="flex-1"
               :disabled="categoryStats(cat).notDone === 0 && categoryStats(cat).wrong === 0"
-              @click="startQuizNotDone(cat, 150)"
+              @click="startQuizNotDone(cat, 50)"
             >
-              Max 150 pytań
+              Max 50 pytań
             </BaseButton>
             <BaseButton
               color="green"
@@ -659,474 +691,310 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted, inject } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 import RandomQuote from '@/components/RandomQuote.vue';
 import BaseButton from '@/components/BaseButton.vue';
-import BaseAlert from '@/components/BaseAlert.vue';
-import BaseLoader from '@/components/BaseLoader.vue';
 import BaseModal from '@/components/BaseModal.vue';
-import { mapGetters, mapState } from 'vuex';
 import apiClient from '@/api';
 
-export default {
-  name: 'Home',
-  components: {
-    RandomQuote,
-    BaseButton,
-    BaseAlert,
-    BaseLoader,
-    BaseModal,
-  },
-  data() {
-    return {
-      showExamPopup: false,
-      showOtherQuizPopup: false,
-      showQuizOptions: {},
-      activeFilter: 'all',
-      viewType: 'grid', // 'grid' lub 'list'
-      gridColumns: 3, // 2, 3 lub 4 kolumny
-      searchQuery: '', // zapytanie wyszukiwania
-    };
-  },
-  computed: {
-    ...mapGetters('questions', ['getQuestions', 'getCategories', 'getCategoryCounts']),
-    ...mapGetters('user', ['getUser', 'getUserHistory', 'getHquestion', 'isAuthenticated']),
-    ...mapGetters('ui', ['isLoading', 'getError']),
-    categories() {
-      return this.getCategories;
-    },
-    questionsCount() {
-      return this.getCategoryCounts['all'] || 0;
-    },
-    userHistory() {
-      return this.getUserHistory || [];
-    },
-    hquestion() {
-      return this.getHquestion || [];
-    },
-    categoryCounts() {
-      return this.getCategoryCounts;
-    },
-    loading() {
-      return this.isLoading;
-    },
-    error() {
-      return this.getError;
-    },
-    examCategories() {
-      return this.categories.filter((cat) => cat && cat.toLowerCase().includes('egzamin'));
-    },
-    otherCategories() {
-      return this.categories.filter((cat) => !cat.toLowerCase().includes('egzamin'));
-    },
-    examStatsByCategory() {
-      if (!this.userHistory || !this.userHistory.length) return {};
-      const stats = {};
-      for (const cat of this.examCategories) {
-        const last = [...this.userHistory]
-          .reverse()
-          .find(
-            (entry) =>
-              (entry.type === 'quiz' || entry.type === 'egzamin') &&
-              entry.categories &&
-              entry.categories.some((c) => c && c.toLowerCase() === cat.toLowerCase())
-          );
-        if (last) {
-          stats[cat] = {
-            correct: last.correct || 0,
-            wrong: last.wrong || 0,
-            total: (last.correct || 0) + (last.wrong || 0),
-          };
-        } else {
-          stats[cat] = { correct: 0, wrong: 0, total: 0 };
-        }
-      }
-      return stats;
-    },
-    quizStatsByCategory() {
-      if (!this.userHistory || !this.userHistory.length) return {};
-      const stats = {};
-      for (const cat of this.otherCategories) {
-        const last = [...this.userHistory]
-          .reverse()
-          .find(
-            (entry) =>
-              entry.type === 'quiz' &&
-              entry.categories &&
-              entry.categories.some((c) => c && c.toLowerCase() === cat.toLowerCase())
-          );
-        if (last) {
-          stats[cat] = {
-            correct: last.correct || 0,
-            wrong: last.wrong || 0,
-            total: (last.correct || 0) + (last.wrong || 0),
-          };
-        } else {
-          stats[cat] = { correct: 0, wrong: 0, total: 0 };
-        }
-      }
-      return stats;
-    },
-    hqStats() {
-      const hq = this.hquestion || [];
-      const done = hq.length;
-      const correct = hq.filter((q) => q.correct === true).length;
-      const wrong = hq.filter((q) => q.correct === false).length;
-      const notDone = this.questionsCount - done;
-      return { done, correct, wrong, notDone: notDone < 0 ? 0 : notDone };
-    },
-    historyStats() {
-      // quizy i egzaminy bez poprawek
-      const onlyMain = this.userHistory.filter((h) => h.type === 'quiz' || h.type === 'egzamin');
-      // quizy poprawkowe
-      const quizCorrections = this.userHistory.filter(
-        (h) => h.type && h.type.toLowerCase().includes('quiz - poprawa')
+// --- Injections, Store and Router ---
+const showAlert = inject('showAlert');
+const showLoader = inject('showLoader');
+const hideLoader = inject('hideLoader');
+const store = useStore();
+const router = useRouter();
+
+// --- State ---
+const showExamPopup = ref(false);
+const showOtherQuizPopup = ref(false);
+const showQuizOptions = ref({});
+const activeFilter = ref('all');
+const viewType = ref('grid');
+const gridColumns = ref(3);
+const searchQuery = ref('');
+
+// --- Getters and State from Vuex ---
+const categories = computed(() => store.getters['questions/getCategories']);
+const categoryCounts = computed(() => store.getters['questions/getCategoryCounts']);
+const questionsCount = computed(() => categoryCounts.value['all'] || 0);
+const userHistory = computed(() => store.getters['user/getUserHistory'] || []);
+const hquestion = computed(() => store.getters['user/getHquestion'] || []);
+
+// --- Computed Properties ---
+const examCategories = computed(() =>
+  categories.value.filter((cat) => cat && cat.toLowerCase().includes('egzamin'))
+);
+const otherCategories = computed(() =>
+  categories.value.filter((cat) => !cat.toLowerCase().includes('egzamin'))
+);
+
+const examStatsByCategory = computed(() => {
+  if (!userHistory.value.length) return {};
+  const stats = {};
+  for (const cat of examCategories.value) {
+    const last = [...userHistory.value]
+      .reverse()
+      .find(
+        (entry) =>
+          (entry.type === 'quiz' || entry.type === 'egzamin') &&
+          entry.categories?.some((c) => c?.toLowerCase() === cat.toLowerCase())
       );
-      // egzaminy poprawkowe
-      const examCorrections = this.userHistory.filter(
-        (h) => h.type && h.type.toLowerCase().includes('egzamin - poprawa')
+    stats[cat] = last
+      ? {
+          correct: last.correct || 0,
+          wrong: last.wrong || 0,
+          total: (last.correct || 0) + (last.wrong || 0),
+        }
+      : { correct: 0, wrong: 0, total: 0 };
+  }
+  return stats;
+});
+
+const quizStatsByCategory = computed(() => {
+  if (!userHistory.value.length) return {};
+  const stats = {};
+  for (const cat of otherCategories.value) {
+    const last = [...userHistory.value]
+      .reverse()
+      .find(
+        (entry) =>
+          entry.type === 'quiz' &&
+          entry.categories?.some((c) => c?.toLowerCase() === cat.toLowerCase())
       );
-      // wszystkie poprawki
-      const allCorrections = quizCorrections.length + examCorrections.length;
+    stats[cat] = last
+      ? {
+          correct: last.correct || 0,
+          wrong: last.wrong || 0,
+          total: (last.correct || 0) + (last.wrong || 0),
+        }
+      : { correct: 0, wrong: 0, total: 0 };
+  }
+  return stats;
+});
 
-      // liczby
-      const quizCount = this.userHistory.filter((h) => h.type === 'quiz').length;
-      const examCount = this.userHistory.filter((h) => h.type === 'egzamin').length;
+const hqStats = computed(() => {
+  const hq = hquestion.value;
+  const done = hq.length;
+  const correct = hq.filter((q) => q.correct === true).length;
+  const wrong = hq.filter((q) => q.correct === false).length;
+  const notDone = questionsCount.value - done;
+  return { done, correct, wrong, notDone: Math.max(0, notDone) };
+});
 
-      // średnia quizy+egzaminy (bez poprawek)
-      let avg = 0;
-      if (onlyMain.length) {
-        const sum = onlyMain.reduce((acc, h) => {
-          const total = (h.correct || 0) + (h.wrong || 0);
-          if (total > 0) {
-            acc += Math.round(((h.correct || 0) / total) * 100);
-          }
-          return acc;
-        }, 0);
-        avg = Math.round(sum / onlyMain.length);
-      }
+const historyStats = computed(() => {
+  const onlyMain = userHistory.value.filter((h) => h.type === 'quiz' || h.type === 'egzamin');
+  const quizCount = userHistory.value.filter((h) => h.type === 'quiz').length;
+  const examCount = userHistory.value.filter((h) => h.type === 'egzamin').length;
+  let avg = 0;
+  if (onlyMain.length) {
+    const sum = onlyMain.reduce((acc, h) => {
+      const total = (h.correct || 0) + (h.wrong || 0);
+      return total > 0 ? acc + Math.round(((h.correct || 0) / total) * 100) : acc;
+    }, 0);
+    avg = Math.round(sum / onlyMain.length);
+  }
+  return { quizCount, examCount, avg };
+});
 
-      // średnia quizy
-      const quizArr = this.userHistory.filter((h) => h.type === 'quiz');
-      let quizAvg = 0;
-      if (quizArr.length) {
-        const sum = quizArr.reduce((acc, h) => {
-          const total = (h.correct || 0) + (h.wrong || 0);
-          if (total > 0) {
-            acc += Math.round(((h.correct || 0) / total) * 100);
-          }
-          return acc;
-        }, 0);
-        quizAvg = Math.round(sum / quizArr.length);
-      }
+const filteredCategories = computed(() => {
+  if (activeFilter.value === 'exam') return examCategories.value;
+  if (activeFilter.value === 'other') return otherCategories.value;
+  return categories.value;
+});
 
-      // średnia egzaminy
-      const examArr = this.userHistory.filter((h) => h.type === 'egzamin');
-      let examAvg = 0;
-      if (examArr.length) {
-        const sum = examArr.reduce((acc, h) => {
-          const total = (h.correct || 0) + (h.wrong || 0);
-          if (total > 0) {
-            acc += Math.round(((h.correct || 0) / total) * 100);
-          }
-          return acc;
-        }, 0);
-        examAvg = Math.round(sum / examArr.length);
-      }
+const searchedCategories = computed(() => {
+  if (!searchQuery.value) return filteredCategories.value;
+  const query = searchQuery.value.toLowerCase();
+  return filteredCategories.value.filter((cat) => cat.toLowerCase().includes(query));
+});
 
-      return {
-        quizCount,
-        examCount,
-        corrections: allCorrections,
-        avg,
-        quizAvg,
-        examAvg,
-      };
-    },
-    filteredCategories() {
-      if (this.activeFilter === 'exam') {
-        return this.examCategories;
-      } else if (this.activeFilter === 'other') {
-        return this.otherCategories;
-      } else {
-        return this.categories;
-      }
-    },
-    searchedCategories() {
-      if (!this.searchQuery) {
-        return this.filteredCategories;
-      }
+const gridLayoutClass = computed(() => {
+  switch (gridColumns.value) {
+    case 2:
+      return 'grid grid-cols-1 md:grid-cols-2 gap-4';
+    case 4:
+      return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4';
+    default:
+      return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+  }
+});
 
-      const query = this.searchQuery.toLowerCase();
-      return this.filteredCategories.filter((cat) => cat.toLowerCase().includes(query));
-    },
-    gridLayoutClass() {
-      switch (this.gridColumns) {
-        case 2:
-          return 'grid grid-cols-1 md:grid-cols-2 gap-4';
-        case 4:
-          return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4';
-        case 3:
-        default:
-          return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
-      }
-    },
-  },
-  async created() {
-    await this.$store.dispatch('questions/fetchQuestionsAndCategories');
-    await this.$store.dispatch('user/fetchUserHistoryAndHQ');
+// --- Methods ---
+const startExamFromCategory = (cat) => {
+  showExamPopup.value = false;
+  const max = categoryCounts.value[cat] || 10;
+  router.push({ name: 'QuizView', query: { length: max, categories: cat } });
+};
 
-    // Inicjalizacja opcji rozwijanej listy dla każdej kategorii
-    // W Vue 3 nie używamy $set - bezpośrednio przypisujemy właściwości
+const categoryStats = (cat) => {
+  const all = hquestion.value.filter((q) => q.category === cat);
+  const correct = all.filter((q) => q.correct === true).length;
+  const wrong = all.filter((q) => q.correct === false).length;
+  const total = categoryCounts.value[cat] || 0;
+  const notDone = total - all.length;
+  return { correct, wrong, notDone: Math.max(0, notDone) };
+};
+
+const categoryPercentage = (cat) => {
+  const stats = categoryStats(cat);
+  const total = categoryCounts.value[cat] || 0;
+  if (total === 0) return { correct: 0, wrong: 0 };
+  return {
+    correct: (stats.correct / total) * 100,
+    wrong: (stats.wrong / total) * 100,
+  };
+};
+
+const categoryPercentComplete = (cat) => {
+  const stats = categoryStats(cat);
+  const total = categoryCounts.value[cat] || 0;
+  if (total === 0) return 0;
+  return Math.round(((stats.correct + stats.wrong) / total) * 100);
+};
+
+const goToCategoryQuestions = (cat) => {
+  router.push({ name: 'CategoryQuestions', params: { category: cat } });
+};
+
+const getQuestionIdsForQuiz = async (cat) => {
+  const res = await apiClient.get('/questions');
+  const questions = (Array.isArray(res.data) ? res.data : []).filter((q) => q.category === cat);
+  const allIds = questions.map((q) => q.ID || q.id || q.Id || q.id_question);
+
+  const hq = hquestion.value.filter((q) => q.category === cat);
+  const wrongOrNotDoneIds = allIds.filter((id) => {
+    const entry = hq.find((q) => q.id == id);
+    return !entry || entry.correct === false;
+  });
+
+  return wrongOrNotDoneIds.length > 0 ? wrongOrNotDoneIds : allIds;
+};
+
+const startQuizNotDone = async (cat, limit = 150) => {
+  showLoader('Przygotowanie quizu...');
+  try {
+    const idsToUse = await getQuestionIdsForQuiz(cat);
+    const length = limit === 0 ? idsToUse.length : Math.min(limit, idsToUse.length);
+    router.push({
+      name: 'QuizView',
+      query: { length, categories: cat, onlyNotDone: true, ids: idsToUse.join(',') },
+    });
+  } catch (e) {
+    showAlert('error', 'Błąd pobierania pytań z serwera.');
+  } finally {
+    hideLoader();
+  }
+};
+
+const startExamNotDone = async (cat) => {
+  showLoader('Przygotowanie egzaminu...');
+  try {
+    const idsToUse = await getQuestionIdsForQuiz(cat);
+    const length = Math.min(150, idsToUse.length);
+    router.push({
+      name: 'ExamView',
+      query: { length, categories: cat, time: 60, onlyNotDone: true, ids: idsToUse.join(',') },
+    });
+  } catch (e) {
+    showAlert('error', 'Błąd pobierania pytań z serwera.');
+  } finally {
+    hideLoader();
+  }
+};
+
+const clearCategoryHistory = async (cat) => {
+  if (confirm(`Czy na pewno chcesz wyczyścić historię dla kategorii "${cat}"?`)) {
+    showLoader('Czyszczenie historii kategorii...');
+    try {
+      await store.dispatch('user/clearCategoryHistory', cat);
+      await store.dispatch('user/fetchUserHistoryAndHQ');
+      showAlert('success', `Historia kategorii "${cat}" została wyczyszczona`);
+    } catch (e) {
+      showAlert('error', 'Błąd podczas czyszczenia pytań z kategorii.');
+    } finally {
+      hideLoader();
+    }
+  }
+};
+
+const getCategoryCardClass = (cat) => {
+  const stats = categoryStats(cat);
+  const total = categoryCounts.value[cat] || 0;
+  if (total === 0) return 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700';
+  const percentDone = ((stats.correct + stats.wrong) / total) * 100;
+  const percentCorrect =
+    stats.correct > 0 ? (stats.correct / (stats.correct + stats.wrong)) * 100 : 0;
+  if (percentDone === 0)
+    return 'bg-gray-50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-600';
+  if (stats.correct === total) return 'bg-green-200 border-green-500 shadow-lg text-green-900';
+  if (stats.wrong === total) return 'bg-red-200 border-red-500 shadow-lg text-red-900';
+  if (percentDone > 50 && percentCorrect > 70)
+    return 'bg-green-100 border-green-400 shadow-md text-green-800';
+  if (percentDone > 50 && percentCorrect >= 40)
+    return 'bg-yellow-100 border-yellow-400 shadow-md text-yellow-800';
+  if (percentDone > 50) return 'bg-red-100 border-red-400 shadow-md text-red-800';
+  if (percentCorrect > 70) return 'bg-emerald-100 border-emerald-300 text-emerald-800';
+  if (percentCorrect >= 40) return 'bg-amber-100 border-amber-300 text-amber-800';
+  return 'bg-orange-100 border-orange-300 text-orange-800';
+};
+
+const getCategoryStatus = (cat) => {
+  const stats = categoryStats(cat);
+  const total = categoryCounts.value[cat] || 0;
+  if (total === 0) return '';
+  const percentDone = ((stats.correct + stats.wrong) / total) * 100;
+  if (percentDone === 0) return 'Nowa';
+  if (percentDone === 100) {
+    const percentCorrect = (stats.correct / total) * 100;
+    if (percentCorrect === 100) return 'Opanowana';
+    if (percentCorrect >= 80) return 'Bardzo dobra';
+    if (percentCorrect >= 60) return 'Dobra';
+    if (percentCorrect >= 40) return 'Średnia';
+    return 'Do poprawy';
+  }
+  if (percentDone >= 75) return 'W trakcie';
+  if (percentDone >= 50) return 'Połowa';
+  if (percentDone >= 25) return 'Rozpoczęta';
+  return 'Nowa';
+};
+
+const getCategoryStatusClass = (cat) => {
+  const status = getCategoryStatus(cat);
+  const classes = {
+    Opanowana: 'bg-green-100 text-green-800',
+    'Bardzo dobra': 'bg-emerald-100 text-emerald-800',
+    Dobra: 'bg-teal-100 text-teal-800',
+    Średnia: 'bg-yellow-100 text-yellow-800',
+    'Do poprawy': 'bg-red-100 text-red-800',
+    'W trakcie': 'bg-blue-100 text-blue-800',
+    Połowa: 'bg-indigo-100 text-indigo-800',
+    Rozpoczęta: 'bg-purple-100 text-purple-800',
+    Nowa: 'bg-gray-100 text-gray-800',
+  };
+  return classes[status] || 'bg-gray-100 text-gray-800';
+};
+
+// --- Lifecycle Hook ---
+onMounted(async () => {
+  showLoader('Ładowanie danych...');
+  try {
+    await store.dispatch('questions/fetchQuestionsAndCategories');
+    await store.dispatch('user/fetchUserHistoryAndHQ');
     const options = {};
-    for (const cat of this.categories) {
+    for (const cat of categories.value) {
       options[cat] = false;
     }
-    this.showQuizOptions = options;
-  },
-  methods: {
-    startExamFromCategory(cat) {
-      this.showExamPopup = false;
-      const max = this.categoryCounts[cat] || 10;
-      this.$router.push({
-        name: 'QuizView',
-        query: {
-          length: max,
-          categories: cat,
-        },
-      });
-    },
-    startQuizFromCategory(cat) {
-      this.showOtherQuizPopup = false;
-      const max = this.categoryCounts[cat] || 10;
-      this.$router.push({
-        name: 'QuizView',
-        query: {
-          length: 150,
-          categories: cat,
-        },
-      });
-    },
-    categoryStats(cat) {
-      const all = this.hquestion.filter((q) => q.category === cat);
-      const correct = all.filter((q) => q.correct === true).length;
-      const wrong = all.filter((q) => q.correct === false).length;
-      const total = this.categoryCounts[cat] || 0;
-      const notDone = total - all.length;
-      return {
-        correct,
-        wrong,
-        notDone: notDone < 0 ? 0 : notDone,
-      };
-    },
-    categoryPercentage(cat) {
-      const stats = this.categoryStats(cat);
-      const total = this.categoryCounts[cat] || 0;
-      if (total === 0) return { correct: 0, wrong: 0 };
-      return {
-        correct: (stats.correct / total) * 100,
-        wrong: (stats.wrong / total) * 100,
-      };
-    },
-    categoryPercentComplete(cat) {
-      const stats = this.categoryStats(cat);
-      const total = this.categoryCounts[cat] || 0;
-      if (total === 0) return 0;
-      return Math.round(((stats.correct + stats.wrong) / total) * 100);
-    },
-    goToCategoryQuestions(cat) {
-      this.$router.push({
-        name: 'CategoryQuestions',
-        params: { category: cat },
-      });
-    },
-    async startQuizNotDone(cat, limit = 150) {
-      try {
-        const res = await apiClient.get('/questions');
-        const questions = Array.isArray(res.data) ? res.data : [];
-        const filtered = questions.filter((q) => q.category === cat);
-        const allIds = filtered.map((q) => q.ID || q.id || q.Id || q.id_question);
-
-        const hq = this.hquestion.filter((q) => q.category === cat);
-        const wrongOrNotDoneIds = allIds.filter((id) => {
-          const entry = hq.find((q) => q.id == id);
-          return !entry || entry.correct === false;
-        });
-
-        // Jeśli nie ma żadnych nieprzerobionych/błędnych, użyj wszystkich pytań
-        const idsToUse = wrongOrNotDoneIds.length > 0 ? wrongOrNotDoneIds : allIds;
-        const length = limit === 0 ? idsToUse.length : Math.min(limit, idsToUse.length);
-
-        this.$router.push({
-          name: 'QuizView',
-          query: {
-            length,
-            categories: cat,
-            onlyNotDone: wrongOrNotDoneIds.length > 0,
-            ids: idsToUse.join(','),
-          },
-        });
-      } catch (e) {
-        alert('Błąd pobierania pytań z serwera.');
-      }
-    },
-    async startExamNotDone(cat) {
-      const res = await apiClient.get('/questions');
-      const questionsArr = Array.isArray(res.data) ? res.data : [];
-      const questions = questionsArr.filter((q) => q.category === cat);
-      const allIds = questions.map((q) => q.ID || q.id || q.Id || q.id_question);
-
-      const hq = this.hquestion.filter((q) => q.category === cat);
-      const wrongOrNotDoneIds = allIds.filter((id) => {
-        const entry = hq.find((q) => q.id == id);
-        return !entry || entry.correct === false;
-      });
-
-      // Jeśli nie ma żadnych nieprzerobionych/błędnych, użyj wszystkich pytań
-      const idsToUse = wrongOrNotDoneIds.length > 0 ? wrongOrNotDoneIds : allIds;
-      const length = Math.min(150, idsToUse.length);
-
-      this.$router.push({
-        name: 'ExamView',
-        query: {
-          length,
-          categories: cat,
-          time: 60,
-          onlyNotDone: wrongOrNotDoneIds.length > 0,
-          ids: idsToUse.join(','),
-        },
-      });
-    },
-    async clearCategoryHistory(cat) {
-      try {
-        if (confirm(`Czy na pewno chcesz wyczyścić historię dla kategorii "${cat}"?`)) {
-          await this.$store.dispatch('user/clearCategoryHistory', cat);
-          await this.$store.dispatch('user/fetchUserHistoryAndHQ');
-        }
-      } catch (e) {
-        alert('Błąd podczas czyszczenia pytań z kategorii.');
-      }
-    },
-    // Metoda obsługująca zmianę opcji quizu - używamy zwykłego przypisania zamiast $set
-    toggleQuizOption(cat) {
-      // Tworzymy nowy obiekt z aktualnymi wartościami
-      const updatedOptions = { ...this.showQuizOptions };
-      // Zmieniamy wartość dla danej kategorii na przeciwną
-      updatedOptions[cat] = !updatedOptions[cat];
-      // Przypisujemy zaktualizowany obiekt
-      this.showQuizOptions = updatedOptions;
-    },
-    getCategoryCardClass(cat) {
-      const stats = this.categoryStats(cat);
-      const total = this.categoryCounts[cat] || 0;
-
-      // Jeśli nie ma pytań w tej kategorii, zwróć domyślny styl
-      if (total === 0) return 'bg-white border-gray-200';
-
-      const percentDone = ((stats.correct + stats.wrong) / total) * 100;
-      const percentCorrect =
-        stats.correct > 0 ? (stats.correct / (stats.correct + stats.wrong)) * 100 : 0;
-
-      // Kategoria nierozpoczęta (0% ukończonych)
-      if (percentDone === 0) {
-        return 'bg-gray-50 border-gray-300';
-      }
-
-      // Kategoria w pełni ukończona poprawnie (100% poprawnych)
-      if (stats.correct === total) {
-        return 'bg-green-200 border-green-500 shadow-lg text-green-900';
-      }
-
-      // Kategoria w pełni ukończona błędnie (100% błędnych)
-      if (stats.wrong === total) {
-        return 'bg-red-200 border-red-500 shadow-lg text-red-900';
-      }
-
-      // Wysoki procent ukończonych z dobrymi wynikami (>70% poprawnych)
-      if (percentDone > 50 && percentCorrect > 70) {
-        return 'bg-green-100 border-green-400 shadow-md text-green-800';
-      }
-
-      // Wysoki procent ukończonych, średnie wyniki (40-70% poprawnych)
-      if (percentDone > 50 && percentCorrect >= 40 && percentCorrect <= 70) {
-        return 'bg-yellow-100 border-yellow-400 shadow-md text-yellow-800';
-      }
-
-      // Wysoki procent ukończonych z słabymi wynikami (<40% poprawnych)
-      if (percentDone > 50 && percentCorrect < 40) {
-        return 'bg-red-100 border-red-400 shadow-md text-red-800';
-      }
-
-      // Niski procent ukończonych, dobre wyniki
-      if (percentDone <= 50 && percentCorrect > 70) {
-        return 'bg-emerald-100 border-emerald-300 text-emerald-800';
-      }
-
-      // Niski procent ukończonych, średnie wyniki
-      if (percentDone <= 50 && percentCorrect >= 40 && percentCorrect <= 70) {
-        return 'bg-amber-100 border-amber-300 text-amber-800';
-      }
-
-      // Niski procent ukończonych, słabe wyniki
-      if (percentDone <= 50 && percentCorrect < 40) {
-        return 'bg-orange-100 border-orange-300 text-orange-800';
-      }
-
-      // Domyślny kolor w przypadku innych kombinacji
-      return 'bg-blue-50 border-blue-300';
-    },
-    getCategoryStatus(cat) {
-      const stats = this.categoryStats(cat);
-      const total = this.categoryCounts[cat] || 0;
-
-      if (total === 0) return '';
-
-      const percentDone = ((stats.correct + stats.wrong) / total) * 100;
-
-      if (percentDone === 0) return 'Nowa';
-      if (percentDone === 100) {
-        const percentCorrect = (stats.correct / total) * 100;
-        if (percentCorrect === 100) return 'Opanowana';
-        if (percentCorrect >= 80) return 'Bardzo dobra';
-        if (percentCorrect >= 60) return 'Dobra';
-        if (percentCorrect >= 40) return 'Średnia';
-        return 'Do poprawy';
-      }
-
-      if (percentDone >= 75) return 'W trakcie';
-      if (percentDone >= 50) return 'Połowa';
-      if (percentDone >= 25) return 'Rozpoczęta';
-      return 'Nowa';
-    },
-
-    getCategoryStatusClass(cat) {
-      const status = this.getCategoryStatus(cat);
-
-      switch (status) {
-        case 'Opanowana':
-          return 'bg-green-100 text-green-800';
-        case 'Bardzo dobra':
-          return 'bg-emerald-100 text-emerald-800';
-        case 'Dobra':
-          return 'bg-teal-100 text-teal-800';
-        case 'Średnia':
-          return 'bg-yellow-100 text-yellow-800';
-        case 'Do poprawy':
-          return 'bg-red-100 text-red-800';
-        case 'W trakcie':
-          return 'bg-blue-100 text-blue-800';
-        case 'Połowa':
-          return 'bg-indigo-100 text-indigo-800';
-        case 'Rozpoczęta':
-          return 'bg-purple-100 text-purple-800';
-        case 'Nowa':
-          return 'bg-gray-100 text-gray-800';
-        default:
-          return 'bg-gray-100 text-gray-800';
-      }
-    },
-  },
-};
+    showQuizOptions.value = options;
+  } catch (error) {
+    showAlert('error', 'Wystąpił błąd podczas ładowania danych');
+    console.error('Błąd:', error);
+  } finally {
+    hideLoader();
+  }
+});
 </script>
 
 <style scoped>
@@ -1144,10 +1012,10 @@ export default {
 }
 
 .exam-choice-card {
-  @apply bg-white rounded-lg border border-gray-200 p-3 cursor-pointer transition-all duration-200 hover:bg-blue-50 hover:border-blue-300;
+  @apply bg-white  rounded-lg border border-gray-200  p-3 cursor-pointer transition-all duration-200 hover:bg-blue-50  hover:border-blue-300;
 }
 .quiz-choice-card {
-  @apply bg-white rounded-lg border border-gray-200 p-3 transition-all;
+  @apply bg-white  rounded-lg border border-gray-200  p-3 transition-all;
 }
 .stats-pill {
   @apply px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full whitespace-nowrap;

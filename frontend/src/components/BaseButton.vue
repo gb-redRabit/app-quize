@@ -32,11 +32,36 @@
 
 <script>
 export default {
+  name: 'BaseButton',
   emits: ['click'],
   props: {
-    color: { type: String, default: 'blue' },
+    color: {
+      type: String,
+      default: 'primary',
+      validator: (value) => {
+        return [
+          'primary',
+          'secondary',
+          'success',
+          'danger',
+          'warning',
+          'info',
+          'light',
+          'dark',
+          'link',
+          'yellow',
+          'gray',
+          // Dodane brakujące kolory
+          'blue',
+          'green',
+          'red',
+          'purple',
+        ].includes(value);
+      },
+    },
+    // pozostałe propsy bez zmian
     size: { type: String, default: 'md' },
-    variant: { type: String, default: 'solid' }, // solid, outline, ghost
+    variant: { type: String, default: 'solid' },
     disabled: Boolean,
     loading: Boolean,
     type: { type: String, default: 'button' },

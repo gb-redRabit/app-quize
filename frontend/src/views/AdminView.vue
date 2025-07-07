@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-    <BaseLoader :show="loading" />
+    <!-- Usuwam komponent BaseLoader i używam tylko globalnego API -->
     <div class="">
       <!-- Nagłówek strony -->
       <div class="mb-4">
@@ -451,7 +451,6 @@ import SearchBar from '@/components/SearchBar.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import IconButton from '@/components/IconButton.vue';
 import BaseModal from '@/components/BaseModal.vue';
-import BaseLoader from '@/components/BaseLoader.vue';
 import apiClient from '@/api';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
@@ -463,11 +462,11 @@ export default {
     BaseButton,
     IconButton,
     BaseModal,
-    BaseLoader,
     DynamicScroller,
     DynamicScrollerItem,
     QuestionActions,
   },
+  inject: ['showAlert', 'showLoader', 'hideLoader'],
   data() {
     return {
       questions: [],
@@ -519,26 +518,27 @@ export default {
 
     async clearQuestions() {
       this.showClearQuestionsModal = false;
-      this.loading = true;
+      this.showLoader('Czyszczenie bazy pytań...');
       try {
         await apiClient.post('/questions/clear');
-        alert('Baza pytań została wyczyszczona!');
+        this.showAlert('success', 'Baza pytań została pomyślnie wyczyszczona!');
         await this.fetchQuestions();
       } catch (e) {
-        alert('Błąd czyszczenia bazy pytań.');
+        this.showAlert('error', 'Błąd podczas czyszczenia bazy pytań.');
       }
-      this.loading = false;
+      this.hideLoader();
     },
     async fetchQuestions() {
-      this.loading = true;
+      this.showLoader('Pobieranie pytań...');
       try {
         const res = await apiClient.get('/questions');
-        this.questions = res.data;
+        this.questions = Array.isArray(res.data) ? res.data : [];
         this.categories = [...new Set(res.data.map((q) => q.category).filter(Boolean))];
       } catch (error) {
-        console.error('Błąd ładowania pytań:', error);
+        this.showAlert('error', 'Błąd podczas pobierania pytań.');
+        console.error('Błąd pobierania pytań:', error);
       }
-      this.loading = false;
+      this.hideLoader();
     },
     openAddPopup() {
       this.formModel = {
@@ -555,15 +555,17 @@ export default {
       this.showAddPopup = false;
     },
     async saveNewQuestion() {
-      this.loading = true;
+      this.showLoader('Zapisywanie nowego pytania...');
       try {
-        const response = await apiClient.post('/questions', this.formModel);
-        this.questions.unshift(response.data); // Dodaj nowe pytanie na początek listy
+        await apiClient.post('/questions', this.formModel);
+        this.showAlert('success', 'Pytanie zostało dodane pomyślnie!');
+        await this.fetchQuestions();
         this.closeAddPopup();
       } catch (error) {
+        this.showAlert('error', 'Błąd podczas dodawania pytania.');
         console.error('Błąd dodawania pytania:', error);
       }
-      this.loading = false;
+      this.hideLoader();
     },
     confirmNewCategory() {
       const newCat = this.newCategoryInput.trim();
@@ -581,11 +583,12 @@ export default {
     },
     async exportQuestionsExcel() {
       if (this.loading) return;
-      this.loading = true;
+      this.showLoader('Eksportowanie do Excela...');
       try {
         const response = await apiClient.get('/questions/export/excel', {
           responseType: 'blob',
         });
+
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
@@ -593,32 +596,39 @@ export default {
         document.body.appendChild(link);
         link.click();
         link.remove();
+
+        this.showAlert('success', 'Pytania zostały wyeksportowane do Excela.');
       } catch (e) {
-        const errorMessage = e.response?.data?.error || e.message || 'Nieznany błąd';
-        alert(`Błąd eksportu do Excela: ${errorMessage}`);
+        const errorMessage = e.response && e.response.data ? e.response.data.error : e.message;
+        this.showAlert('error', `Błąd eksportu do Excela: ${errorMessage}`);
       } finally {
-        this.loading = false;
+        this.hideLoader();
       }
     },
     async importQuestions(event) {
       const file = event.target.files[0];
       if (!file) return;
+
       const formData = new FormData();
       formData.append('file', file);
-      this.loading = true;
+      this.showLoader('Importowanie pytań...');
+
       try {
-        await apiClient.post('/questions/import/excel', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+        const response = await apiClient.post('/questions/import/excel', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         });
-        alert('Pytania zostały pomyślnie zaimportowane!');
+
+        this.showAlert('success', `Dodano ${response.data.added} nowych pytań.`);
         await this.fetchQuestions();
       } catch (error) {
-        console.error('Błąd importu pliku:', error);
-        const errorMessage = error.response?.data?.error || 'Nieznany błąd serwera.';
-        alert(`Wystąpił błąd podczas importu: ${errorMessage}`);
+        const errorMessage =
+          error.response && error.response.data ? error.response.data.error : error.message;
+        this.showAlert('error', `Wystąpił błąd podczas importu: ${errorMessage}`);
       } finally {
-        this.loading = false;
-        event.target.value = ''; // Reset inputa, aby można było wgrać ten sam plik ponownie
+        event.target.value = ''; // Reset input file
+        this.hideLoader();
       }
     },
     setCorrectAnswer(correctKey) {

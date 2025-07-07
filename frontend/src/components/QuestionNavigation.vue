@@ -92,6 +92,7 @@ export default {
     showSummary: { type: Boolean, default: false },
   },
   emits: ['goTo'],
+  inject: ['showAlert'], // Dodajemy injekcję jeśli jest używana
   data() {
     return {
       isAtStart: true,

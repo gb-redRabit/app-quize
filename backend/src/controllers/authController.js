@@ -17,6 +17,8 @@ exports.register = async (req, res) => {
     const newUser = {
       id: Date.now(),
       login,
+      avatar: 0,
+      avatarColors: 0,
       password: hashedPassword, // zapisujemy hash
       option: "light",
       history: [],
@@ -48,7 +50,6 @@ exports.register = async (req, res) => {
 // Login user
 exports.login = async (req, res) => {
   const { login, password } = req.body;
-
   fs.readFile(usersFilePath, "utf8", async (err, data) => {
     if (err)
       return res.status(500).json({ message: "Error reading users file" });

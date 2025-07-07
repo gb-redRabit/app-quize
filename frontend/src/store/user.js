@@ -1,4 +1,4 @@
-import apiClient from '@/api'; // <-- ZMIANA
+import apiClient from '@/api';
 
 export default {
   namespaced: true,
@@ -12,8 +12,7 @@ export default {
       state.user = user;
     },
     SET_USER_HISTORY(state, history) {
-      if (!state.user) state.user = {};
-      state.user.history = history;
+      state.history = history;
     },
     SET_HQUESTION(state, hq) {
       state.hquestion = hq || [];
@@ -23,9 +22,25 @@ export default {
     },
   },
   actions: {
+    // Dodajemy akcję inicjalizacji danych użytkownika
+    initUser({ commit }) {
+      const userStr = sessionStorage.getItem('user');
+      const token = sessionStorage.getItem('token');
+      
+      if (userStr && token) {
+        try {
+          const user = JSON.parse(userStr);
+          commit('SET_USER', user);
+          commit('SET_AUTHENTICATED', true);
+        } catch (e) {
+          console.error('Błąd parsowania danych użytkownika z sessionStorage', e);
+        }
+      }
+    },
+    
     async login({ commit, dispatch }, credentials) {
       try {
-        const response = await apiClient.post('/auth/login', credentials); // <-- ZMIANA
+        const response = await apiClient.post('/auth/login', credentials);
         const { user, token } = response.data;
 
         commit('SET_AUTHENTICATED', true);
@@ -49,20 +64,28 @@ export default {
     },
     async fetchUserHistory({ commit }) {
       try {
-        const res = await apiClient.get('/users/history'); // <-- ZMIANA
+        const res = await apiClient.get('/users/history');
         commit('SET_USER_HISTORY', res.data);
       } catch (e) {
         commit('SET_USER_HISTORY', []);
       }
     },
-    async fetchUserHistoryAndHQ({ commit }) {
+    async fetchUserHistoryAndHQ({ commit, state }) {
       try {
-        const historyRes = await apiClient.get('/users/history'); // <-- ZMIANA
+        const historyRes = await apiClient.get('/users/history');
         commit('SET_USER_HISTORY', historyRes.data);
 
-        const meRes = await apiClient.get('/users/me'); // <-- ZMIANA
+        const meRes = await apiClient.get('/users/me');
+        
+        // Zachowujemy wszystkie dane użytkownika, w tym avatar i avatarColors
         commit('SET_HQUESTION', meRes.data && meRes.data.hquestion ? meRes.data.hquestion : []);
-        commit('SET_USER', meRes.data);
+        
+        // Aktualizujemy dane użytkownika, zachowując poprzednie dane
+        const updatedUser = { ...meRes.data };
+        commit('SET_USER', updatedUser);
+        
+        // Aktualizujemy sessionStorage
+        sessionStorage.setItem('user', JSON.stringify(updatedUser));
       } catch (e) {
         commit('SET_USER_HISTORY', []);
         commit('SET_HQUESTION', []);
@@ -80,7 +103,6 @@ export default {
         await apiClient.put('/users/clear-category', { category });
         await dispatch('fetchUserHistoryAndHQ');
       } catch (e) {
-        // Możesz dodać lepszą obsługę błędów, np. rzucić wyjątek do komponentu
         throw new Error('Błąd podczas czyszczenia pytań z kategorii.');
       }
     },

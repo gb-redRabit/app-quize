@@ -12,8 +12,9 @@ export default [
     meta: { requiresAuth: true },
   },
   {
-    path: '/history/:idx',
+    path: '/history/:id',
     name: 'HistoryDetails',
-    component: () => import('../views/HistoryDetailsView.vue'),
+    component: () => import('@/views/HistoryDetailsView.vue'),
+    meta: { requiresAuth: true },
   },
 ];

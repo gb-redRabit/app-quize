@@ -4,17 +4,12 @@
       <!-- Logo i nazwa użytkownika -->
       <div class="navbar-brand">
         <div class="navbar-logo">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-8 w-8"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <!-- Kot SVG -->
-            <path
-              d="M12,8L10.67,8.09C9.81,7.07 7.4,4.5 5,4.5C5,4.5 3.03,7.46 4.96,11.41C4.41,12.24 4.07,12.67 4,13.66L2.07,13.95L2.28,14.93L4.04,14.67L4.18,15.38L2.61,16.32L3.08,17.21L4.53,16.32C5.68,18.76 8.59,20 12,20C15.41,20 18.32,18.76 19.47,16.32L20.92,17.21L21.39,16.32L19.82,15.38L19.96,14.67L21.72,14.93L21.93,13.95L20,13.66C19.93,12.67 19.59,12.24 19.04,11.41C20.97,7.46 19,4.5 19,4.5C16.6,4.5 14.19,7.07 13.33,8.09L12,8M9,11A1,1 0 0,1 10,12A1,1 0 0,1 9,13A1,1 0 0,1 8,12A1,1 0 0,1 9,11M15,11A1,1 0 0,1 16,12A1,1 0 0,1 15,13A1,1 0 0,1 14,12A1,1 0 0,1 15,11M11,14H13L12.3,15.39C12.5,16.03 13.06,16.5 13.75,16.5A1.5,1.5 0 0,0 15.25,15H15.75A2,2 0 0,1 13.75,17C13,17 12.35,16.59 12,16V16H12C11.65,16.59 11,17 10.25,17A2,2 0 0,1 8.25,15H8.75A1.5,1.5 0 0,0 10.25,16.5C10.94,16.5 11.5,16.03 11.7,15.39L11,14Z"
-            />
-          </svg>
+          <!-- Zamieniamy stały SVG na komponent Avatar -->
+          <Avatar
+            :avatar-index="getUser && getUser.avatar !== undefined ? getUser.avatar : 0"
+            :color-index="getUser && getUser.avatarColors !== undefined ? getUser.avatarColors : 0"
+            :size="32"
+          />
         </div>
         <h1 class="navbar-username">
           {{ userName }}
@@ -38,21 +33,6 @@
       <!-- Przycisk wyloguj (desktop) -->
       <button @click="logout" class="logout-button desktop">
         <span>Wyloguj</span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 ml-2"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V7.414l-4-4H3zm6.293 11.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 111.414 1.414L7.414 10l1.879 1.879z"
-            clip-rule="evenodd"
-          />
-          <path
-            d="M10 7.5a1 1 0 01.707.293l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L10.586 12H6a1 1 0 110-2h4.586l-1.293-1.293A1 1 0 0110 7.5z"
-          />
-        </svg>
       </button>
 
       <!-- Hamburger (mobile) -->
@@ -82,21 +62,6 @@
           </router-link>
 
           <button @click="logout" class="mobile-logout-button">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5 mr-2"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V7.414l-4-4H3zm6.293 11.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 111.414 1.414L7.414 10l1.879 1.879z"
-                clip-rule="evenodd"
-              />
-              <path
-                d="M10 7.5a1 1 0 01.707.293l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L10.586 12H6a1 1 0 110-2h4.586l-1.293-1.293A1 1 0 0110 7.5z"
-              />
-            </svg>
             <span>Wyloguj</span>
           </button>
         </div>
@@ -110,8 +75,12 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import Avatar from '@/components/Avatar.vue';
 
 export default {
+  components: {
+    Avatar,
+  },
   data() {
     return {
       menuOpen: false,
@@ -199,14 +168,15 @@ export default {
 .navbar-brand {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
 }
 
+/* Dodajemy nowe style dla avatara w navbar */
 .navbar-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #3b82f6;
-  margin-right: 0.75rem;
+  margin-right: 0.15rem;
 }
 
 .navbar-username {

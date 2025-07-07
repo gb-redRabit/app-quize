@@ -3,8 +3,22 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import './assets/tailwind.css';
-import apiClient from './api'; // <-- ZMIANA
+import apiClient from './api'; // Dodaj import apiClient, który był używany ale niezaimportowany
 
+// Zaimportuj tylko niezbędne style przy starcie aplikacji
+import './assets/main.css';
+
+// Lazy-load dla głównego pliku CSS
+setTimeout(() => {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = './assets/main.css';
+  document.head.appendChild(link);
+}, 100);
+
+// Inicjalizacja tematu przy starcie aplikacji
+store.dispatch('ui/initTheme');
+store.dispatch('user/initUser');
 // Funkcja do odświeżania tokena
 function scheduleTokenRefresh() {
   const refreshInterval = 10 * 60 * 1000; // 10 minut
@@ -12,13 +26,11 @@ function scheduleTokenRefresh() {
     const token = sessionStorage.getItem('token');
     if (!token) return;
     try {
-      // Używamy apiClient, który już ma token w nagłówku
-      const res = await apiClient.post('/auth/refresh', {});
+      const res = await apiClient.silentPost('/auth/refresh', {});
       if (res.data.token) {
         sessionStorage.setItem('token', res.data.token);
       }
     } catch (e) {
-      // Interceptor w apiClient sam obsłuży wylogowanie przy błędzie 401
       console.error('Błąd odświeżania tokena:', e);
     }
   }, refreshInterval);
@@ -29,11 +41,7 @@ if (sessionStorage.getItem('token')) {
   scheduleTokenRefresh();
 }
 
-// Ustawianie motywu na podstawie danych użytkownika
-const user = sessionStorage.getItem('user');
-if (user) {
-  const option = JSON.parse(user).option || 'light';
-  document.documentElement.setAttribute('data-theme', option);
-}
-
-createApp(App).use(router).use(store).mount('#app');
+const app = createApp(App);
+app.config.performance = process.env.NODE_ENV !== 'production';
+// Usuń wszelkie odniesienia do ikon, jeśli istnieją
+app.use(router).use(store).mount('#app');

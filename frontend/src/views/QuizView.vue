@@ -1,17 +1,8 @@
 <template>
   <div class="py-2 px-4 container">
-    <!-- Loader -->
+    <!-- Usuwam własny loader i używam globalnego API -->
     <div v-if="loading" class="flex flex-col items-center justify-center min-h-screen -mt-20">
-      <svg class="h-12 w-12 animate-spin" viewBox="0 0 50 50">
-        <circle
-          class="path stroke-current text-blue-500 stroke-2 fill-transparent"
-          cx="25"
-          cy="25"
-          r="20"
-          stroke-width="4"
-        ></circle>
-      </svg>
-      <p class="mt-4 text-lg font-medium text-gray-600">Wczytywanie pytań...</p>
+      <!-- Tu był własny loader -->
     </div>
     <div v-else class="mx-auto">
       <!-- Quiz Content -->
@@ -182,7 +173,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import apiClient from '@/api';
@@ -192,6 +183,11 @@ import SummaryBox from '@/components/SummaryBox.vue';
 import ProgressBar from '@/components/ProgressBar.vue';
 import { getRandomUniqueQuestions } from '@/utils/randomQuestions';
 import { shuffleArray } from '@/utils/shuffleArray';
+
+// Inject globalnych funkcji
+const showAlert = inject('showAlert');
+const showLoader = inject('showLoader');
+const hideLoader = inject('hideLoader');
 
 const keys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
 const store = useStore();
@@ -244,37 +240,51 @@ watch(currentQuestion, (newQuestion) => {
 const fetchUserHistory = () => store.dispatch('fetchUserHistory');
 
 const fetchQuestions = async () => {
-  const response = await apiClient.get('/questions');
-  const allQuestions = Array.isArray(response.data) ? response.data : [];
+  showLoader('Ładowanie pytań quizu...');
+  try {
+    const response = await apiClient.get('/questions');
+    const allQuestions = Array.isArray(response.data) ? response.data : [];
 
-  let filteredQuestions;
-  if (route.query.ids) {
-    const ids = route.query.ids.split(',').map((id) => id.trim());
-    filteredQuestions = allQuestions.filter((q) =>
-      ids.includes(String(q.ID || q.id || q.Id || q.id_question))
-    );
-  } else {
-    filteredQuestions =
-      selectedCategories.value[0] === 'all'
-        ? allQuestions
-        : allQuestions.filter((q) => selectedCategories.value.includes(q.category));
+    let filteredQuestions;
+    if (route.query.ids) {
+      const ids = route.query.ids.split(',').map((id) => parseInt(id));
+      filteredQuestions = allQuestions.filter((q) => ids.includes(q.ID || q.id || q.Id));
+    } else {
+      const categories = selectedCategories.value;
+      if (categories.includes('all')) {
+        filteredQuestions = [...allQuestions];
+      } else {
+        filteredQuestions = allQuestions.filter((q) => categories.includes(q.category));
+      }
+    }
+
+    questions.value = getRandomUniqueQuestions(filteredQuestions, quizLength.value).map((q) => ({
+      ...q,
+      correctIndex: keys.findIndex((k) => q[k] && q[k].isCorret),
+    }));
+
+    answersStatus.value = questions.value.map(() => ({
+      selected: null,
+      answered: false,
+      selectedKey: null,
+    }));
+
+    if (questions.value.length < quizLength.value) {
+      showAlert('warning', `Znaleziono tylko ${questions.value.length} pytań w wybranej kategorii`);
+    }
+  } catch (error) {
+    showAlert('error', 'Wystąpił błąd podczas ładowania pytań quizu');
+    console.error('Błąd podczas pobierania pytań:', error);
+  } finally {
+    hideLoader();
+    loading.value = false;
+    showSummary.value = false;
+    score.value = 0;
+    currentQuestionIndex.value = 0;
+    startTime.value = Date.now();
+    questionTimes.value = [];
+    startTimer();
   }
-
-  questions.value = getRandomUniqueQuestions(filteredQuestions, quizLength.value).map((q) => ({
-    ...q,
-    correctIndex: keys.findIndex((k) => q[k] && q[k].isCorret),
-  }));
-  answersStatus.value = questions.value.map(() => ({
-    answered: false,
-    selected: null,
-  }));
-  loading.value = false;
-  showSummary.value = false;
-  score.value = 0;
-  currentQuestionIndex.value = 0;
-  startTime.value = Date.now();
-  questionTimes.value = [];
-  startTimer();
 };
 
 // Logika z `created`
@@ -350,37 +360,32 @@ const nextOrFinish = async () => {
   }
 };
 
+// W metodzie zapisującej historię quizu
 const saveUserHistory = async () => {
   try {
-    const token = sessionStorage.getItem('token');
-    if (!token) return;
-    const list = questions.value.map((q, idx) => ({
-      id_questions: q.ID || q.id || q.Id || q.id_question,
-      correct: answersStatus.value[idx].selectedKey === getCorrectKey(q),
-      answer: answersStatus.value[idx].selectedKey
-        ? ['A', 'B', 'C', 'D'][answersStatus.value[idx].selected]
-        : null,
-    }));
-    const correct = answersStatus.value.filter((a) => a.correct).length;
-    const wrong = answersStatus.value.length - correct;
+    showLoader('Zapisywanie wyników...');
+    const historyItem = {
+      type: isCorrection.value ? 'Quiz - poprawa błędów' : 'quiz',
+      category: route.query.categories || 'all',
+      correct: score.value,
+      wrong: questions.value.length - score.value,
+      data: new Date().toISOString(),
+      time: null,
+      questionTimes: questionTimes.value,
+      list: questions.value.map((q, idx) => ({
+        id_questions: q.ID || q.id || q.Id,
+        answer: answersStatus.value[idx].selectedKey,
+        correct: answersStatus.value[idx].selectedKey === getCorrectKey(q),
+      })),
+    };
 
-    await apiClient.put(
-      '/users/update',
-      {
-        addHistory: {
-          type: isCorrection.value ? 'Quiz - poprawa błędów' : 'quiz',
-          correct,
-          categories: selectedCategories.value,
-          wrong,
-          list,
-          data: new Date().toISOString(),
-        },
-      },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    await apiClient.put('/users/update', { addHistory: historyItem });
     isCorrection.value = true;
+    hideLoader();
   } catch (error) {
-    // obsługa błędu
+    hideLoader();
+    showAlert('error', 'Błąd podczas zapisywania wyników quizu');
+    console.error('Błąd zapisu historii:', error);
   }
 };
 

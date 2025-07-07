@@ -1,7 +1,7 @@
 <template>
   <div class="container mx-auto p-4 md:p-6">
-    <BaseLoader :show="loading" />
-
+    <!-- Usuwam bezpośrednie użycie BaseLoader -->
+    
     <div class="header-section">
       <div class="category-title-wrapper">
         <h1 class="category-title">
@@ -226,15 +226,20 @@
 </template>
 
 <script>
-// Zachowujemy cały istniejący kod script, nie wprowadzamy tu zmian
 import { mapGetters, mapState } from 'vuex';
 import SearchBar from '@/components/SearchBar.vue';
-import BaseLoader from '@/components/BaseLoader.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import QuestionActions from '@/components/QuestionActions.vue';
+
 export default {
   name: 'CategoryQuestionsView',
-  components: { SearchBar, BaseLoader, BaseButton, QuestionActions },
+  components: { 
+    SearchBar, 
+    BaseButton, 
+    QuestionActions 
+    // Usuwam BaseLoader z komponentów
+  },
+  inject: ['showAlert', 'showLoader', 'hideLoader'],
   data() {
     return {
       loading: true,
@@ -396,11 +401,27 @@ export default {
     },
   },
   async created() {
-    if (!this.getQuestions.length) {
-      await this.$store.dispatch('questions/fetchQuestionsAndCategories');
+    this.showLoader('Ładowanie pytań kategorii...'); // Używamy globalnego API
+    
+    try {
+      if (!this.getQuestions.length) {
+        await this.$store.dispatch('questions/fetchQuestionsAndCategories');
+      }
+      this.localQuestions = [...this.getQuestions];
+      
+      if (this.filteredQuestions.length === 0) {
+        this.showAlert('warning', 'Nie znaleziono pytań dla tej kategorii');
+      } else {
+        this.showAlert('success', `Znaleziono ${this.filteredQuestions.length} pytań w kategorii "${this.categoryLabel}"`);
+      }
+    } catch (error) {
+      this.showAlert('error', 'Błąd podczas ładowania pytań');
+      console.error('Błąd podczas ładowania pytań:', error);
+    } finally {
+      this.loading = false;
+      this.hideLoader();
     }
-    this.localQuestions = [...this.getQuestions];
-    this.loading = false;
+    
     window.addEventListener('scroll', this.handleScroll);
   },
   beforeUnmount() {

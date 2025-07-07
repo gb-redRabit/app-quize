@@ -1,67 +1,123 @@
 <template>
-  <transition name="alert-transition">
+  <!-- Alert -->
+  <transition name="alert-fade">
     <div
-      v-if="showInternal"
-      :class="['alert-container', type === 'error' ? 'alert-error' : 'alert-success', customClass]"
-      role="alert"
+      v-if="visible"
+      class="fixed bottom-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-md alert"
+      :class="alertTypeClass"
     >
-      <!-- Ikona alertu -->
-      <div class="alert-icon">
-        <svg
-          v-if="type === 'error'"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
-            clip-rule="evenodd"
-          />
-        </svg>
-        <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            fill-rule="evenodd"
-            d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
-            clip-rule="evenodd"
-          />
-        </svg>
+      <div class="flex items-center">
+        <!-- Ikona alertu -->
+        <div class="flex-shrink-0 mr-3">
+          <!-- Ikona sukcesu -->
+          <svg
+            v-if="type === 'success'"
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd"
+            />
+          </svg>
+
+          <!-- Ikona błędu -->
+          <svg
+            v-else-if="type === 'error'"
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clip-rule="evenodd"
+            />
+          </svg>
+
+          <!-- Ikona ostrzeżenia -->
+          <svg
+            v-else-if="type === 'warning'"
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd"
+            />
+          </svg>
+
+          <!-- Ikona informacji -->
+          <svg
+            v-else
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+
+        <!-- Treść alertu -->
+        <div class="flex-grow">
+          <p class="text-sm">{{ message }}</p>
+        </div>
+
+        <!-- Przycisk zamknięcia -->
+        <button @click="hide" class="ml-3 flex-shrink-0">
+          <svg
+            class="h-4 w-4"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
       </div>
 
-      <!-- Licznik w okręgu -->
-      <div class="alert-timer">
-        <svg class="alert-timer-svg" viewBox="0 0 36 36">
-          <circle class="alert-timer-bg" cx="18" cy="18" r="16" />
-          <circle
-            class="alert-timer-progress"
-            :class="type === 'error' ? 'alert-timer-error' : 'alert-timer-success'"
-            cx="18"
-            cy="18"
-            r="16"
-            :stroke-dasharray="circumference"
-            :stroke-dashoffset="progressOffset"
-          />
-        </svg>
-        <span class="alert-timer-text">{{ secondsLeft }}</span>
-      </div>
+      <!-- Pasek postępu -->
+      <div
+        v-if="duration > 0"
+        class="absolute bottom-0 left-0 h-1 bg-white bg-opacity-30"
+        :style="{ width: `${progressWidth}%` }"
+      ></div>
+    </div>
+  </transition>
 
-      <!-- Treść alertu -->
-      <div class="alert-content">
-        <slot>
-          <span>{{ message }}</span>
-        </slot>
+  <!-- Okno potwierdzenia -->
+  <transition name="modal-fade">
+    <div v-if="isConfirmVisible" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black bg-opacity-50" @click="cancelConfirm"></div>
+      <div class="relative z-10 bg-card-bg rounded-lg shadow-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-medium mb-4 text-gray-800">{{ confirmMessage }}</h3>
+        <div class="flex justify-end space-x-3">
+          <button @click="cancelConfirm" class="px-4 py-2 rounded-md bg-gray-200 text-gray-800">
+            Anuluj
+          </button>
+          <button @click="confirmAction" class="px-4 py-2 rounded-md bg-blue-600 text-white">
+            Potwierdź
+          </button>
+        </div>
       </div>
-
-      <!-- Przycisk zamknięcia -->
-      <button class="alert-close-button" @click="close" aria-label="Zamknij" type="button">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            fill-rule="evenodd"
-            d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </button>
     </div>
   </transition>
 </template>
@@ -69,214 +125,141 @@
 <script>
 export default {
   name: 'BaseAlert',
-  props: {
-    show: Boolean,
-    message: String,
-    type: { type: String, default: 'error' }, // error, success
-    timeout: { type: Number, default: 5000 }, // ms
-    customClass: { type: [String, Array, Object], default: '' },
-  },
+  // Dodajemy jawną deklarację emitowanych zdarzeń
+  emits: ['close'],
+
   data() {
     return {
-      showInternal: this.show,
-      timer: null,
-      secondsLeft: Math.ceil(this.timeout / 1000),
-      interval: null,
-      circumference: 2 * Math.PI * 16,
+      visible: false,
+      type: 'info',
+      message: '',
+      duration: 5000,
+      progressWidth: 100,
+      timeoutId: null,
+      intervalId: null,
+
+      // Dane dla okna potwierdzenia
+      isConfirmVisible: false,
+      confirmMessage: '',
+      onConfirm: null,
+      onCancel: null,
     };
   },
+
   computed: {
-    progressOffset() {
-      return this.circumference * (1 - this.secondsLeft / Math.ceil(this.timeout / 1000));
+    alertTypeClass() {
+      switch (this.type) {
+        case 'success':
+          return 'bg-green-50 text-green-800 border border-green-200';
+        case 'error':
+          return 'bg-red-50 text-red-800 border border-red-200';
+        case 'warning':
+          return 'bg-yellow-50 text-yellow-800 border border-yellow-200';
+        default:
+          return 'bg-blue-50 text-blue-800 border border-blue-200';
+      }
     },
   },
-  watch: {
-    show(val) {
-      this.showInternal = val;
-      if (val) this.startTimer();
-    },
-    timeout() {
-      if (this.showInternal) this.startTimer();
-    },
-  },
-  mounted() {
-    if (this.showInternal) this.startTimer();
-  },
-  beforeUnmount() {
-    clearTimeout(this.timer);
-    clearInterval(this.interval);
-  },
+
   methods: {
-    startTimer() {
-      clearTimeout(this.timer);
-      clearInterval(this.interval);
-      this.secondsLeft = Math.ceil(this.timeout / 1000);
+    show(type = 'info', message, duration = 5000) {
+      // Wyczyść poprzednie timery
+      this.clearTimers();
 
-      this.interval = setInterval(() => {
-        if (this.secondsLeft > 0) {
-          this.secondsLeft--;
-        }
-      }, 1000);
+      this.type = type;
+      this.message = message;
+      this.duration = duration;
+      this.progressWidth = 100;
+      this.visible = true;
 
-      this.timer = setTimeout(() => {
-        this.close();
-      }, this.timeout);
+      // Ustaw timer do ukrycia alertu
+      if (this.duration > 0) {
+        // Timer do ukrycia alertu
+        this.timeoutId = setTimeout(() => {
+          this.hide();
+        }, this.duration);
+
+        // Aktualizacja paska postępu
+        const updateInterval = 30; // ms
+        const totalSteps = this.duration / updateInterval;
+        const step = 100 / totalSteps;
+
+        this.intervalId = setInterval(() => {
+          this.progressWidth -= step;
+          if (this.progressWidth <= 0) {
+            this.clearTimers();
+          }
+        }, updateInterval);
+      }
     },
-    close() {
-      this.showInternal = false;
-      clearInterval(this.interval);
-      clearTimeout(this.timer);
-      this.$emit('close');
+
+    hide() {
+      this.visible = false;
+      this.clearTimers();
     },
+
+    clearTimers() {
+      if (this.timeoutId) {
+        clearTimeout(this.timeoutId);
+        this.timeoutId = null;
+      }
+
+      if (this.intervalId) {
+        clearInterval(this.intervalId);
+        this.intervalId = null;
+      }
+    },
+
+    // Metody dla okna potwierdzenia
+    showConfirm(message, confirmCallback, cancelCallback) {
+      this.confirmMessage = message;
+      this.onConfirm = confirmCallback;
+      this.onCancel = cancelCallback;
+      this.isConfirmVisible = true;
+    },
+
+    confirmAction() {
+      this.isConfirmVisible = false;
+      if (typeof this.onConfirm === 'function') {
+        this.onConfirm();
+      }
+    },
+
+    cancelConfirm() {
+      this.isConfirmVisible = false;
+      if (typeof this.onCancel === 'function') {
+        this.onCancel();
+      }
+    },
+  },
+
+  beforeUnmount() {
+    this.clearTimers();
   },
 };
 </script>
 
 <style scoped>
-.alert-container {
-  @apply flex items-center gap-3 px-4 py-3 mb-4 rounded-xl shadow-lg;
-  background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.95));
-  backdrop-filter: blur(8px);
-  border-left: 4px solid;
-  animation: slide-in 0.3s ease forwards;
+.alert-fade-enter-active,
+.alert-fade-leave-active {
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
 }
 
-.alert-error {
-  border-color: #ef4444;
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.15);
-}
-
-.alert-success {
-  border-color: #10b981;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
-}
-
-.alert-icon {
-  @apply flex-shrink-0;
-  width: 24px;
-  height: 24px;
-}
-
-.alert-error .alert-icon {
-  @apply text-red-500;
-}
-
-.alert-success .alert-icon {
-  @apply text-green-500;
-}
-
-.alert-timer {
-  @apply relative flex-shrink-0;
-  width: 36px;
-  height: 36px;
-}
-
-.alert-timer-svg {
-  @apply w-full h-full -rotate-90;
-}
-
-.alert-timer-bg {
-  fill: none;
-  stroke: #e5e7eb;
-  stroke-width: 3;
-}
-
-.alert-timer-progress {
-  fill: none;
-  stroke-width: 3;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.2s linear;
-}
-
-.alert-timer-error {
-  stroke: #f87171;
-}
-
-.alert-timer-success {
-  stroke: #34d399;
-}
-
-.alert-timer-text {
-  @apply absolute inset-0 flex items-center justify-center text-xs font-bold;
-}
-
-.alert-error .alert-timer-text {
-  @apply text-red-600;
-}
-
-.alert-success .alert-timer-text {
-  @apply text-green-600;
-}
-
-.alert-content {
-  @apply flex-1 text-gray-700 text-sm;
-  font-weight: 500;
-}
-
-.alert-close-button {
-  @apply flex-shrink-0 ml-auto rounded-full p-1 transition-transform duration-200;
-  width: 22px;
-  height: 22px;
-}
-
-.alert-error .alert-close-button {
-  @apply text-red-400 hover:text-red-600;
-}
-
-.alert-success .alert-close-button {
-  @apply text-green-400 hover:text-green-600;
-}
-
-.alert-close-button:hover {
-  transform: scale(1.1);
-}
-
-.alert-close-button:active {
-  transform: scale(0.95);
-}
-
-/* Animacje */
-.alert-transition-enter-active,
-.alert-transition-leave-active {
-  transition: all 0.4s cubic-bezier(0.5, 0, 0.3, 1);
-  max-height: 200px;
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.alert-transition-enter-from,
-.alert-transition-leave-to {
-  max-height: 0;
+.alert-fade-enter-from,
+.alert-fade-leave-to {
   opacity: 0;
-  margin-bottom: 0;
-  transform: translateY(-10px) scale(0.95);
+  transform: translateY(-20px);
 }
 
-@keyframes slide-in {
-  0% {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s;
 }
 
-/* Responsywność */
-@media (max-width: 640px) {
-  .alert-container {
-    @apply px-3 py-2.5;
-  }
-
-  .alert-icon {
-    width: 20px;
-    height: 20px;
-  }
-
-  .alert-timer {
-    width: 32px;
-    height: 32px;
-  }
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
 }
 </style>

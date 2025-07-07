@@ -81,9 +81,16 @@ import BaseButton from '@/components/BaseButton.vue';
 
 export default {
   components: { BaseButton },
+  inject: ['showAlert'],
   methods: {
     goBack() {
-      this.$router.go(-1);
+      const canGoBack = window.history.length > 1;
+      if (canGoBack) {
+        this.$router.go(-1);
+      } else {
+        this.$router.push('/');
+        this.showAlert('info', 'Przekierowano na stronę główną');
+      }
     },
   },
 };

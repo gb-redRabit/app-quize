@@ -160,11 +160,11 @@
 
 <script>
 import BaseButton from '@/components/BaseButton.vue';
-import BaseAlert from '@/components/BaseAlert.vue';
 import apiClient from '@/api';
 
 export default {
-  components: { BaseButton, BaseAlert },
+  components: { BaseButton },
+  inject: ['showAlert', 'showLoader', 'hideLoader'],
   data() {
     return {
       loginInput: '',
@@ -210,32 +210,41 @@ export default {
   },
   methods: {
     async handleRegister() {
-      this.errorMessage = '';
-      this.successMessage = '';
       if (!this.loginInput || !this.password || !this.password2) {
-        this.errorMessage = 'Wszystkie pola są wymagane.';
+        this.showAlert('warning', 'Wszystkie pola są wymagane.');
         return;
       }
+
       if (this.password.length < 4) {
-        this.errorMessage = 'Hasło musi mieć co najmniej 4 znaki.';
+        this.showAlert('warning', 'Hasło musi mieć co najmniej 4 znaki.');
         return;
       }
+
       if (this.password !== this.password2) {
-        this.errorMessage = 'Hasła nie są takie same.';
+        this.showAlert('error', 'Hasła nie są takie same.');
         return;
       }
+
       try {
+        this.showLoader('Tworzenie konta...');
         await apiClient.post('/auth/register', {
           login: this.loginInput,
           password: this.password,
         });
-        this.successMessage = 'Rejestracja zakończona sukcesem! Możesz się zalogować.';
+        this.hideLoader();
+        this.showAlert('success', 'Rejestracja zakończona sukcesem! Możesz się zalogować.');
+
+        // Przekierowanie po udanej rejestracji
         setTimeout(() => {
-          this.$router.push({ name: 'Login' });
+          this.$router.push('/login');
         }, 1500);
       } catch (e) {
-        this.errorMessage =
-          (e.response && e.response.data && e.response.data.message) || 'Błąd rejestracji.';
+        this.hideLoader();
+        if (e.response && e.response.status === 409) {
+          this.showAlert('error', 'Użytkownik o podanej nazwie już istnieje.');
+        } else {
+          this.showAlert('error', 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.');
+        }
       }
     },
   },

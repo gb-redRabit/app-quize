@@ -1,24 +1,20 @@
 <template>
   <div class="container mx-auto p-4">
-    <!-- Stan ładowania -->
-    <div v-if="loading" class="text-center my-8">
-      <div
-        class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full mx-auto animate-spin"
-      ></div>
-      <p class="mt-4 text-gray-600">Ładowanie szczegółów...</p>
-    </div>
-
     <!-- Obsługa braku danych -->
-    <div v-else-if="!entry" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-      <p class="font-bold">Nie znaleziono wpisu historii</p>
-      <p>Podany wpis historii nie istnieje lub wystąpił błąd podczas jego pobierania.</p>
+    <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+      <p class="font-bold">{{ error }}</p>
       <router-link to="/history" class="text-blue-600 hover:text-blue-800 mt-2 inline-block">
         &larr; Wróć do historii
       </router-link>
     </div>
 
-    <!-- Główna zawartość -->
-    <div v-else>
+    <!-- Loader podczas ładowania -->
+    <div v-else-if="loading" class="text-center py-10">
+      <p>Ładowanie szczegółów historii...</p>
+    </div>
+
+    <!-- Główna zawartość tylko gdy historyEntry istnieje -->
+    <div v-else-if="historyEntry">
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold">Szczegóły historii</h1>
         <router-link to="/history" class="text-blue-600 hover:text-blue-800">
@@ -31,7 +27,7 @@
         <div class="grid md:grid-cols-3 gap-4">
           <div>
             <span class="text-gray-500 block text-sm">Data:</span>
-            <span class="font-medium">{{ formatDate(entry.data) }}</span>
+            <span class="font-medium">{{ formatDate(historyEntry.data) }}</span>
           </div>
           <div>
             <span class="text-gray-500 block text-sm">Typ:</span>
@@ -39,14 +35,15 @@
               class="inline-block px-3 py-1 rounded-full text-xs font-bold"
               :class="typeClasses"
             >
-              {{ entry.type === 'egzamin' ? 'Egzamin' : 'Quiz' }}
+              {{ historyEntry.type === 'egzamin' ? 'Egzamin' : 'Quiz' }}
             </span>
           </div>
           <div>
             <span class="text-gray-500 block text-sm">Wynik:</span>
             <span class="font-medium">
-              {{ entry.correct || 0 }} / {{ (entry.correct || 0) + (entry.wrong || 0) }} ({{
-                calculatePercentage(entry.correct, entry.wrong)
+              {{ historyEntry.correct || 0 }} /
+              {{ (historyEntry.correct || 0) + (historyEntry.wrong || 0) }} ({{
+                calculatePercentage(historyEntry.correct, historyEntry.wrong)
               }}%)
             </span>
           </div>
@@ -105,6 +102,14 @@
         </li>
       </ul>
     </div>
+
+    <!-- Komunikat gdy nie znaleziono historii a nie ma błędu -->
+    <div v-else class="text-center py-10">
+      <p class="text-red-600 font-medium">Nie znaleziono wpisu historii</p>
+      <router-link to="/history" class="text-blue-600 hover:text-blue-800 mt-4 inline-block">
+        &larr; Wróć do historii
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -114,12 +119,14 @@ import apiClient from '@/api';
 
 export default {
   name: 'HistoryDetailsView',
+  inject: ['showAlert', 'showLoader', 'hideLoader'],
 
   data() {
     return {
-      entry: null,
-      allQuestions: [],
+      historyEntry: null,
       loading: true,
+      error: null,
+      allQuestions: [], // Dodajemy jawnie allQuestions jako tablicę
     };
   },
 
@@ -128,18 +135,19 @@ export default {
 
     // Bezpiecznie pobiera historię użytkownika
     history() {
-      // Ważne: NIE odwracamy tutaj kolejności
       return this.getUserHistory || [];
     },
 
     // Bezpiecznie pobiera listę odpowiedzi
     entryList() {
-      return this.entry && Array.isArray(this.entry.list) ? this.entry.list : [];
+      return this.historyEntry && Array.isArray(this.historyEntry.list)
+        ? this.historyEntry.list
+        : [];
     },
 
     // Dynamiczne klasy CSS dla typu testu
     typeClasses() {
-      return this.entry?.type === 'egzamin'
+      return this.historyEntry?.type === 'egzamin'
         ? 'bg-purple-200 text-purple-800'
         : 'bg-blue-200 text-blue-800';
     },
@@ -149,14 +157,23 @@ export default {
     ...mapActions('user', ['fetchUserHistory']),
 
     // Formatowanie daty
-    formatDate(dateString) {
-      if (!dateString) return 'Nieznana data';
+    formatDate(dateStr) {
+      if (!dateStr) return 'Brak daty';
 
       try {
-        const date = new Date(dateString);
-        return date.toLocaleString('pl-PL');
+        const date = new Date(dateStr);
+
+        // Ręczne formatowanie
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+
+        return `${day}.${month}.${year}, ${hours}:${minutes}`;
       } catch (e) {
-        return dateString;
+        console.error('Błąd formatowania daty:', e);
+        return dateStr;
       }
     },
 
@@ -169,7 +186,7 @@ export default {
 
     // Pobieranie pełnego obiektu pytania po ID
     getQuestion(id) {
-      if (!id) return null;
+      if (!id || !this.allQuestions || !Array.isArray(this.allQuestions)) return null;
 
       // Znajdź pytanie z pasującym ID
       return (
@@ -260,7 +277,22 @@ export default {
         // Porównaj odpowiedzi ignorując wielkość liter
         return item.answer.toLowerCase() === correctKey.toLowerCase();
       } catch (e) {
+        console.error('Błąd sprawdzania poprawności odpowiedzi:', e);
         return false;
+      }
+    },
+
+    // Znajdowanie wpisu historii po ID lub indeksie
+    findHistoryEntry() {
+      const { id } = this.$route.params;
+
+      // Sprawdź, czy id jest liczbą (stary sposób) czy stringiem (nowy sposób z prefiksem)
+      if (!isNaN(id)) {
+        // Stary sposób - użyj indeksu
+        return this.history[parseInt(id)];
+      } else {
+        // Nowy sposób - szukaj po ID
+        return this.history.find((entry) => entry.id === id);
       }
     },
 
@@ -268,36 +300,41 @@ export default {
     async fetchAllQuestions() {
       try {
         const res = await apiClient.get('/questions');
-        this.allQuestions = res.data || [];
+        // Upewnij się, że zawsze ustawiamy tablicę
+        this.allQuestions = Array.isArray(res.data) ? res.data : [];
       } catch (e) {
-        console.error('Błąd podczas pobierania pytań:', e);
+        console.error('Błąd pobierania pytań:', e);
+        this.showAlert('error', 'Błąd podczas pobierania pytań');
+        // Upewnij się, że w przypadku błędu mamy pustą tablicę
         this.allQuestions = [];
+        throw e;
       }
     },
   },
 
   async created() {
+    this.showLoader('Ładowanie szczegółów historii...');
     this.loading = true;
+    this.error = null;
+    this.allQuestions = []; // Inicjalizuj pustą tablicę na początku
 
     try {
       // Pobierz wszystkie pytania i odśwież historię użytkownika
       await Promise.all([this.fetchAllQuestions(), this.fetchUserHistory()]);
 
-      // Pobierz indeks z parametrów URL
-      const idx = Number(this.$route.params.idx);
+      // Po załadowaniu wszystkich danych, znajdź odpowiedni wpis historii
+      this.historyEntry = this.findHistoryEntry();
 
-      // Sprawdź czy historia jest dostępna
-      if (!Array.isArray(this.history) || idx >= this.history.length) {
-        this.entry = null;
-        return;
+      if (!this.historyEntry) {
+        this.error = 'Nie znaleziono wpisu historii o podanym ID';
+        this.showAlert('error', 'Nie znaleziono wpisu historii o podanym ID');
       }
-
-      // Znajdź odpowiedni wpis w historii - POPRAWIONY INDEKS
-      this.entry = this.history[idx];
     } catch (e) {
       console.error('Błąd podczas ładowania szczegółów historii:', e);
-      this.entry = null;
+      this.error = 'Wystąpił błąd podczas ładowania historii';
+      this.showAlert('error', 'Wystąpił błąd podczas ładowania szczegółów historii');
     } finally {
+      this.hideLoader();
       this.loading = false;
     }
   },

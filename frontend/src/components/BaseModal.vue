@@ -6,7 +6,7 @@
       @click.self="$emit('close')"
     >
       <div
-        class="relative bg-white rounded-lg shadow-xl transform transition-all sm:my-8 sm:max-w-3xl w-full flex flex-col"
+        class="relative bg-white rounded-lg shadow-xl transform transition-all sm:my-8 sm:max-w-5xl w-full flex flex-col"
         style="max-height: 90vh"
       >
         <!-- Nagłówek i przycisk zamknięcia -->

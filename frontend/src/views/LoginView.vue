@@ -61,8 +61,6 @@
           </BaseButton>
         </form>
 
-        <BaseAlert v-if="errorMessage" :message="errorMessage" type="error" class="login-alert" />
-
         <div class="login-footer">
           <router-link to="/register" class="register-link">
             Nie masz konta? <span>Zarejestruj się</span>
@@ -81,10 +79,10 @@
 <script>
 import { mapActions } from 'vuex';
 import BaseButton from '@/components/BaseButton.vue';
-import BaseAlert from '@/components/BaseAlert.vue';
 
 export default {
-  components: { BaseButton, BaseAlert },
+  components: { BaseButton },
+  inject: ['showAlert', 'showLoader', 'hideLoader'],
   data() {
     return {
       loginInput: '',
@@ -97,13 +95,24 @@ export default {
     async handleLogin() {
       try {
         this.errorMessage = '';
+        this.showLoader('Logowanie...');
+
         await this.login({
           login: this.loginInput,
           password: this.password,
         });
-        this.$router.push({ name: 'Home' });
+
+        this.hideLoader();
+        this.showAlert('success', 'Zalogowano pomyślnie');
+        
+        // Bezpieczniejsza nawigacja po zalogowaniu
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 300);
       } catch (error) {
+        this.hideLoader();
         this.errorMessage = 'Niepoprawny login lub hasło. Spróbuj ponownie.';
+        this.showAlert('error', 'Niepoprawny login lub hasło');
       }
     },
   },

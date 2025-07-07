@@ -57,3 +57,38 @@ exports.updateUserHistory = (req, res) => {
     res.json({ message: "Brak akcji" });
   });
 };
+
+// Dodaj nową funkcję updateProfile
+exports.updateProfile = async (req, res) => {
+  const userId = req.user.id;
+  const { avatar, avatarColors, option } = req.body;
+
+  fs.readFile(usersFilePath, "utf8", (err, data) => {
+    if (err) return res.status(500).json({ message: "Błąd odczytu pliku users" });
+
+    try {
+      const users = JSON.parse(data);
+      const userIndex = users.findIndex((u) => u.id === userId);
+
+      if (userIndex === -1) {
+        return res.status(404).json({ message: "Nie znaleziono użytkownika" });
+      }
+
+      // Aktualizujemy tylko te pola, które zostały przesłane
+      if (avatar !== undefined) users[userIndex].avatar = avatar;
+      if (avatarColors !== undefined) users[userIndex].avatarColors = avatarColors;
+      if (option !== undefined) users[userIndex].option = option;
+
+      fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
+        if (err) return res.status(500).json({ message: "Błąd zapisu" });
+
+        // Zwracamy zaktualizowane dane użytkownika (bez hasła)
+        const { password, ...userWithoutPassword } = users[userIndex];
+        res.json(userWithoutPassword);
+      });
+    } catch (parseError) {
+      console.error("Błąd parsowania JSON:", parseError);
+      return res.status(500).json({ message: "Błąd parsowania danych użytkowników" });
+    }
+  });
+};

@@ -12,72 +12,11 @@ router.get(
   authMiddleware.verifyToken,
   usersController.getUserHistory
 );
-router.put("/update", authMiddleware.verifyToken, (req, res) => {
-  usersLock = usersLock.then(
-    () =>
-      new Promise((resolve) => {
-        fs.readFile(usersFilePath, "utf8", (err, data) => {
-          if (err) {
-            res.status(500).json({ message: "Błąd pliku users" });
-            return resolve();
-          }
-          const users = JSON.parse(data);
-          const user = users.find((u) => u.id === req.user.id);
-          if (!user) {
-            res.status(404).json({ message: "Nie znaleziono użytkownika" });
-            return resolve();
-          }
-
-          if (req.body.clearHistory) {
-            user.history = [];
-          }
-          if (req.body.addHistory) {
-            user.history = user.history || [];
-            user.history.push(req.body.addHistory);
-          }
-          if (req.body.option) {
-            user.option = req.body.option;
-          }
-          if (req.body.changePassword) {
-            const bcrypt = require("bcrypt");
-            if (!req.body.oldPassword || !req.body.newPassword) {
-              res.status(400).json({ message: "Brak hasła" });
-              return resolve();
-            }
-            // Sprawdź stare hasło
-            bcrypt.compare(
-              req.body.oldPassword,
-              user.password,
-              async (err, result) => {
-                if (!result) {
-                  res
-                    .status(401)
-                    .json({ message: "Stare hasło nieprawidłowe" });
-                  return resolve();
-                }
-                user.password = await bcrypt.hash(req.body.newPassword, 10);
-                fs.writeFile(
-                  usersFilePath,
-                  JSON.stringify(users, null, 2),
-                  (err) => {
-                    if (err) res.status(500).json({ message: "Błąd zapisu" });
-                    else res.json({ message: "Hasło zmienione" });
-                    resolve();
-                  }
-                );
-              }
-            );
-            return; // ważne!
-          }
-          fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
-            if (err) res.status(500).json({ message: "Błąd zapisu" });
-            else res.json({ message: "Zaktualizowano" });
-            resolve();
-          });
-        });
-      })
-  );
-});
+router.put(
+  "/update-profile",
+  authMiddleware.verifyToken,
+  usersController.updateProfile
+);
 
 // Zwróć wszystkich użytkowników (np. tylko dla admina)
 router.get("/", async (req, res) => {

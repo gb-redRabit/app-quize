@@ -1,6 +1,14 @@
 <template>
   <div class="question-card">
     <!-- Nagłówek z pytaniem -->
+
+    <QuestionActions
+      :question="question"
+      @deleted="onDeleted"
+      @edit="onEdit"
+      class="question-actions"
+    />
+
     <div class="question-header">
       <div class="question-number" v-if="questionNumber">
         <span>{{ questionNumber }}</span>
@@ -8,12 +16,6 @@
       <h2 class="question-text">
         {{ question.question }}
       </h2>
-      <QuestionActions
-        :question="question"
-        @deleted="onDeleted"
-        @edit="onEdit"
-        class="question-actions"
-      />
     </div>
 
     <!-- Lista odpowiedzi -->
@@ -75,7 +77,11 @@
 import { shuffleArray } from '@/utils/shuffleArray';
 import QuestionActions from './QuestionActions.vue';
 import QuestionDescription from '@/components/QuestionDescription.vue';
+// Import kompatybilnej biblioteki
+import VirtualList from 'vue3-virtual-scroll-list';
+
 export default {
+  name: 'QuestionList',
   props: {
     question: { type: Object, required: true },
     answered: Boolean,
@@ -85,11 +91,17 @@ export default {
     showActions: { type: Boolean, default: false },
     questionNumber: { type: [String, Number], default: null },
   },
+  inject: ['showAlert', 'showLoader', 'hideLoader'],
   emits: ['select', 'edit', 'delete'],
-  components: { QuestionActions, QuestionDescription },
+  components: {
+    QuestionActions,
+    QuestionDescription,
+    VirtualList,
+  },
   data() {
     return {
       shuffledAnswers: [],
+      questionComponent: this.$options.components.QuestionItem,
     };
   },
   watch: {
@@ -118,8 +130,16 @@ export default {
   },
   methods: {
     async refreshQuestions() {
-      const res = await apiClient.get('/questions');
-      this.questions = res.data;
+      this.showLoader('Odświeżanie pytań...'); // Używamy globalnego API
+      try {
+        const res = await apiClient.get('/questions');
+        this.questions = res.data;
+        this.showAlert('success', 'Lista pytań została odświeżona');
+      } catch (error) {
+        this.showAlert('error', 'Nie udało się odświeżyć listy pytań');
+      } finally {
+        this.hideLoader(); // Używamy globalnego API
+      }
     },
     onSelect(index) {
       this.$emit('select', index, this.answers[index].key);

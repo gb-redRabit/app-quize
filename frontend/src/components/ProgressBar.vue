@@ -10,9 +10,7 @@
         class="progress-bar"
         :style="{ width: percent + '%' }"
         :class="{ 'progress-complete': percent === 100 }"
-      >
-        <div class="progress-glow"></div>
-      </div>
+      ></div>
 
       <div v-if="showMilestones && total > 1" class="milestone-markers">
         <div
@@ -78,17 +76,6 @@ export default {
 .progress-bar.progress-complete {
   background: linear-gradient(90deg, #10b981, #34d399);
   animation: none;
-}
-
-.progress-glow {
-  @apply absolute top-0 right-0 h-full w-8;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.6) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  animation: shine 2s infinite;
 }
 
 .milestone-markers {

@@ -156,6 +156,7 @@ export default {
   props: {
     question: { type: Object, required: true },
   },
+  inject: ['showAlert', 'showLoader', 'hideLoader'],
   emits: ['deleted', 'edit'],
   components: { BaseButton, BaseModal, IconButton },
   data() {
@@ -179,28 +180,32 @@ export default {
       this.editData[`answer_${correctKey}`].isCorret = true;
     },
     async saveEdit() {
-      this.loading = true;
+      this.showLoader('Zapisywanie zmian...');
       try {
         await apiClient.put(`/questions/${this.editData.ID}`, this.editData);
         this.$emit('edit', this.editData);
         this.showEdit = false;
+        this.showAlert('success', 'Pytanie zostało zaktualizowane');
       } catch (e) {
         console.error('Błąd zapisu pytania:', e);
-        alert('Błąd zapisu pytania.');
+        this.showAlert('error', 'Błąd podczas zapisywania pytania.');
       }
+      this.hideLoader();
       this.loading = false;
     },
     async deleteQuestion() {
-      this.loading = true;
+      this.showLoader('Usuwanie pytania...');
       try {
         const id = this.question.ID;
         await apiClient.delete(`/questions/${id}`);
         this.$emit('deleted', this.question);
         this.showDelete = false;
+        this.showAlert('success', 'Pytanie zostało usunięte');
       } catch (e) {
         console.error('Błąd usuwania pytania:', e);
-        alert('Błąd usuwania pytania.');
+        this.showAlert('error', 'Błąd podczas usuwania pytania.');
       }
+      this.hideLoader();
       this.loading = false;
     },
   },
