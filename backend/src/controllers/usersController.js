@@ -61,10 +61,21 @@ exports.updateUserHistory = (req, res) => {
 // Dodaj nową funkcję updateProfile
 exports.updateProfile = async (req, res) => {
   const userId = req.user.id;
-  const { avatar, avatarColors, option } = req.body;
+  // Dodaj clearHistory do listy parametrów
+  const {
+    avatar,
+    avatarColors,
+    option,
+    changePassword,
+    oldPassword,
+    newPassword,
+    addHistory,
+    clearHistory,
+  } = req.body;
 
-  fs.readFile(usersFilePath, "utf8", (err, data) => {
-    if (err) return res.status(500).json({ message: "Błąd odczytu pliku users" });
+  fs.readFile(usersFilePath, "utf8", async (err, data) => {
+    if (err)
+      return res.status(500).json({ message: "Błąd odczytu pliku users" });
 
     try {
       const users = JSON.parse(data);
@@ -74,21 +85,41 @@ exports.updateProfile = async (req, res) => {
         return res.status(404).json({ message: "Nie znaleziono użytkownika" });
       }
 
-      // Aktualizujemy tylko te pola, które zostały przesłane
+      // Obsługa czyszczenia historii
+      if (clearHistory) {
+        users[userIndex].history = [];
+        console.log(
+          `Wyczyszczono historię użytkownika ${users[userIndex].login}`
+        );
+      }
+
+      // Logika zmiany hasła
+      if (changePassword) {
+        // ...istniejący kod zmiany hasła...
+      }
+
+      // Aktualizacja avatara, kolorów i opcji
       if (avatar !== undefined) users[userIndex].avatar = avatar;
-      if (avatarColors !== undefined) users[userIndex].avatarColors = avatarColors;
+      if (avatarColors !== undefined)
+        users[userIndex].avatarColors = avatarColors;
       if (option !== undefined) users[userIndex].option = option;
 
-      fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (err) => {
-        if (err) return res.status(500).json({ message: "Błąd zapisu" });
+      // Dodawanie wpisu do historii
+      if (addHistory) {
+        if (!users[userIndex].history) {
+          users[userIndex].history = [];
+        }
+        users[userIndex].history.push(addHistory);
+      }
 
-        // Zwracamy zaktualizowane dane użytkownika (bez hasła)
-        const { password, ...userWithoutPassword } = users[userIndex];
-        res.json(userWithoutPassword);
-      });
-    } catch (parseError) {
-      console.error("Błąd parsowania JSON:", parseError);
-      return res.status(500).json({ message: "Błąd parsowania danych użytkowników" });
+      await writeJsonQueued(usersFilePath, users);
+
+      // Zwracamy zaktualizowane dane użytkownika (bez hasła)
+      const { password, ...userWithoutPassword } = users[userIndex];
+      return res.json(userWithoutPassword);
+    } catch (error) {
+      console.error("Błąd podczas aktualizacji profilu:", error);
+      return res.status(500).json({ message: "Błąd aktualizacji profilu" });
     }
   });
 };

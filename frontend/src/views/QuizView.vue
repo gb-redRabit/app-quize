@@ -379,13 +379,13 @@ const saveUserHistory = async () => {
       })),
     };
 
-    await apiClient.put('/users/update', { addHistory: historyItem });
+    const response = await apiClient.put('/users/update-profile', { addHistory: historyItem });
     isCorrection.value = true;
-    hideLoader();
+    hideLoader(); // Upewnij się, że loader jest ukrywany
   } catch (error) {
-    hideLoader();
-    showAlert('error', 'Błąd podczas zapisywania wyników quizu');
     console.error('Błąd zapisu historii:', error);
+    hideLoader(); // Ukryj loader nawet w przypadku błędu
+    showAlert('error', 'Błąd podczas zapisywania wyników');
   }
 };
 

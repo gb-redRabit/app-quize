@@ -906,17 +906,15 @@ const startExamNotDone = async (cat) => {
 };
 
 const clearCategoryHistory = async (cat) => {
-  if (confirm(`Czy na pewno chcesz wyczyścić historię dla kategorii "${cat}"?`)) {
-    showLoader('Czyszczenie historii kategorii...');
-    try {
-      await store.dispatch('user/clearCategoryHistory', cat);
-      await store.dispatch('user/fetchUserHistoryAndHQ');
-      showAlert('success', `Historia kategorii "${cat}" została wyczyszczona`);
-    } catch (e) {
-      showAlert('error', 'Błąd podczas czyszczenia pytań z kategorii.');
-    } finally {
-      hideLoader();
-    }
+  showLoader('Czyszczenie historii kategorii...');
+  try {
+    await store.dispatch('user/clearCategoryHistory', cat);
+    await store.dispatch('user/fetchUserHistoryAndHQ');
+    showAlert('success', `Historia kategorii "${cat}" została wyczyszczona`);
+  } catch (e) {
+    showAlert('error', 'Błąd podczas czyszczenia pytań z kategorii.');
+  } finally {
+    hideLoader();
   }
 };
 

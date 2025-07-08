@@ -45,6 +45,7 @@
             class="question-container"
           >
             <QuestionList
+              ref="questionList"
               :question="q"
               :answered="answersStatus[index].answered"
               :selected="answersStatus[index].selected"
@@ -363,7 +364,7 @@ export default {
           })),
         };
 
-        await apiClient.put('/users/update', { addHistory: historyItem });
+        await apiClient.put('/users/update-profile', { addHistory: historyItem });
         this.hideLoader();
       } catch (error) {
         this.hideLoader();
@@ -400,16 +401,40 @@ export default {
     handleKeydown(e) {
       if (this.showSummary) return;
       if (this.loading) return;
+
       if (
         ['1', '2', '3', '4'].includes(e.key) &&
         this.currentQuestionIndex < this.questions.length
       ) {
-        const idx = parseInt(e.key, 10) - 1;
-        // Pobierz aktualne przetasowane odpowiedzi z ref
-        const answers = this.$refs.questionList ? this.$refs.questionList.answers : this.answers;
-        if (!this.answersStatus[this.currentQuestionIndex].answered && answers && answers[idx]) {
-          this.selectAnswer(idx, answers[idx].key);
+        const idx = parseInt(e.key, 10) - 1; // 0, 1, 2, 3 dla klawiszy 1, 2, 3, 4
+
+        // Sprawdź, czy mamy dostęp do bieżącego komponentu pytania
+        const currentQuestionEl = Array.isArray(this.$refs.questionList)
+          ? this.$refs.questionList[this.currentQuestionIndex]
+          : null;
+
+        // Pobierz przetasowane odpowiedzi z komponentu lub z this.shuffledAnswers
+        const currentAnswers = currentQuestionEl ? currentQuestionEl.answers : this.shuffledAnswers;
+
+        // Sprawdź, czy odpowiedź o takim indeksie istnieje i czy pytanie nie zostało już odpowiedziane
+        if (
+          !this.answersStatus[this.currentQuestionIndex].answered &&
+          currentAnswers &&
+          currentAnswers[idx]
+        ) {
+          this.selectAnswer(idx, currentAnswers[idx].key);
         }
+      }
+
+      // Możesz też dodać obsługę strzałek dla nawigacji między pytaniami
+      if (e.key === 'ArrowRight' && this.currentQuestionIndex < this.questions.length - 1) {
+        if (this.answersStatus[this.currentQuestionIndex].answered) {
+          this.currentQuestionIndex++;
+        }
+      }
+
+      if (e.key === 'ArrowLeft' && this.currentQuestionIndex > 0) {
+        this.currentQuestionIndex--;
       }
     },
   },

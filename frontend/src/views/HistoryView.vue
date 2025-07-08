@@ -339,6 +339,49 @@ export default {
   methods: {
     ...mapActions('user', ['fetchUserHistory']),
 
+    // Dodane metody
+    getBadgeClass(type) {
+      if (type === 'quiz') return 'bg-blue-100 text-blue-800';
+      if (type === 'egzamin') return 'bg-purple-100 text-purple-800';
+      if (type === 'Quiz - poprawa błędów') return 'bg-green-100 text-green-800';
+      if (type === 'Egzamin - poprawa błędów') return 'bg-green-100 text-green-800';
+      return 'bg-gray-100 text-gray-800';
+    },
+
+    getTypeName(type) {
+      if (type === 'quiz') return 'Quiz';
+      if (type === 'egzamin') return 'Egzamin';
+      if (type === 'Quiz - poprawa błędów') return 'Quiz - poprawa';
+      if (type === 'Egzamin - poprawa błędów') return 'Egzamin - poprawa';
+      return type;
+    },
+
+    formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleString('pl-PL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    },
+
+    getCircumference() {
+      const radius = 35;
+      return 2 * Math.PI * radius;
+    },
+
+    getDashOffset(entry) {
+      const circumference = this.getCircumference();
+      const total = (entry.correct || 0) + (entry.wrong || 0);
+      if (total === 0) return circumference;
+
+      const percent = (entry.correct || 0) / total;
+      return circumference * (1 - percent);
+    },
+
     ensureHistoryIds() {
       const updatedHistory = [...this.history];
 
@@ -360,7 +403,7 @@ export default {
     async confirmClearHistory() {
       try {
         this.showLoader('Czyszczenie historii...');
-        await apiClient.put('/users/update', { clearHistory: true });
+        await apiClient.put('/users/update-profile', { clearHistory: true });
         this.hideLoader();
         this.showAlert('success', 'Historia została pomyślnie wyczyszczona');
         await this.fetchUserHistory();
