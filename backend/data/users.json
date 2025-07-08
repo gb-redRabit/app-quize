@@ -6,7 +6,56 @@
     "avatarColors": "hsl(235.65887209379073, 100%, 50%)",
     "password": "$2b$10$2smQqHZHAcdjFOG7l3l4K.icGqqOHyUyDhfQqPFha04YjoGlSDfV.",
     "option": "light",
-    "history": [],
+    "history": [
+      {
+        "type": "quiz",
+        "category": "Ustawa o przeciwdziałaniu przemocy domowej",
+        "correct": 0,
+        "wrong": 2,
+        "data": "2025-07-08T16:54:22.227Z",
+        "time": null,
+        "questionTimes": [
+          1.708,
+          3.293
+        ],
+        "list": [
+          {
+            "id_questions": 25651,
+            "answer": "answer_b",
+            "correct": false
+          },
+          {
+            "id_questions": 25653,
+            "answer": "answer_b",
+            "correct": false
+          }
+        ]
+      },
+      {
+        "type": "quiz",
+        "category": "Ustawa o przeciwdziałaniu przemocy domowej",
+        "correct": 2,
+        "wrong": 0,
+        "data": "2025-07-08T16:54:43.547Z",
+        "time": null,
+        "questionTimes": [
+          1.108,
+          2.721
+        ],
+        "list": [
+          {
+            "id_questions": 25653,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 25651,
+            "answer": "answer_a",
+            "correct": true
+          }
+        ]
+      }
+    ],
     "hquestion": [
       {
         "id": 136,
@@ -320,12 +369,12 @@
       },
       {
         "id": 25653,
-        "correct": false,
+        "correct": true,
         "category": "Ustawa o przeciwdziałaniu przemocy domowej"
       },
       {
         "id": 25651,
-        "correct": false,
+        "correct": true,
         "category": "Ustawa o przeciwdziałaniu przemocy domowej"
       }
     ]
@@ -2238,7 +2287,9 @@
       {
         "type": "quiz",
         "correct": 148,
-        "categories": ["Egzamin 2024"],
+        "categories": [
+          "Egzamin 2024"
+        ],
         "wrong": 0,
         "list": [
           {
