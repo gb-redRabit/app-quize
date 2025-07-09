@@ -212,7 +212,7 @@ export default {
 
 <style scoped>
 .question-navigation-container {
-  @apply absolute w-full max-w-4xl mx-auto  mb-2 bottom-0 left-0 right-0;
+  @apply md:absolute w-full max-w-4xl  bottom-0 left-0 right-0 relative -mt-10;
 }
 
 .navigation-scroller {
