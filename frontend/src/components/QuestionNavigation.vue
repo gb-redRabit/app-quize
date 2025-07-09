@@ -368,12 +368,7 @@ export default {
   }
 
   .navigation-legend {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: 240px;
-    margin-left: auto;
-    margin-right: auto;
+    display: none;
   }
 
   .navigation-legend > * + * {
