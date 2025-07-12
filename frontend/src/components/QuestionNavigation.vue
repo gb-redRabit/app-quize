@@ -1,22 +1,25 @@
 <template>
-  <div class="question-navigation-container">
-    <div ref="scrollNav" class="navigation-scroller">
-      <div class="navigation-track">
+  <div class="md:absolute w-full max-w-4xl mx-auto bottom-0 left-0 right-0 relative -mt-10">
+    <div ref="scrollNav" class="w-full py-4 px-2 scroll-smooth overflow-x-hidden">
+      <div class="flex space-x-2 min-w-max px-8">
         <button
           v-for="(q, idx) in questions"
           :key="idx"
           @click="goTo(idx)"
-          class="navigation-button"
+          class="relative flex items-center justify-center rounded-full border-2 focus:outline-none transition-all duration-300 w-12 h-12 font-semibold sm:w-10 sm:h-10 text-sm sm:font-semibold lg:w-14 lg:h-14 lg:text-lg"
           :class="navClass(idx)"
           :aria-current="currentIdx === idx ? 'true' : undefined"
           :title="q.question"
           :disabled="disabled"
         >
-          <span class="button-number">{{ idx + 1 }}</span>
-          <span v-if="answersStatus[idx] && answersStatus[idx].answered" class="status-indicator">
+          <span class="text-base sm:text-sm lg:text-lg z-10">{{ idx + 1 }}</span>
+          <span
+            v-if="answersStatus[idx] && answersStatus[idx].answered"
+            class="absolute bottom-0 right-0 rounded-full z-20 h-4 w-4 transform translate-x-1/4 translate-y-1/4"
+          >
             <svg
               v-if="isCorrect(idx)"
-              class="status-icon correct"
+              class="h-full w-full text-green-100 bg-green-600 rounded-full"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -26,7 +29,12 @@
                 clip-rule="evenodd"
               />
             </svg>
-            <svg v-else class="status-icon wrong" viewBox="0 0 20 20" fill="currentColor">
+            <svg
+              v-else
+              class="h-full w-full text-red-100 bg-red-600 rounded-full"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
               <path
                 fill-rule="evenodd"
                 d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -38,9 +46,15 @@
       </div>
     </div>
 
-    <!-- Wskaźniki przewijania -->
-    <div class="scroll-indicators" v-if="questions.length > visibleButtons">
-      <button @click="scrollLeft" class="scroll-button left" :disabled="isAtStart">
+    <div
+      class="absolute top-4 left-0 w-full flex justify-between pointer-events-none"
+      v-if="questions.length > visibleButtons"
+    >
+      <button
+        @click="scrollLeft"
+        class="flex items-center justify-center bg-white dark:bg-gray-800 rounded-full shadow-md border border-gray-200 dark:border-gray-700 h-8 w-8 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 pointer-events-auto mt-4 -ml-9"
+        :disabled="isAtStart"
+      >
         <svg viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
           <path
             fill-rule="evenodd"
@@ -49,7 +63,11 @@
           />
         </svg>
       </button>
-      <button @click="scrollRight" class="scroll-button right" :disabled="isAtEnd">
+      <button
+        @click="scrollRight"
+        class="flex items-center justify-center bg-white dark:bg-gray-800 rounded-full shadow-md border border-gray-200 dark:border-gray-700 h-8 w-8 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 pointer-events-auto mt-4 -mr-9"
+        :disabled="isAtEnd"
+      >
         <svg viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
           <path
             fill-rule="evenodd"
@@ -60,23 +78,24 @@
       </button>
     </div>
 
-    <!-- Mini legenda -->
-    <div class="navigation-legend">
-      <div class="legend-item">
-        <span class="legend-dot current"></span>
-        <span class="legend-text">Aktualny</span>
+    <div
+      class="md:flex flex-wrap justify-center mt-2 text-xs text-gray-500 dark:text-gray-400 hidden"
+    >
+      <div class="flex items-center mx-2 mb-1">
+        <span class="inline-block rounded-full mr-1 w-2 h-2 bg-blue-500"></span>
+        <span class="text-xs">Aktualny</span>
       </div>
-      <div class="legend-item">
-        <span class="legend-dot correct"></span>
-        <span class="legend-text">Poprawny</span>
+      <div class="flex items-center mx-2 mb-1">
+        <span class="inline-block rounded-full mr-1 w-2 h-2 bg-green-500"></span>
+        <span class="text-xs">Poprawny</span>
       </div>
-      <div class="legend-item">
-        <span class="legend-dot wrong"></span>
-        <span class="legend-text">Błędny</span>
+      <div class="flex items-center mx-2 mb-1">
+        <span class="inline-block rounded-full mr-1 w-2 h-2 bg-red-500"></span>
+        <span class="text-xs">Błędny</span>
       </div>
-      <div class="legend-item">
-        <span class="legend-dot unanswered"></span>
-        <span class="legend-text">Brak odp.</span>
+      <div class="flex items-center mx-2 mb-1">
+        <span class="inline-block rounded-full mr-1 w-2 h-2 bg-gray-300 dark:bg-gray-600"></span>
+        <span class="text-xs">Brak odp.</span>
       </div>
     </div>
   </div>
@@ -109,19 +128,30 @@ export default {
 
       // Aktualnie wybrany
       if (this.currentIdx === idx) {
-        classes += 'current ';
+        classes +=
+          'border-blue-500 bg-blue-500 text-white shadow-md z-10 transform scale-110 animate-pulse '; // Added animate-pulse for the current button
+        classes += 'dark:border-blue-400 dark:bg-blue-400 dark:text-gray-900 '; // Dark mode styles
       }
 
       // Stan odpowiedzi
       const status = this.answersStatus[idx];
       if (status && status.answered) {
         if (this.isCorrect(idx)) {
-          classes += 'correct ';
+          classes += 'border-green-500 bg-green-500 text-white ';
+          classes += 'dark:border-green-400 dark:bg-green-400 dark:text-gray-900 ';
         } else {
-          classes += 'wrong ';
+          classes += 'border-red-500 bg-red-500 text-white ';
+          classes += 'dark:border-red-400 dark:bg-red-400 dark:text-gray-900 ';
         }
       } else {
-        classes += 'unanswered ';
+        classes +=
+          'border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 hover:border-gray-400 ';
+        classes +=
+          'dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:border-gray-500 ';
+      }
+
+      if (this.disabled) {
+        classes += 'cursor-not-allowed opacity-70 ';
       }
 
       return classes;
@@ -160,7 +190,7 @@ export default {
         const nav = this.$refs.scrollNav;
         if (!nav) return;
 
-        const activeBtn = nav.querySelector('.current');
+        const activeBtn = nav.querySelector('.border-blue-500'); // Assuming 'current' always has this border
         if (activeBtn) {
           const navRect = nav.getBoundingClientRect();
           const btnRect = activeBtn.getBoundingClientRect();
@@ -175,6 +205,10 @@ export default {
         this.updateScrollState();
       });
     },
+    updateVisibleButtons() {
+      const width = window.innerWidth;
+      this.visibleButtons = width < 640 ? 5 : width < 1024 ? 8 : 12;
+    },
   },
   mounted() {
     const nav = this.$refs.scrollNav;
@@ -187,13 +221,8 @@ export default {
     this.scrollToActive();
 
     // Dostosuj liczbę widocznych przycisków do rozmiaru ekranu
-    const updateVisibleButtons = () => {
-      const width = window.innerWidth;
-      this.visibleButtons = width < 640 ? 5 : width < 1024 ? 8 : 12;
-    };
-
-    updateVisibleButtons();
-    window.addEventListener('resize', updateVisibleButtons);
+    this.updateVisibleButtons();
+    window.addEventListener('resize', this.updateVisibleButtons);
   },
   beforeUnmount() {
     const nav = this.$refs.scrollNav;
@@ -210,18 +239,24 @@ export default {
 };
 </script>
 
-<style scoped>
-.question-navigation-container {
-  @apply md:absolute w-full max-w-4xl  bottom-0 left-0 right-0 relative -mt-10;
+<style>
+/* For the pulse animation, you'd typically define this in your main CSS or using a Tailwind plugin */
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(95, 136, 202); /* blue-500 with 50% opacity */
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); /* blue-500 with 0% opacity */
+  }
 }
 
-.navigation-scroller {
-  @apply w-full overflow-x-auto py-4 px-2;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
+.animate-pulse {
+  animation: pulse 2s infinite;
 }
 
-/* Niestandardowe style dla scrollbara zamiast klas tailwind-scrollbar */
+/* Custom scrollbar styles if not using a Tailwind plugin */
+/* Note: These cannot be converted directly to Tailwind utility classes */
 .navigation-scroller::-webkit-scrollbar {
   height: 6px;
   width: 6px;
@@ -232,177 +267,11 @@ export default {
 }
 
 .navigation-scroller::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full;
+  background-color: #d1d5db; /* gray-300 */
+  border-radius: 9999px; /* rounded-full */
 }
 
 .navigation-scroller::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400;
-}
-
-.navigation-track {
-  @apply flex space-x-2 min-w-max;
-  padding: 0.25rem 2rem;
-}
-
-.navigation-button {
-  @apply relative flex items-center justify-center rounded-full border-2 focus:outline-none transition-all duration-300;
-  width: 3rem;
-  height: 3rem;
-  font-weight: 600;
-}
-
-.button-number {
-  @apply text-base z-10;
-}
-
-.status-indicator {
-  @apply absolute bottom-0 right-0 rounded-full z-20;
-  height: 1rem;
-  width: 1rem;
-  transform: translate(25%, 25%);
-}
-
-.status-icon {
-  @apply h-full w-full;
-}
-
-.navigation-button.current {
-  @apply border-blue-500 bg-blue-500 text-white shadow-md z-10;
-  transform: scale(1.1);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
-}
-
-.navigation-button.correct {
-  @apply border-green-500 bg-green-500 text-white;
-}
-
-.navigation-button.wrong {
-  @apply border-red-500 bg-red-500 text-white;
-}
-
-.navigation-button.unanswered {
-  @apply border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 hover:border-gray-400;
-}
-
-.navigation-button:disabled {
-  @apply cursor-not-allowed opacity-70;
-}
-
-.status-icon.correct {
-  @apply text-green-100 bg-green-600 rounded-full;
-}
-
-.status-icon.wrong {
-  @apply text-red-100 bg-red-600 rounded-full;
-}
-
-/* Przyciski przewijania */
-.scroll-indicators {
-  @apply absolute top-4 left-0 w-full flex justify-between;
-  pointer-events: none;
-}
-
-.scroll-button {
-  @apply flex items-center justify-center bg-white rounded-full shadow-md border border-gray-200 h-8 w-8 text-gray-600 hover:text-gray-900 hover:bg-gray-50 focus:outline-none transition-all duration-200;
-  pointer-events: auto;
-}
-
-.scroll-button:disabled {
-  @apply opacity-0 cursor-default;
-}
-
-.scroll-button.left {
-  margin-top: 1rem;
-  margin-left: -2.25rem;
-}
-
-.scroll-button.right {
-  margin-top: 1rem;
-  margin-right: -2.25rem;
-}
-
-/* Legenda */
-.navigation-legend {
-  @apply flex flex-wrap justify-center mt-2 text-xs text-gray-500;
-}
-
-.legend-item {
-  @apply flex items-center mx-2 mb-1;
-}
-
-.legend-dot {
-  @apply inline-block rounded-full mr-1;
-  width: 8px;
-  height: 8px;
-}
-
-.legend-dot.current {
-  @apply bg-blue-500;
-}
-
-.legend-dot.correct {
-  @apply bg-green-500;
-}
-
-.legend-dot.wrong {
-  @apply bg-red-500;
-}
-
-.legend-dot.unanswered {
-  @apply bg-gray-300;
-}
-
-.legend-text {
-  @apply text-xs;
-}
-
-/* Responsywność */
-@media (max-width: 640px) {
-  .navigation-button {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
-
-  .button-number {
-    @apply text-sm;
-  }
-
-  .navigation-legend {
-    display: none;
-  }
-
-  .navigation-legend > * + * {
-    margin-top: 0.25rem;
-  }
-
-  .legend-item {
-    @apply mx-1;
-  }
-}
-
-@media (min-width: 1024px) {
-  .navigation-button {
-    width: 3.5rem;
-    height: 3.5rem;
-  }
-
-  .button-number {
-    @apply text-lg;
-  }
-}
-
-/* Animacje */
-@keyframes pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
-  }
-}
-
-.navigation-button.current {
-  animation: pulse 2s infinite;
+  background-color: #9ca3af; /* gray-400 */
 }
 </style>

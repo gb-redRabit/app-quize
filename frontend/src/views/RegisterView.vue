@@ -160,10 +160,11 @@
 
 <script>
 import BaseButton from '@/components/BaseButton.vue';
+import BaseAlert from '@/components/BaseAlert.vue'; // Dodaj ten import
 import apiClient from '@/api';
 
 export default {
-  components: { BaseButton },
+  components: { BaseButton, BaseAlert }, // Dodaj BaseAlert tutaj
   inject: ['showAlert', 'showLoader', 'hideLoader'],
   data() {
     return {
@@ -261,7 +262,7 @@ export default {
 }
 
 .register-card {
-  @apply bg-white rounded-xl shadow-lg p-6 sm:p-8 w-full relative z-10 overflow-hidden;
+  @apply rounded-xl shadow-lg p-6 sm:p-8 w-full relative z-10 overflow-hidden;
   border: 1px solid rgba(226, 232, 240, 0.8);
   animation: slideUp 0.5s ease-out forwards;
 }

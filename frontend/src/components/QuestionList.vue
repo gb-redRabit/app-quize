@@ -1,44 +1,50 @@
 <template>
-  <div class="question-card">
-    <!-- Nagłówek z pytaniem -->
-
+  <div
+    class="bg-white rounded-xl shadow-md p-4 sm:p-6 relative mb-8 transition-all duration-300 border border-gray-50 hover:shadow-lg dark:bg-gray-800 dark:border-gray-700"
+  >
     <QuestionActions
       :question="question"
       @deleted="onDeleted"
       @edit="onEdit"
-      class="question-actions"
+      class="absolute -top-1 right-0"
     />
 
-    <div class="question-header">
-      <div class="question-number" v-if="questionNumber">
+    <div class="flex flex-wrap items-start mb-6 relative">
+      <div
+        v-if="questionNumber"
+        class="flex items-center justify-center bg-blue-600 text-white rounded-full w-8 h-8 mr-3 flex-shrink-0 font-bold text-sm shadow-blue-500/30"
+      >
         <span>{{ questionNumber }}</span>
       </div>
-      <h2 class="question-text">
+      <h2
+        class="text-gray-800 font-medium text-lg sm:text-xl flex-1 leading-relaxed dark:text-white"
+      >
         {{ question.question }}
       </h2>
     </div>
 
-    <!-- Lista odpowiedzi -->
-    <div class="answers-container">
+    <div class="space-y-3 mb-4">
       <button
         v-for="(answer, idx) in answers"
         :key="idx"
-        class="answer-button"
+        class="flex items-center w-full text-left p-3 sm:p-4 rounded-lg border transition-all duration-200 relative overflow-hidden min-h-[3.5rem]"
         :class="buttonClass(answer, idx)"
         @click="onSelect(idx)"
         :disabled="answered"
       >
-        <div class="answer-letter">
+        <div
+          class="flex items-center justify-center rounded-full w-8 h-8 bg-white border mr-3 font-bold text-sm flex-shrink-0 dark:bg-gray-700 dark:text-white"
+        >
           {{ answerLetter(idx) }}
         </div>
-        <div class="answer-content">
+        <div class="flex-1 text-sm sm:text-base dark:text-gray-200">
           {{ answer.answer }}
         </div>
-        <div class="answer-indicator" v-if="answered">
+        <div v-if="answered" class="ml-2 flex-shrink-0">
           <svg
             v-if="isCorrectAnswer(answer)"
             xmlns="http://www.w3.org/2000/svg"
-            class="answer-icon correct"
+            class="w-5 h-5 text-green-600"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -51,7 +57,7 @@
           <svg
             v-else-if="isSelectedAnswer(idx)"
             xmlns="http://www.w3.org/2000/svg"
-            class="answer-icon wrong"
+            class="w-5 h-5 text-red-600"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -157,26 +163,51 @@ export default {
       let classes = '';
 
       if (!this.answered) {
-        classes = 'active';
+        classes =
+          'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-gray-800 hover:bg-blue-100 dark:from-gray-700 dark:to-gray-600 dark:border-gray-500 dark:text-white hover:dark:bg-gray-600 shadow-sm hover:translate-y-[-1px] hover:shadow-md'; // Combined active and hover
       } else {
         // Dodanie klasy 'selected' do wybranej odpowiedzi
         if (this.selectedIndex === index) {
-          classes += ' selected';
+          classes += ' border-blue-500 dark:border-blue-400';
         }
 
         // Obsługa poprawnych/niepoprawnych odpowiedzi
         if (this.showCorrect) {
-          const isCorrect = answer.isCorrect || answer.isCorret;
+          const isCorrect = answer.isCorret || answer.isCorrect;
           if (isCorrect) {
-            classes += ' correct';
+            classes +=
+              ' bg-gradient-to-r from-green-50 to-green-100 border-green-300 text-green-800 shadow-sm dark:from-green-700 dark:to-green-600 dark:border-green-500 dark:text-green-200';
           } else if (this.selectedIndex === index) {
-            classes += ' incorrect';
+            classes +=
+              ' bg-gradient-to-r from-red-50 to-red-100 border-red-300 text-red-800 dark:from-red-700 dark:to-red-600 dark:border-red-500 dark:text-red-200';
           } else {
-            classes += ' inactive';
+            classes +=
+              ' bg-gray-50 border-gray-200 text-gray-500 cursor-default dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400';
           }
         } else {
           // Tryb egzaminu
-          classes += this.selectedIndex === index ? ' selected-exam' : ' inactive';
+          classes +=
+            this.selectedIndex === index
+              ? ' bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-300 text-yellow-800 dark:from-yellow-700 dark:to-yellow-600 dark:border-yellow-500 dark:text-yellow-200'
+              : ' bg-gray-50 border-gray-200 text-gray-500 cursor-default dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400';
+        }
+      }
+
+      // Add common classes for answer-letter based on button state
+      if (!this.answered) {
+        classes +=
+          ' [&_.answer-letter]:text-blue-600 [&_.answer-letter]:border-blue-300 dark:[&_.answer-letter]:text-blue-400 dark:[&_.answer-letter]:border-blue-600';
+      } else {
+        const isCorrect = answer.isCorret || answer.isCorrect;
+        if (this.showCorrect && isCorrect) {
+          classes +=
+            ' [&_.answer-letter]:text-green-600 [&_.answer-letter]:border-green-400 [&_.answer-letter]:bg-green-50 dark:[&_.answer-letter]:text-green-300 dark:[&_.answer-letter]:border-green-500 dark:[&_.answer-letter]:bg-green-800';
+        } else if (this.showCorrect && this.selectedIndex === index) {
+          classes +=
+            ' [&_.answer-letter]:text-red-600 [&_.answer-letter]:border-red-400 [&_.answer-letter]:bg-red-50 dark:[&_.answer-letter]:text-red-300 dark:[&_.answer-letter]:border-red-500 dark:[&_.answer-letter]:bg-red-800';
+        } else if (!this.showCorrect && this.selectedIndex === index) {
+          classes +=
+            ' [&_.answer-letter]:text-yellow-600 [&_.answer-letter]:border-yellow-400 [&_.answer-letter]:bg-yellow-50 dark:[&_.answer-letter]:text-yellow-300 dark:[&_.answer-letter]:border-yellow-500 dark:[&_.answer-letter]:bg-yellow-800';
         }
       }
 
@@ -196,44 +227,69 @@ export default {
 </script>
 
 <style scoped>
-.question-card {
+/*
+  The following styles were originally in <style scoped>
+  and have been converted to Tailwind CSS classes applied directly in the template.
+  Some complex interactions or pseudo-elements might not have a direct inline Tailwind equivalent
+  and would ideally be handled via custom utility classes in a global Tailwind CSS file
+  using `@apply` or by extending Tailwind's configuration.
+
+  For example:
+  - The `box-shadow` with rgba colors have been converted to the closest Tailwind shadow utility.
+  - The `transform: translateY(-1px)` has been converted to `translate-y-[-1px]` which uses arbitrary values.
+  - The `:hover` states are handled by Tailwind's `hover:` variant.
+  - The animation `fadeIn` is complex for inline application and is commented out below,
+    as it's better handled by a CSS animation class that can be applied.
+  - The `answer-button.active .answer-letter` and similar nested rules
+    are handled by adding the `[&_.answer-letter]:` arbitrary variant to the `buttonClass` computed property.
+    This allows applying styles to a child element based on the parent's state directly in the parent's class binding.
+*/
+
+/* Original .question-card styles (converted to template) */
+/* .question-card {
   @apply bg-white rounded-xl shadow-md p-4 sm:p-6 relative mb-8 transition-all duration-300;
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .question-card:hover {
   @apply shadow-lg;
-}
+} */
 
-.question-header {
+/* Original .question-header styles (converted to template) */
+/* .question-header {
   @apply flex flex-wrap items-start mb-6 relative;
-}
+} */
 
-.question-number {
+/* Original .question-number styles (converted to template) */
+/* .question-number {
   @apply flex items-center justify-center bg-blue-600 text-white rounded-full w-8 h-8 mr-3 flex-shrink-0 font-bold text-sm;
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
-}
+} */
 
-.question-text {
+/* Original .question-text styles (converted to template) */
+/* .question-text {
   @apply text-gray-800 font-medium text-lg sm:text-xl flex-1 leading-relaxed;
   font-weight: 500;
-}
+} */
 
-.question-actions {
+/* Original .question-actions styles (converted to template) */
+/* .question-actions {
   @apply absolute -top-1 right-0;
-}
+} */
 
-.answers-container {
+/* Original .answers-container styles (converted to template) */
+/* .answers-container {
   @apply space-y-3 mb-4;
-}
+} */
 
-.answer-button {
+/* Original .answer-button styles (converted to template) */
+/* .answer-button {
   @apply flex items-center w-full text-left p-3 sm:p-4 rounded-lg border transition-all duration-200 relative overflow-hidden;
   min-height: 3.5rem;
-}
+} */
 
-/* Stany przycisków odpowiedzi */
-.answer-button.active {
+/* Original Stany przycisków odpowiedzi styles (converted to buttonClass and template) */
+/* .answer-button.active {
   @apply bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-gray-800 hover:bg-blue-100;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -263,9 +319,10 @@ export default {
 
 .answer-button.inactive {
   @apply bg-gray-50 border-gray-200 text-gray-500 cursor-default;
-}
+} */
 
-.answer-letter {
+/* Original .answer-letter styles (converted to template and buttonClass for conditional styling) */
+/* .answer-letter {
   @apply flex items-center justify-center rounded-full w-8 h-8 bg-white border border-current mr-3 font-bold text-sm flex-shrink-0;
 }
 
@@ -283,17 +340,20 @@ export default {
 
 .answer-button.selected-exam .answer-letter {
   @apply text-yellow-600 border-yellow-400 bg-yellow-50;
-}
+} */
 
-.answer-content {
+/* Original .answer-content styles (converted to template) */
+/* .answer-content {
   @apply flex-1 text-sm sm:text-base;
-}
+} */
 
-.answer-indicator {
+/* Original .answer-indicator styles (converted to template) */
+/* .answer-indicator {
   @apply ml-2 flex-shrink-0;
-}
+} */
 
-.answer-icon {
+/* Original .answer-icon styles (converted to template) */
+/* .answer-icon {
   @apply w-5 h-5;
 }
 
@@ -303,9 +363,10 @@ export default {
 
 .answer-icon.wrong {
   @apply text-red-600;
-}
+} */
 
-.explanation {
+/* Original .explanation styles (not directly in this component's scope, but generally converted) */
+/* .explanation {
   @apply bg-blue-50 p-4 rounded-lg mt-6 text-sm text-blue-800;
 }
 
@@ -315,18 +376,19 @@ export default {
 
 .explanation-icon {
   @apply w-5 h-5 mr-2 text-blue-600;
-}
+} */
 
-.question-category {
+/* Original .question-category styles (not directly in this component's scope) */
+/* .question-category {
   @apply text-xs font-medium text-gray-500 mt-4 inline-block;
   background-color: #f9f9f9;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   border: 1px solid #eee;
-}
+} */
 
-/* Animacje */
-@keyframes fadeIn {
+/* Animacje (difficult to convert directly inline, often better as a utility class or handled by a library) */
+/* @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -339,10 +401,10 @@ export default {
 
 .question-card {
   animation: fadeIn 0.3s ease-out;
-}
+} */
 
-/* Media queries dla lepszej responsywności */
-@media (max-width: 640px) {
+/* Media queries (handled by Tailwind's responsive prefixes like sm:, md:, lg:) */
+/* @media (max-width: 640px) {
   .answer-button {
     padding: 0.75rem;
   }
@@ -352,5 +414,5 @@ export default {
     height: 2rem;
     margin-right: 0.5rem;
   }
-}
+} */
 </style>

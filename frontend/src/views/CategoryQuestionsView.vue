@@ -1,7 +1,7 @@
 <template>
   <div class="container mx-auto p-4 md:p-6">
     <!-- Usuwam bezpośrednie użycie BaseLoader -->
-    
+
     <div class="header-section">
       <div class="category-title-wrapper">
         <h1 class="category-title">
@@ -233,11 +233,10 @@ import QuestionActions from '@/components/QuestionActions.vue';
 
 export default {
   name: 'CategoryQuestionsView',
-  components: { 
-    SearchBar, 
-    BaseButton, 
-    QuestionActions 
-    // Usuwam BaseLoader z komponentów
+  components: {
+    SearchBar,
+    BaseButton,
+    QuestionActions,
   },
   inject: ['showAlert', 'showLoader', 'hideLoader'],
   data() {
@@ -402,17 +401,20 @@ export default {
   },
   async created() {
     this.showLoader('Ładowanie pytań kategorii...'); // Używamy globalnego API
-    
+
     try {
       if (!this.getQuestions.length) {
         await this.$store.dispatch('questions/fetchQuestionsAndCategories');
       }
       this.localQuestions = [...this.getQuestions];
-      
+
       if (this.filteredQuestions.length === 0) {
         this.showAlert('warning', 'Nie znaleziono pytań dla tej kategorii');
       } else {
-        this.showAlert('success', `Znaleziono ${this.filteredQuestions.length} pytań w kategorii "${this.categoryLabel}"`);
+        this.showAlert(
+          'success',
+          `Znaleziono ${this.filteredQuestions.length} pytań w kategorii "${this.categoryLabel}"`
+        );
       }
     } catch (error) {
       this.showAlert('error', 'Błąd podczas ładowania pytań');
@@ -421,7 +423,7 @@ export default {
       this.loading = false;
       this.hideLoader();
     }
-    
+
     window.addEventListener('scroll', this.handleScroll);
   },
   beforeUnmount() {

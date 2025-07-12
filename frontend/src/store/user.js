@@ -26,7 +26,7 @@ export default {
     initUser({ commit }) {
       const userStr = sessionStorage.getItem('user');
       const token = sessionStorage.getItem('token');
-      
+
       if (userStr && token) {
         try {
           const user = JSON.parse(userStr);
@@ -37,7 +37,7 @@ export default {
         }
       }
     },
-    
+
     async login({ commit, dispatch }, credentials) {
       try {
         const response = await apiClient.post('/auth/login', credentials);
@@ -48,8 +48,15 @@ export default {
         sessionStorage.setItem('token', token);
         sessionStorage.setItem('user', JSON.stringify(user));
 
+        // Ustaw motyw z preferencji użytkownika
+        if (user.option) {
+          dispatch('ui/setTheme', user.option, { root: true });
+        }
+
         await dispatch('fetchUserHistoryAndHQ');
         await dispatch('questions/fetchQuestionsAndCategories', null, { root: true });
+        // Po zalogowaniu
+        await dispatch('questions/onUserLogin', null, { root: true });
 
         return true;
       } catch (error) {
@@ -63,12 +70,8 @@ export default {
       }
     },
     async fetchUserHistory({ commit }) {
-      try {
-        const res = await apiClient.get('/users/history');
-        commit('SET_USER_HISTORY', res.data);
-      } catch (e) {
-        commit('SET_USER_HISTORY', []);
-      }
+      const res = await apiClient.get('/users/history');
+      commit('SET_USER_HISTORY', res.data);
     },
     async fetchUserHistoryAndHQ({ commit, state }) {
       try {
@@ -76,14 +79,14 @@ export default {
         commit('SET_USER_HISTORY', historyRes.data);
 
         const meRes = await apiClient.get('/users/me');
-        
+
         // Zachowujemy wszystkie dane użytkownika, w tym avatar i avatarColors
         commit('SET_HQUESTION', meRes.data && meRes.data.hquestion ? meRes.data.hquestion : []);
-        
+
         // Aktualizujemy dane użytkownika, zachowując poprzednie dane
         const updatedUser = { ...meRes.data };
         commit('SET_USER', updatedUser);
-        
+
         // Aktualizujemy sessionStorage
         sessionStorage.setItem('user', JSON.stringify(updatedUser));
       } catch (e) {
@@ -91,12 +94,14 @@ export default {
         commit('SET_HQUESTION', []);
       }
     },
-    async logout({ commit }) {
+    async logout({ commit, dispatch }) {
       commit('SET_AUTHENTICATED', false);
       commit('SET_USER', {});
       commit('SET_HQUESTION', []);
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('user');
+      // Po wylogowaniu
+      await dispatch('questions/clearQuestionsCache');
     },
     async clearCategoryHistory({ dispatch }, category) {
       try {
@@ -109,7 +114,7 @@ export default {
   },
   getters: {
     getUser: (state) => state.user,
-    getUserHistory: (state) => (state.user && state.user.history ? state.user.history : []),
+    getUserHistory: (state) => state.history || [],
     getHquestion: (state) => state.hquestion,
     isAuthenticated: (state) => state.isAuthenticated,
   },

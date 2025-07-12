@@ -2,903 +2,25 @@
   {
     "id": 1750004094953,
     "login": "admin",
+    "rola": "admin",
     "avatar": 0,
     "avatarColors": "hsl(235.65887209379073, 100%, 50%)",
     "password": "$2b$10$2smQqHZHAcdjFOG7l3l4K.icGqqOHyUyDhfQqPFha04YjoGlSDfV.",
-    "option": "light",
-    "history": [
-      {
-        "type": "quiz",
-        "category": "Ustawa o przeciwdziałaniu przemocy domowej",
-        "correct": 0,
-        "wrong": 2,
-        "data": "2025-07-08T16:54:22.227Z",
-        "time": null,
-        "questionTimes": [
-          1.708,
-          3.293
-        ],
-        "list": [
-          {
-            "id_questions": 25651,
-            "answer": "answer_b",
-            "correct": false
-          },
-          {
-            "id_questions": 25653,
-            "answer": "answer_b",
-            "correct": false
-          }
-        ]
-      },
-      {
-        "type": "quiz",
-        "category": "Ustawa o przeciwdziałaniu przemocy domowej",
-        "correct": 2,
-        "wrong": 0,
-        "data": "2025-07-08T16:54:43.547Z",
-        "time": null,
-        "questionTimes": [
-          1.108,
-          2.721
-        ],
-        "list": [
-          {
-            "id_questions": 25653,
-            "answer": "answer_c",
-            "correct": true
-          },
-          {
-            "id_questions": 25651,
-            "answer": "answer_a",
-            "correct": true
-          }
-        ]
-      }
-    ],
-    "hquestion": [
-      {
-        "id": 136,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 96,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 98,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 225,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 216,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 205,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 57,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 129,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 36,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 94,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 72,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 193,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 91,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 190,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 171,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 213,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 28,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 220,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 115,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 128,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 215,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 207,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 180,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 6,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 204,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 50,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 78,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 160,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 63,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 48,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 74,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 177,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 149,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 138,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 165,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 113,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 186,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 211,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 12,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 137,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 105,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 43,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 155,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 77,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 38,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 37,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 34,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 62,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 5,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 118,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 167,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 184,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 123,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 16,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 20,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 101,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 39,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 53,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 79,
-        "correct": true,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 172,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 130,
-        "correct": false,
-        "category": "Egzamin 2007"
-      },
-      {
-        "id": 25652,
-        "correct": true,
-        "category": "Ustawa o przeciwdziałaniu przemocy domowej"
-      },
-      {
-        "id": 25653,
-        "correct": true,
-        "category": "Ustawa o przeciwdziałaniu przemocy domowej"
-      },
-      {
-        "id": 25651,
-        "correct": true,
-        "category": "Ustawa o przeciwdziałaniu przemocy domowej"
-      }
-    ]
+    "option": "dark",
+    "history": [],
+    "hquestion": []
   },
   {
     "id": 1750004371282,
     "login": "dosia",
+    "rola": "user",
     "avatar": 0,
     "avatarColors": "hsl(235.65887209379073, 100%, 50%)",
     "password": "$2b$10$gX9UMJYKbHgOBrhEdqLt0eds5rDBlT5B7CCdo8IkDebb/pUdJRuBq",
     "option": "light",
     "hquestion": [
       {
-        "id": 2605,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2606,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2623,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2609,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2566,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2647,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2608,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
         "id": 2600,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2529,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2522,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2637,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2578,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2645,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2516,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2559,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2617,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2644,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2602,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2582,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2596,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2595,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2573,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2628,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2631,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2651,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2557,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2614,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2579,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2565,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2572,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2657,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2524,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2658,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2613,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2531,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2584,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2633,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2586,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2634,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2532,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2570,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2560,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2607,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2621,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2554,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2654,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2540,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2546,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2583,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2590,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2525,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2660,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2588,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2649,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2544,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2604,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2625,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2564,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2558,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2534,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2552,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2624,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2580,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2577,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2533,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2535,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2646,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2594,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2556,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2587,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2656,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2521,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2655,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2536,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2561,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2553,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2603,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2593,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2568,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2548,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2581,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2636,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2598,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2571,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2638,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2630,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2589,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2648,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2632,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2591,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2519,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2641,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2592,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2659,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2612,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2518,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2555,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2626,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2523,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2537,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2543,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2662,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2629,
         "correct": true,
         "category": "Egzamin 2024"
       },
@@ -908,7 +30,17 @@
         "category": "Egzamin 2024"
       },
       {
-        "id": 2563,
+        "id": 2601,
+        "correct": true,
+        "category": "Egzamin 2024"
+      },
+      {
+        "id": 2578,
+        "correct": true,
+        "category": "Egzamin 2024"
+      },
+      {
+        "id": 2587,
         "correct": true,
         "category": "Egzamin 2024"
       },
@@ -918,87 +50,7 @@
         "category": "Egzamin 2024"
       },
       {
-        "id": 2562,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2517,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2635,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2615,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2547,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2599,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2627,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2640,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2528,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2574,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2539,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2538,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2601,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2545,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2575,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2520,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2530,
+        "id": 2617,
         "correct": true,
         "category": "Egzamin 2024"
       },
@@ -1008,102 +60,27 @@
         "category": "Egzamin 2024"
       },
       {
-        "id": 2622,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
         "id": 2610,
         "correct": true,
         "category": "Egzamin 2024"
       },
       {
-        "id": 2515,
+        "id": 2615,
         "correct": true,
         "category": "Egzamin 2024"
       },
       {
-        "id": 2611,
+        "id": 2589,
         "correct": true,
         "category": "Egzamin 2024"
       },
       {
-        "id": 2551,
+        "id": 2605,
         "correct": true,
         "category": "Egzamin 2024"
       },
       {
-        "id": 2567,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2597,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2526,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2576,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2661,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2652,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2650,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2620,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2549,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2639,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2585,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2527,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2542,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2653,
-        "correct": true,
-        "category": "Egzamin 2024"
-      },
-      {
-        "id": 2550,
+        "id": 2588,
         "correct": true,
         "category": "Egzamin 2024"
       },
@@ -1113,1183 +90,76 @@
         "category": "Egzamin 2024"
       },
       {
-        "id": 2616,
+        "id": 2557,
         "correct": true,
         "category": "Egzamin 2024"
       },
       {
-        "id": 2541,
+        "id": 2629,
         "correct": true,
         "category": "Egzamin 2024"
       },
       {
-        "id": 2569,
+        "id": 2608,
         "correct": true,
         "category": "Egzamin 2024"
       },
       {
-        "id": 21406,
+        "id": 2638,
         "correct": true,
-        "category": "Prawo wekslowe"
+        "category": "Egzamin 2024"
       },
       {
-        "id": 21400,
+        "id": 2579,
         "correct": true,
-        "category": "Prawo wekslowe"
+        "category": "Egzamin 2024"
       },
       {
-        "id": 21428,
+        "id": 2564,
         "correct": true,
-        "category": "Prawo wekslowe"
+        "category": "Egzamin 2024"
       },
       {
-        "id": 21586,
+        "id": 2572,
         "correct": true,
-        "category": "Prawo wekslowe"
+        "category": "Egzamin 2024"
       },
       {
-        "id": 21351,
+        "id": 2633,
         "correct": true,
-        "category": "Prawo wekslowe"
+        "category": "Egzamin 2024"
       },
       {
-        "id": 21523,
+        "id": 2661,
         "correct": true,
-        "category": "Prawo wekslowe"
+        "category": "Egzamin 2024"
       },
       {
-        "id": 21426,
+        "id": 2571,
         "correct": true,
-        "category": "Prawo wekslowe"
+        "category": "Egzamin 2024"
       },
       {
-        "id": 21499,
+        "id": 2546,
         "correct": true,
-        "category": "Prawo wekslowe"
+        "category": "Egzamin 2024"
       },
       {
-        "id": 21464,
+        "id": 2625,
         "correct": true,
-        "category": "Prawo wekslowe"
+        "category": "Egzamin 2024"
       },
       {
-        "id": 21430,
+        "id": 2586,
         "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21519,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21597,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21434,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21438,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21355,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21456,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21440,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21561,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21345,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21564,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21383,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21422,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21407,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21533,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21470,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21557,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21462,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21490,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21348,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21578,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21489,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21410,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21421,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21429,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21550,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21548,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21454,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21471,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21549,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21521,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21605,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21359,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21404,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21474,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21591,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21375,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21349,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21595,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21562,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21514,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21587,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21472,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21402,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21568,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21473,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21414,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21433,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21416,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21368,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21344,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21463,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21405,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21397,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21385,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21465,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21394,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21592,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21500,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21388,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21545,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21419,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21492,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21413,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21524,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21593,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21502,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21373,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21580,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21372,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21403,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21558,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21540,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21512,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21431,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21553,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21347,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21518,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21501,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21358,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21457,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21494,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21484,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21415,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21555,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21442,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21408,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21571,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21583,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21480,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21417,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21450,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21526,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21570,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21411,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21389,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21352,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21387,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21369,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21443,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21566,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21507,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21390,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21459,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21581,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21395,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21398,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21497,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21509,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21504,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21520,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21453,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21560,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21441,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21565,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21602,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21487,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21599,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21576,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21423,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21543,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21559,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21556,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21447,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21531,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21554,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21563,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21379,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21377,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21435,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21482,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21460,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21466,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21396,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21427,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21532,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21600,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21418,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21477,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21436,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21432,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21412,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21535,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21356,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21517,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21384,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21529,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21444,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21528,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21530,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21486,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21506,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21445,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21367,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21381,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21534,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21572,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21498,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21475,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21522,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21401,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21546,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21588,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21536,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21357,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21590,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21516,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21585,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21544,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21331,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21542,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21478,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21360,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21468,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21491,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21483,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21448,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21527,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21496,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21386,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21479,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21446,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21505,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21574,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21538,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21575,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21485,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21603,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21399,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21449,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21495,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21476,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21382,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21547,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21511,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21338,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21515,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21392,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21573,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21481,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21598,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21584,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21380,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21409,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21437,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21577,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21452,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21363,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21439,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21420,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21451,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21455,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21488,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21461,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21537,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21513,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21362,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21425,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21391,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21508,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21539,
-        "correct": true,
-        "category": "Prawo wekslowe"
-      },
-      {
-        "id": 21551,
-        "correct": true,
-        "category": "Prawo wekslowe"
+        "category": "Egzamin 2024"
       }
     ],
     "history": [
       {
         "type": "quiz",
         "correct": 148,
-        "categories": [
-          "Egzamin 2024"
-        ],
+        "categories": ["Egzamin 2024"],
         "wrong": 0,
         "list": [
           {
@@ -3034,7 +904,2705 @@
           }
         ],
         "data": "2025-07-07T16:36:54.131Z"
+      },
+      {
+        "type": "quiz",
+        "category": "Egzamin 2024",
+        "correct": 147,
+        "wrong": 0,
+        "data": "2025-07-09T14:52:52.930Z",
+        "time": null,
+        "questionTimes": [
+          18.413, 32.746, 47.982, 53.5, 63.551, 74.119, 81.57, 89.138, 105.174,
+          121.526, 132.411, 137.974, 148.41, 162.362, 174.73, 189.75, 205.535,
+          212.453, 221.937, 234.275, 250.777, 261.193, 267.679, 274.129,
+          283.247, 291.731, 308.586, 323.116, 344.286, 352.954, 358.971,
+          369.356, 382.408, 396.028, 408.162, 431.266, 442.511, 453.928,
+          464.413, 484.616, 495.635, 506.877, 520.596, 527.231, 538.382, 544.2,
+          554.769, 563.336, 574.505, 582.073, 592.574, 601.026, 619.28, 626.939,
+          635.356, 646.009, 657.46, 668.811, 678.329, 693.681, 705.409, 724.044,
+          741.614, 753.167, 757.15, 766.836, 783.203, 794.023, 801.257, 815.143,
+          822.582, 830.32, 836.221, 845.87, 860.175, 870.376, 881.313, 898.047,
+          913.734, 927.293, 933.845, 954.73, 966.183, 972.26, 980.526, 989.595,
+          997.979, 1008.668, 1032.702, 1048.321, 1062.99, 1069.69, 1092.577,
+          1138.284, 1145.369, 1183.359, 1203.812, 1222.947, 1228.248, 1243.134,
+          1258.853, 1265.655, 1285.223, 1297.72, 1330.71, 1358.647, 1369.983,
+          1390.886, 1396.503, 1404.97, 1419.807, 1440.393, 1447.677, 1461.93,
+          1471.248, 1483.35, 1494.151, 1505.441, 1509.707, 1514.818, 1524.569,
+          1528.386, 1534.519, 1537.487, 1545.506, 1554.324, 1565.042, 1576.169,
+          1583.903, 1590.653, 1605.406, 1612.471, 1622.859, 1630.926, 1643.845,
+          1652.555, 1664.791, 1676.592, 1690.279, 1701.321, 1705.68, 1711.764,
+          1721.825, 1727.716, 1733.5, 1743.186, 1752.712
+        ],
+        "list": [
+          {
+            "id_questions": 2559,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2624,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2573,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2654,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2557,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2594,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2518,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2519,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2609,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2549,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2640,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2642,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2533,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2629,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2613,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2639,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2572,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2583,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2584,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2648,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2612,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2608,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2650,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2570,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2575,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2552,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2607,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2595,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2537,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2603,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2657,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2561,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2540,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2633,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2554,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2604,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2610,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2645,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2580,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2534,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2592,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2544,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2550,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2547,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2564,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2585,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2646,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2614,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2587,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2579,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2515,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2524,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2605,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2542,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2661,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2588,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2621,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2620,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2656,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2636,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2553,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2578,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2551,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2627,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2653,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2568,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2655,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2581,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2562,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2567,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2658,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2558,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2652,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2560,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2577,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2626,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2531,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2647,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2628,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2616,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2536,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2651,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2618,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2565,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2538,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2660,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2619,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2602,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2601,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2545,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2632,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2634,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2530,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2638,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2644,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2525,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2522,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2597,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2563,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2535,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2606,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2598,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2546,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2641,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2529,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2586,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2635,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2528,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2590,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2649,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2589,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2539,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2516,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2574,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2596,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2571,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2617,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2556,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2576,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2517,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2532,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2593,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2599,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2569,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2625,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2631,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2591,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2623,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2615,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2637,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2566,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2541,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2659,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2622,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2548,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2582,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2611,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2600,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2643,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2520,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2527,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2662,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2630,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2543,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2521,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2555,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2526,
+            "answer": "answer_a",
+            "correct": true
+          }
+        ]
+      },
+      {
+        "type": "quiz",
+        "category": "Prawo wekslowe",
+        "correct": 48,
+        "wrong": 2,
+        "data": "2025-07-09T17:11:55.231Z",
+        "time": null,
+        "questionTimes": [
+          11.472, 27.093, 38.424, 45.959, 53.75, 60.595, 70.593, 76.456,
+          104.668, 110.14, 116.65, 122.468, 128.083, 134.999, 140.159, 145.282,
+          150.494, 161.66, 173.162, 181.249, 195.446, 203.34, 210.063, 214.447,
+          219.816, 245.194, 248.177, 252.913, 259.404, 263.364, 278.958,
+          291.189, 295.888, 303.967, 310.939, 324.379, 339.372, 346.381,
+          350.201, 356.795, 361.654, 370.246, 374.068, 381.326, 391.076,
+          395.644, 402.863, 414.623, 425.356, 431.669
+        ],
+        "list": [
+          {
+            "id_questions": 21348,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21382,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21485,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21496,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21531,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21354,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21499,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21383,
+            "answer": "answer_a",
+            "correct": false
+          },
+          {
+            "id_questions": 21601,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21424,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21498,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21378,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21598,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21431,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21539,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21477,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21525,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21482,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21457,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21567,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21439,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21426,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21497,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21428,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21350,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21427,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21551,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21587,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21590,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21592,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21462,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21456,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21604,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21467,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21404,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21393,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21420,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21395,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21461,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21577,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21511,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21372,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21583,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21581,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21400,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21331,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21381,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21454,
+            "answer": "answer_c",
+            "correct": false
+          },
+          {
+            "id_questions": 21516,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21566,
+            "answer": "answer_a",
+            "correct": true
+          }
+        ]
+      },
+      {
+        "type": "Quiz - poprawa błędów",
+        "category": "Prawo wekslowe",
+        "correct": 2,
+        "wrong": 0,
+        "data": "2025-07-09T17:12:17.188Z",
+        "time": null,
+        "questionTimes": [7.429, 18.379],
+        "list": [
+          {
+            "id_questions": 21383,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21454,
+            "answer": "answer_a",
+            "correct": true
+          }
+        ]
+      },
+      {
+        "type": "quiz",
+        "category": "Prawo wekslowe",
+        "correct": 49,
+        "wrong": 1,
+        "data": "2025-07-09T17:19:15.440Z",
+        "time": null,
+        "questionTimes": [
+          7.899, 13.632, 20.812, 36.665, 49.603, 61.54, 68.622, 74.99, 84.559,
+          88.06, 96.954, 104.496, 111.355, 118.911, 126.567, 138.323, 146.424,
+          151.651, 162.215, 167.645, 176.675, 181.857, 194.126, 205.946,
+          214.418, 220.104, 223.645, 230.078, 252.5, 262.433, 272.079, 281.764,
+          297.539, 302.954, 312.461, 325.214, 329.112, 335.261, 341.581,
+          347.579, 351.544, 356.537, 361.099, 368.459, 375.206, 381.861,
+          385.867, 387.828, 393.365, 401.062
+        ],
+        "list": [
+          {
+            "id_questions": 21521,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21554,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21529,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21565,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21466,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21360,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21347,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21563,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21409,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21596,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21346,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21536,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21465,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21362,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21444,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21484,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21490,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21435,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21526,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21595,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21450,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21512,
+            "answer": "answer_b",
+            "correct": false
+          },
+          {
+            "id_questions": 21472,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21367,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21564,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21558,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21406,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21469,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21397,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21569,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21344,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21398,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21473,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21562,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21585,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21425,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21429,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21480,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21522,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21495,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21508,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21514,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21560,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21432,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21544,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21479,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21380,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21355,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21533,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21468,
+            "answer": "answer_b",
+            "correct": true
+          }
+        ]
+      },
+      {
+        "type": "Quiz - poprawa błędów",
+        "category": "Prawo wekslowe",
+        "correct": 1,
+        "wrong": 0,
+        "data": "2025-07-09T17:19:25.375Z",
+        "time": null,
+        "questionTimes": [5.52],
+        "list": [
+          {
+            "id_questions": 21512,
+            "answer": "answer_c",
+            "correct": true
+          }
+        ]
+      },
+      {
+        "type": "quiz",
+        "category": "Prawo wekslowe",
+        "correct": 46,
+        "wrong": 4,
+        "data": "2025-07-09T17:27:04.624Z",
+        "time": null,
+        "questionTimes": [
+          11.287, 15.756, 24.403, 28.9, 33.022, 37.546, 44.248, 63.16, 72.828,
+          81.39, 91.876, 96.546, 109.441, 116.785, 120.193, 130.955, 152.03,
+          166.128, 173.349, 176.431, 185.019, 187.933, 193.748, 205.047,
+          207.558, 217.418, 225.285, 232.438, 236.683, 242.041, 248.089,
+          266.338, 277.48, 283.72, 296.812, 301.682, 309.36, 314.502, 325.836,
+          331.961, 339.378, 361.417, 373.155, 382.594, 387.753, 394.724,
+          428.492, 437.265, 441.046, 446.561
+        ],
+        "list": [
+          {
+            "id_questions": 21586,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21430,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21584,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21528,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21505,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21389,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21447,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21349,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21602,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21504,
+            "answer": "answer_b",
+            "correct": false
+          },
+          {
+            "id_questions": 21538,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21492,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21388,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21594,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21414,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21338,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21543,
+            "answer": "answer_a",
+            "correct": false
+          },
+          {
+            "id_questions": 21575,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21524,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21510,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21557,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21365,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21353,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21418,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21493,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21377,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21423,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21588,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21561,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21503,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21415,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21545,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21572,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21358,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21520,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21509,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21329,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21419,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21475,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21339,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21603,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21463,
+            "answer": "answer_c",
+            "correct": false
+          },
+          {
+            "id_questions": 21487,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21437,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21491,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21440,
+            "answer": "answer_a",
+            "correct": false
+          },
+          {
+            "id_questions": 21441,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21593,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21464,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21330,
+            "answer": "answer_a",
+            "correct": true
+          }
+        ]
+      },
+      {
+        "type": "Quiz - poprawa błędów",
+        "category": "Prawo wekslowe",
+        "correct": 4,
+        "wrong": 0,
+        "data": "2025-07-09T17:27:41.338Z",
+        "time": null,
+        "questionTimes": [9.824, 17.236, 26.086, 33.476],
+        "list": [
+          {
+            "id_questions": 21504,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21543,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21463,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21440,
+            "answer": "answer_c",
+            "correct": true
+          }
+        ]
+      },
+      {
+        "type": "quiz",
+        "category": "Prawo wekslowe",
+        "correct": 49,
+        "wrong": 1,
+        "data": "2025-07-09T17:35:00.247Z",
+        "time": null,
+        "questionTimes": [
+          5.275, 10.826, 16.253, 21.559, 32.725, 52.007, 56.31, 63.239, 70.397,
+          78.107, 84.574, 96.724, 101.739, 105.046, 112.659, 120.616, 127.351,
+          132.696, 138.149, 140.41, 144.852, 151.429, 158.731, 166.615, 173.256,
+          184.051, 190.924, 198.483, 203.731, 217.607, 224.454, 230.919,
+          243.271, 249.687, 255.191, 259.229, 269.704, 275.827, 280.001,
+          284.409, 292.534, 303.694, 322.968, 330.097, 347.195, 368.833,
+          376.133, 390.708, 404.882, 421.337
+        ],
+        "list": [
+          {
+            "id_questions": 21416,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21385,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21357,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21589,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21519,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21403,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21387,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21559,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21361,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21579,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21451,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21341,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21386,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21374,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21507,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21471,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21434,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21328,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21342,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21411,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21370,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21334,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21442,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21392,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21407,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21568,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21384,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21446,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21332,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21571,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21368,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21352,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21453,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21550,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21413,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21375,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21478,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21606,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21570,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21541,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21396,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21412,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21523,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21513,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21597,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21391,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21515,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21546,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21390,
+            "answer": "answer_b",
+            "correct": false
+          },
+          {
+            "id_questions": 21460,
+            "answer": "answer_c",
+            "correct": true
+          }
+        ]
+      },
+      {
+        "type": "Quiz - poprawa błędów",
+        "category": "Prawo wekslowe",
+        "correct": 1,
+        "wrong": 0,
+        "data": "2025-07-09T17:35:06.548Z",
+        "time": null,
+        "questionTimes": [2.498],
+        "list": [
+          {
+            "id_questions": 21390,
+            "answer": "answer_a",
+            "correct": true
+          }
+        ]
+      },
+      {
+        "type": "quiz",
+        "category": "Prawo wekslowe",
+        "correct": 46,
+        "wrong": 4,
+        "data": "2025-07-09T17:43:29.960Z",
+        "time": null,
+        "questionTimes": [
+          33.244, 39.042, 42.305, 49.658, 53.149, 68.498, 84.12, 106.933,
+          110.271, 118.079, 132.847, 139.348, 144.937, 152.512, 172.927,
+          176.467, 194.803, 199.827, 210.442, 214.271, 223.156, 231.685,
+          244.037, 257.729, 266.813, 274.662, 278.115, 294.18, 305.171, 318.999,
+          328.253, 335.906, 340.105, 344.489, 366.328, 370.534, 379.075, 388.92,
+          394.056, 399.727, 405.32, 413.586, 421.161, 428.93, 431.609, 443.98,
+          446.594, 451.506, 466.477, 472.857
+        ],
+        "list": [
+          {
+            "id_questions": 21476,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21500,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21422,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21501,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21553,
+            "answer": "answer_b",
+            "correct": false
+          },
+          {
+            "id_questions": 21379,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21359,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21548,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21540,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21600,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21455,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21481,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21436,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21578,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21580,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21340,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21402,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21474,
+            "answer": "answer_c",
+            "correct": false
+          },
+          {
+            "id_questions": 21483,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21532,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21433,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21535,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21421,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21369,
+            "answer": "answer_a",
+            "correct": false
+          },
+          {
+            "id_questions": 21534,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21517,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21364,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21506,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21574,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21417,
+            "answer": "answer_a",
+            "correct": false
+          },
+          {
+            "id_questions": 21336,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21351,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21573,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21555,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21443,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21371,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21576,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21486,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21552,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21410,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21394,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21489,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21343,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21549,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21582,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21527,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21363,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21449,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21542,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21399,
+            "answer": "answer_a",
+            "correct": true
+          }
+        ]
+      },
+      {
+        "type": "Quiz - poprawa błędów",
+        "category": "Prawo wekslowe",
+        "correct": 4,
+        "wrong": 0,
+        "data": "2025-07-09T17:43:58.173Z",
+        "time": null,
+        "questionTimes": [5.861, 9.656, 17.493, 25.775],
+        "list": [
+          {
+            "id_questions": 21553,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21474,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21369,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21417,
+            "answer": "answer_c",
+            "correct": true
+          }
+        ]
+      },
+      {
+        "type": "quiz",
+        "category": "Prawo wekslowe",
+        "correct": 27,
+        "wrong": 3,
+        "data": "2025-07-09T17:48:04.905Z",
+        "time": null,
+        "questionTimes": [
+          7.593, 12.607, 17.336, 23.33, 26.036, 35.685, 53.767, 56.569, 62.87,
+          66.113, 69.159, 91.713, 105.232, 108.75, 115.011, 119.076, 130.027,
+          139.714, 146.9, 161.162, 165.788, 174.964, 179.784, 183.991, 195.543,
+          199.344, 203.128, 209.567, 213.736, 224.252
+        ],
+        "list": [
+          {
+            "id_questions": 21438,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21356,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21376,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21445,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21605,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21556,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21448,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21599,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21530,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21502,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21458,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21335,
+            "answer": "answer_a",
+            "correct": false
+          },
+          {
+            "id_questions": 21547,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21401,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21488,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21337,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21366,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21373,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21470,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21405,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21327,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21459,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21345,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21518,
+            "answer": "answer_b",
+            "correct": false
+          },
+          {
+            "id_questions": 21452,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21333,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 21537,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21591,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21408,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21494,
+            "answer": "answer_a",
+            "correct": false
+          }
+        ]
+      },
+      {
+        "type": "Quiz - poprawa błędów",
+        "category": "Prawo wekslowe",
+        "correct": 3,
+        "wrong": 0,
+        "data": "2025-07-09T17:48:29.007Z",
+        "time": null,
+        "questionTimes": [6.814, 10.541, 21.125],
+        "list": [
+          {
+            "id_questions": 21335,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 21518,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 21494,
+            "answer": "answer_b",
+            "correct": true
+          }
+        ]
+      },
+      {
+        "type": "quiz",
+        "category": "Egzamin 2024",
+        "correct": 50,
+        "wrong": 0,
+        "data": "2025-07-10T13:42:09.045Z",
+        "time": null,
+        "questionTimes": [
+          4.023, 18.006, 23.824, 71.122, 84.037, 90.003, 103.889, 112.507,
+          140.227, 155.725, 176.386, 181.024, 213.115, 220.481, 232.615,
+          260.331, 271.813, 289.681, 296.315, 303.743, 324.327, 367.735,
+          398.406, 422.559, 438.693, 443.477, 457.562, 472.182, 478.815, 495.34,
+          507.936, 522.488, 534.856, 542.459, 564.745, 595.831, 613.997,
+          621.598, 636.916, 664.836, 678.861, 686.29, 699.342, 725.322, 740.101,
+          755.105, 780.657, 807.559, 820.403, 825.887
+        ],
+        "list": [
+          {
+            "id_questions": 2570,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2628,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2630,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2600,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2532,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2641,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2550,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2642,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2631,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2647,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2524,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2519,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2608,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2635,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2574,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2551,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2618,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2659,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2626,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2597,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2557,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2617,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2571,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2586,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2610,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2527,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2581,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2605,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2583,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2573,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2561,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2606,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2544,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2657,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2537,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2531,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2594,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2650,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2616,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2534,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2625,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2637,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2601,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2629,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2633,
+            "answer": "answer_a",
+            "correct": true
+          },
+          {
+            "id_questions": 2529,
+            "answer": "answer_c",
+            "correct": true
+          },
+          {
+            "id_questions": 2619,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2651,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2545,
+            "answer": "answer_b",
+            "correct": true
+          },
+          {
+            "id_questions": 2568,
+            "answer": "answer_c",
+            "correct": true
+          }
+        ]
       }
     ]
+  },
+  {
+    "id": 1752039231536,
+    "login": "Rufus233",
+    "rola": "user",
+    "avatar": 0,
+    "avatarColors": 0,
+    "password": "$2b$10$G.PMX7WXmJYit4S4.Vrek.Al5xwc.wmkXpVxj82AKJ.jpge6kh2sy",
+    "option": "light",
+    "history": []
   }
 ]

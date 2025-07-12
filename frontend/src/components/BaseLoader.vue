@@ -1,6 +1,5 @@
 <template>
   <div class="loader-container">
-    <!-- Pasek ładowania na górze ekranu -->
     <transition name="loader-fade">
       <div v-if="visible" class="loading-bar-container">
         <div class="loading-bar" :class="{ 'loading-bar-infinite': !percentComplete }">
@@ -11,7 +10,6 @@
         </div>
       </div>
     </transition>
-    <!-- Usunięto komunikat ładowania, używamy tylko globalnego API alertu -->
   </div>
 </template>
 
@@ -19,12 +17,12 @@
 export default {
   name: 'BaseLoader',
   emits: [],
-  
+
   // Dodajemy inject, aby móc używać globalnego showAlert
   inject: {
     showAlert: {
-      default: null
-    }
+      default: null,
+    },
   },
 
   data() {
@@ -290,6 +288,10 @@ export default {
 
 .loading-bar-progress {
   height: 100%;
+  /* Tailwind doesn't directly support arbitrary linear gradients with named colors like this
+     so we keep it here or require extending Tailwind config.
+     For Tailwind 2.2.17, direct arbitrary values in classes are not fully supported for gradients.
+     Keeping custom properties for flexibility. */
   background: linear-gradient(
     to right,
     var(--color-primary-dark, #4f46e5),
@@ -303,6 +305,9 @@ export default {
 }
 
 .loading-bar-infinite .loading-bar-progress {
+  /* Similar to above, custom properties and animation are retained.
+     For Tailwind 2.2.17, direct arbitrary values for background-size and animation
+     within utility classes are not available. */
   background: linear-gradient(
     to right,
     var(--color-primary-dark, #4f46e5),

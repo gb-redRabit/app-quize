@@ -5,4 +5,10 @@ export default [
     component: () => import('../views/AdminView.vue'),
     meta: { requiresAuth: true },
   },
+  {
+    path: '/admin-users',
+    name: 'AdminUsersView',
+    component: () => import('../views/AdminUsersView.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
 ];

@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Nowy, bezpośredni układ przycisków akcji -->
     <div class="flex justify-center items-center gap-2">
       <IconButton color="yellow" size="sm" title="Edytuj" @click="openEditModal">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -24,13 +23,17 @@
       </IconButton>
     </div>
     <Teleport to="body">
-      <!-- Modal usuwania (odświeżony wygląd) -->
       <BaseModal :show="showDelete" @close="showDelete = false">
         <template #icon>
           <div
-            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"
+            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10 dark:bg-red-800"
           >
-            <svg class="h-6 w-6 text-red-600" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+            <svg
+              class="h-6 w-6 text-red-600 dark:text-red-300"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -41,10 +44,12 @@
           </div>
         </template>
         <template #header>Usuń pytanie</template>
-        <p class="text-sm text-slate-500">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
           Czy na pewno chcesz usunąć to pytanie? Ta akcja jest nieodwracalna.
         </p>
-        <p class="mt-2 text-sm font-semibold text-slate-700 bg-slate-100 p-2 rounded-md">
+        <p
+          class="mt-2 text-sm font-semibold text-gray-700 bg-gray-100 p-2 rounded-md dark:text-gray-200 dark:bg-gray-700"
+        >
           "{{ question && question.question }}"
         </p>
         <template #footer>
@@ -53,22 +58,22 @@
         </template>
       </BaseModal>
 
-      <!-- Modal edycji (całkowicie przebudowany) -->
       <BaseModal :show="showEdit" @close="showEdit = false" class="!max-w-5xl">
         <template #header>Edycja pytania</template>
         <form v-if="editData" @submit.prevent="saveEdit">
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6">
-            <!-- LEWA KOLUMNA: Pytanie i Odpowiedzi -->
             <div class="lg:col-span-2 space-y-6">
               <div>
-                <label class="block text-sm font-medium text-slate-700" for="edit-question-text"
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  for="edit-question-text"
                   >Treść pytania</label
                 >
                 <textarea
                   v-model="editData.question"
                   id="edit-question-text"
                   rows="4"
-                  class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm"
+                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
                   required
                 ></textarea>
               </div>
@@ -76,24 +81,27 @@
                 <div v-for="key in ['a', 'b', 'c']" :key="key">
                   <label
                     :for="`edit-answer-${key}`"
-                    class="block text-sm font-medium text-slate-700"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >Odpowiedź {{ key.toUpperCase() }}</label
                   >
                   <input
                     type="text"
                     :id="`edit-answer-${key}`"
                     v-model="editData[`answer_${key}`].answer"
-                    class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm"
+                    class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
                     required
                   />
                 </div>
               </div>
             </div>
 
-            <!-- PRAWA KOLUMNA: Ustawienia -->
-            <div class="bg-slate-50 rounded-lg p-6 space-y-6 border">
+            <div
+              class="bg-gray-50 rounded-lg p-6 space-y-6 border dark:bg-gray-800 dark:border-gray-700"
+            >
               <div>
-                <h3 class="text-sm font-medium text-slate-800">Poprawna odpowiedź</h3>
+                <h3 class="text-sm font-medium text-gray-800 dark:text-gray-200">
+                  Poprawna odpowiedź
+                </h3>
                 <div class="grid grid-cols-3 gap-2 mt-2">
                   <button
                     v-for="key in ['a', 'b', 'c']"
@@ -104,7 +112,7 @@
                       'p-2 rounded-md text-sm font-semibold border-2 transition-all',
                       editData[`answer_${key}`].isCorret
                         ? 'bg-green-600 text-white border-green-600 shadow'
-                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-200',
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600',
                     ]"
                   >
                     {{ key.toUpperCase() }}
@@ -112,24 +120,28 @@
                 </div>
               </div>
               <div>
-                <label for="edit-category" class="block text-sm font-medium text-slate-800"
+                <label
+                  for="edit-category"
+                  class="block text-sm font-medium text-gray-800 dark:text-gray-200"
                   >Kategoria</label
                 >
                 <input
                   v-model="editData.category"
                   id="edit-category"
-                  class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm"
+                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
                 />
               </div>
               <div>
-                <label for="edit-description" class="block text-sm font-medium text-slate-800"
+                <label
+                  for="edit-description"
+                  class="block text-sm font-medium text-gray-800 dark:text-gray-200"
                   >Opis (opcjonalnie)</label
                 >
                 <input
                   type="text"
                   v-model="editData.description"
                   id="edit-description"
-                  class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm"
+                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
                 />
               </div>
             </div>
@@ -151,7 +163,7 @@ import apiClient from '@/api';
 import BaseButton from './BaseButton.vue';
 import BaseModal from './BaseModal.vue';
 import IconButton from './IconButton.vue';
-
+import store from '@/store';
 export default {
   props: {
     question: { type: Object, required: true },
@@ -179,6 +191,7 @@ export default {
       this.editData.answer_c.isCorret = false;
       this.editData[`answer_${correctKey}`].isCorret = true;
     },
+
     async saveEdit() {
       this.showLoader('Zapisywanie zmian...');
       try {
@@ -186,6 +199,8 @@ export default {
         this.$emit('edit', this.editData);
         this.showEdit = false;
         this.showAlert('success', 'Pytanie zostało zaktualizowane');
+        // Po dodaniu/edycji/usunięciu pytania:
+        await store.dispatch('questions/refreshQuestionsCache');
       } catch (e) {
         console.error('Błąd zapisu pytania:', e);
         this.showAlert('error', 'Błąd podczas zapisywania pytania.');
@@ -198,6 +213,8 @@ export default {
       try {
         const id = this.question.ID;
         await apiClient.delete(`/questions/${id}`);
+        // Po dodaniu/edycji/usunięciu pytania:
+        await store.dispatch('questions/refreshQuestionsCache');
         this.$emit('deleted', this.question);
         this.showDelete = false;
         this.showAlert('success', 'Pytanie zostało usunięte');

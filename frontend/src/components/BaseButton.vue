@@ -3,14 +3,67 @@
     :is="buttonTag"
     v-bind="buttonProps"
     :class="[
-      'base-button',
-      `base-button-${color}`,
-      `base-button-${size}`,
-      {
-        'base-button-disabled': disabled || loading,
-        'base-button-outline': variant === 'outline',
-        'base-button-ghost': variant === 'ghost',
-      },
+      // Podstawowe style Tailwind
+      'relative overflow-hidden rounded-lg font-medium transition-all duration-200 flex items-center justify-center shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+      'active:translate-y-0.5 active:shadow',
+      // Kolory solid - bez gradientów, tylko jeden kolor
+      color === 'blue' && variant === 'solid' ? 'bg-blue-500 text-white hover:bg-blue-600' : '',
+      color === 'green' && variant === 'solid' ? 'bg-green-500 text-white hover:bg-green-600' : '',
+      color === 'red' && variant === 'solid' ? 'bg-red-500 text-white hover:bg-red-600' : '',
+      color === 'yellow' && variant === 'solid'
+        ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+        : '',
+      color === 'gray' && variant === 'solid' ? 'bg-gray-600 text-white hover:bg-gray-700' : '',
+      color === 'purple' && variant === 'solid'
+        ? 'bg-purple-500 text-white hover:bg-purple-600'
+        : '',
+      // Outline
+      variant === 'outline' ? 'border-2 bg-white shadow-sm' : '',
+      variant === 'outline' && color === 'blue'
+        ? 'border-blue-500 text-blue-600 hover:bg-blue-50 dark:bg-gray-800'
+        : '',
+      variant === 'outline' && color === 'green'
+        ? 'border-green-500 text-green-600 hover:bg-green-50 dark:bg-gray-800'
+        : '',
+      variant === 'outline' && color === 'red'
+        ? 'border-red-500 text-red-600 hover:bg-red-50 dark:bg-gray-800'
+        : '',
+      variant === 'outline' && color === 'yellow'
+        ? 'border-yellow-500 text-yellow-600 hover:bg-yellow-50 dark:bg-gray-800'
+        : '',
+      variant === 'outline' && color === 'gray'
+        ? 'border-gray-500 text-gray-600 hover:bg-gray-50 dark:bg-gray-800'
+        : '',
+      variant === 'outline' && color === 'purple'
+        ? 'border-purple-500 text-purple-600 hover:bg-purple-50 dark:bg-gray-800'
+        : '',
+      // Ghost
+      variant === 'ghost' ? 'bg-transparent shadow-none' : '',
+      variant === 'ghost' && color === 'blue'
+        ? 'text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-800'
+        : '',
+      variant === 'ghost' && color === 'green'
+        ? 'text-green-600 hover:bg-green-50 dark:hover:bg-gray-800'
+        : '',
+      variant === 'ghost' && color === 'red'
+        ? 'text-red-600 hover:bg-red-50 dark:hover:bg-gray-800'
+        : '',
+      variant === 'ghost' && color === 'yellow'
+        ? 'text-yellow-600 hover:bg-yellow-50 dark:hover:bg-gray-800'
+        : '',
+      variant === 'ghost' && color === 'gray'
+        ? 'text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'
+        : '',
+      variant === 'ghost' && color === 'purple'
+        ? 'text-purple-600 hover:bg-purple-50 dark:hover:bg-gray-800'
+        : '',
+      // Rozmiary
+      size === 'sm' ? 'px-3 py-1.5 text-xs' : '',
+      size === 'md' ? 'px-4 py-2 text-sm' : '',
+      size === 'lg' ? 'px-6 py-2.5 text-base' : '',
+      size === 'xl' ? 'px-8 py-3 text-lg' : '',
+      // Disabled
+      disabled || loading ? 'opacity-60 cursor-not-allowed shadow-none pointer-events-none' : '',
       customClass,
     ]"
     :disabled="isButton && (disabled || loading)"
@@ -19,13 +72,20 @@
     ref="btn"
     tabindex="0"
   >
-    <div class="btn-content">
-      <span v-if="loading" class="btn-loader"></span>
+    <div class="flex items-center justify-center relative z-10">
+      <span
+        v-if="loading"
+        class="inline-block w-4 h-4 mr-2 rounded-full border-2 border-white/30 border-l-current animate-spin"
+      ></span>
       <slot name="icon"></slot>
-      <span v-if="$slots.default" class="btn-text">
+      <span v-if="$slots.default">
         <slot></slot>
       </span>
-      <span v-if="showRipple" class="ripple" :style="rippleStyle"></span>
+      <span
+        v-if="showRipple"
+        class="absolute rounded-full bg-white bg-opacity-30 w-[100px] h-[100px] -mt-[50px] -ml-[50px] pointer-events-none animate-[ripple_0.6s_linear]"
+        :style="rippleStyle"
+      ></span>
     </div>
   </component>
 </template>
@@ -145,212 +205,6 @@ export default {
 </script>
 
 <style scoped>
-.base-button {
-  @apply relative overflow-hidden rounded-lg font-medium transition-all duration-200 flex items-center justify-center;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.1),
-    0 1px 2px rgba(0, 0, 0, 0.06);
-  transform: translateY(0);
-}
-
-.base-button:focus-visible {
-  @apply outline-none ring-2 ring-offset-2;
-}
-
-.base-button:active:not(.base-button-disabled) {
-  transform: translateY(1px);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-/* Warianty przycisków */
-.base-button-solid {
-  @apply text-white;
-}
-
-/* Kolory dla wariantu solid */
-.base-button-blue:not(.base-button-outline):not(.base-button-ghost) {
-  background: linear-gradient(to right, #3b82f6, #60a5fa);
-  @apply hover:shadow-md;
-}
-
-.base-button-blue:not(.base-button-outline):not(.base-button-ghost):hover {
-  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
-}
-
-.base-button-green:not(.base-button-outline):not(.base-button-ghost) {
-  background: linear-gradient(to right, #10b981, #34d399);
-  @apply hover:shadow-md;
-}
-
-.base-button-green:not(.base-button-outline):not(.base-button-ghost):hover {
-  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
-}
-
-.base-button-red:not(.base-button-outline):not(.base-button-ghost) {
-  background: linear-gradient(to right, #ef4444, #f87171);
-  @apply hover:shadow-md;
-}
-
-.base-button-red:not(.base-button-outline):not(.base-button-ghost):hover {
-  box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
-}
-
-.base-button-yellow:not(.base-button-outline):not(.base-button-ghost) {
-  background: linear-gradient(to right, #f59e0b, #fbbf24);
-  @apply hover:shadow-md;
-}
-
-.base-button-yellow:not(.base-button-outline):not(.base-button-ghost):hover {
-  box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2);
-}
-
-.base-button-gray:not(.base-button-outline):not(.base-button-ghost) {
-  background: linear-gradient(to right, #6b7280, #9ca3af);
-  @apply hover:shadow-md;
-}
-
-.base-button-gray:not(.base-button-outline):not(.base-button-ghost):hover {
-  box-shadow: 0 4px 6px -1px rgba(107, 114, 128, 0.2);
-}
-
-.base-button-purple:not(.base-button-outline):not(.base-button-ghost) {
-  background: linear-gradient(to right, #8b5cf6, #a78bfa);
-  @apply hover:shadow-md;
-}
-
-.base-button-purple:not(.base-button-outline):not(.base-button-ghost):hover {
-  box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.2);
-}
-
-/* Wariant outline */
-.base-button-outline {
-  @apply border-2 bg-white shadow-sm;
-}
-
-.base-button-outline.base-button-blue {
-  @apply border-blue-500 text-blue-600 hover:bg-blue-50;
-}
-
-.base-button-outline.base-button-green {
-  @apply border-green-500 text-green-600 hover:bg-green-50;
-}
-
-.base-button-outline.base-button-red {
-  @apply border-red-500 text-red-600 hover:bg-red-50;
-}
-
-.base-button-outline.base-button-yellow {
-  @apply border-yellow-500 text-yellow-600 hover:bg-yellow-50;
-}
-
-.base-button-outline.base-button-gray {
-  @apply border-gray-500 text-gray-600 hover:bg-gray-50;
-}
-
-.base-button-outline.base-button-purple {
-  @apply border-purple-500 text-purple-600 hover:bg-purple-50;
-}
-
-/* Wariant ghost */
-.base-button-ghost {
-  @apply bg-transparent shadow-none;
-}
-
-.base-button-ghost.base-button-blue {
-  @apply text-blue-600 hover:bg-blue-50;
-}
-
-.base-button-ghost.base-button-green {
-  @apply text-green-600 hover:bg-green-50;
-}
-
-.base-button-ghost.base-button-red {
-  @apply text-red-600 hover:bg-red-50;
-}
-
-.base-button-ghost.base-button-yellow {
-  @apply text-yellow-600 hover:bg-yellow-50;
-}
-
-.base-button-ghost.base-button-gray {
-  @apply text-gray-600 hover:bg-gray-50;
-}
-
-.base-button-ghost.base-button-purple {
-  @apply text-purple-600 hover:bg-purple-50;
-}
-
-/* Rozmiary */
-.base-button-sm {
-  @apply px-3 py-1.5 text-xs;
-}
-
-.base-button-md {
-  @apply px-4 py-2 text-sm;
-}
-
-.base-button-lg {
-  @apply px-6 py-2.5 text-base;
-}
-
-.base-button-xl {
-  @apply px-8 py-3 text-lg;
-}
-
-/* Stan disabled */
-.base-button-disabled {
-  @apply opacity-60 cursor-not-allowed shadow-none;
-  transform: none !important;
-}
-
-/* Zawartość przycisku */
-.btn-content {
-  @apply flex items-center justify-center relative z-10;
-}
-
-/* Poprawka: usunięcie first:ml-0 i zastąpienie standardowym CSS */
-.btn-text {
-  @apply ml-2;
-}
-
-.btn-text:first-child {
-  margin-left: 0;
-}
-
-/* Loader - nowoczesna animacja */
-.btn-loader {
-  @apply inline-block w-4 h-4 mr-2 rounded-full;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-left-color: currentColor;
-  animation: spin 0.8s linear infinite;
-}
-
-.base-button-outline .btn-loader,
-.base-button-ghost .btn-loader {
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  border-left-color: currentColor;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Efekt Ripple */
-.ripple {
-  @apply absolute rounded-full bg-white bg-opacity-30;
-  width: 100px;
-  height: 100px;
-  margin-top: -50px;
-  margin-left: -50px;
-  animation: ripple 0.6s linear;
-  pointer-events: none;
-}
-
 @keyframes ripple {
   0% {
     transform: scale(0);
@@ -360,14 +214,5 @@ export default {
     transform: scale(4);
     opacity: 0;
   }
-}
-
-/* Dodane wsparcie dla ciemnego motywu */
-[data-theme='dark'] .base-button-outline {
-  @apply bg-gray-800;
-}
-
-[data-theme='dark'] .base-button-ghost {
-  @apply hover:bg-gray-800;
 }
 </style>

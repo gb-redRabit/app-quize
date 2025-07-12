@@ -1,30 +1,49 @@
 <template>
   <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-    <!-- Usuwam komponent BaseLoader i używam tylko globalnego API -->
     <div class="">
-      <!-- Nagłówek strony -->
       <div class="mb-4">
-        <h1 class="text-3xl md:text-4xl font-bold text-slate-800">Panel Administratora</h1>
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-200">
+          Panel Administratora
+        </h1>
       </div>
 
-      <!-- --- POCZĄTEK POPRAWKI: NAPRAWIONA STRUKTURA HTML --- -->
-      <!-- Panel sterowania -->
-      <div class="bg-white rounded-lg shadow-md border border-slate-200 mb-4">
+      <div
+        class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 mb-4"
+      >
         <div class="p-4 md:p-6">
-          <!-- Główne akcje i wyszukiwarka -->
           <div class="flex flex-col md:flex-row justify-between items-center mb-2 gap-4">
             <SearchBar v-model:search="searchQuery" class="w-full order-2 md:order-1" />
           </div>
 
-          <!-- Nowoczesny, "karciany" layout dla narzędzi -->
+          <div class="flex flex-col md:flex-row gap-4 mb-4">
+            <!-- Dodaj select do sortowania po kategorii -->
+            <div class="flex items-center gap-2">
+              <label for="sort-category" class="text-sm text-gray-700 dark:text-gray-200"
+                >Sortuj według kategorii:</label
+              >
+              <select
+                id="sort-category"
+                v-model="selectedSortCategory"
+                class="rounded-md border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-2 py-1 text-sm"
+              >
+                <option value="">Wszystkie</option>
+                <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
+              </select>
+            </div>
+          </div>
+
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Karta: Dodaj pytanie -->
             <div
               @click="openAddPopup"
-              class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex items-center gap-4"
+              class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow"
             >
               <div class="bg-sky-500 p-3 rounded-full">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  class="w-6 h-6 text-gray-600 dark:text-gray-200"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -34,17 +53,16 @@
                 </svg>
               </div>
               <div>
-                <h3 class="font-semibold">Dodaj pytanie</h3>
-                <p class="text-sm text-sky-200">Otwórz formularz</p>
+                <h3 class="font-semibold text-gray-800 dark:text-gray-100">Dodaj pytanie</h3>
+                <p class="text-sm text-sky-600 dark:text-sky-400">Otwórz formularz</p>
               </div>
             </div>
-            <!-- Karta: Eksport -->
             <div
-              class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex items-center gap-4"
+              class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 flex items-center gap-4"
             >
-              <div class="bg-green-100 p-3 rounded-full">
+              <div class="bg-green-100 dark:bg-green-700 p-3 rounded-full">
                 <svg
-                  class="w-6 h-6 text-green-600"
+                  class="w-6 h-6 text-green-600 dark:text-green-200"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -58,22 +76,21 @@
                 </svg>
               </div>
               <div>
-                <h3 class="font-semibold text-slate-700">Eksport</h3>
+                <h3 class="font-semibold text-gray-700 dark:text-gray-100">Eksport</h3>
                 <button
                   @click="exportQuestionsExcel"
-                  class="text-sm text-sky-600 hover:text-sky-800 font-medium"
+                  class="text-sm text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-200 font-medium"
                 >
                   Pobierz plik .xlsx
                 </button>
               </div>
             </div>
-            <!-- Karta: Import -->
             <div
-              class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex items-center gap-4"
+              class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 flex items-center gap-4"
             >
-              <div class="bg-sky-100 p-3 rounded-full">
+              <div class="bg-sky-100 dark:bg-sky-700 p-3 rounded-full">
                 <svg
-                  class="w-6 h-6 text-sky-600"
+                  class="w-6 h-6 text-gray-600 dark:text-gray-200"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -87,26 +104,27 @@
                 </svg>
               </div>
               <div>
-                <h3 class="font-semibold text-slate-700">Import</h3>
-                <label class="text-sm text-sky-600 hover:text-sky-800 font-medium cursor-pointer">
+                <h3 class="font-semibold text-gray-700 dark:text-gray-100">Import</h3>
+                <label
+                  class="text-sm text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-200 font-medium cursor-pointer"
+                >
                   Wybierz plik .xlsx
                   <input type="file" accept=".xlsx" @change="importQuestions" class="hidden" />
                 </label>
                 <button
                   @click="showExcelInfo = true"
-                  class="block text-xs text-slate-400 hover:text-slate-600"
+                  class="block text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                 >
                   Jak przygotować plik?
                 </button>
               </div>
             </div>
-            <!-- Karta: Strefa niebezpieczna -->
             <div
-              class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex items-center gap-4"
+              class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 flex items-center gap-4"
             >
-              <div class="bg-red-100 p-3 rounded-full">
+              <div class="bg-red-100 dark:bg-red-700 p-3 rounded-full">
                 <svg
-                  class="w-6 h-6 text-red-600"
+                  class="w-6 h-6 text-red-600 dark:text-red-200"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -120,10 +138,10 @@
                 </svg>
               </div>
               <div>
-                <h3 class="font-semibold text-slate-700">Strefa niebezpieczna</h3>
+                <h3 class="font-semibold text-gray-700 dark:text-gray-100">Strefa niebezpieczna</h3>
                 <button
                   @click="showClearQuestionsModal = true"
-                  class="text-sm text-red-600 hover:text-red-800 font-medium"
+                  class="text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200 font-medium"
                 >
                   Wyczyść bazę pytań
                 </button>
@@ -133,16 +151,25 @@
         </div>
       </div>
 
-      <!-- Lista pytań -->
-      <div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
-        <div class="hidden sm:flex items-center p-4 border-b border-slate-200 bg-slate-50">
-          <div class="w-24 font-mono text-xs font-semibold text-slate-500 uppercase tracking-wider">
+      <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden"
+      >
+        <div
+          class="hidden sm:flex items-center p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"
+        >
+          <div
+            class="w-24 font-mono text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+          >
             ID
           </div>
-          <div class="flex-grow font-semibold text-slate-600 uppercase tracking-wider">
+          <div
+            class="flex-grow font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider"
+          >
             Treść pytania
           </div>
-          <div class="w-32 text-center font-semibold text-slate-600 uppercase tracking-wider">
+          <div
+            class="w-32 text-center font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider"
+          >
             Akcje
           </div>
         </div>
@@ -160,18 +187,14 @@
               :size-dependencies="[item.question, expandedRows.includes(item.ID)]"
               :data-index="index"
               :class="[
-                'border-b border-slate-200 transition-colors duration-150',
-                'hover:bg-sky-100/50',
-                // --- POCZĄTEK POPRAWKI: Usunięcie klas tła z komponentu-wrappera ---
-                // Klasy tła zostaną przeniesione do wewnętrznych elementów
-                // --- KONIEC POPRAWKI ---
+                'border-b border-gray-200 dark:border-gray-700 transition-colors duration-150',
+                'hover:bg-sky-100/50 dark:hover:bg-sky-900/50',
               ]"
             >
-              <!-- Widok mobilny -->
               <div
                 :class="[
                   'block sm:hidden p-4',
-                  index % 2 === 0 ? 'bg-gray-100' : 'bg-white', // --- POCZĄTEK POPRAWKI: Dodanie klasy tła ---
+                  index % 2 === 0 ? 'bg-gray-100 dark:bg-gray-800' : 'bg-white dark:bg-gray-700',
                 ]"
               >
                 <div
@@ -179,12 +202,14 @@
                   @click="toggleRow(item.ID)"
                 >
                   <div class="flex-grow truncate pr-2">
-                    <span class="text-slate-400 font-mono text-xs block">ID: {{ item.ID }}</span>
-                    <span class="text-slate-800">{{ item.question }}</span>
+                    <span class="text-gray-400 dark:text-gray-500 font-mono text-xs block"
+                      >ID: {{ item.ID }}</span
+                    >
+                    <span class="text-gray-800 dark:text-gray-200">{{ item.question }}</span>
                   </div>
                   <svg
                     :class="[
-                      'w-6 h-6 transition-transform flex-shrink-0 text-slate-500',
+                      'w-6 h-6 transition-transform flex-shrink-0 text-gray-500 dark:text-gray-400',
                       { 'rotate-180': expandedRows.includes(item.ID) },
                     ]"
                     fill="none"
@@ -197,15 +222,14 @@
                 </div>
                 <div
                   v-if="expandedRows.includes(item.ID)"
-                  class="mt-4 pt-4 border-t border-slate-200"
+                  class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700"
                 >
-                  <div class="text-sm text-slate-600 mb-3">
+                  <div class="text-sm text-gray-600 dark:text-gray-300 mb-3">
                     <b>Kategoria:</b> {{ item.category || 'Brak' }}
                   </div>
-                  <div class="text-sm text-slate-600 mb-4">
+                  <div class="text-sm text-gray-600 dark:text-gray-300 mb-4">
                     <b>Opis:</b> {{ item.description || 'Brak' }}
                   </div>
-                  <!-- --- POCZĄTEK ZMIANY: UŻYCIE QuestionActions --- -->
                   <div class="flex">
                     <QuestionActions
                       :question="item"
@@ -213,20 +237,19 @@
                       @deleted="onQuestionDeleted"
                     />
                   </div>
-                  <!-- --- KONIEC ZMIANY --- -->
                 </div>
               </div>
-              <!-- Widok desktopowy -->
               <div
                 :class="[
                   'hidden sm:flex items-center px-4 py-4',
-                  index % 2 === 0 ? 'bg-white' : 'bg-gray-100', // Użyłem bg-slate-50 dla subtelniejszego efektu
+                  index % 2 === 0 ? 'bg-white dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800',
                 ]"
               >
-                <div class="w-24 font-mono text-sm text-slate-600">{{ item.ID }}</div>
-                <!-- --- POCZĄTEK POPRAWKI: Skracanie i rozwijanie tekstu --- -->
+                <div class="w-24 font-mono text-sm text-gray-600 dark:text-gray-400">
+                  {{ item.ID }}
+                </div>
                 <div
-                  class="flex-grow text-slate-800 pr-4 cursor-pointer"
+                  class="flex-grow text-gray-800 dark:text-gray-200 pr-4 cursor-pointer"
                   @click="toggleRow(item.ID)"
                 >
                   <span v-if="!expandedRows.includes(item.ID) && item.question.length > 150">
@@ -236,7 +259,6 @@
                     {{ item.question }}
                   </span>
                 </div>
-                <!-- --- KONIEC POPRAWKI --- -->
                 <div class="w-32 flex justify-center">
                   <QuestionActions
                     :question="item"
@@ -249,48 +271,45 @@
           </template>
         </DynamicScroller>
       </div>
-      <!-- --- KONIEC POPRAWKI --- -->
-
-      <!-- --- MODALE --- -->
       <BaseModal :show="showExcelInfo" @close="showExcelInfo = false">
         <template #header>Import pytań z pliku Excel</template>
-        <p class="text-sm text-slate-600 mb-4">
+        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
           Przygotuj plik .xlsx z kolumnami w podanej kolejności. Pierwszy wiersz musi zawierać
           nagłówki (nazwy dowolne).
         </p>
-        <div class="overflow-x-auto mb-4 rounded-lg border border-slate-200">
+        <div class="overflow-x-auto mb-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <table class="min-w-full text-xs">
-            <thead class="bg-slate-50">
+            <thead class="bg-gray-50 dark:bg-gray-900">
               <tr class="text-left">
-                <th class="p-2 font-semibold">ID</th>
-                <th class="p-2 font-semibold">Pytanie</th>
-                <th class="p-2 font-semibold">Odp. A</th>
-                <th class="p-2 font-semibold">Poprawna A</th>
-                <th class="p-2 font-semibold">Odp. B</th>
-                <th class="p-2 font-semibold">Poprawna B</th>
-                <th class="p-2 font-semibold">Odp. C</th>
-                <th class="p-2 font-semibold">Poprawna C</th>
-                <th class="p-2 font-semibold">Kategoria</th>
-                <th class="p-2 font-semibold">Opis</th>
+                <th class="p-2 font-semibold text-gray-700 dark:text-gray-200">ID</th>
+                <th class="p-2 font-semibold text-gray-700 dark:text-gray-200">Pytanie</th>
+                <th class="p-2 font-semibold text-gray-700 dark:text-gray-200">Odp. A</th>
+                <th class="p-2 font-semibold text-gray-700 dark:text-gray-200">Poprawna A</th>
+                <th class="p-2 font-semibold text-gray-700 dark:text-gray-200">Odp. B</th>
+                <th class="p-2 font-semibold text-gray-700 dark:text-gray-200">Poprawna B</th>
+                <th class="p-2 font-semibold text-gray-700 dark:text-gray-200">Odp. C</th>
+                <th class="p-2 font-semibold text-gray-700 dark:text-gray-200">Poprawna C</th>
+                <th class="p-2 font-semibold text-gray-700 dark:text-gray-200">Kategoria</th>
+                <th class="p-2 font-semibold text-gray-700 dark:text-gray-200">Opis</th>
               </tr>
             </thead>
-            <tbody class="bg-white">
-              <tr class="border-t border-slate-200">
-                <td class="p-2">123</td>
-                <td class="p-2">Treść...</td>
-                <td class="p-2">Odp...</td>
-                <td class="p-2">true</td>
-                <td class="p-2">Odp...</td>
-                <td class="p-2">false</td>
-                <td class="p-2">Odp...</td>
-                <td class="p-2">false</td>
-                <td class="p-2">Kategoria...</td>
-                <td class="p-2">Opis...</td>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tr class="border-t border-gray-200 dark:border-gray-700">
+                <td class="p-2 text-gray-700 dark:text-gray-300">123</td>
+                <td class="p-2 text-gray-700 dark:text-gray-300">Treść...</td>
+                <td class="p-2 text-gray-700 dark:text-gray-300">Odp...</td>
+                <td class="p-2 text-gray-700 dark:text-gray-300">true</td>
+                <td class="p-2 text-gray-700 dark:text-gray-300">Odp...</td>
+                <td class="p-2 text-gray-700 dark:text-gray-300">false</td>
+                <td class="p-2 text-gray-700 dark:text-gray-300">Odp...</td>
+                <td class="p-2 text-gray-700 dark:text-gray-300">false</td>
+                <td class="p-2 text-gray-700 dark:text-gray-300">Kategoria...</td>
+                <td class="p-2 text-gray-700 dark:text-gray-300">Opis...</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <ul class="mb-4 list-disc pl-5 text-sm text-slate-600 space-y-1">
+        <ul class="mb-4 list-disc pl-5 text-sm text-gray-600 dark:text-gray-300 space-y-1">
           <li>
             W kolumnach "Poprawna" wpisz <b>true</b> lub <b>false</b> (lub zostaw puste dla false).
           </li>
@@ -303,9 +322,14 @@
       <BaseModal :show="showClearQuestionsModal" @close="showClearQuestionsModal = false">
         <template #icon>
           <div
-            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"
+            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-700 sm:mx-0 sm:h-10 sm:w-10"
           >
-            <svg class="h-6 w-6 text-red-600" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+            <svg
+              class="h-6 w-6 text-red-600 dark:text-red-200"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -316,7 +340,7 @@
           </div>
         </template>
         <template #header>Wyczyść bazę pytań</template>
-        <p class="text-sm text-slate-500">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
           Czy na pewno chcesz usunąć <b>wszystkie</b> pytania? Tej operacji nie można cofnąć.
         </p>
         <template #footer>
@@ -325,38 +349,38 @@
         </template>
       </BaseModal>
 
-      <!-- Modal dodawania (pozostaje, bo jest unikalny dla tego widoku) -->
       <BaseModal :show="showAddPopup" @close="closeAddPopup" class="!max-w-5xl">
-        <!-- --- POCZĄTEK POPRAWKI: USUNIĘCIE ZBĘDNEJ LOGIKI --- -->
         <template #header>Nowe pytanie</template>
-        <!-- --- KONIEC POPRAWKI --- -->
         <form @submit.prevent="saveNewQuestion()">
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6">
-            <!-- LEWA KOLUMNA: Pytanie i Odpowiedzi -->
             <div class="lg:col-span-2 space-y-6">
               <div>
-                <label class="block text-sm font-medium text-slate-700" for="question-text"
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-200"
+                  for="question-text"
                   >Treść pytania</label
                 >
                 <textarea
                   v-model="formModel.question"
                   id="question-text"
                   rows="4"
-                  class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm"
+                  class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                   placeholder="Wpisz treść pytania..."
                   required
                 ></textarea>
               </div>
               <div class="space-y-4">
                 <div v-for="key in ['a', 'b', 'c']" :key="key">
-                  <label :for="`answer-${key}`" class="block text-sm font-medium text-slate-700"
+                  <label
+                    :for="`answer-${key}`"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-200"
                     >Odpowiedź {{ key.toUpperCase() }}</label
                   >
                   <input
                     type="text"
                     :id="`answer-${key}`"
                     v-model="formModel[`answer_${key}`].answer"
-                    class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm"
+                    class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                     :placeholder="`Treść odpowiedzi ${key.toUpperCase()}`"
                     required
                   />
@@ -364,11 +388,13 @@
               </div>
             </div>
 
-            <!-- PRAWA KOLUMNA: Ustawienia -->
-            <div class="bg-slate-50 rounded-lg p-6 space-y-6 border">
-              <!-- Ustawienie poprawnej odpowiedzi -->
+            <div
+              class="bg-gray-50 rounded-lg p-6 space-y-6 border dark:bg-gray-800 dark:border-gray-700"
+            >
               <div>
-                <h3 class="text-sm font-medium text-slate-800">Poprawna odpowiedź</h3>
+                <h3 class="text-sm font-medium text-gray-800 dark:text-gray-100">
+                  Poprawna odpowiedź
+                </h3>
                 <div class="grid grid-cols-3 gap-2 mt-2">
                   <button
                     v-for="key in ['a', 'b', 'c']"
@@ -378,8 +404,8 @@
                     :class="[
                       'p-2 rounded-md text-sm font-semibold border-2 transition-all',
                       formModel[`answer_${key}`].isCorret
-                        ? 'bg-green-600 text-white border-green-600 shadow'
-                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-200',
+                        ? 'bg-green-600 text-white border-green-600 shadow dark:bg-green-500 dark:border-green-500'
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-900',
                     ]"
                   >
                     {{ key.toUpperCase() }}
@@ -387,15 +413,16 @@
                 </div>
               </div>
 
-              <!-- Kategoria -->
               <div>
-                <label for="category" class="block text-sm font-medium text-slate-800"
+                <label
+                  for="category"
+                  class="block text-sm font-medium text-gray-800 dark:text-gray-100"
                   >Kategoria</label
                 >
                 <select
                   v-model="formModel.category"
                   id="category"
-                  class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm"
+                  class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   required
                 >
                   <option value="" disabled>Wybierz kategorię</option>
@@ -406,7 +433,7 @@
                   <input
                     v-model="newCategoryInput"
                     @keyup.enter.prevent="confirmNewCategory()"
-                    class="block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm"
+                    class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                     placeholder="Nowa kategoria"
                   />
                   <BaseButton size="sm" color="green" type="button" @click="confirmNewCategory()"
@@ -415,16 +442,17 @@
                 </div>
               </div>
 
-              <!-- Opis -->
               <div>
-                <label for="description" class="block text-sm font-medium text-slate-800"
+                <label
+                  for="description"
+                  class="block text-sm font-medium text-gray-800 dark:text-gray-100"
                   >Opis (opcjonalnie)</label
                 >
                 <input
                   type="text"
                   v-model="formModel.description"
                   id="description"
-                  class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm"
+                  class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                   placeholder="Np. podstawa prawna"
                 />
               </div>
@@ -432,16 +460,12 @@
           </div>
         </form>
         <template #footer>
-          <!-- --- POCZĄTEK POPRAWKI: UPROSZCZENIE PRZYCISKÓW --- -->
           <BaseButton color="gray" type="button" @click="closeAddPopup()">Anuluj</BaseButton>
           <BaseButton color="blue" type="submit" @click="saveNewQuestion()"
             >Zapisz pytanie</BaseButton
           >
-          <!-- --- KONIEC POPRAWKI --- -->
         </template>
       </BaseModal>
-
-      <!-- Modale edycji i usuwania pojedynczego pytania nie są już tutaj potrzebne -->
     </div>
   </div>
 </template>
@@ -455,7 +479,7 @@ import apiClient from '@/api';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import QuestionActions from '@/components/QuestionActions.vue';
-
+import store from '@/store';
 export default {
   components: {
     SearchBar,
@@ -471,6 +495,7 @@ export default {
     return {
       questions: [],
       categories: [],
+      selectedSortCategory: '', // Dodaj do data
       showAddPopup: false,
       newCategoryInput: '',
       searchQuery: '',
@@ -493,13 +518,21 @@ export default {
   },
   computed: {
     filteredQuestions() {
-      if (!this.searchQuery) return this.questions;
-      const q = this.searchQuery.toLowerCase();
-      return this.questions.filter(
-        (question) =>
-          question.question.toLowerCase().includes(q) ||
-          (question.ID && question.ID.toString().includes(q))
-      );
+      let result = this.questions;
+      // Filtrowanie po wyszukiwaniu
+      if (this.searchQuery) {
+        const q = this.searchQuery.toLowerCase();
+        result = result.filter(
+          (question) =>
+            question.question.toLowerCase().includes(q) ||
+            (question.ID && question.ID.toString().includes(q))
+        );
+      }
+      // Sortowanie/filtrowanie po kategorii
+      if (this.selectedSortCategory) {
+        result = result.filter((q) => q.category === this.selectedSortCategory);
+      }
+      return result;
     },
   },
   methods: {
@@ -511,7 +544,7 @@ export default {
         this.questions.splice(index, 1, editedQuestion);
       }
     },
-    onQuestionDeleted(deletedQuestion) {
+    async onQuestionDeleted(deletedQuestion) {
       this.questions = this.questions.filter((q) => q.ID !== deletedQuestion.ID);
     },
     // --- KONIEC POPRAWKI ---
@@ -523,6 +556,7 @@ export default {
         await apiClient.post('/questions/clear');
         this.showAlert('success', 'Baza pytań została pomyślnie wyczyszczona!');
         await this.fetchQuestions();
+        await store.dispatch('questions/refreshQuestionsCache');
       } catch (e) {
         this.showAlert('error', 'Błąd podczas czyszczenia bazy pytań.');
       }
@@ -531,9 +565,11 @@ export default {
     async fetchQuestions() {
       this.showLoader('Pobieranie pytań...');
       try {
-        const res = await apiClient.get('/questions');
-        this.questions = Array.isArray(res.data) ? res.data : [];
-        this.categories = [...new Set(res.data.map((q) => q.category).filter(Boolean))];
+        const response = await apiClient.get('/questions');
+        this.questions = (Array.isArray(response.data) ? response.data : [])
+          .filter((q) => q.ID !== undefined && q.ID !== null)
+          .sort((a, b) => a.ID - b.ID);
+        this.categories = [...new Set(this.questions.map((q) => q.category).filter(Boolean))];
       } catch (error) {
         this.showAlert('error', 'Błąd podczas pobierania pytań.');
         console.error('Błąd pobierania pytań:', error);
@@ -559,8 +595,10 @@ export default {
       try {
         await apiClient.post('/questions', this.formModel);
         this.showAlert('success', 'Pytanie zostało dodane pomyślnie!');
-        await this.fetchQuestions();
         this.closeAddPopup();
+        // Po dodaniu/edycji/usunięciu pytania:
+        await store.dispatch('questions/addQuestion', this.formModel);
+        await this.fetchQuestions();
       } catch (error) {
         this.showAlert('error', 'Błąd podczas dodawania pytania.');
         console.error('Błąd dodawania pytania:', error);
@@ -612,7 +650,6 @@ export default {
       const formData = new FormData();
       formData.append('file', file);
       this.showLoader('Importowanie pytań...');
-
       try {
         const response = await apiClient.post('/questions/import/excel', formData, {
           headers: {
@@ -621,6 +658,7 @@ export default {
         });
 
         this.showAlert('success', `Dodano ${response.data.added} nowych pytań.`);
+        await store.dispatch('questions/refreshQuestionsCache');
         await this.fetchQuestions();
       } catch (error) {
         const errorMessage =

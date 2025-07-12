@@ -6,19 +6,23 @@
       @click.self="$emit('close')"
     >
       <div
-        class="relative bg-white rounded-lg shadow-xl transform transition-all sm:my-8 sm:max-w-5xl w-full flex flex-col"
+        class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl transform transition-all sm:my-8 sm:max-w-5xl w-full flex flex-col"
         style="max-height: 90vh"
       >
-        <!-- Nagłówek i przycisk zamknięcia -->
-        <div class="flex justify-between items-center p-4 border-b border-slate-200">
-          <h3 v-if="$slots.header" class="text-xl font-semibold text-slate-800" id="modal-title">
+        <div
+          class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-gray-700"
+        >
+          <h3
+            v-if="$slots.header"
+            class="text-xl font-semibold text-slate-800 dark:text-white"
+            id="modal-title"
+          >
             <slot name="header"></slot>
           </h3>
           <div v-else></div>
-          <!-- Pusty div dla zachowania justowania -->
           <button
             @click="$emit('close')"
-            class="text-slate-400 hover:text-slate-600 transition-colors"
+            class="text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 transition-colors"
             aria-label="Zamknij"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,27 +36,23 @@
           </button>
         </div>
 
-        <!-- Główna treść modala -->
         <div class="p-6 overflow-y-auto">
           <div class="sm:flex sm:items-start">
-            <!-- Slot na ikonę (opcjonalny) -->
             <div
               v-if="$slots.icon"
               class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"
             >
               <slot name="icon"></slot>
             </div>
-            <!-- Główna treść (slot domyślny) -->
             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
               <slot></slot>
             </div>
           </div>
         </div>
 
-        <!-- Stopka (opcjonalna) -->
         <div
           v-if="$slots.footer"
-          class="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-lg border-t border-slate-200"
+          class="bg-slate-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-lg border-t border-slate-200 dark:border-gray-600"
         >
           <slot name="footer"></slot>
         </div>

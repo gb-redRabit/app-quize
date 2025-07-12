@@ -1,19 +1,16 @@
 <template>
-  <!-- Alert -->
   <transition name="alert-fade">
     <div
       v-if="visible"
-      class="fixed bottom-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-md alert"
+      class="fixed bottom-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-md"
       :class="alertTypeClass"
     >
       <div class="flex items-center">
-        <!-- Ikona alertu -->
         <div class="flex-shrink-0 mr-3">
-          <!-- Ikona sukcesu -->
           <svg
             v-if="type === 'success'"
             xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
+            class="h-5 w-5 text-green-700 dark:text-green-300"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -24,11 +21,10 @@
             />
           </svg>
 
-          <!-- Ikona błędu -->
           <svg
             v-else-if="type === 'error'"
             xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
+            class="h-5 w-5 text-red-700 dark:text-red-300"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -39,11 +35,10 @@
             />
           </svg>
 
-          <!-- Ikona ostrzeżenia -->
           <svg
             v-else-if="type === 'warning'"
             xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
+            class="h-5 w-5 text-yellow-700 dark:text-yellow-300"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -54,11 +49,10 @@
             />
           </svg>
 
-          <!-- Ikona informacji -->
           <svg
             v-else
             xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
+            class="h-5 w-5 text-blue-700 dark:text-blue-300"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -70,13 +64,14 @@
           </svg>
         </div>
 
-        <!-- Treść alertu -->
         <div class="flex-grow">
           <p class="text-sm">{{ message }}</p>
         </div>
 
-        <!-- Przycisk zamknięcia -->
-        <button @click="hide" class="ml-3 flex-shrink-0">
+        <button
+          @click="hide"
+          class="ml-3 flex-shrink-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+        >
           <svg
             class="h-4 w-4"
             xmlns="http://www.w3.org/2000/svg"
@@ -94,26 +89,32 @@
         </button>
       </div>
 
-      <!-- Pasek postępu -->
       <div
         v-if="duration > 0"
-        class="absolute bottom-0 left-0 h-1 bg-white bg-opacity-30"
+        class="absolute bottom-0 left-0 h-1 bg-white bg-opacity-30 dark:bg-gray-900 dark:bg-opacity-30"
         :style="{ width: `${progressWidth}%` }"
       ></div>
     </div>
   </transition>
 
-  <!-- Okno potwierdzenia -->
   <transition name="modal-fade">
     <div v-if="isConfirmVisible" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black bg-opacity-50" @click="cancelConfirm"></div>
-      <div class="relative z-10 bg-card-bg rounded-lg shadow-lg p-6 max-w-md w-full mx-4">
-        <h3 class="text-lg font-medium mb-4 text-gray-800">{{ confirmMessage }}</h3>
+      <div
+        class="relative z-10 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full mx-4"
+      >
+        <h3 class="text-lg font-medium mb-4 text-gray-800 dark:text-white">{{ confirmMessage }}</h3>
         <div class="flex justify-end space-x-3">
-          <button @click="cancelConfirm" class="px-4 py-2 rounded-md bg-gray-200 text-gray-800">
+          <button
+            @click="cancelConfirm"
+            class="px-4 py-2 rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+          >
             Anuluj
           </button>
-          <button @click="confirmAction" class="px-4 py-2 rounded-md bg-blue-600 text-white">
+          <button
+            @click="confirmAction"
+            class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+          >
             Potwierdź
           </button>
         </div>
@@ -150,44 +151,42 @@ export default {
     alertTypeClass() {
       switch (this.type) {
         case 'success':
-          return 'bg-green-50 text-green-800 border border-green-200';
+          return 'bg-green-50 text-green-800 border border-green-200 dark:bg-green-900 dark:text-green-200 dark:border-green-700';
         case 'error':
-          return 'bg-red-50 text-red-800 border border-red-200';
+          return 'bg-red-50 text-red-800 border border-red-200 dark:bg-red-900 dark:text-red-200 dark:border-red-700';
         case 'warning':
-          return 'bg-yellow-50 text-yellow-800 border border-yellow-200';
+          return 'bg-yellow-50 text-yellow-800 border border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700';
         default:
-          return 'bg-blue-50 text-blue-800 border border-blue-200';
+          return 'bg-blue-50 text-blue-800 border border-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700';
       }
     },
   },
 
   methods: {
-    show(type = 'info', message, duration = 5000) {
-      // Wyczyść poprzednie timery
+    show(type = 'info', message, duration = 3000) {
+      // domyślnie 3 sekundy
       this.clearTimers();
 
       this.type = type;
       this.message = message;
-      this.duration = duration;
+      this.duration = duration ?? 3000; // jeśli nie podano, to 3000ms
       this.progressWidth = 100;
       this.visible = true;
 
-      // Ustaw timer do ukrycia alertu
       if (this.duration > 0) {
-        // Timer do ukrycia alertu
         this.timeoutId = setTimeout(() => {
           this.hide();
         }, this.duration);
 
-        // Aktualizacja paska postępu
-        const updateInterval = 30; // ms
+        const updateInterval = 30;
         const totalSteps = this.duration / updateInterval;
         const step = 100 / totalSteps;
 
         this.intervalId = setInterval(() => {
           this.progressWidth -= step;
           if (this.progressWidth <= 0) {
-            this.clearTimers();
+            this.progressWidth = 0;
+            clearInterval(this.intervalId);
           }
         }, updateInterval);
       }

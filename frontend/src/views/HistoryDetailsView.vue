@@ -1,36 +1,43 @@
 <template>
-  <div class="container mx-auto p-4">
-    <!-- Obsługa braku danych -->
-    <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+  <div class="container mx-auto p-4 dark:bg-gray-900 dark:text-gray-100 min-h-screen">
+    <div
+      v-if="error"
+      class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded dark:bg-red-800 dark:border-red-700 dark:text-red-100"
+    >
       <p class="font-bold">{{ error }}</p>
-      <router-link to="/history" class="text-blue-600 hover:text-blue-800 mt-2 inline-block">
+      <router-link
+        to="/history"
+        class="text-blue-600 hover:text-blue-800 mt-2 inline-block dark:text-blue-400 dark:hover:text-blue-300"
+      >
         &larr; Wróć do historii
       </router-link>
     </div>
 
-    <!-- Loader podczas ładowania -->
-    <div v-else-if="loading" class="text-center py-10">
+    <div v-else-if="loading" class="text-center py-10 text-gray-700 dark:text-gray-300">
       <p>Ładowanie szczegółów historii...</p>
     </div>
 
-    <!-- Główna zawartość tylko gdy historyEntry istnieje -->
     <div v-else-if="historyEntry">
       <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold">Szczegóły historii</h1>
-        <router-link to="/history" class="text-blue-600 hover:text-blue-800">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Szczegóły historii</h1>
+        <router-link
+          to="/history"
+          class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+        >
           &larr; Wróć do historii
         </router-link>
       </div>
 
-      <!-- Informacje o teście -->
-      <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+      <div class="bg-white shadow-md rounded-lg p-6 mb-6 dark:bg-gray-800 dark:shadow-lg">
         <div class="grid md:grid-cols-3 gap-4">
           <div>
-            <span class="text-gray-500 block text-sm">Data:</span>
-            <span class="font-medium">{{ formatDate(historyEntry.data) }}</span>
+            <span class="text-gray-500 block text-sm dark:text-gray-400">Data:</span>
+            <span class="font-medium text-gray-900 dark:text-gray-100">{{
+              formatDate(historyEntry.data)
+            }}</span>
           </div>
           <div>
-            <span class="text-gray-500 block text-sm">Typ:</span>
+            <span class="text-gray-500 block text-sm dark:text-gray-400">Typ:</span>
             <span
               class="inline-block px-3 py-1 rounded-full text-xs font-bold"
               :class="typeClasses"
@@ -39,8 +46,8 @@
             </span>
           </div>
           <div>
-            <span class="text-gray-500 block text-sm">Wynik:</span>
-            <span class="font-medium">
+            <span class="text-gray-500 block text-sm dark:text-gray-400">Wynik:</span>
+            <span class="font-medium text-gray-900 dark:text-gray-100">
               {{ historyEntry.correct || 0 }} /
               {{ (historyEntry.correct || 0) + (historyEntry.wrong || 0) }} ({{
                 calculatePercentage(historyEntry.correct, historyEntry.wrong)
@@ -50,10 +57,9 @@
         </div>
       </div>
 
-      <!-- Lista pytań i odpowiedzi -->
-      <h2 class="text-xl font-semibold mb-4">Odpowiedzi:</h2>
+      <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Odpowiedzi:</h2>
 
-      <div v-if="!entryList.length" class="text-center text-gray-500 my-8">
+      <div v-if="!entryList.length" class="text-center text-gray-500 my-8 dark:text-gray-400">
         <p>Ten wpis nie zawiera żadnych odpowiedzi.</p>
       </div>
 
@@ -61,41 +67,45 @@
         <li
           v-for="(item, index) in entryList"
           :key="index"
-          class="p-4 bg-white rounded-lg shadow-md border-l-4"
-          :class="isAnswerCorrect(item) ? 'border-green-500' : 'border-red-500'"
+          class="p-4 bg-white rounded-lg shadow-md border-l-4 dark:bg-gray-800 dark:shadow-lg"
+          :class="
+            isAnswerCorrect(item)
+              ? 'border-green-500 dark:border-green-600'
+              : 'border-red-500 dark:border-red-600'
+          "
         >
           <div class="flex justify-between mb-2">
-            <span class="font-semibold text-gray-700">Pytanie {{ index + 1 }}</span>
-            <span class="text-sm text-gray-500">ID: {{ item.id_questions }}</span>
+            <span class="font-semibold text-gray-700 dark:text-gray-300"
+              >Pytanie {{ index + 1 }}</span
+            >
+            <span class="text-sm text-gray-500 dark:text-gray-400"
+              >ID: {{ item.id_questions }}</span
+            >
           </div>
 
-          <!-- Treść pytania -->
-          <div class="font-medium mb-3 text-gray-800">
+          <div class="font-medium mb-3 text-gray-800 dark:text-gray-200">
             {{ getQuestionText(item.id_questions) }}
           </div>
 
-          <!-- Opis pytania (jeśli istnieje) -->
           <div
             v-if="getQuestionDescription(item.id_questions)"
-            class="text-gray-600 text-sm mb-3 p-2 bg-gray-50 rounded"
+            class="text-gray-600 text-sm mb-3 p-2 bg-gray-50 rounded dark:bg-gray-700 dark:text-gray-300"
           >
             {{ getQuestionDescription(item.id_questions) }}
           </div>
 
-          <!-- Odpowiedź użytkownika tylko gdy jest niepoprawna -->
           <div v-if="!isAnswerCorrect(item)" class="mb-3">
-            <span class="font-semibold">Twoja odpowiedź: </span>
-            <span class="text-red-700 font-medium">
+            <span class="font-semibold text-gray-700 dark:text-gray-300">Twoja odpowiedź: </span>
+            <span class="text-red-700 font-medium dark:text-red-400">
               {{ getUserAnswerFullText(item) }}
             </span>
           </div>
 
-          <!-- Odpowiedź poprawna - zawsze wyświetlana -->
           <div class="mt-2">
-            <span class="font-semibold text-green-700">
+            <span class="font-semibold text-green-700 dark:text-green-400">
               {{ isAnswerCorrect(item) ? 'Twoja poprawna odpowiedź:' : 'Poprawna odpowiedź:' }}
             </span>
-            <span class="text-green-700">
+            <span class="text-green-700 dark:text-green-400">
               {{ getCorrectAnswerFullText(item.id_questions) }}
             </span>
           </div>
@@ -103,10 +113,12 @@
       </ul>
     </div>
 
-    <!-- Komunikat gdy nie znaleziono historii a nie ma błędu -->
     <div v-else class="text-center py-10">
-      <p class="text-red-600 font-medium">Nie znaleziono wpisu historii</p>
-      <router-link to="/history" class="text-blue-600 hover:text-blue-800 mt-4 inline-block">
+      <p class="text-red-600 font-medium dark:text-red-500">Nie znaleziono wpisu historii</p>
+      <router-link
+        to="/history"
+        class="text-blue-600 hover:text-blue-800 mt-4 inline-block dark:text-blue-400 dark:hover:text-blue-300"
+      >
         &larr; Wróć do historii
       </router-link>
     </div>
@@ -148,8 +160,8 @@ export default {
     // Dynamiczne klasy CSS dla typu testu
     typeClasses() {
       return this.historyEntry?.type === 'egzamin'
-        ? 'bg-purple-200 text-purple-800'
-        : 'bg-blue-200 text-blue-800';
+        ? 'bg-purple-200 text-purple-800 dark:bg-purple-700 dark:text-purple-100'
+        : 'bg-blue-200 text-blue-800 dark:bg-blue-700 dark:text-blue-100';
     },
   },
 
@@ -285,15 +297,7 @@ export default {
     // Znajdowanie wpisu historii po ID lub indeksie
     findHistoryEntry() {
       const { id } = this.$route.params;
-
-      // Sprawdź, czy id jest liczbą (stary sposób) czy stringiem (nowy sposób z prefiksem)
-      if (!isNaN(id)) {
-        // Stary sposób - użyj indeksu
-        return this.history[parseInt(id)];
-      } else {
-        // Nowy sposób - szukaj po ID
-        return this.history.find((entry) => entry.id === id);
-      }
+      return this.history[id];
     },
 
     // Pobieranie wszystkich pytań

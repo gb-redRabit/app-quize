@@ -1,75 +1,147 @@
 <template>
-  <div class="navbar-wrapper">
-    <nav class="navbar">
-      <!-- Logo i nazwa użytkownika -->
-      <div class="navbar-brand">
-        <div class="navbar-logo">
-          <!-- Zamieniamy stały SVG na komponent Avatar -->
+  <div class="w-full relative z-50">
+    <nav
+      class="flex justify-between items-center p-3 px-5 bg-gradient-to-r from-white to-gray-50 shadow-md mb-4 dark:from-gray-800 dark:to-gray-900 dark:shadow-lg"
+    >
+      <div class="flex items-center gap-2">
+        <div class="flex items-center justify-center mr-0.5">
           <Avatar
             :avatar-index="getUser && getUser.avatar !== undefined ? getUser.avatar : 0"
-            :color-index="getUser && getUser.avatarColors !== undefined ? getUser.avatarColors : 0"
-            :size="32"
+            :color="getUser && getUser.avatarColors !== undefined ? getUser.avatarColors : 0"
+            :size="40"
           />
         </div>
-        <h1 class="navbar-username">
+        <h1
+          class="font-semibold text-lg tracking-wide capitalize"
+          :style="{ color: getUser && getUser.avatarColors ? getUser.avatarColors : '#3b82f6' }"
+        >
           {{ userName }}
         </h1>
       </div>
 
-      <!-- Menu desktopowe -->
-      <div class="navbar-menu desktop">
+      <div class="hidden lg:flex items-center gap-6">
         <router-link
           v-for="item in navItems"
           :key="item.path"
           :to="item.path"
-          class="nav-link"
-          :class="{ active: $route.path === item.path }"
+          class="flex items-center gap-2 px-3 py-2 rounded-md text-gray-600 font-medium transition-all duration-200 relative hover:text-blue-800 hover:bg-blue-100 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-gray-700"
+          :class="{ 'text-blue-500 font-semibold dark:text-blue-400': $route.path === item.path }"
         >
-          <i class="nav-icon" v-html="item.icon"></i>
+          <i class="flex items-center" v-html="item.icon"></i>
           <span>{{ item.label }}</span>
+          <span
+            v-if="$route.path === item.path"
+            class="absolute left-2 right-2 -bottom-1 h-1 bg-gradient-to-r from-blue-500 to-blue-400 rounded-full"
+          ></span>
+        </router-link>
+
+        <router-link
+          v-if="isAdmin"
+          to="/admin-users"
+          class="flex items-center gap-2 px-3 py-2 rounded-md text-gray-600 font-medium transition-all duration-200 relative hover:text-blue-800 hover:bg-blue-100 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-gray-700"
+        >
+          <i class="flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+          </i>
+          <span>Użytkownicy (admin)</span>
         </router-link>
       </div>
 
-      <!-- Przycisk wyloguj (desktop) -->
-      <button @click="logout" class="logout-button desktop">
+      <button
+        @click="logout"
+        class="hidden lg:flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-400 text-white font-semibold rounded-md transition-all duration-300 shadow-sm hover:from-red-600 hover:to-red-500 hover:shadow-md hover:shadow-red-400/40"
+      >
         <span>Wyloguj</span>
       </button>
 
-      <!-- Hamburger (mobile) -->
-      <button class="hamburger-button" @click="toggleMenu" aria-label="Otwórz menu">
-        <div class="hamburger" :class="{ active: menuOpen }">
-          <span></span>
-          <span></span>
-          <span></span>
+      <button
+        class="flex lg:hidden items-center justify-center w-10 h-10 rounded-md border border-blue-200 bg-white transition-all duration-200 hover:bg-blue-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+        @click="toggleMenu"
+        aria-label="Otwórz menu"
+      >
+        <div class="relative w-6 h-5">
+          <span
+            class="absolute w-full h-0.5 bg-blue-500 rounded-full transition-all duration-300 origin-center top-0 left-0 right-0"
+            :class="{ 'translate-y-2.5 rotate-45': menuOpen }"
+          ></span>
+          <span
+            class="absolute w-full h-0.5 bg-blue-500 rounded-full transition-all duration-300 origin-center top-2.5 left-0 right-0"
+            :class="{ 'opacity-0': menuOpen }"
+          ></span>
+          <span
+            class="absolute w-full h-0.5 bg-blue-500 rounded-full transition-all duration-300 origin-center bottom-0 left-0 right-0"
+            :class="{ '-translate-y-2.5 -rotate-45': menuOpen }"
+          ></span>
         </div>
       </button>
     </nav>
 
-    <!-- Menu mobilne -->
     <transition name="mobile-menu">
-      <div v-if="menuOpen" class="mobile-menu">
-        <div class="mobile-menu-container">
+      <div
+        v-if="menuOpen"
+        class="fixed top-16 left-0 w-full h-auto max-h-[calc(100vh-4rem)] bg-white shadow-md z-40 overflow-y-auto border-t border-gray-300 dark:bg-gray-800 dark:shadow-lg dark:border-gray-700"
+      >
+        <div class="p-6 flex flex-col gap-3">
           <router-link
             v-for="item in navItems"
             :key="item.path"
             :to="item.path"
-            class="mobile-nav-link"
-            :class="{ active: $route.path === item.path }"
+            class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 font-medium transition-all duration-200 hover:bg-blue-100 hover:text-blue-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-blue-400"
+            :class="{
+              'bg-blue-100 text-blue-500 font-semibold dark:bg-gray-700 dark:text-blue-400':
+                $route.path === item.path,
+            }"
             @click="closeMenu"
           >
-            <i class="nav-icon" v-html="item.icon"></i>
+            <i class="flex items-center" v-html="item.icon"></i>
             <span>{{ item.label }}</span>
           </router-link>
 
-          <button @click="logout" class="mobile-logout-button">
+          <router-link
+            v-if="isAdmin"
+            to="/admin-users"
+            class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 font-medium transition-all duration-200 hover:bg-blue-100 hover:text-blue-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-blue-400"
+            @click="closeMenu"
+          >
+            <i class="flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </i>
+            <span>Użytkownicy (admin)</span>
+          </router-link>
+
+          <button
+            @click="logout"
+            class="flex items-center justify-center gap-2 mt-4 p-3 bg-gradient-to-r from-red-500 to-red-400 text-white font-semibold rounded-lg transition-all duration-200 shadow-sm hover:from-red-600 hover:to-red-500"
+          >
             <span>Wyloguj</span>
           </button>
         </div>
       </div>
     </transition>
 
-    <!-- Overlay tła przy otwartym menu mobilnym -->
-    <div v-if="menuOpen" class="mobile-overlay" @click="closeMenu"></div>
+    <div v-if="menuOpen" class="fixed top-16 left-0 w-full bg-black z-30" @click="closeMenu"></div>
   </div>
 </template>
 
@@ -113,6 +185,9 @@ export default {
     userName() {
       return this.getUser && this.getUser.login ? this.getUser.login : 'nieznany';
     },
+    isAdmin() {
+      return this.getUser?.rola === 'admin';
+    },
   },
   methods: {
     ...mapActions('user', ['login']),
@@ -146,272 +221,19 @@ export default {
 };
 </script>
 
-<style scoped>
-.navbar-wrapper {
-  width: 100%;
-  position: relative;
-  z-index: 50;
-}
+<style>
+/* Animacje - Tailwind's transition classes handle most of this, but if you have specific
+   enter/leave states not fully covered by Tailwind's defaults, you might keep
+   these or configure custom variants in tailwind.config.js. For now,
+   I'll assume basic transform and opacity transitions are sufficient
+   with Tailwind's built-in transition classes. */
 
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1.25rem;
-  background: linear-gradient(to right, #ffffff, #f9fafb);
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  margin-bottom: 1rem;
-}
+/* If you need very specific enter/leave animations that Tailwind's utility
+   classes don't directly provide, you might still need custom CSS or
+   extend Tailwind's theme with custom transitions.
+   For this example, I'm relying on Vue's transition component and
+   generic Tailwind classes. */
 
-.navbar-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Dodajemy nowe style dla avatara w navbar */
-.navbar-logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 0.15rem;
-}
-
-.navbar-username {
-  font-weight: 600;
-  color: #3b82f6;
-  background: linear-gradient(45deg, #3b82f6, #60a5fa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-size: 1.125rem;
-  letter-spacing: 0.025em;
-  text-transform: capitalize;
-}
-
-.navbar-menu {
-  display: none;
-}
-
-.navbar-menu.desktop {
-  display: none;
-}
-
-@media (min-width: 768px) {
-  .navbar-menu.desktop {
-    display: flex;
-    gap: 1.5rem;
-    align-items: center;
-  }
-}
-
-.nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
-  color: #6b7280;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.nav-link:hover {
-  color: #1e40af;
-  background-color: rgba(59, 130, 246, 0.1);
-}
-
-.nav-link.active {
-  color: #3b82f6;
-  font-weight: 600;
-}
-
-.nav-link.active::after {
-  content: '';
-  position: absolute;
-  left: 0.5rem;
-  right: 0.5rem;
-  bottom: -0.25rem;
-  height: 0.25rem;
-  background: linear-gradient(to right, #3b82f6, #60a5fa);
-  border-radius: 9999px;
-}
-
-.nav-icon {
-  display: flex;
-  align-items: center;
-}
-
-.logout-button {
-  display: none;
-}
-
-.logout-button.desktop {
-  display: none;
-}
-
-@media (min-width: 768px) {
-  .logout-button.desktop {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    background: linear-gradient(to right, #ef4444, #f87171);
-    color: white;
-    font-weight: 600;
-    border-radius: 0.375rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  }
-
-  .logout-button:hover {
-    background: linear-gradient(to right, #dc2626, #ef4444);
-    box-shadow:
-      0 4px 6px -1px rgba(239, 68, 68, 0.4),
-      0 2px 4px -1px rgba(239, 68, 68, 0.2);
-  }
-}
-
-/* Hamburger */
-.hamburger-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.375rem;
-  border: 1px solid rgba(59, 130, 246, 0.1);
-  background-color: #fff;
-  transition: all 0.2s ease;
-}
-
-.hamburger-button:hover {
-  background-color: rgba(59, 130, 246, 0.1);
-}
-
-@media (min-width: 768px) {
-  .hamburger-button {
-    display: none;
-  }
-}
-
-.hamburger {
-  position: relative;
-  width: 24px;
-  height: 20px;
-}
-
-.hamburger span {
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  background-color: #3b82f6;
-  border-radius: 9999px;
-  transition: all 0.3s ease;
-  transform-origin: center;
-}
-
-.hamburger span:first-child {
-  top: 0;
-}
-
-.hamburger span:nth-child(2) {
-  top: 9px;
-}
-
-.hamburger span:last-child {
-  bottom: 0;
-}
-
-.hamburger.active span:first-child {
-  transform: translateY(9px) rotate(45deg);
-}
-
-.hamburger.active span:nth-child(2) {
-  opacity: 0;
-}
-
-.hamburger.active span:last-child {
-  transform: translateY(-9px) rotate(-45deg);
-}
-
-/* Menu mobilne */
-.mobile-menu {
-  position: fixed;
-  top: 4rem;
-  left: 0;
-  width: 100%;
-  height: auto;
-  max-height: calc(100vh - 4rem);
-  background-color: white;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  z-index: 40;
-  overflow-y: auto;
-  border-top: 1px solid rgba(209, 213, 219, 0.5);
-}
-
-.mobile-menu-container {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.mobile-nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  color: #4b5563;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.mobile-nav-link:hover {
-  background-color: rgba(59, 130, 246, 0.1);
-  color: #1e40af;
-}
-
-.mobile-nav-link.active {
-  background-color: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-  font-weight: 600;
-}
-
-.mobile-logout-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background: linear-gradient(to right, #ef4444, #f87171);
-  color: white;
-  font-weight: 600;
-  border-radius: 0.5rem;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-.mobile-logout-button:hover {
-  background: linear-gradient(to right, #dc2626, #ef4444);
-}
-
-.mobile-overlay {
-  position: fixed;
-  top: 4rem;
-  left: 0;
-  width: 100%;
-  height: calc(100% - 4rem);
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 30;
-}
-
-/* Animacje */
 .mobile-menu-enter-active,
 .mobile-menu-leave-active {
   transition:

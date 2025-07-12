@@ -4,7 +4,8 @@ const bodyParser = require("body-parser");
 const compression = require("compression"); // <-- 1. Dodaj import
 const authRoutes = require("./routes/auth");
 const questionsRoutes = require("./routes/questions");
-const usersRoutes = require("./routes/users");
+const usersRouter = require("./routes/users");
+const connectDB = require("./config/database");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -51,7 +52,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/questions", questionsRoutes);
-app.use("/api/users", usersRoutes);
+app.use("/api/users", usersRouter);
+
+connectDB(); // Dodaj to przed app.listen
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

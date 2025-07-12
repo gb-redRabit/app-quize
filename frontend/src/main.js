@@ -5,20 +5,11 @@ import store from './store';
 import './assets/tailwind.css';
 import apiClient from './api'; // Dodaj import apiClient, który był używany ale niezaimportowany
 
-// Zaimportuj tylko niezbędne style przy starcie aplikacji
-import './assets/main.css';
-
-// Lazy-load dla głównego pliku CSS
-setTimeout(() => {
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = './assets/main.css';
-  document.head.appendChild(link);
-}, 100);
-
 // Inicjalizacja tematu przy starcie aplikacji
 store.dispatch('ui/initTheme');
 store.dispatch('user/initUser');
+// ...istniejący kod...
+store.dispatch('questions/initQuestionsCache'); // <-- Dodaj to!
 // Funkcja do odświeżania tokena
 function scheduleTokenRefresh() {
   const refreshInterval = 10 * 60 * 1000; // 10 minut

@@ -1,20 +1,19 @@
 <template>
-  <div class="bg-white rounded-xl shadow-md overflow-hidden">
-    <!-- Sekcja podsumowania z wynikiem -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b">
+  <div class="bg-white rounded-xl shadow-md overflow-hidden dark:bg-gray-800 dark:shadow-lg">
+    <div
+      class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b dark:from-gray-700 dark:to-gray-900 dark:border-gray-700"
+    >
       <div
         class="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0"
       >
-        <!-- Tytuł i wynik -->
         <div class="flex flex-col space-y-2">
-          <h2 class="text-2xl font-bold text-gray-800">Podsumowanie testu</h2>
+          <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Podsumowanie testu</h2>
           <div class="flex items-center">
             <div class="flex items-center">
               <div class="relative h-16 w-16 mr-4">
-                <!-- Okrągły wskaźnik wyniku -->
                 <svg class="h-16 w-16 transform -rotate-90" viewBox="0 0 100 100">
                   <circle
-                    class="text-gray-200"
+                    class="text-gray-200 dark:text-gray-600"
                     stroke-width="10"
                     stroke="currentColor"
                     fill="transparent"
@@ -23,7 +22,7 @@
                     cy="50"
                   />
                   <circle
-                    class="text-blue-600 transition-all duration-1000 ease-in-out"
+                    class="text-blue-600 transition-all duration-1000 ease-in-out dark:text-blue-400"
                     stroke-width="10"
                     stroke-linecap="round"
                     stroke="currentColor"
@@ -35,20 +34,19 @@
                   />
                 </svg>
                 <div
-                  class="absolute inset-0 flex items-center justify-center text-lg font-bold text-blue-700"
+                  class="absolute inset-0 flex items-center justify-center text-lg font-bold text-blue-700 dark:text-blue-300"
                 >
                   {{ score }}/{{ total }}
                 </div>
               </div>
               <div>
-                <p class="text-sm text-gray-600">Twój wynik</p>
-                <p class="text-lg font-semibold text-gray-800">{{ percentage }}%</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300">Twój wynik</p>
+                <p class="text-lg font-semibold text-gray-800 dark:text-white">{{ percentage }}%</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Przyciski akcji -->
         <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
           <BaseButton color="green" @click="$emit('restart')" class="w-full sm:w-auto">
             <svg
@@ -88,15 +86,14 @@
         </div>
       </div>
 
-      <!-- Pasek statystyk -->
       <div class="mt-6">
-        <div class="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+        <div class="h-2 w-full bg-gray-200 rounded-full overflow-hidden dark:bg-gray-700">
           <div
-            class="h-2 bg-gradient-to-r from-green-400 to-green-500 transition-all duration-1000"
+            class="h-2 bg-gradient-to-r from-green-400 to-green-500 transition-all duration-1000 dark:from-green-500 dark:to-green-600"
             :style="`width: ${percentage}%`"
           ></div>
         </div>
-        <div class="flex justify-between mt-1 text-xs text-gray-500">
+        <div class="flex justify-between mt-1 text-xs text-gray-500 dark:text-gray-400">
           <span>0%</span>
           <span>50%</span>
           <span>100%</span>
@@ -104,12 +101,11 @@
       </div>
     </div>
 
-    <!-- Lista pytań -->
     <div class="p-6">
-      <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+      <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center dark:text-gray-200">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 mr-2 text-blue-500"
+          class="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400"
           viewBox="0 0 20 20"
           fill="currentColor"
         >
@@ -127,21 +123,30 @@
         <div
           v-for="(q, idx) in questions"
           :key="idx"
-          class="border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md"
+          class="border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-700 dark:hover:shadow-lg"
         >
-          <!-- Nagłówek pytania z numerem i statusem -->
-          <div class="flex items-center p-4 border-b border-gray-100 bg-gray-50">
+          <div
+            class="flex items-center p-4 border-b border-gray-100 bg-gray-50 dark:border-gray-600 dark:bg-gray-800"
+          >
             <div
               class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm font-bold"
-              :class="isCorrect(idx) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+              :class="
+                isCorrect(idx)
+                  ? 'bg-green-100 text-green-700 dark:bg-green-700 dark:text-white'
+                  : 'bg-red-100 text-red-700 dark:bg-red-700 dark:text-white'
+              "
             >
               {{ idx + 1 }}
             </div>
-            <div class="flex-grow font-medium text-gray-800">{{ q.question }}</div>
+            <div class="flex-grow font-medium text-gray-800 dark:text-white">{{ q.question }}</div>
             <div class="flex-shrink-0 ml-3">
               <div
                 class="rounded-full p-1"
-                :class="isCorrect(idx) ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'"
+                :class="
+                  isCorrect(idx)
+                    ? 'bg-green-100 text-green-600 dark:bg-green-700 dark:text-white'
+                    : 'bg-red-100 text-red-600 dark:bg-red-700 dark:text-white'
+                "
               >
                 <svg
                   v-if="isCorrect(idx)"
@@ -173,10 +178,8 @@
             </div>
           </div>
 
-          <!-- Treść odpowiedzi -->
           <div class="p-4">
-            <!-- Pokazujemy różne informacje w zależności od poprawności odpowiedzi -->
-            <div v-if="isCorrect(idx)" class="flex items-center text-green-700">
+            <div v-if="isCorrect(idx)" class="flex items-center text-green-700 dark:text-green-400">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-5 w-5 mr-2"
@@ -192,8 +195,7 @@
               <span class="font-semibold">{{ correctAnswerText(q) }}</span>
             </div>
             <div v-else class="space-y-2">
-              <!-- Niepoprawna odpowiedź użytkownika -->
-              <div class="flex items-center text-red-700">
+              <div class="flex items-center text-red-700 dark:text-red-400">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-5 w-5 mr-2"
@@ -207,11 +209,12 @@
                   />
                 </svg>
                 <span class="font-semibold mr-2">Twoja odpowiedź:</span>
-                <span>{{ userAnswerText(q, answersStatus[idx].selectedKey) }}</span>
+                <span class="dark:text-gray-200">{{
+                  userAnswerText(q, answersStatus[idx].selectedKey)
+                }}</span>
               </div>
 
-              <!-- Poprawna odpowiedź -->
-              <div class="flex items-center text-green-700">
+              <div class="flex items-center text-green-700 dark:text-green-400">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-5 w-5 mr-2"
@@ -225,16 +228,15 @@
                   />
                 </svg>
                 <span class="font-semibold mr-2">Prawidłowa odpowiedź:</span>
-                <span>{{ correctAnswerText(q) }}</span>
+                <span class="dark:text-gray-200">{{ correctAnswerText(q) }}</span>
               </div>
             </div>
 
-            <!-- Opis pytania -->
             <div
               v-if="q.description"
-              class="mt-3 p-3 bg-gray-50 rounded-md border border-gray-200 text-sm text-gray-700"
+              class="mt-3 p-3 bg-gray-50 rounded-md border border-gray-200 text-sm text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300"
             >
-              <div class="flex items-center text-gray-600 font-medium mb-1">
+              <div class="flex items-center text-gray-600 font-medium mb-1 dark:text-gray-400">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-4 w-4 mr-1"

@@ -51,21 +51,19 @@ apiClient.invalidateCache = function (url, params = {}) {
   cache.delete(cacheKey);
 };
 
-// Bezpieczniejsze pobieranie referencji
+// Ulepszony mechanizm loadera - zawsze sprawdzaj dostępność i nie wywołuj wielokrotnie
+let loaderActive = false;
 const getLoader = () => {
   try {
     const app = document.getElementById('app')?.__vue_app__;
     if (app && app._instance && app._instance.proxy) {
-      // Korzystamy z proxy, które jest bezpieczniejsze w Vue 3
       const root = app._instance.proxy;
       if (root.$refs && root.$refs.globalLoader) {
         return root.$refs.globalLoader;
       }
-      // Alternatywnie próbujemy przez $root
       if (root.$root && root.$root.$refs && root.$root.$refs.globalLoader) {
         return root.$root.$refs.globalLoader;
       }
-      // Sprawdź metody globalne
       if (root.$showLoader) {
         return {
           show: root.$showLoader,
@@ -98,14 +96,23 @@ const getAlerter = () => {
   return null;
 };
 
+// Funkcja do automatycznego zamykania alertu po 3 sekundy
+const showAutoCloseAlert = (type, message) => {
+  const alert = getAlerter();
+  if (alert) {
+    alert(type, message, 3000); // przekazujemy duration
+  }
+};
+
 // Interceptor dla zapytań
 apiClient.interceptors.request.use(
   (config) => {
     // Pokaż loader dla zapytań z wyjątkiem zapytań oznaczonych jako silent
     if (!config.silent) {
       const loader = getLoader();
-      if (loader) {
-        loader.show(config.loaderMessage || 'Ładowanie danych...');
+      if (loader && !loaderActive) {
+        loader.show(config.loaderMessage || '');
+        loaderActive = true;
       }
     }
 
@@ -118,8 +125,9 @@ apiClient.interceptors.request.use(
   (error) => {
     // Ukryj loader w przypadku błędu podczas tworzenia zapytania
     const loader = getLoader();
-    if (loader) {
+    if (loader && loaderActive) {
       loader.hide();
+      loaderActive = false;
     }
     return Promise.reject(error);
   }
@@ -130,56 +138,58 @@ apiClient.interceptors.response.use(
   (response) => {
     // Ukryj loader po otrzymaniu odpowiedzi
     const loader = getLoader();
-    if (loader && !response.config.silent) {
+    if (loader && !response.config.silent && loaderActive) {
       loader.hide();
+      loaderActive = false;
     }
     return response;
   },
   (error) => {
     // Ukryj loader w przypadku błędu odpowiedzi
     const loader = getLoader();
-    if (loader && error.config && !error.config.silent) {
+    if (loader && error.config && !error.config.silent && loaderActive) {
       loader.hide();
+      loaderActive = false;
     }
 
     // Pokaż alert z błędem, jeśli nie jest to cicha obsługa błędu
-    const alert = getAlerter();
-    if (alert && (!error.config || !error.config.silentError)) {
+    if (!error.config || !error.config.silentError) {
       if (error.response) {
         switch (error.response.status) {
           case 401:
             store.dispatch('user/logout').then(() => {
-              alert('error', 'Twoja sesja wygasła. Zaloguj się ponownie.');
+              showAutoCloseAlert('error', 'Twoja sesja wygasła. Zaloguj się ponownie.');
               if (window.location.pathname !== '/login') {
                 window.location.href = '/login';
               }
             });
             break;
           case 403:
-            alert('error', 'Brak uprawnień do wykonania tej operacji.');
+            showAutoCloseAlert('error', 'Brak uprawnień do wykonania tej operacji.');
             break;
           case 404:
-            alert('warning', 'Nie znaleziono żądanego zasobu.');
+            showAutoCloseAlert('warning', 'Nie znaleziono żądanego zasobu.');
             break;
           case 500:
           case 502:
           case 503:
           case 504:
-            alert('error', 'Wystąpił błąd serwera. Spróbuj ponownie później.');
+            showAutoCloseAlert('error', 'Wystąpił błąd serwera. Spróbuj ponownie później.');
             break;
           default:
             if (error.response.data && error.response.data.message) {
-              alert('error', error.response.data.message);
+              showAutoCloseAlert('error', error.response.data.message);
             } else {
-              alert('error', `Wystąpił błąd: ${error.response.status}`);
+              showAutoCloseAlert('error', `Wystąpił błąd: ${error.response.status}`);
             }
         }
       } else if (error.request) {
-        // Żądanie zostało wykonane, ale nie otrzymano odpowiedzi
-        alert('error', 'Problem z połączeniem z serwerem. Sprawdź swoje połączenie internetowe.');
+        showAutoCloseAlert(
+          'error',
+          'Problem z połączeniem z serwerem. Sprawdź swoje połączenie internetowe.'
+        );
       } else {
-        // Coś poszło nie tak podczas konfigurowania żądania
-        alert('error', 'Wystąpił błąd podczas przygotowywania żądania.');
+        showAutoCloseAlert('error', 'Wystąpił błąd podczas przygotowywania żądania.');
       }
     }
 

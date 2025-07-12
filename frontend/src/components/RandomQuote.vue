@@ -1,15 +1,29 @@
 <template>
-  <div class="quote-wrapper">
-    <div class="quote-card" :key="quoteKey">
-      <div class="quote-content">
-        <blockquote class="quote-text">
-          <span class="typewriter-text">{{ displayedText }}</span>
-          <span class="cursor" :class="{ typing: isTyping }"></span>
+  <div class="w-full py-4">
+    <div
+      class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mx-auto relative overflow-hidden border"
+    >
+      <div class="pt-6 pb-2 px-4 min-h-[180px] flex flex-col justify-center">
+        <blockquote
+          class="text-gray-700 dark:text-gray-300 text-xl md:text-2xl text-center font-medium mb-8 relative z-10 leading-relaxed min-h-[3em]"
+        >
+          <span class="inline">{{ displayedText }}</span>
+          <span
+            class="inline-block w-[0.15em] h-[1.2em] bg-blue-500 ml-[0.1em] align-middle opacity-100"
+            :class="{ 'animate-blink': isTyping }"
+          ></span>
         </blockquote>
 
-        <div class="quote-author-container">
-          <div class="quote-line"></div>
-          <div class="quote-author" :class="{ 'fade-in': authorVisible }">— {{ quote.author }}</div>
+        <div class="flex flex-col items-center w-full">
+          <div
+            class="w-24 h-0.5 bg-gradient-to-r from-transparent via-blue-300 dark:via-blue-600 to-transparent mb-3"
+          ></div>
+          <div
+            class="text-blue-600 dark:text-blue-400 font-medium text-lg opacity-0 transition-opacity duration-800 ease-in"
+            :class="{ 'opacity-100': authorVisible }"
+          >
+            — {{ quote.author }}
+          </div>
         </div>
       </div>
     </div>
@@ -291,76 +305,7 @@ export default {
 </script>
 
 <style scoped>
-.quote-wrapper {
-  @apply w-full py-4;
-}
-
-.quote-card {
-  @apply bg-white rounded-xl shadow-md p-6 mx-auto max-w-3xl relative overflow-hidden;
-  border: 1px solid rgba(59, 130, 246, 0.1);
-
-  animation: card-enter 0.6s ease-out forwards;
-}
-
-.quote-icon {
-  @apply absolute top-4 left-4 opacity-10;
-}
-
-.quote-icon svg {
-  @apply w-16 h-16 text-blue-400;
-}
-
-.quote-content {
-  @apply pt-6 pb-2 px-4;
-  min-height: 180px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.quote-text {
-  @apply text-gray-700 text-xl md:text-2xl text-center font-medium mb-8 relative z-10;
-  line-height: 1.6;
-  min-height: 3em; /* Zapobiega skakaniu */
-}
-
-/* Efekt pisania maszynowego */
-.typewriter-text {
-  display: inline;
-}
-
-.cursor {
-  display: inline-block;
-  width: 0.15em;
-  height: 1.2em;
-  background-color: #3b82f6;
-  margin-left: 0.1em;
-  vertical-align: middle;
-  opacity: 1;
-}
-
-.cursor.typing {
-  animation: blink 0.8s step-end infinite;
-}
-
-.quote-author-container {
-  @apply flex flex-col items-center w-full;
-}
-
-.quote-line {
-  @apply w-24 h-0.5 bg-gradient-to-r from-transparent via-blue-300 to-transparent mb-3;
-}
-
-.quote-author {
-  @apply text-blue-600 font-medium text-lg opacity-0;
-  transition: opacity 0.8s ease;
-}
-
-.fade-in {
-  opacity: 1;
-}
-
-/* Animacje */
+/* Keyframe for blink animation */
 @keyframes blink {
   0%,
   100% {
@@ -371,6 +316,7 @@ export default {
   }
 }
 
+/* Keyframe for card-enter animation */
 @keyframes card-enter {
   0% {
     opacity: 0;
@@ -382,7 +328,11 @@ export default {
   }
 }
 
-/* Dekoracje */
+/* Applying animations and pseudo-elements */
+.quote-card {
+  animation: card-enter 0.6s ease-out forwards;
+}
+
 .quote-card::before {
   content: '';
   position: absolute;
@@ -407,18 +357,19 @@ export default {
   z-index: 0;
 }
 
-/* Responsywność */
+/* Responsive adjustments */
 @media (max-width: 640px) {
   .quote-text {
-    @apply text-lg;
+    font-size: 1.125rem; /* text-lg */
   }
 
-  .quote-content {
+  .min-h-\[150px\] {
     min-height: 150px;
   }
 
-  .quote-icon svg {
-    @apply w-12 h-12;
+  .w-12.h-12 {
+    width: 3rem; /* w-12 */
+    height: 3rem; /* h-12 */
   }
 }
 </style>

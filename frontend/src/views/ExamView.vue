@@ -84,7 +84,7 @@ import BaseLoader from '@/components/BaseLoader.vue';
 import ProgressBar from '@/components/ProgressBar.vue';
 import { getRandomUniqueQuestions } from '@/utils/randomQuestions';
 import { shuffleArray } from '@/utils/shuffleArray';
-
+import store from '@/store';
 function getCorrectKey(q) {
   const keys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
   return keys.find((k) => q[k] && q[k].isCorret);
@@ -181,12 +181,13 @@ export default {
   methods: {
     ...mapActions(['fetchUserHistory']),
     async fetchQuestions() {
-      try {
-        this.showLoader('Ładowanie pytań egzaminu...');
+      if (typeof this.showLoader === 'function') this.showLoader('Ładowanie pytań egzaminu...');
+      else console.log('Ładowanie pytań egzaminu...');
 
+      try {
         const category = this.$route.query.categories || 'all';
-        const response = await apiClient.get('/questions');
-        const allQuestions = Array.isArray(response.data) ? response.data : [];
+        const response = store.getters['questions/getQuestions'];
+        const allQuestions = Array.isArray(response) ? response : [];
 
         let filteredQuestions = allQuestions;
         if (category !== 'all') {
@@ -207,13 +208,13 @@ export default {
             `Znaleziono tylko ${this.questions.length} pytań w tej kategorii`
           );
         }
-
-        this.hideLoader();
       } catch (error) {
-        this.hideLoader();
-        this.showAlert('error', 'Błąd podczas pobierania pytań egzaminu');
-        console.error('Błąd podczas pobierania pytań:', error);
+        if (typeof this.showAlert === 'function')
+          this.showAlert('error', 'Błąd podczas pobierania pytań egzaminu');
+        else console.error('Błąd podczas pobierania pytań egzaminu');
       } finally {
+        if (typeof this.hideLoader === 'function') this.hideLoader();
+        else console.log('Koniec ładowania');
         this.loading = false;
       }
     },
@@ -447,7 +448,7 @@ export default {
 }
 
 .exam-wrapper {
-  @apply w-full  bg-white rounded-2xl  overflow-hidden mb-6;
+  @apply w-full  bg-white dark:bg-gray-800 rounded-2xl  overflow-hidden mb-6;
 }
 
 .exam-content {

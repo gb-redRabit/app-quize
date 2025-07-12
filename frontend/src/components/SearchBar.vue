@@ -1,8 +1,10 @@
 <template>
-  <div class="search-container">
-    <div class="search-wrapper" :class="{ 'has-value': search }">
-      <!-- Ikona lupy -->
-      <div class="search-icon">
+  <div class="w-full sm:w-2/5 mb-4">
+    <div
+      class="flex items-center relative w-full bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:border-blue-300 hover:shadow-md focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 focus-within:shadow-md"
+      :class="{ 'border-blue-400': search }"
+    >
+      <div class="flex items-center justify-center text-gray-400 pl-3 pr-0">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -19,20 +21,18 @@
         </svg>
       </div>
 
-      <!-- Pole wyszukiwania -->
       <input
         v-model="search"
         @input="$emit('update:search', search)"
         type="text"
         placeholder="Szukaj po ID lub treści pytania..."
-        class="search-input"
+        class="w-full p-3 text-gray-700 dark:text-gray-200 bg-transparent border-none outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-500 py-2.5 sm:text-base text-sm"
       />
 
-      <!-- Przycisk czyszczenia -->
       <button
         v-if="search"
         @click="clear"
-        class="clear-button"
+        class="flex items-center justify-center p-2 mr-1 text-gray-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
         title="Wyczyść"
         aria-label="Wyczyść wyszukiwanie"
       >
@@ -40,7 +40,7 @@
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
-          class="w-5 h-5"
+          class="w-5 h-5 transition-transform duration-200 hover:scale-110"
         >
           <path
             fill-rule="evenodd"
@@ -78,68 +78,15 @@ export default {
 </script>
 
 <style scoped>
-.search-container {
-  @apply w-full sm:w-2/5 mb-4;
-}
-
-.search-wrapper {
-  @apply flex items-center relative w-full bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-300;
-}
-
-.search-wrapper:hover {
-  @apply border-blue-300 shadow-md;
-}
-
-.search-wrapper:focus-within {
-  @apply border-blue-400 ring-2 ring-blue-100 shadow-md;
-}
-
-.search-wrapper.has-value {
-  @apply border-blue-400;
-}
-
-.search-icon {
-  @apply flex items-center justify-center text-gray-400 pl-3 pr-0;
-}
-
-.search-input {
-  @apply w-full p-3 text-gray-700 bg-transparent border-none outline-none focus:ring-0;
-}
-
-.search-input::placeholder {
-  @apply text-gray-400;
-}
-
-.clear-button {
-  @apply flex items-center justify-center p-2 mr-1 text-gray-400 rounded-full hover:bg-gray-100 transition-colors duration-200;
-  width: 28px;
-  height: 28px;
-}
-
-.clear-button:hover {
-  @apply text-gray-600;
-}
-
-.clear-button:focus {
-  @apply outline-none ring-2 ring-blue-300;
-}
-
-.clear-button svg {
-  @apply transition-transform duration-200;
-}
-
-.clear-button:hover svg {
-  transform: scale(1.1);
-}
-
-/* Responsywność */
+/* Responsive adjustments for small screens - equivalent to @media (max-width: 640px) */
 @media (max-width: 640px) {
-  .search-container {
-    @apply w-full mb-3;
+  .w-full.sm:w-2\/5.mb-4 {
+    margin-bottom: 0.75rem; /* mb-3 */
   }
 
-  .search-input {
-    @apply py-2.5;
+  .p-3.py-2\.5.text-sm {
+    padding-top: 0.625rem; /* py-2.5 */
+    padding-bottom: 0.625rem; /* py-2.5 */
     font-size: 0.95rem;
   }
 

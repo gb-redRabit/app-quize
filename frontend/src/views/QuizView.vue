@@ -1,20 +1,14 @@
 <template>
-  <div class="py-2 px-4 container">
-    <!-- Usuwam własny loader i używam globalnego API -->
-    <div v-if="loading" class="flex flex-col items-center justify-center min-h-screen -mt-20">
-      <!-- Tu był własny loader -->
-    </div>
+  <div class="py-2 px-4 container dark:bg-gray-900">
+    <div v-if="loading" class="flex flex-col items-center justify-center -mt-20"></div>
     <div v-else class="mx-auto">
-      <!-- Quiz Content -->
-
       <div v-if="!showSummary" class="flex flex-col space-y-6">
-        <!-- Nagłówek quizu z kategorią i paskiem postępu -->
         <div
-          class="bg-white rounded-xl shadow-sm p-4 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4"
+          class="bg-white rounded-xl shadow-sm p-4 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4 dark:bg-gray-800 dark:text-white"
         >
           <div class="flex items-center space-x-3">
             <div
-              class="flex items-center justify-center h-10 w-10 rounded-full bg-blue-100 text-blue-600 shadow-2xl flex-shrink-0"
+              class="flex items-center justify-center h-10 w-10 rounded-full bg-blue-100 text-blue-600 shadow-2xl flex-shrink-0 dark:bg-blue-800 dark:text-blue-200"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -29,7 +23,7 @@
                 />
               </svg>
             </div>
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">
               {{
                 questions[currentQuestionIndex] && questions[currentQuestionIndex].category
                   ? questions[currentQuestionIndex].category.length > 60
@@ -48,10 +42,9 @@
           </div>
         </div>
         <div class="flex flex-col space-y-5">
-          <!-- Przyciski nawigacji -->
           <div class="grid grid-cols-2 gap-4">
             <button
-              class="flex items-center justify-center px-4 py-3 rounded-xl text-white font-medium text-base transition-all duration-200 shadow-sm bg-gray-600 hover:bg-gray-700"
+              class="flex items-center justify-center px-4 py-3 rounded-xl text-white font-medium text-base transition-all duration-200 shadow-sm bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600"
               :class="{ 'opacity-50 cursor-not-allowed': currentQuestionIndex === 0 }"
               @click="prevQuestion"
               :disabled="currentQuestionIndex === 0"
@@ -78,8 +71,10 @@
                   answersStatus[currentQuestionIndex] &&
                   answersStatus[currentQuestionIndex].answered
                 ),
-                'bg-green-600 hover:bg-green-700': currentQuestionIndex === questions.length - 1,
-                'bg-blue-600 hover:bg-blue-700': currentQuestionIndex !== questions.length - 1,
+                'bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600':
+                  currentQuestionIndex === questions.length - 1,
+                'bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600':
+                  currentQuestionIndex !== questions.length - 1,
               }"
               @click="nextOrFinish"
               :disabled="
@@ -108,8 +103,9 @@
           </div>
         </div>
 
-        <!-- Główna zawartość pytania -->
-        <div class="bg-white rounded-xl shadow-sm p-5 sm:p-6 relative">
+        <div
+          class="bg-white rounded-xl shadow-sm p-5 sm:p-6 relative dark:bg-gray-800 dark:text-white"
+        >
           <transition name="fade" mode="out-in">
             <QuestionList
               ref="questionList"
@@ -135,13 +131,9 @@
               @select="selectAnswer"
             />
           </transition>
-
-          <!-- Opis pytania (wyjaśnienie) -->
         </div>
 
-        <!-- Nawigacja między pytaniami -->
         <div class="flex flex-col space-y-5">
-          <!-- Paginacja pytań -->
           <QuestionNavigation
             :questions="questions"
             :currentIdx="currentQuestionIndex"
@@ -153,7 +145,6 @@
         </div>
       </div>
 
-      <!-- Podsumowanie quizu -->
       <transition name="slide-up" mode="out-in">
         <SummaryBox
           v-if="showSummary"
@@ -165,7 +156,7 @@
           :correctAnswerText="correctAnswerText"
           @restart="restartQuiz"
           @retry-wrong="retryWrongAnswers"
-          class="bg-white rounded-xl shadow-sm p-6"
+          class="bg-white rounded-xl shadow-sm p-6 dark:bg-gray-800 dark:text-white"
         />
       </transition>
     </div>
@@ -235,15 +226,16 @@ watch(currentQuestion, (newQuestion) => {
     );
   }
 });
-
-// Methods
-const fetchUserHistory = () => store.dispatch('fetchUserHistory');
-
+const startTimer = () => {
+  if (timerInterval.value) clearInterval(timerInterval.value);
+  timerInterval.value = setInterval(() => {
+    forceUpdateKey.value++;
+  }, 1000);
+};
 const fetchQuestions = async () => {
   showLoader('Ładowanie pytań quizu...');
   try {
-    const response = await apiClient.get('/questions');
-    const allQuestions = Array.isArray(response.data) ? response.data : [];
+    const allQuestions = store.getters['questions/getQuestions'];
 
     let filteredQuestions;
     if (route.query.ids) {
@@ -405,7 +397,7 @@ const restartQuiz = async () => {
   if (route.query.categories) {
     const cat = route.query.categories;
     const token = sessionStorage.getItem('token');
-    const allQuestions = (await apiClient.get('/questions')).data;
+    const allQuestions = store.getters['questions/getQuestions'];
     const historyRes = await apiClient.get('/users/hquestion');
     const hq = historyRes.data.filter((q) => q.category === cat);
 
@@ -476,6 +468,7 @@ const handleKeydown = (e) => {
     const idx = parseInt(e.key, 10) - 1;
     const currentAnswers = questionList.value ? questionList.value.answers : answers();
     if (
+      answersStatus.value[currentQuestionIndex.value] &&
       !answersStatus.value[currentQuestionIndex.value].answered &&
       currentAnswers &&
       currentAnswers[idx]
@@ -485,8 +478,8 @@ const handleKeydown = (e) => {
   }
   if (e.key === 'ArrowRight' || e.key === 'PageDown') {
     if (
-      currentQuestionIndex.value < questions.value.length - 1 &&
       answersStatus.value[currentQuestionIndex.value] &&
+      currentQuestionIndex.value < questions.value.length - 1 &&
       answersStatus.value[currentQuestionIndex.value].answered
     ) {
       nextOrFinish();
@@ -498,40 +491,11 @@ const handleKeydown = (e) => {
     prevQuestion();
   }
 };
-
-const startTimer = () => {
-  if (timerInterval.value) clearInterval(timerInterval.value);
-  timerInterval.value = setInterval(() => {
-    forceUpdateKey.value++;
-  }, 1000);
-};
 </script>
 
 <style scoped>
-/* Zastępujemy niestandardowe style bezpośrednio w HTML używając natywnych klas Tailwind */
 /* Zostawiamy tylko niezbędne animacje, których nie można zastąpić klasami Tailwind */
 
-.spinner .path {
-  stroke-linecap: round;
-  animation: dash 1.5s ease-in-out infinite;
-}
-
-@keyframes dash {
-  0% {
-    stroke-dasharray: 1, 150;
-    stroke-dashoffset: 0;
-  }
-  50% {
-    stroke-dasharray: 90, 150;
-    stroke-dashoffset: -35;
-  }
-  100% {
-    stroke-dasharray: 90, 150;
-    stroke-dashoffset: -124;
-  }
-}
-
-/* Transition animations */
 .fade-enter-active,
 .fade-leave-active {
   transition:

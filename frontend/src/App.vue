@@ -1,7 +1,7 @@
 <template>
   <div
     id="app"
-    class="w-[100vw] flex flex-col items-center justify-start min-h-screen"
+    class="w-[100vw] flex flex-col items-center justify-start min-h-screen dark:bg-gray-900 dark:text-gray-200"
     :data-theme="currentTheme"
   >
     <Navbar v-if="showNavbar" />
@@ -34,6 +34,33 @@ export default {
     },
   },
 
+  watch: {
+    // Dodaj watcher na currentTheme
+    currentTheme: {
+      immediate: true, // Wykonaj od razu przy montowaniu komponentu
+      handler(newTheme) {
+        if (newTheme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+
+        // Opcjonalnie, zapisz w localStorage dla zapamiętania między sesjami
+        localStorage.setItem('theme', newTheme);
+      },
+    },
+  },
+
+  mounted() {
+    // Ustaw początkowy motyw z localStorage lub Vuex store
+    const savedTheme = localStorage.getItem('theme') || this.currentTheme;
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  },
+
   provide() {
     return {
       showAlert: this.showAlert,
@@ -44,7 +71,7 @@ export default {
   },
 
   methods: {
-    showAlert(type, message, duration = 5000) {
+    showAlert(type, message, duration = 3000) {
       this.$refs.globalAlert.show(type, message, duration);
     },
     hideAlert() {
