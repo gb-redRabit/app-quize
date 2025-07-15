@@ -133,7 +133,10 @@ exports.importQuestionsFromExcel = async (req, res) => {
     await workbook.xlsx.load(req.file.buffer);
     const worksheet = workbook.worksheets[0];
     const questions = [];
-
+    function parseBool(val) {
+      if (typeof val === "string") return val.trim().toLowerCase() === "true";
+      return !!val;
+    }
     worksheet.eachRow((row, rowNumber) => {
       if (rowNumber === 1) return; // pomiń nagłówek
       const [
@@ -152,9 +155,9 @@ exports.importQuestionsFromExcel = async (req, res) => {
       questions.push({
         ID,
         question,
-        answer_a: { answer: answer_a, isCorret: !!isCorret_a },
-        answer_b: { answer: answer_b, isCorret: !!isCorret_b },
-        answer_c: { answer: answer_c, isCorret: !!isCorret_c },
+        answer_a: { answer: answer_a, isCorret: parseBool(isCorret_a) },
+        answer_b: { answer: answer_b, isCorret: parseBool(isCorret_b) },
+        answer_c: { answer: answer_c, isCorret: parseBool(isCorret_c) },
         category,
         description,
       });
@@ -166,6 +169,7 @@ exports.importQuestionsFromExcel = async (req, res) => {
       count: questions.length,
     });
   } catch (e) {
+    console.error("Błąd importu z Excela:", e);
     res
       .status(500)
       .json({ message: "Błąd importu z Excela", error: e.message });

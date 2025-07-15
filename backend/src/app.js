@@ -6,9 +6,24 @@ const authRoutes = require("./routes/auth");
 const questionsRoutes = require("./routes/questions");
 const usersRouter = require("./routes/users");
 const connectDB = require("./config/database");
+const cors = require("cors");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Dodaj obsługę CORS
+app.use(
+  cors({
+    origin: [
+      "https://quize-tawny.vercel.app",
+      "http://localhost:3000",
+      "https://quize-nnjdhzbym-grzegorzs-projects-7e242f51.vercel.app",
+      "https://quize-git-main-grzegorzs-projects-7e242f51.vercel.app",
+      "https://quiz-app-rysh.onrender.com",
+    ], // dodaj tu domenę frontu
+    credentials: true,
+  })
+);
 
 // <-- 2. Dodaj middleware do kompresji z warunkiem
 app.use(
