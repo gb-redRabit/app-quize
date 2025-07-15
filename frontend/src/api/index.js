@@ -3,8 +3,8 @@ import store from '../store';
 
 // Tworzenie klienta API
 const apiClient = axios.create({
-  // baseURL: process.env.VUE_APP_API_URL || 'https://app-quize.onrender.com/api',
-  baseURL: 'http://localhost:3000/api',
+  baseURL: process.env.VUE_APP_API_URL || 'https://app-quize.onrender.com/api',
+  // baseURL: 'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json',
   },
