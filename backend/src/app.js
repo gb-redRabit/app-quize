@@ -23,8 +23,13 @@ app.use(
     ],
     credentials: true,
     exposedHeaders: ["Content-Disposition"], // jeśli eksportujesz pliki
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// Obsłuż preflight OPTIONS (nie zawsze wymagane, ale na Render czasem pomaga)
+app.options("*", cors());
 
 // <-- 2. Dodaj middleware do kompresji z warunkiem
 app.use(
