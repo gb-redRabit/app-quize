@@ -35,9 +35,13 @@ router.post(
   questionsController.importQuestionsFromExcel
 );
 
-// Statystyki
-router.get("/stats", questionsController.getStats);
-
-
+// Pobierz pytania według kategorii
+router.get("/category/:category", (req, res) => {
+  const { category } = req.params;
+  require("../controllers/questionsController").getQuestionsByCategory(
+    req,
+    res
+  );
+});
 
 module.exports = router;

@@ -227,13 +227,10 @@ export default {
       const question = this.getQuestion(item.id_questions);
       if (!question) return `Odpowiedź ${item.answer}`;
 
-      // Normalizuj odpowiedź użytkownika do małych liter
-      const userAnswerKey = item.answer.toLowerCase();
-
       // Znajdź pełny tekst odpowiedzi
-      const answerObj = question[`answer_${userAnswerKey}`];
+      const answerObj = question[item.answer];
       if (answerObj && answerObj.answer) {
-        return `${item.answer.toUpperCase()}: ${answerObj.answer}`;
+        return `${item.answer.slice(-1).toUpperCase()}: ${answerObj.answer}`;
       } else {
         return `Odpowiedź ${item.answer.toUpperCase()}`;
       }
@@ -303,13 +300,19 @@ export default {
     // Pobieranie wszystkich pytań
     async fetchAllQuestions() {
       try {
-        const res = await apiClient.get('/questions');
-        // Upewnij się, że zawsze ustawiamy tablicę
-        this.allQuestions = Array.isArray(res.data) ? res.data : [];
+        // Pobierz wpis historii, aby znaleźć kategorię
+        const entry = this.findHistoryEntry();
+        // Jeśli wpis historii nie istnieje, pobierz "all"
+        const category = entry?.category || entry?.categories?.[0] || 'all';
+        // Pobierz pytania tylko z tej kategorii przez Vuex
+        const questions = await this.$store.dispatch(
+          'questions/fetchQuestionsByCategory',
+          category
+        );
+        this.allQuestions = Array.isArray(questions) ? questions : [];
       } catch (e) {
         console.error('Błąd pobierania pytań:', e);
         this.showAlert('error', 'Błąd podczas pobierania pytań');
-        // Upewnij się, że w przypadku błędu mamy pustą tablicę
         this.allQuestions = [];
         throw e;
       }

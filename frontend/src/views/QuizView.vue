@@ -235,48 +235,22 @@ const startTimer = () => {
 const fetchQuestions = async () => {
   showLoader('Ładowanie pytań quizu...');
   try {
-    const allQuestions = store.getters['questions/getQuestions'];
-
-    let filteredQuestions;
-    if (route.query.ids) {
-      const ids = route.query.ids.split(',').map((id) => parseInt(id));
-      filteredQuestions = allQuestions.filter((q) => ids.includes(q.ID || q.id || q.Id));
-    } else {
-      const categories = selectedCategories.value;
-      if (categories.includes('all')) {
-        filteredQuestions = [...allQuestions];
-      } else {
-        filteredQuestions = allQuestions.filter((q) => categories.includes(q.category));
-      }
-    }
-
-    questions.value = getRandomUniqueQuestions(filteredQuestions, quizLength.value).map((q) => ({
-      ...q,
-      correctIndex: keys.findIndex((k) => q[k] && q[k].isCorret),
-    }));
-
+    const category = route.query.categories || 'all';
+    const fetchedQuestions = await store.dispatch('questions/fetchQuestionsByCategory', category);
+    // Losuj pytania jeśli trzeba
+    questions.value = getRandomUniqueQuestions(fetchedQuestions, quizLength.value);
     answersStatus.value = questions.value.map(() => ({
-      selected: null,
       answered: false,
+      selected: null,
       selectedKey: null,
     }));
-
-    if (questions.value.length < quizLength.value) {
-      showAlert('warning', `Znaleziono tylko ${questions.value.length} pytań w wybranej kategorii`);
-    }
-  } catch (error) {
-    showAlert('error', 'Wystąpił błąd podczas ładowania pytań quizu');
-    console.error('Błąd podczas pobierania pytań:', error);
-  } finally {
-    hideLoader();
     loading.value = false;
-    showSummary.value = false;
-    score.value = 0;
-    currentQuestionIndex.value = 0;
-    startTime.value = Date.now();
-    questionTimes.value = [];
-    startTimer();
+  } catch (error) {
+    showAlert('error', 'Błąd podczas pobierania pytań quizu');
+    questions.value = [];
+    loading.value = false;
   }
+  hideLoader();
 };
 
 // Logika z `created`
@@ -396,8 +370,7 @@ const restartQuiz = async () => {
 
   if (route.query.categories) {
     const cat = route.query.categories;
-    const token = sessionStorage.getItem('token');
-    const allQuestions = store.getters['questions/getQuestions'];
+    const allQuestions = await store.dispatch('questions/fetchQuestionsByCategory', cat);
     const historyRes = await apiClient.get('/users/hquestion');
     const hq = historyRes.data.filter((q) => q.category === cat);
 

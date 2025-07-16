@@ -7,8 +7,21 @@ const CACHE_KEY = "stats";
 // Pobierz wszystkie pytania
 exports.getAllQuestions = async (req, res) => {
   try {
-    const questions = await Question.find();
-    res.json(questions);
+    // Pobierz parametry paginacji z zapytania
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 100;
+    const skip = (page - 1) * limit;
+
+    const total = await Question.countDocuments();
+    const questions = await Question.find().skip(skip).limit(limit);
+
+    res.json({
+      questions,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+      limit,
+    });
   } catch (e) {
     res.status(500).json({ message: "Error fetching questions" });
   }
@@ -23,7 +36,28 @@ exports.addQuestion = async (req, res) => {
 
     const question = new Question({ ...req.body, ID: nextID });
     await question.save();
-    await updateStats(); // aktualizuj statystyki
+
+    // Aktualizuj statystyki po dodaniu pytania
+    if (typeof Stats.updateStats === "function") {
+      await Stats.updateStats();
+    } else {
+      // Jeśli nie eksportujesz funkcji, możesz zaimportować i wywołać lokalnie
+      const Question = require("../models/Question");
+      const totalQuestions = await Question.countDocuments();
+      const categoriesAgg = await Question.aggregate([
+        { $group: { _id: "$category", count: { $sum: 1 } } },
+      ]);
+      const categories = categoriesAgg.map((cat) => ({
+        name: cat._id,
+        count: cat.count,
+      }));
+      await Stats.findOneAndUpdate(
+        {},
+        { totalQuestions, categories, updatedAt: new Date() },
+        { upsert: true }
+      );
+    }
+
     res.status(201).json({ message: "Question added" });
   } catch (e) {
     res
@@ -54,16 +88,39 @@ exports.updateQuestion = async (req, res) => {
 // Usuń pytanie
 exports.deleteQuestion = async (req, res) => {
   try {
-    const { id } = req.params;
-    // Usuwanie po polu ID (liczba)
-    const deleted = await Question.findOneAndDelete({ ID: Number(id) });
-    if (!deleted) {
-      return res.status(404).json({ message: "Question not found" });
+    // Popraw: szukaj po polu ID, nie _id!
+    const deleted = await Question.findOneAndDelete({
+      ID: Number(req.params.id),
+    });
+
+    // Aktualizuj statystyki po usunięciu pytania
+    if (typeof Stats.updateStats === "function") {
+      await Stats.updateStats();
+    } else {
+      const totalQuestions = await Question.countDocuments();
+      const categoriesAgg = await Question.aggregate([
+        { $group: { _id: "$category", count: { $sum: 1 } } },
+      ]);
+      const categories = categoriesAgg.map((cat) => ({
+        name: cat._id,
+        count: cat.count,
+      }));
+      await Stats.findOneAndUpdate(
+        {},
+        { totalQuestions, categories, updatedAt: new Date() },
+        { upsert: true }
+      );
     }
-    res.json({ message: "Question deleted" });
-    await updateStats();
+
+    if (!deleted) {
+      return res
+        .status(404)
+        .json({ message: "Nie znaleziono pytania do usunięcia" });
+    }
+
+    res.json({ success: true });
   } catch (e) {
-    res.status(500).json({ message: "Error deleting question" });
+    res.status(500).json({ message: "Błąd usuwania pytania" });
   }
 };
 
@@ -204,4 +261,16 @@ exports.getStats = async (req, res) => {
   const stats = await Stats.findOne({});
   setCache(CACHE_KEY, stats || { totalQuestions: 0, categories: [] });
   res.json(stats || { totalQuestions: 0, categories: [] });
+};
+
+exports.getQuestionsByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+    // Jeśli chcesz pobrać wszystkie, gdy category = 'all'
+    const filter = category === "all" ? {} : { category };
+    const questions = await Question.find(filter);
+    res.json(questions);
+  } catch (e) {
+    res.status(500).json({ message: "Error fetching questions by category" });
+  }
 };

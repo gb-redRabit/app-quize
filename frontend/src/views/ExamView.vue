@@ -181,42 +181,28 @@ export default {
   methods: {
     ...mapActions(['fetchUserHistory']),
     async fetchQuestions() {
-      if (typeof this.showLoader === 'function') this.showLoader('Ładowanie pytań egzaminu...');
-      else console.log('Ładowanie pytań egzaminu...');
-
+      this.showLoader('Ładowanie pytań egzaminu...');
       try {
         const category = this.$route.query.categories || 'all';
-        const response = store.getters['questions/getQuestions'];
-        const allQuestions = Array.isArray(response) ? response : [];
-
-        let filteredQuestions = allQuestions;
-        if (category !== 'all') {
-          filteredQuestions = allQuestions.filter(
-            (q) => q.category === category || q.category === decodeURIComponent(category)
-          );
-        }
-
-        this.questions = getRandomUniqueQuestions(filteredQuestions, this.examLength);
+        const questions = await this.$store.dispatch(
+          'questions/fetchQuestionsByCategory',
+          category
+        );
+        // Losuj pytania jeśli trzeba
+        this.questions = getRandomUniqueQuestions(questions, this.examLength);
         this.answersStatus = this.questions.map(() => ({
-          selected: null,
           answered: false,
+          selected: null,
+          selectedKey: null,
         }));
-
-        if (this.questions.length < this.examLength) {
-          this.showAlert(
-            'warning',
-            `Znaleziono tylko ${this.questions.length} pytań w tej kategorii`
-          );
-        }
+        this.loading = false;
       } catch (error) {
-        if (typeof this.showAlert === 'function')
-          this.showAlert('error', 'Błąd podczas pobierania pytań egzaminu');
-        else console.error('Błąd podczas pobierania pytań egzaminu');
-      } finally {
-        if (typeof this.hideLoader === 'function') this.hideLoader();
-        else console.log('Koniec ładowania');
+        this.showAlert('error', 'Błąd podczas pobierania pytań egzaminu');
+        this.questions = [];
+        this.answersStatus = [];
         this.loading = false;
       }
+      this.hideLoader();
     },
 
     async selectAnswer(index, selectedKey) {

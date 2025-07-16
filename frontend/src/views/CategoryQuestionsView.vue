@@ -400,30 +400,21 @@ export default {
     },
   },
   async created() {
-    this.showLoader('Ładowanie pytań kategorii...'); // Używamy globalnego API
-
+    this.showLoader('Ładowanie pytań kategorii...');
     try {
-      if (!this.getQuestions.length) {
-        await this.$store.dispatch('questions/fetchQuestionsAndCategories');
-      }
-      this.localQuestions = [...this.getQuestions];
-
-      if (this.filteredQuestions.length === 0) {
-        this.showAlert('warning', 'Nie znaleziono pytań dla tej kategorii');
-      } else {
-        this.showAlert(
-          'success',
-          `Znaleziono ${this.filteredQuestions.length} pytań w kategorii "${this.categoryLabel}"`
-        );
-      }
+      const questions = await this.$store.dispatch(
+        'questions/fetchQuestionsByCategory',
+        this.category
+      );
+      this.localQuestions = Array.isArray(questions) ? questions : [];
+      this.loading = false;
     } catch (error) {
       this.showAlert('error', 'Błąd podczas ładowania pytań');
-      console.error('Błąd podczas ładowania pytań:', error);
-    } finally {
+      this.localQuestions = [];
       this.loading = false;
-      this.hideLoader();
     }
-
+    this.hideLoader();
+    // Dodaj nasłuchiwanie scrolla po załadowaniu pytań
     window.addEventListener('scroll', this.handleScroll);
   },
   beforeUnmount() {

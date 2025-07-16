@@ -54,7 +54,6 @@ export default {
         }
 
         await dispatch('fetchUserHistoryAndHQ');
-        await dispatch('questions/fetchQuestionsAndCategories', null, { root: true });
         // Po zalogowaniu
         await dispatch('questions/onUserLogin', null, { root: true });
 
@@ -101,7 +100,6 @@ export default {
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('user');
       // Po wylogowaniu
-      await dispatch('questions/clearQuestionsCache');
     },
     async clearCategoryHistory({ dispatch }, category) {
       try {

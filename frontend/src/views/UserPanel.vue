@@ -574,9 +574,11 @@ export default {
 
     try {
       this.showLoader('Pobieranie kategorii...');
-      const res = await apiClient.get('/questions/stats');
-      // Usuń kategorie o wartości '' już tutaj!
-      this.allCategories = res.data.categories.map((c) => c.name).filter((name) => name !== '');
+      // Pobierz kategorie z Vuex
+      await this.$store.dispatch('questions/fetchStats');
+      this.allCategories = this.$store.getters['questions/getCategories']
+        .filter((name) => name !== '')
+        .sort((a, b) => a.localeCompare(b));
       this.selectedHiddenCategories = this.hiddenCategory.map((cat) =>
         this.getCategoryNameForDisplay(cat)
       );

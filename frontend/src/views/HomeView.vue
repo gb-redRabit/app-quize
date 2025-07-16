@@ -725,13 +725,22 @@ const activeFilter = ref('all');
 const viewType = ref('grid');
 const gridColumns = ref(3);
 const searchQuery = ref('');
+const stats = ref({ totalQuestions: 0, categories: [] });
 
 // --- Getters and State from Vuex ---
 
 const hiddenCategory = computed(() => store.getters['user/getUser'].hiddenCategory);
-const categories = computed(() => store.getters['questions/getCategories']);
-const categoryCounts = computed(() => store.getters['questions/getCategoryCounts']);
-const questionsCount = computed(() => categoryCounts.value['all'] || 0);
+const questionsCount = computed(() => stats.value.totalQuestions);
+const categories = computed(() =>
+  (stats.value.categories.map((cat) => cat.name) || []).sort((a, b) => a.localeCompare(b))
+);
+const categoryCounts = computed(() => {
+  const map = {};
+  stats.value.categories.forEach((cat) => {
+    map[cat.name] = cat.count;
+  });
+  return map;
+});
 const userHistory = computed(() => store.getters['user/getUserHistory'] || []);
 const hquestion = computed(() => store.getters['user/getHquestion'] || []);
 
@@ -812,15 +821,15 @@ const historyStats = computed(() => {
 });
 
 const filteredCategories = computed(() => {
-  if (activeFilter.value === 'exam') return examCategories.value;
-  if (activeFilter.value === 'other') return otherCategories.value;
+  if (activeFilter.value === 'exam')
+    return examCategories.value.slice().sort((a, b) => a.localeCompare(b));
+  if (activeFilter.value === 'other')
+    return otherCategories.value.slice().sort((a, b) => a.localeCompare(b));
   return categories.value;
 });
 
 const searchedCategories = computed(() => {
-  // Pobierz listę ukrytych kategorii (może być undefined/null)
   const hidden = hiddenCategory.value || [];
-  // Filtruj po wyszukiwaniu i ukrytych kategoriach
   return filteredCategories.value
     .filter((cat) => !hidden.includes(cat))
     .filter(
@@ -872,13 +881,21 @@ const categoryPercentComplete = (cat) => {
   return Math.round(((stats.correct + stats.wrong) / total) * 100);
 };
 
-const goToCategoryQuestions = (cat) => {
-  router.push({ name: 'CategoryQuestions', params: { category: cat } });
+const goToCategoryQuestions = async (cat) => {
+  showLoader('Ładowanie pytań...');
+  try {
+    await store.dispatch('questions/fetchQuestionsByCategory', cat);
+    router.push({ name: 'CategoryQuestions', params: { category: cat } });
+  } catch (e) {
+    showAlert('error', 'Błąd ładowania pytań z kategorii');
+  } finally {
+    hideLoader();
+  }
 };
 
 const getQuestionIdsForQuiz = async (cat) => {
-  const res = await apiClient.get('/questions');
-  const questions = (Array.isArray(res.data) ? res.data : []).filter((q) => q.category === cat);
+  // Pobierz pytania z danej kategorii przez Vuex
+  const questions = await store.dispatch('questions/fetchQuestionsByCategory', cat);
   const allIds = questions.map((q) => q.ID || q.id || q.Id || q.id_question);
 
   const hq = hquestion.value.filter((q) => q.category === cat);
@@ -934,6 +951,18 @@ const clearCategoryHistory = async (cat) => {
     showAlert('success', `Historia kategorii "${cat}" została wyczyszczona`);
   } catch (e) {
     showAlert('error', 'Błąd podczas czyszczenia pytań z kategorii.');
+  } finally {
+    hideLoader();
+  }
+};
+
+const fetchStats = async () => {
+  showLoader('Ładowanie statystyk...');
+  try {
+    const res = await apiClient.get('/stats');
+    stats.value = res.data || { totalQuestions: 0, categories: [] };
+  } catch (e) {
+    showAlert('error', 'Błąd ładowania statystyk');
   } finally {
     hideLoader();
   }
@@ -1006,13 +1035,13 @@ onMounted(async () => {
   else console.log('Ładowanie danych...');
 
   try {
-    await store.dispatch('questions/fetchQuestionsAndCategories');
     await store.dispatch('user/fetchUserHistoryAndHQ');
     const options = {};
     for (const cat of categories.value) {
       options[cat] = false;
     }
     showQuizOptions.value = options;
+    fetchStats();
   } catch (error) {
     if (typeof showAlert === 'function')
       showAlert('error', 'Wystąpił błąd podczas ładowania danych');

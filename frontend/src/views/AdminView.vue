@@ -480,6 +480,7 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import QuestionActions from '@/components/QuestionActions.vue';
 import store from '@/store';
+
 export default {
   components: {
     SearchBar,
@@ -495,7 +496,7 @@ export default {
     return {
       questions: [],
       categories: [],
-      selectedSortCategory: '', // Dodaj do data
+      selectedSortCategory: '',
       showAddPopup: false,
       newCategoryInput: '',
       searchQuery: '',
@@ -511,6 +512,12 @@ export default {
         category: '',
         description: '',
       },
+      // PAGINACJA
+      page: 1,
+      limit: 100,
+      total: 0,
+      pages: 1,
+      isLoadingMore: false,
     };
   },
   created() {
@@ -519,16 +526,29 @@ export default {
   computed: {
     filteredQuestions() {
       let result = this.questions;
-      // Filtrowanie po wyszukiwaniu
       if (this.searchQuery) {
         const q = this.searchQuery.toLowerCase();
-        result = result.filter(
-          (question) =>
-            question.question.toLowerCase().includes(q) ||
-            (question.ID && question.ID.toString().includes(q))
-        );
+        // Jeśli wpisano liczbę, szukaj po ID
+        if (/^\d+$/.test(q)) {
+          result = result.filter((question) => question.ID && question.ID.toString() === q);
+          if (result.length === 0) {
+            // Dodaj "pytanie nie pobrane" z opcją doładowania strony
+            return [
+              {
+                ID: q,
+                question: `Pytanie o ID ${q} nie zostało jeszcze pobrane.`,
+                notFound: true,
+              },
+            ];
+          }
+        } else {
+          result = result.filter(
+            (question) =>
+              question.question.toLowerCase().includes(q) ||
+              (question.ID && question.ID.toString().includes(q))
+          );
+        }
       }
-      // Sortowanie/filtrowanie po kategorii
       if (this.selectedSortCategory) {
         result = result.filter((q) => q.category === this.selectedSortCategory);
       }
@@ -536,6 +556,29 @@ export default {
     },
   },
   methods: {
+    async loadPageWithId(id) {
+      const idNum = parseInt(id, 10);
+      if (!idNum || !this.limit) return;
+      const pageToLoad = Math.ceil(idNum / this.limit);
+      this.showLoader(`Pobieranie strony ${pageToLoad} z pytaniem o ID ${id}...`);
+      try {
+        const res = await apiClient.get(`/questions?page=${pageToLoad}&limit=${this.limit}`);
+        const { questions } = res.data;
+        // Dodaj nowe pytania do listy, unikając duplikatów
+        const newQuestions = questions.filter(
+          (q) => !this.questions.some((existing) => existing.ID === q.ID)
+        );
+        this.questions = [...this.questions, ...newQuestions];
+        this.showAlert('success', `Załadowano stronę ${pageToLoad}.`);
+        // Automatycznie ponów wyszukiwanie po ID
+        this.$nextTick(() => {
+          this.searchQuery = id;
+        });
+      } catch (e) {
+        this.showAlert('error', 'Błąd podczas pobierania strony z pytaniem.');
+      }
+      this.hideLoader();
+    },
     // --- POCZĄTEK POPRAWKI: DODANIE BRAKUJĄCYCH METOD ---
     onQuestionEdited(editedQuestion) {
       const index = this.questions.findIndex((q) => q.ID === editedQuestion.ID);
@@ -562,13 +605,20 @@ export default {
       }
       this.hideLoader();
     },
-    async fetchQuestions() {
+    async fetchQuestions(reset = true) {
       this.showLoader('Pobieranie pytań...');
       try {
-        const response = await apiClient.get('/questions');
-        this.questions = (Array.isArray(response.data) ? response.data : [])
-          .filter((q) => q.ID !== undefined && q.ID !== null)
-          .sort((a, b) => a.ID - b.ID);
+        if (reset) {
+          this.page = 1;
+          this.questions = [];
+        }
+        const res = await apiClient.get(`/questions?page=${this.page}&limit=${this.limit}`);
+        const { questions, total, page, pages, limit } = res.data;
+        this.questions = reset ? questions : [...this.questions, ...questions];
+        this.total = total;
+        this.page = page;
+        this.pages = pages;
+        this.limit = limit;
         this.categories = [...new Set(this.questions.map((q) => q.category).filter(Boolean))];
       } catch (error) {
         this.showAlert('error', 'Błąd podczas pobierania pytań.');
@@ -675,6 +725,31 @@ export default {
       this.formModel.answer_c.isCorret = false;
       this.formModel[`answer_${correctKey}`].isCorret = true;
     },
+    async loadMoreQuestions() {
+      if (this.isLoadingMore || this.page >= this.pages) return;
+      this.isLoadingMore = true;
+      try {
+        this.page += 1;
+        await this.fetchQuestions(false);
+      } finally {
+        this.isLoadingMore = false;
+      }
+    },
+  },
+  mounted() {
+    // Dodaj nasłuchiwanie scrolla do scroller-a
+    const scroller = this.$el.querySelector('.scroller');
+    if (scroller) {
+      scroller.addEventListener('scroll', () => {
+        if (
+          scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 50 &&
+          !this.isLoadingMore &&
+          this.page < this.pages
+        ) {
+          this.loadMoreQuestions();
+        }
+      });
+    }
   },
 };
 </script>
