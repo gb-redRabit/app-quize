@@ -36,12 +36,9 @@ router.post(
 );
 
 // Pobierz pytania według kategorii
-router.get("/category/:category", (req, res) => {
-  const { category } = req.params;
-  require("../controllers/questionsController").getQuestionsByCategory(
-    req,
-    res
-  );
-});
+router.get(
+  "/category/:category(*)",
+  questionsController.getQuestionsByCategory
+);
 
 module.exports = router;

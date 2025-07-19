@@ -206,6 +206,8 @@
                       >ID: {{ item.ID }}</span
                     >
                     <span class="text-gray-800 dark:text-gray-200">{{ item.question }}</span>
+                    <span v-if="item.flagged" class="text-yellow-500 font-bold ml-2">★ Ważne</span>
+                    <span v-if="item.note" class="text-gray-500 ml-2">📝 {{ item.note }}</span>
                   </div>
                   <svg
                     :class="[
@@ -258,6 +260,8 @@
                   <span v-else>
                     {{ item.question }}
                   </span>
+                  <span v-if="item.flagged" class="text-yellow-500 font-bold ml-2">★ Ważne</span>
+                  <span v-if="item.note" class="text-gray-500 ml-2">📝 {{ item.note }}</span>
                 </div>
                 <div class="w-32 flex justify-center">
                   <QuestionActions
@@ -599,7 +603,7 @@ export default {
         await apiClient.post('/questions/clear');
         this.showAlert('success', 'Baza pytań została pomyślnie wyczyszczona!');
         await this.fetchQuestions();
-        await store.dispatch('questions/refreshQuestionsCache');
+        await store.dispatch('questions/fetchStats');
       } catch (e) {
         this.showAlert('error', 'Błąd podczas czyszczenia bazy pytań.');
       }
@@ -708,7 +712,7 @@ export default {
         });
 
         this.showAlert('success', `Dodano ${response.data.added} nowych pytań.`);
-        await store.dispatch('questions/refreshQuestionsCache');
+        await store.dispatch('questions/fetchStats');
         await this.fetchQuestions();
       } catch (error) {
         const errorMessage =

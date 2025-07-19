@@ -40,6 +40,6 @@ async function updateStats() {
 }
 
 // Uruchom co 20 minut
-setInterval(updateStats, 20 * 60 * 1000);
+setInterval(updateStats, 1 * 60 * 1000);
 
 module.exports = Stats;

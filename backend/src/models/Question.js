@@ -16,6 +16,8 @@ const questionSchema = new mongoose.Schema({
   answer_c: { type: answerSchema, required: true },
   category: { type: String },
   description: { type: String },
+  flagged: { type: Boolean, default: false },
+  note: { type: String, default: "" },
 });
 
 module.exports = mongoose.model("Question", questionSchema);

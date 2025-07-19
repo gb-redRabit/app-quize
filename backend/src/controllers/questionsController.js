@@ -265,7 +265,8 @@ exports.getStats = async (req, res) => {
 
 exports.getQuestionsByCategory = async (req, res) => {
   try {
-    const { category } = req.params;
+    // Dekoduj kategorię z URL
+    const category = decodeURIComponent(req.params.category);
     // Jeśli chcesz pobrać wszystkie, gdy category = 'all'
     const filter = category === "all" ? {} : { category };
     const questions = await Question.find(filter);

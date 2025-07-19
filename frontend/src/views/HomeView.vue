@@ -248,6 +248,17 @@
             >
               Pozostałe
             </button>
+            <button
+              @click="activeFilter = 'lawtest'"
+              class="px-4 py-3 text-sm font-medium whitespace-nowrap"
+              :class="
+                activeFilter === 'lawtest'
+                  ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+              "
+            >
+              Testy prawnicze
+            </button>
           </div>
         </div>
         <div v-if="viewType === 'grid'" :class="gridLayoutClass">
@@ -730,17 +741,13 @@ const stats = ref({ totalQuestions: 0, categories: [] });
 // --- Getters and State from Vuex ---
 
 const hiddenCategory = computed(() => store.getters['user/getUser'].hiddenCategory);
-const questionsCount = computed(() => stats.value.totalQuestions);
 const categories = computed(() =>
-  (stats.value.categories.map((cat) => cat.name) || []).sort((a, b) => a.localeCompare(b))
+  (store.getters['questions/getCategories'] || []).sort((a, b) => a.localeCompare(b))
 );
-const categoryCounts = computed(() => {
-  const map = {};
-  stats.value.categories.forEach((cat) => {
-    map[cat.name] = cat.count;
-  });
-  return map;
-});
+const categoryCounts = computed(() => store.getters['questions/getCategoryCounts'] || {});
+const questionsCount = computed(() =>
+  Object.values(categoryCounts.value).reduce((a, b) => a + b, 0)
+);
 const userHistory = computed(() => store.getters['user/getUserHistory'] || []);
 const hquestion = computed(() => store.getters['user/getHquestion'] || []);
 
@@ -748,8 +755,18 @@ const hquestion = computed(() => store.getters['user/getHquestion'] || []);
 const examCategories = computed(() =>
   categories.value.filter((cat) => cat && cat.toLowerCase().includes('egzamin'))
 );
+
+const lawTestCategories = computed(() =>
+  categories.value.filter((cat) => cat && cat.startsWith('TP:'))
+);
+
 const otherCategories = computed(() =>
-  categories.value.filter((cat) => !cat.toLowerCase().includes('egzamin'))
+  categories.value.filter(
+    (cat) =>
+      cat &&
+      !examCategories.value.includes(cat) &&
+      !lawTestCategories.value.includes(cat)
+  )
 );
 
 const examStatsByCategory = computed(() => {
@@ -825,6 +842,8 @@ const filteredCategories = computed(() => {
     return examCategories.value.slice().sort((a, b) => a.localeCompare(b));
   if (activeFilter.value === 'other')
     return otherCategories.value.slice().sort((a, b) => a.localeCompare(b));
+  if (activeFilter.value === 'lawtest')
+    return lawTestCategories.value.slice().sort((a, b) => a.localeCompare(b));
   return categories.value;
 });
 
@@ -1031,26 +1050,7 @@ const getCategoryStatusClass = (cat) => {
 
 // --- Lifecycle Hook ---
 onMounted(async () => {
-  if (typeof showLoader === 'function') showLoader('Ładowanie danych...');
-  else console.log('Ładowanie danych...');
-
-  try {
-    await store.dispatch('user/fetchUserHistoryAndHQ');
-    const options = {};
-    for (const cat of categories.value) {
-      options[cat] = false;
-    }
-    showQuizOptions.value = options;
-    fetchStats();
-  } catch (error) {
-    if (typeof showAlert === 'function')
-      showAlert('error', 'Wystąpił błąd podczas ładowania danych');
-    else console.error('Błąd:', error);
-  } finally {
-    if (typeof hideLoader === 'function') hideLoader();
-    else console.log('Koniec ładowania');
-  }
-  store.dispatch('questions/refreshQuestionsCache');
+  await store.dispatch('questions/fetchStats');
 });
 </script>
 

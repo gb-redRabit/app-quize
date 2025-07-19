@@ -125,10 +125,22 @@
                   class="block text-sm font-medium text-gray-800 dark:text-gray-200"
                   >Kategoria</label
                 >
-                <input
+                <select
                   v-model="editData.category"
                   id="edit-category"
                   class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
+                >
+                  <option disabled value="">-- wybierz kategorię --</option>
+                  <option v-for="cat in categoriesFromStats" :key="cat" :value="cat">
+                    {{ cat }}
+                  </option>
+                  <option value="__new__">+ Utwórz nową kategorię</option>
+                </select>
+                <input
+                  v-if="editData.category === '__new__'"
+                  v-model="editData.newCategory"
+                  placeholder="Nowa kategoria"
+                  class="mt-2 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
                 />
               </div>
               <div>
@@ -142,6 +154,21 @@
                   v-model="editData.description"
                   id="edit-description"
                   class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
+                />
+              </div>
+              <div class="mt-4">
+                <label class="flex items-center gap-2">
+                  <input type="checkbox" v-model="editData.flagged" />
+                  Oznacz to pytanie jako ważne
+                </label>
+              </div>
+              <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700">Notatka do pytania</label>
+                <input
+                  type="text"
+                  v-model="editData.note"
+                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm"
+                  placeholder="Dodaj notatkę..."
                 />
               </div>
             </div>
@@ -179,6 +206,12 @@ export default {
       editData: null,
     };
   },
+  computed: {
+    categoriesFromStats() {
+      // Pobierz kategorie z Vuex (questions/getCategories)
+      return store.getters['questions/getCategories'] || [];
+    }
+  },
   methods: {
     openEditModal() {
       this.editData = JSON.parse(JSON.stringify(this.question));
@@ -195,12 +228,17 @@ export default {
     async saveEdit() {
       this.showLoader('Zapisywanie zmian...');
       try {
+        if (this.editData.category === '__new__' && this.editData.newCategory) {
+          this.editData.category = this.editData.newCategory.trim();
+        }
+        delete this.editData.newCategory;
+
         await apiClient.put(`/questions/${this.editData.ID}`, this.editData);
         this.$emit('edit', this.editData);
         this.showEdit = false;
         this.showAlert('success', 'Pytanie zostało zaktualizowane');
         // Po dodaniu/edycji/usunięciu pytania:
-        await store.dispatch('questions/refreshQuestionsCache');
+        await store.dispatch('questions/fetchStats');
       } catch (e) {
         console.error('Błąd zapisu pytania:', e);
         this.showAlert('error', 'Błąd podczas zapisywania pytania.');
@@ -214,7 +252,7 @@ export default {
         const id = this.question.ID;
         await apiClient.delete(`/questions/${id}`);
         // Po dodaniu/edycji/usunięciu pytania:
-        await store.dispatch('questions/refreshQuestionsCache');
+        await store.dispatch('questions/fetchStats');
         this.$emit('deleted', this.question);
         this.showDelete = false;
         this.showAlert('success', 'Pytanie zostało usunięte');

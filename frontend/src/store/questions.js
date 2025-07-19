@@ -43,8 +43,16 @@ export default {
   namespaced: true,
   state: {
     questions: [],
-    categories: [],
-    categoryCounts: {},
+    categories: (() => {
+      const stats = JSON.parse(localStorage.getItem('stats') || sessionStorage.getItem('stats') || '{}');
+      return stats.categories ? stats.categories.map(cat => cat.name) : [];
+    })(),
+    categoryCounts: (() => {
+      const stats = JSON.parse(localStorage.getItem('stats') || sessionStorage.getItem('stats') || '{}');
+      return stats.categories
+        ? Object.fromEntries(stats.categories.map(cat => [cat.name, cat.count]))
+        : {};
+    })(),
     lastFetch: null,
   },
 
@@ -70,55 +78,18 @@ export default {
   },
 
   actions: {
-    async initQuestionsCache({ commit }) {
-      // const cachedQuestions = await loadQuestionsFromIndexedDB();
-      // if (useIndexedDB && cachedQuestions.length > 0) {
-      //   commit('SET_QUESTIONS', cachedQuestions);
-      //   const categories = [...new Set(cachedQuestions.map((q) => q.category).filter(Boolean))];
-      //   commit('SET_CATEGORIES', categories);
-      //   const categoryCounts = {};
-      //   categories.forEach((cat) => {
-      //     categoryCounts[cat] = cachedQuestions.filter((q) => q.category === cat).length;
-      //   });
-      //   categoryCounts['all'] = cachedQuestions.length;
-      //   commit('SET_CATEGORY_COUNTS', categoryCounts);
-      // } else {
-      //   // Pobierz z serwera jeśli IndexedDB wyłączone lub pusta
-      //   await this.dispatch('questions/fetchQuestionsAndCategories');
-      // }
-      // Tymczasowo nie pobieraj całej listy pytań!
-    },
-
-    async fetchQuestionsAndCategories({ commit }) {
-      // try {
-      //   const res = await apiClient.get('/questions');
-      //   const questions = res.data;
-      //   commit('SET_QUESTIONS', questions);
-      //   await saveQuestionsToIndexedDB(questions);
-      //   const categories = [...new Set(questions.map((q) => q.category).filter(Boolean))];
-      //   commit('SET_CATEGORIES', categories);
-      //   const categoryCounts = {};
-      //   categories.forEach((cat) => {
-      //     categoryCounts[cat] = questions.filter((q) => q.category === cat).length;
-      //   });
-      //   categoryCounts['all'] = questions.length;
-      //   commit('SET_CATEGORY_COUNTS', categoryCounts);
-      //   commit('SET_LAST_FETCH', Date.now());
-      // } catch (e) {
-      //   console.error('Błąd ładowania pytań i kategorii:', e);
-      // }
-      // Tymczasowo nie pobieraj całej listy pytań!
-    },
-
-    async refreshQuestionsCache({ dispatch }) {
-      // await dispatch('fetchQuestionsAndCategories');
-      // Tymczasowo nie pobieraj całej listy pytań!
-    },
-
     async fetchStats({ commit }) {
       try {
         const res = await apiClient.get('/stats');
-        const stats = res.data || { totalQuestions: 0, categories: [] };
+        // WYCIĄGNIJ tylko potrzebne pola
+        const stats = res.data
+          ? {
+              categories: res.data.categories || [],
+              totalQuestions: res.data.totalQuestions || 0,
+              updatedAt: res.data.updatedAt || null,
+            }
+          : { categories: [], totalQuestions: 0, updatedAt: null };
+
         // Ustaw liczbę pytań i kategorie w stanie
         commit(
           'SET_CATEGORY_COUNTS',
@@ -128,7 +99,9 @@ export default {
           'SET_CATEGORIES',
           stats.categories.map((cat) => cat.name)
         );
-        // Możesz dodać inne commity jeśli chcesz
+        // --- ZAPISZ DO localStorage I sessionStorage TYLKO POTRZEBNE POLA ---
+        localStorage.setItem('stats', JSON.stringify(stats));
+        sessionStorage.setItem('stats', JSON.stringify(stats));
       } catch (e) {
         console.error('Błąd pobierania statystyk:', e);
       }
@@ -155,7 +128,6 @@ export default {
       try {
         await apiClient.post('/questions', questionData);
         // Po dodaniu pytania odśwież cache lub pobierz najnowsze pytania
-        await dispatch('refreshQuestionsCache');
         await dispatch('fetchStats'); // Aktualizuj statystyki po dodaniu
         return true;
       } catch (e) {
@@ -166,7 +138,6 @@ export default {
     async editQuestion({ dispatch }, { id, questionData }) {
       try {
         await apiClient.put(`/questions/${id}`, questionData);
-        await dispatch('refreshQuestionsCache');
         await dispatch('fetchStats'); // Aktualizuj statystyki po edycji
         return true;
       } catch (e) {
@@ -177,7 +148,6 @@ export default {
     async deleteQuestion({ dispatch }, id) {
       try {
         await apiClient.delete(`/questions/${id}`);
-        await dispatch('refreshQuestionsCache');
         await dispatch('fetchStats'); // Aktualizuj statystyki po usunięciu
         return true;
       } catch (e) {
@@ -199,6 +169,11 @@ export default {
       if (category === 'all') return state.questions;
       return state.questions.filter((q) => q.category === category);
     },
+    getStats: (state) => ({
+      totalQuestions: Object.values(state.categoryCounts).reduce((a, b) => a + b, 0),
+      categories: state.categories,
+      categoryCounts: state.categoryCounts,
+    }),
   },
 };
 

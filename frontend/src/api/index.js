@@ -12,7 +12,7 @@ const apiClient = axios.create({
 
 // Implementacja prostego cachowania zapytań
 const cache = new Map();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minut
+const CACHE_TTL = 1 * 60 * 1000; // 1 minuta
 
 // Dodaj mechanizm cachowania dla metod GET
 const originalGet = apiClient.get;

@@ -9,7 +9,6 @@ import apiClient from './api'; // Dodaj import apiClient, który był używany a
 store.dispatch('ui/initTheme');
 store.dispatch('user/initUser');
 // ...istniejący kod...
-store.dispatch('questions/initQuestionsCache'); // <-- Dodaj to!
 // Funkcja do odświeżania tokena
 function scheduleTokenRefresh() {
   const refreshInterval = 10 * 60 * 1000; // 10 minut

@@ -164,12 +164,27 @@
       >
         <div class="question-header">
           <div class="question-id">ID: {{ q.ID }}</div>
-          <QuestionActions
-            :question="q"
-            @deleted="onQuestionDeleted"
-            @edit="onQuestionEdited"
-            class="question-actions"
-          />
+          <div class="flex items-center gap-2 mt-2">
+            <input
+              type="checkbox"
+              :checked="q.flagged"
+              @change="toggleFlagged(q)"
+              :id="'flagged-' + q.ID"
+            />
+            <label
+              :for="'flagged-' + q.ID"
+              :class="{ 'text-green-500 font-bold': q.flagged }"
+              class="text-sm text-gray-600 cursor-pointer"
+            >
+              Sprawdzone
+            </label>
+            <QuestionActions
+              :question="q"
+              @deleted="onQuestionDeleted"
+              @edit="onQuestionEdited"
+              class="question-actions"
+            />
+          </div>
         </div>
 
         <div class="question-content">{{ q.question }}</div>
@@ -215,6 +230,7 @@
           </svg>
           <div class="description-text">{{ q.description }}</div>
         </div>
+        <span v-if="q.note" class="text-gray-500 ml-2">📝 {{ q.note }}</span>
       </div>
 
       <div v-if="hasMoreQuestions" class="load-more">
@@ -230,6 +246,7 @@ import { mapGetters, mapState } from 'vuex';
 import SearchBar from '@/components/SearchBar.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import QuestionActions from '@/components/QuestionActions.vue';
+import apiClient from '@/api';
 
 export default {
   name: 'CategoryQuestionsView',
@@ -475,6 +492,19 @@ export default {
       const idx = this.localQuestions.findIndex((q) => q.ID === editedQuestion.ID);
       if (idx !== -1) {
         this.localQuestions.splice(idx, 1, editedQuestion);
+      }
+    },
+    async toggleFlagged(q) {
+      const prev = q.flagged;
+      q.flagged = !q.flagged; // Optymistycznie zmień od razu
+      try {
+        const updated = { ...q, flagged: q.flagged };
+        if ('_id' in updated) delete updated._id;
+        await apiClient.put(`/questions/${q.ID}`, updated);
+        this.showAlert('success', updated.flagged ? 'Pytanie oznaczone jako ważne' : 'Oznaczenie usunięte');
+      } catch (e) {
+        q.flagged = prev; // Cofnij zmianę w razie błędu
+        this.showAlert('error', 'Błąd podczas zmiany oznaczenia pytania');
       }
     },
     normalizeQuestion(text) {
