@@ -56,7 +56,68 @@
           </div>
         </div>
       </div>
-
+      <!-- filepath: d:\git nowe\app-quize\frontend\src\views\HistoryDetailsView.vue -->
+      <div v-if="answerTimes.length" class="mb-8">
+        <div class="flex flex-col items-center w-full mx-auto">
+          <div class="flex w-full items-center mb-4">
+            <h2
+              class="flex-1 text-xl font-semibold text-gray-800 dark:text-gray-200 w-full text-left"
+            >
+              Czas odpowiedzi na pytania
+            </h2>
+            <div
+              class="flex-1 text-base text-gray-700 dark:text-gray-300 mb-2 w-full text-right pr-2"
+            >
+              Suma czasu: <span class="font-bold">{{ totalTime }} s</span>
+            </div>
+          </div>
+          <div
+            class="flex items-end gap-3 h-72 w-full bg-gray-50 dark:bg-gray-900 rounded-lg shadow-inner px-4 overflow-x-auto border border-gray-200 dark:border-gray-700 relative"
+            style="min-width: 900px; max-width: 100%"
+          >
+            <div
+              v-for="(t, idx) in answerTimes"
+              :key="idx"
+              class="flex flex-col items-center justify-end"
+              style="flex: 0 0 38px; min-width: 38px"
+            >
+              <span class="text-sm text-gray-500 mt-1"> {{ idx + 1 }} </span>
+              <div
+                :style="{ height: (t || 1) * 10 + 'px' }"
+                :class="[
+                  isAnswerCorrect(entryList[idx]) === true
+                    ? 'bg-green-500 hover:bg-green-600'
+                    : isAnswerCorrect(entryList[idx]) === false
+                      ? 'bg-red-500 hover:bg-red-600'
+                      : t > 40
+                        ? 'bg-red-500 hover:bg-red-600'
+                        : t > 20
+                          ? 'bg-yellow-400 hover:bg-yellow-500'
+                          : 'bg-blue-500 hover:bg-blue-600',
+                  'transition w-full rounded-t cursor-pointer',
+                ]"
+                :title="`Pytanie ${idx + 1}: ${t}s`"
+                @click="scrollToAnswer(idx)"
+              ></div>
+              <span class="text-sm text-gray-500 mt-1"> {{ t }}s </span>
+            </div>
+          </div>
+          <div class="w-full text-xs text-gray-400 mt-2 text-right">
+            <span class="inline-block mr-4"
+              ><span class="inline-block w-3 h-3 bg-green-500 rounded mr-1"></span> Poprawna</span
+            >
+            <span class="inline-block mr-4"
+              ><span class="inline-block w-3 h-3 bg-red-500 rounded mr-1"></span> Błędna</span
+            >
+            <span class="inline-block mr-4"
+              ><span class="inline-block w-3 h-3 bg-blue-500 rounded mr-1"></span> &le;20s</span
+            >
+            <span class="inline-block mr-4"
+              ><span class="inline-block w-3 h-3 bg-yellow-400 rounded mr-1"></span> 21-40s</span
+            >
+          </div>
+        </div>
+      </div>
       <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Odpowiedzi:</h2>
 
       <div v-if="!entryList.length" class="text-center text-gray-500 my-8 dark:text-gray-400">
@@ -67,6 +128,7 @@
         <li
           v-for="(item, index) in entryList"
           :key="index"
+          :ref="'answer-' + index"
           class="p-4 bg-white rounded-lg shadow-md border-l-4 dark:bg-gray-800 dark:shadow-lg"
           :class="
             isAnswerCorrect(item)
@@ -162,6 +224,32 @@ export default {
       return this.historyEntry?.type === 'egzamin'
         ? 'bg-purple-200 text-purple-800 dark:bg-purple-700 dark:text-purple-100'
         : 'bg-blue-200 text-blue-800 dark:bg-blue-700 dark:text-blue-100';
+    },
+
+    answerTimes() {
+      // Jeśli brak danych, zwróć pustą tablicę
+      if (
+        !this.historyEntry ||
+        !Array.isArray(this.historyEntry.questionTimes) ||
+        this.historyEntry.questionTimes.length === 0
+      ) {
+        return [];
+      }
+      // Start quizu jako liczba (sekundy)
+      const start = new Date(this.historyEntry.data).getTime() / 1000;
+      const times = this.historyEntry.questionTimes;
+      // Pierwszy czas to różnica między pierwszym timestampem a startem quizu
+      const result = [Math.max(0, times[0] - start)];
+      // Kolejne czasy to różnice między kolejnymi timestampami
+      for (let i = 1; i < times.length; i++) {
+        result.push(Math.max(0, times[i] - times[i - 1]));
+      }
+      // Zaokrąglij do 2 miejsc po przecinku
+      return result.map((t) => Math.round(t * 100) / 100);
+    },
+    totalTime() {
+      // Suma czasów odpowiedzi
+      return this.answerTimes.reduce((sum, t) => sum + t, 0).toFixed(2);
     },
   },
 
@@ -316,6 +404,20 @@ export default {
         this.allQuestions = [];
         throw e;
       }
+    },
+
+    scrollToAnswer(idx) {
+      this.$nextTick(() => {
+        const el = this.$refs['answer-' + idx];
+        // $refs może być tablicą jeśli v-for, więc bierz pierwszy element
+        const target = Array.isArray(el) ? el[0] : el;
+        if (target && typeof target.scrollIntoView === 'function') {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Opcjonalnie: dodać animację podświetlenia
+          target.classList.add('ring', 'ring-blue-400');
+          setTimeout(() => target.classList.remove('ring', 'ring-blue-400'), 1200);
+        }
+      });
     },
   },
 

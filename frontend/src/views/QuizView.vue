@@ -338,11 +338,20 @@ const saveUserHistory = async () => {
       data: new Date().toISOString(),
       time: null,
       questionTimes: questionTimes.value,
-      list: questions.value.map((q, idx) => ({
-        id_questions: q.ID || q.id || q.Id,
-        answer: answersStatus.value[idx].selectedKey,
-        correct: answersStatus.value[idx].selectedKey === getCorrectKey(q),
-      })),
+      list: questions.value.map((q, idx) => {
+        // Oryginalna kolejność kluczy:
+        const originalKeys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
+        // Indeks wybranej odpowiedzi w przetasowanej liście:
+        const selected = answersStatus.value[idx].selected;
+        // Klucz z oryginalnej listy:
+        const originalKey = originalKeys[selected];
+
+        return {
+          id_questions: q.ID || q.id || q.Id,
+          answer: originalKey, // <-- to jest klucz z nieprzestawionej listy
+          correct: originalKey === getCorrectKey(q),
+        };
+      }),
     };
 
     const response = await apiClient.put('/users/update-profile', { addHistory: historyItem });

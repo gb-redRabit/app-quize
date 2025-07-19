@@ -165,19 +165,58 @@
         <div class="question-header">
           <div class="question-id">ID: {{ q.ID }}</div>
           <div class="flex items-center gap-2 mt-2">
-            <input
-              type="checkbox"
-              :checked="q.flagged"
-              @change="toggleFlagged(q)"
-              :id="'flagged-' + q.ID"
-            />
-            <label
-              :for="'flagged-' + q.ID"
-              :class="{ 'text-green-500 font-bold': q.flagged }"
-              class="text-sm text-gray-600 cursor-pointer"
-            >
-              Sprawdzone
-            </label>
+            <div class="relative">
+              <input
+                type="checkbox"
+                :checked="q.flagged"
+                @change="toggleFlagged(q)"
+                :id="'flagged-' + q.ID"
+                class="sr-only"
+              />
+              <label
+                :for="'flagged-' + q.ID"
+                :class="[
+                  q.flagged
+                    ? 'bg-green-100 border-green-400 text-green-700 font-semibold shadow'
+                    : 'bg-white border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-600 cursor-pointer',
+                  'px-3 py-1.5 rounded-full flex items-center gap-2 border transition justify-center',
+                ]"
+                style="min-width: 140px"
+              >
+                <span v-if="q.flagged">
+                  <svg
+                    class="inline w-5 h-5 text-green-500 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  Ważne / Sprawdzone
+                </span>
+                <span v-else>
+                  <svg
+                    class="inline w-5 h-5 text-gray-400 mr-1 size"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 4v16h16V4H4zm2 2h12v12H6V6zm3 3v6h6V9H9z"
+                    />
+                  </svg>
+                  Oznacz
+                </span>
+              </label>
+            </div>
             <QuestionActions
               :question="q"
               @deleted="onQuestionDeleted"
@@ -501,7 +540,10 @@ export default {
         const updated = { ...q, flagged: q.flagged };
         if ('_id' in updated) delete updated._id;
         await apiClient.put(`/questions/${q.ID}`, updated);
-        this.showAlert('success', updated.flagged ? 'Pytanie oznaczone jako ważne' : 'Oznaczenie usunięte');
+        this.showAlert(
+          'success',
+          updated.flagged ? 'Pytanie oznaczone jako ważne' : 'Oznaczenie usunięte'
+        );
       } catch (e) {
         q.flagged = prev; // Cofnij zmianę w razie błędu
         this.showAlert('error', 'Błąd podczas zmiany oznaczenia pytania');
@@ -520,6 +562,16 @@ export default {
 </script>
 
 <style scoped>
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
 .header-section {
   @apply mb-6 bg-white rounded-xl p-4 md:p-5 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4;
 }

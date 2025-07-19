@@ -298,170 +298,184 @@
           </div>
 
           <div class="p-6">
-            <div class="space-y-4">
-              <div class="w-full">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                  >Stare hasło</label
-                >
-                <div
-                  class="relative flex items-center overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600 transition-all duration-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30"
-                >
+            <form @submit.prevent="changePassword">
+              <input
+                type="text"
+                :value="getUser.login"
+                autocomplete="username"
+                class="hidden"
+                tabindex="-1"
+                aria-hidden="true"
+                readonly
+              />
+              <div class="space-y-4">
+                <div class="w-full">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >Stare hasło</label
+                  >
+                  <div
+                    class="relative flex items-center overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600 transition-all duration-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="absolute left-3 w-5 h-5 text-gray-400 dark:text-gray-500"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v-2h2v-2H6v-2h2v-2H6V8h2V6H6V4h2V2h2v2h2v2h2v2h2v2h-2v2h2v2h-2v-2h-2v-2h-2v-2h2v-2h2V8zm-8 6v-4h4v4h-4z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    <input
+                      v-model="oldPassword"
+                      type="password"
+                      autocomplete="current-password"
+                      placeholder="Wprowadź aktualne hasło"
+                      class="w-full p-3 pl-10 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300"
+                    />
+                  </div>
+                </div>
+
+                <div class="w-full">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >Nowe hasło</label
+                  >
+                  <div
+                    class="relative flex items-center overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600 transition-all duration-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="absolute left-3 w-5 h-5 text-gray-400 dark:text-gray-500"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    <input
+                      v-model="newPassword"
+                      type="password"
+                      autocomplete="new-password"
+                      placeholder="Wprowadź nowe hasło"
+                      class="w-full p-3 pl-10 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300"
+                    />
+                  </div>
+                </div>
+
+                <div class="w-full">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >Powtórz nowe hasło</label
+                  >
+                  <div
+                    class="relative flex items-center overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600 transition-all duration-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="absolute left-3 w-5 h-5 text-gray-400 dark:text-gray-500"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    <input
+                      v-model="newPassword2"
+                      type="password"
+                      autocomplete="new-password"
+                      placeholder="Potwierdź nowe hasło"
+                      class="w-full p-3 pl-10 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300"
+                    />
+                  </div>
+                </div>
+
+                <div v-if="passwordMatch !== null" class="flex items-center gap-2 text-sm mt-2">
                   <svg
+                    v-if="passwordMatch"
                     xmlns="http://www.w3.org/2000/svg"
-                    class="absolute left-3 w-5 h-5 text-gray-400 dark:text-gray-500"
                     viewBox="0 0 20 20"
                     fill="currentColor"
+                    class="w-4 h-4 text-green-500"
                   >
                     <path
                       fill-rule="evenodd"
-                      d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v-2h2v-2H6v-2h2v-2H6V8h2V6H6V4h2V2h2v2h2v2h2v2h2v2h-2v2h2v2h-2v-2h-2v-2h-2v-2h2v-2h2V8zm-8 6v-4h4v4h-4z"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                       clip-rule="evenodd"
                     />
                   </svg>
-                  <input
-                    v-model="oldPassword"
-                    type="password"
-                    placeholder="Wprowadź aktualne hasło"
-                    class="w-full p-3 pl-10 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300"
-                  />
-                </div>
-              </div>
-
-              <div class="w-full">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                  >Nowe hasło</label
-                >
-                <div
-                  class="relative flex items-center overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600 transition-all duration-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30"
-                >
                   <svg
+                    v-else
                     xmlns="http://www.w3.org/2000/svg"
-                    class="absolute left-3 w-5 h-5 text-gray-400 dark:text-gray-500"
                     viewBox="0 0 20 20"
                     fill="currentColor"
+                    class="w-4 h-4 text-red-500"
                   >
                     <path
                       fill-rule="evenodd"
-                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
                       clip-rule="evenodd"
                     />
                   </svg>
-                  <input
-                    v-model="newPassword"
-                    type="password"
-                    placeholder="Wprowadź nowe hasło"
-                    class="w-full p-3 pl-10 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300"
-                  />
+                  <span :class="{ 'text-green-600': passwordMatch, 'text-red-600': !passwordMatch }">
+                    {{ passwordMatch ? 'Hasła są identyczne' : 'Hasła nie są identyczne' }}
+                  </span>
                 </div>
-              </div>
 
-              <div class="w-full">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                  >Powtórz nowe hasło</label
+                <BaseButton
+                  color="green"
+                  type="submit"
+                  class="w-full flex items-center justify-center gap-2 mt-4 rounded-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
                 >
+                  <span>Zmień hasło</span>
+                </BaseButton>
+
                 <div
-                  class="relative flex items-center overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600 transition-all duration-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30"
+                  v-if="passwordMsg"
+                  class="flex items-center gap-2 p-3 mt-4 rounded-lg text-sm"
+                  :class="{
+                    'bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800':
+                      passwordMsgType.includes('green'),
+                    'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800':
+                      passwordMsgType.includes('red'),
+                  }"
                 >
                   <svg
+                    v-if="passwordMsgType.includes('green')"
                     xmlns="http://www.w3.org/2000/svg"
-                    class="absolute left-3 w-5 h-5 text-gray-400 dark:text-gray-500"
                     viewBox="0 0 20 20"
                     fill="currentColor"
+                    class="w-5 h-5"
                   >
                     <path
                       fill-rule="evenodd"
-                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                       clip-rule="evenodd"
                     />
                   </svg>
-                  <input
-                    v-model="newPassword2"
-                    type="password"
-                    placeholder="Potwierdź nowe hasło"
-                    class="w-full p-3 pl-10 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300"
-                  />
+                  <svg
+                    v-else
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    class="w-5 h-5"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  {{ passwordMsg }}
                 </div>
               </div>
-
-              <div v-if="passwordMatch !== null" class="flex items-center gap-2 text-sm mt-2">
-                <svg
-                  v-if="passwordMatch"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  class="w-4 h-4 text-green-500"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                <svg
-                  v-else
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  class="w-4 h-4 text-red-500"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                <span :class="{ 'text-green-600': passwordMatch, 'text-red-600': !passwordMatch }">
-                  {{ passwordMatch ? 'Hasła są identyczne' : 'Hasła nie są identyczne' }}
-                </span>
-              </div>
-
-              <BaseButton
-                color="green"
-                @click="changePassword"
-                class="w-full flex items-center justify-center gap-2 mt-4 rounded-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <span>Zmień hasło</span>
-              </BaseButton>
-
-              <div
-                v-if="passwordMsg"
-                class="flex items-center gap-2 p-3 mt-4 rounded-lg text-sm"
-                :class="{
-                  'bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800':
-                    passwordMsgType.includes('green'),
-                  'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800':
-                    passwordMsgType.includes('red'),
-                }"
-              >
-                <svg
-                  v-if="passwordMsgType.includes('green')"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  class="w-5 h-5"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                <svg
-                  v-else
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  class="w-5 h-5"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                {{ passwordMsg }}
-              </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>

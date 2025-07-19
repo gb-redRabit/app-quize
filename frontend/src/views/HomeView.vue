@@ -1051,6 +1051,7 @@ const getCategoryStatusClass = (cat) => {
 // --- Lifecycle Hook ---
 onMounted(async () => {
   await store.dispatch('questions/fetchStats');
+  await store.dispatch('user/fetchUserHistoryAndHQ'); // <-- dodaj to!
 });
 </script>
 

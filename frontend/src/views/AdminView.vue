@@ -175,7 +175,7 @@
         </div>
 
         <DynamicScroller
-          :items="filteredQuestions"
+          :items="filteredQuestions()"
           key-field="ID"
           :min-item-size="72"
           class="scroller"
@@ -522,41 +522,33 @@ export default {
       total: 0,
       pages: 1,
       isLoadingMore: false,
+      cancelSearching: false,
     };
   },
   created() {
     this.fetchQuestions();
   },
-  computed: {
-    filteredQuestions() {
-      let result = this.questions;
-      if (this.searchQuery) {
-        const q = this.searchQuery.toLowerCase();
-        // Jeśli wpisano liczbę, szukaj po ID
-        if (/^\d+$/.test(q)) {
-          result = result.filter((question) => question.ID && question.ID.toString() === q);
-          if (result.length === 0) {
-            // Dodaj "pytanie nie pobrane" z opcją doładowania strony
-            return [
-              {
-                ID: q,
-                question: `Pytanie o ID ${q} nie zostało jeszcze pobrane.`,
-                notFound: true,
-              },
-            ];
-          }
-        } else {
-          result = result.filter(
-            (question) =>
-              question.question.toLowerCase().includes(q) ||
-              (question.ID && question.ID.toString().includes(q))
-          );
+  watch: {
+    async searchQuery(newVal) {
+      const q = newVal && newVal.toLowerCase();
+      if (/^\d+$/.test(q)) {
+        // Szukanie po ID (jak było)
+        const found = this.questions.some(
+          (question) => question.ID && question.ID.toString() === q
+        );
+        if (!found && !this.isLoadingMore) {
+          await this.loadPageWithId(q);
+        }
+      } else if (q && q.length > 2) {
+        // np. szukaj tylko jeśli wpisano min. 3 znaki
+        // Szukanie po treści pytania
+        let found = this.questions.some(
+          (question) => question.question && question.question.toLowerCase().includes(q)
+        );
+        if (!found && !this.isLoadingMore) {
+          await this.findQuestionByContent(q);
         }
       }
-      if (this.selectedSortCategory) {
-        result = result.filter((q) => q.category === this.selectedSortCategory);
-      }
-      return result;
     },
   },
   methods: {
@@ -564,6 +556,13 @@ export default {
       const idNum = parseInt(id, 10);
       if (!idNum || !this.limit) return;
       const pageToLoad = Math.ceil(idNum / this.limit);
+
+      // Zabezpieczenie: sprawdź zakres strony
+      if (pageToLoad < 1 || (this.pages && pageToLoad > this.pages)) {
+        this.showAlert('error', `Brak pytania o ID ${id} (poza zakresem bazy pytań).`);
+        return;
+      }
+
       this.showLoader(`Pobieranie strony ${pageToLoad} z pytaniem o ID ${id}...`);
       try {
         const res = await apiClient.get(`/questions?page=${pageToLoad}&limit=${this.limit}`);
@@ -574,9 +573,13 @@ export default {
         );
         this.questions = [...this.questions, ...newQuestions];
         this.showAlert('success', `Załadowano stronę ${pageToLoad}.`);
-        // Automatycznie ponów wyszukiwanie po ID
+        // Wymuś ponowne przeliczenie filteredQuestions
         this.$nextTick(() => {
-          this.searchQuery = id;
+          const prev = this.searchQuery;
+          this.searchQuery = '';
+          this.$nextTick(() => {
+            this.searchQuery = prev;
+          });
         });
       } catch (e) {
         this.showAlert('error', 'Błąd podczas pobierania strony z pytaniem.');
@@ -739,6 +742,78 @@ export default {
         this.isLoadingMore = false;
       }
     },
+    filteredQuestions() {
+      let result = this.questions;
+      if (this.searchQuery) {
+        const q = this.searchQuery.toLowerCase();
+        if (/^\d+$/.test(q)) {
+          result = result.filter((question) => question.ID && question.ID.toString() === q);
+          if (result.length === 0) {
+            return [
+              {
+                ID: q,
+                question: `Pytanie o ID ${q} nie zostało znalezione.`,
+                notFound: true,
+              },
+            ];
+          }
+        } else {
+          result = result.filter(
+            (question) =>
+              question.question.toLowerCase().includes(q) ||
+              (question.ID && question.ID.toString().includes(q))
+          );
+        }
+      }
+      if (this.selectedSortCategory) {
+        result = result.filter((q) => q.category === this.selectedSortCategory);
+      }
+      return result;
+    },
+    async findQuestionByContent(query) {
+      let currentPage = this.page;
+      let anyFound = false;
+      this.cancelSearching = false; // resetuj na początku
+
+      while (currentPage < this.pages) {
+        if (this.cancelSearching) break; // przerwij jeśli opuszczono stronę
+        currentPage += 1;
+        this.showLoader(`Szukam pytania: "${query}" (strona ${currentPage})...`);
+        try {
+          const res = await apiClient.get(`/questions?page=${currentPage}&limit=${this.limit}`);
+          const { questions } = res.data;
+          const newQuestions = questions.filter(
+            (q) => !this.questions.some((existing) => existing.ID === q.ID)
+          );
+          this.questions = [...this.questions, ...newQuestions];
+          const foundOnThisPage = newQuestions.some((q) =>
+            q.question.toLowerCase().includes(query.toLowerCase())
+          );
+          if (foundOnThisPage) {
+            anyFound = true;
+          }
+        } catch (e) {
+          this.showAlert('error', 'Błąd podczas pobierania kolejnej strony.');
+          break;
+        }
+        this.hideLoader();
+      }
+      if (!this.cancelSearching) {
+        if (anyFound) {
+          this.showAlert('success', 'Znaleziono dopasowane pytania (przeszukano całą bazę).');
+        } else {
+          this.showAlert('warning', 'Nie znaleziono żadnego pytania z podaną frazą.');
+        }
+        this.$nextTick(() => {
+          const prev = this.searchQuery;
+          this.searchQuery = '';
+          this.$nextTick(() => {
+            this.searchQuery = prev;
+          });
+        });
+      }
+      this.hideLoader();
+    },
   },
   mounted() {
     // Dodaj nasłuchiwanie scrolla do scroller-a
@@ -754,6 +829,9 @@ export default {
         }
       });
     }
+  },
+  beforeUnmount() { // jeśli Vue 2: beforeDestroy()
+    this.cancelSearching = true;
   },
 };
 </script>

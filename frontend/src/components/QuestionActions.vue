@@ -159,7 +159,7 @@
               <div class="mt-4">
                 <label class="flex items-center gap-2">
                   <input type="checkbox" v-model="editData.flagged" />
-                  Oznacz to pytanie jako ważne
+                  Oznacz to pytanie jako ważne/sprawdzone
                 </label>
               </div>
               <div class="mt-4">
@@ -210,7 +210,7 @@ export default {
     categoriesFromStats() {
       // Pobierz kategorie z Vuex (questions/getCategories)
       return store.getters['questions/getCategories'] || [];
-    }
+    },
   },
   methods: {
     openEditModal() {
@@ -227,6 +227,9 @@ export default {
 
     async saveEdit() {
       this.showLoader('Zapisywanie zmian...');
+      const oldData = { ...this.question };
+      Object.assign(this.question, this.editData); // Optymistycznie aktualizuj lokalnie
+      this.showEdit = false;
       try {
         if (this.editData.category === '__new__' && this.editData.newCategory) {
           this.editData.category = this.editData.newCategory.trim();
@@ -235,12 +238,11 @@ export default {
 
         await apiClient.put(`/questions/${this.editData.ID}`, this.editData);
         this.$emit('edit', this.editData);
-        this.showEdit = false;
         this.showAlert('success', 'Pytanie zostało zaktualizowane');
-        // Po dodaniu/edycji/usunięciu pytania:
-        await store.dispatch('questions/fetchStats');
+        // Odśwież statystyki w tle (nie blokuj UI)
+        store.dispatch('questions/fetchStats');
       } catch (e) {
-        console.error('Błąd zapisu pytania:', e);
+        Object.assign(this.question, oldData); // Cofnij zmianę w razie błędu
         this.showAlert('error', 'Błąd podczas zapisywania pytania.');
       }
       this.hideLoader();
