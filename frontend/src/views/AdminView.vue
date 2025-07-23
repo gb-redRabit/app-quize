@@ -11,8 +11,28 @@
         class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 mb-4"
       >
         <div class="p-4 md:p-6">
-          <div class="flex flex-col md:flex-row justify-between items-center mb-2 gap-4">
-            <SearchBar v-model:search="searchQuery" class="w-full order-2 md:order-1" />
+          <div class="flex flex-col md:flex-row items-center mb-2">
+            <div class="flex flex-col md:flex-row gap-2 items-center w-full h-full">
+              <SearchBar v-model:search="searchQuery" class="w-full" />
+              <BaseButton
+                :color="searchMode === 'id' ? 'blue' : 'gray'"
+                :outline="searchMode !== 'id'"
+                size="sm"
+                @click="searchMode = 'id'"
+                type="button"
+              >
+                Szukaj po ID
+              </BaseButton>
+              <BaseButton
+                :color="searchMode === 'text' ? 'blue' : 'gray'"
+                :outline="searchMode !== 'text'"
+                size="sm"
+                @click="searchMode = 'text'"
+                type="button"
+              >
+                Szukaj po treści
+              </BaseButton>
+            </div>
           </div>
 
           <div class="flex flex-col md:flex-row gap-4 mb-4">
@@ -523,6 +543,7 @@ export default {
       pages: 1,
       isLoadingMore: false,
       cancelSearching: false,
+      searchMode: 'text',
     };
   },
   created() {
@@ -530,23 +551,28 @@ export default {
   },
   watch: {
     async searchQuery(newVal) {
+      // Resetuj listę i pobierz od nowa tylko pierwszą stronę
+      this.page = 1;
+      await this.fetchQuestions(true);
+
       const q = newVal && newVal.toLowerCase();
-      if (/^\d+$/.test(q)) {
-        // Szukanie po ID (jak było)
-        const found = this.questions.some(
-          (question) => question.ID && question.ID.toString() === q
-        );
-        if (!found && !this.isLoadingMore) {
-          await this.loadPageWithId(q);
+      if (this.searchMode === 'id') {
+        if (/^\d+$/.test(q)) {
+          const found = this.questions.some(
+            (question) => question.ID && question.ID.toString() === q
+          );
+          if (!found && !this.isLoadingMore) {
+            await this.loadPageWithId(q);
+          }
         }
-      } else if (q && q.length > 2) {
-        // np. szukaj tylko jeśli wpisano min. 3 znaki
-        // Szukanie po treści pytania
-        let found = this.questions.some(
-          (question) => question.question && question.question.toLowerCase().includes(q)
-        );
-        if (!found && !this.isLoadingMore) {
-          await this.findQuestionByContent(q);
+      } else if (this.searchMode === 'text') {
+        if (q && q.length > 2) {
+          let found = this.questions.some(
+            (question) => question.question && question.question.toLowerCase().includes(q)
+          );
+          if (!found && !this.isLoadingMore) {
+            await this.findQuestionByContent(q);
+          }
         }
       }
     },
@@ -571,7 +597,7 @@ export default {
         const newQuestions = questions.filter(
           (q) => !this.questions.some((existing) => existing.ID === q.ID)
         );
-        this.questions = [...this.questions, ...newQuestions];
+        this.questions = [...this.questions, ...newQuestions].sort((a, b) => a.ID - b.ID);
         this.showAlert('success', `Załadowano stronę ${pageToLoad}.`);
         // Wymuś ponowne przeliczenie filteredQuestions
         this.$nextTick(() => {
@@ -830,7 +856,8 @@ export default {
       });
     }
   },
-  beforeUnmount() { // jeśli Vue 2: beforeDestroy()
+  beforeUnmount() {
+    // jeśli Vue 2: beforeDestroy()
     this.cancelSearching = true;
   },
 };

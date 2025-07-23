@@ -166,6 +166,7 @@
           <div class="question-id">ID: {{ q.ID }}</div>
           <div class="flex items-center gap-2 mt-2">
             <div class="relative">
+              <!-- Ważne / Sprawdzone -->
               <input
                 type="checkbox"
                 :checked="q.flagged"
@@ -197,11 +198,11 @@
                       d="M5 13l4 4L19 7"
                     />
                   </svg>
-                  Ważne / Sprawdzone
+                  Sprawdzone
                 </span>
                 <span v-else>
                   <svg
-                    class="inline w-5 h-5 text-gray-400 mr-1 size"
+                    class="inline w-5 h-5 text-gray-400 mr-1"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -213,10 +214,119 @@
                       d="M4 4v16h16V4H4zm2 2h12v12H6V6zm3 3v6h6V9H9z"
                     />
                   </svg>
-                  Oznacz
+                  Sprawdzone
                 </span>
               </label>
             </div>
+
+            <!-- Złe -->
+            <div class="relative">
+              <input
+                type="checkbox"
+                :checked="q.bad"
+                @change="toggleBad(q)"
+                :id="'bad-' + q.ID"
+                class="sr-only"
+              />
+              <label
+                :for="'bad-' + q.ID"
+                :class="[
+                  q.bad
+                    ? 'bg-red-100 border-red-400 text-red-700 font-semibold shadow'
+                    : 'bg-white border-gray-300 text-gray-500 hover:border-red-400 hover:text-red-600 cursor-pointer',
+                  'px-3 py-1.5 rounded-full flex items-center gap-2 border transition justify-center',
+                ]"
+                style="min-width: 100px"
+              >
+                <span v-if="q.bad">
+                  <svg
+                    class="inline w-5 h-5 text-red-500 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                  Złe
+                </span>
+                <span v-else>
+                  <svg
+                    class="inline w-5 h-5 text-gray-400 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                  Złe
+                </span>
+              </label>
+            </div>
+
+            <!-- Nie wiem -->
+            <div class="relative">
+              <input
+                type="checkbox"
+                :checked="q.unknown"
+                @change="toggleUnknown(q)"
+                :id="'unknown-' + q.ID"
+                class="sr-only"
+              />
+              <label
+                :for="'unknown-' + q.ID"
+                :class="[
+                  q.unknown
+                    ? 'bg-yellow-100 border-yellow-400 text-yellow-700 font-semibold shadow'
+                    : 'bg-white border-gray-300 text-gray-500 hover:border-yellow-400 hover:text-yellow-600 cursor-pointer',
+                  'px-3 py-1.5 rounded-full flex items-center gap-2 border transition justify-center',
+                ]"
+                style="min-width: 110px"
+              >
+                <span v-if="q.unknown">
+                  <svg
+                    class="inline w-5 h-5 text-yellow-500 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8v4m0 4h.01"
+                    />
+                  </svg>
+                  Nie wiem
+                </span>
+                <span v-else>
+                  <svg
+                    class="inline w-5 h-5 text-gray-400 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8v4m0 4h.01"
+                    />
+                  </svg>
+                  Nie wiem
+                </span>
+              </label>
+            </div>
+
             <QuestionActions
               :question="q"
               @deleted="onQuestionDeleted"
@@ -547,6 +657,38 @@ export default {
       } catch (e) {
         q.flagged = prev; // Cofnij zmianę w razie błędu
         this.showAlert('error', 'Błąd podczas zmiany oznaczenia pytania');
+      }
+    },
+    async toggleBad(q) {
+      const prev = q.bad;
+      q.bad = !q.bad;
+      try {
+        const updated = { ...q, bad: q.bad };
+        if ('_id' in updated) delete updated._id;
+        await apiClient.put(`/questions/${q.ID}`, updated);
+        this.showAlert(
+          'success',
+          updated.bad ? 'Pytanie oznaczone jako złe' : 'Oznaczenie usunięte'
+        );
+      } catch (e) {
+        q.bad = prev;
+        this.showAlert('error', 'Błąd podczas zmiany oznaczenia "złe"');
+      }
+    },
+    async toggleUnknown(q) {
+      const prev = q.unknown;
+      q.unknown = !q.unknown;
+      try {
+        const updated = { ...q, unknown: q.unknown };
+        if ('_id' in updated) delete updated._id;
+        await apiClient.put(`/questions/${q.ID}`, updated);
+        this.showAlert(
+          'success',
+          updated.unknown ? 'Pytanie oznaczone jako "nie wiem"' : 'Oznaczenie usunięte'
+        );
+      } catch (e) {
+        q.unknown = prev;
+        this.showAlert('error', 'Błąd podczas zmiany oznaczenia "nie wiem"');
       }
     },
     normalizeQuestion(text) {

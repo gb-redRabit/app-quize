@@ -17,6 +17,8 @@ const questionSchema = new mongoose.Schema({
   category: { type: String },
   description: { type: String },
   flagged: { type: Boolean, default: false },
+  bad: { type: Boolean, default: false }, // <-- dodaj to
+  unknown: { type: Boolean, default: false }, //
   note: { type: String, default: "" },
 });
 
