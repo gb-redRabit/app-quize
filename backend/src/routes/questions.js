@@ -4,6 +4,7 @@ const auth = require("../middleware/authMiddleware");
 const questionsController = require("../controllers/questionsController");
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
+const Question = require("../models/Question");
 
 // Pobierz wszystkie pytania
 router.get("/", questionsController.getAllQuestions);
@@ -40,5 +41,29 @@ router.get(
   "/category/:category(*)",
   questionsController.getQuestionsByCategory
 );
+router.get("/search", async (req, res) => {
+  const query = req.query.query?.trim();
+  if (!query) return res.json({ questions: [] });
+
+  let filter = {};
+  if (/^\d+$/.test(query)) {
+    filter = { ID: Number(query) };
+  } else {
+    filter = { question: { $regex: query, $options: "i" } };
+  }
+  const questions = await Question.find(filter).limit(100); // limit dla bezpieczeństwa
+  res.json({ questions });
+});
+// Usuń pytania według kategorii
+router.delete("/category/:category", auth.verifyToken, async (req, res) => {
+  try {
+    const category = decodeURIComponent(req.params.category);
+    const result = await Question.deleteMany({ category });
+    res.json({ success: true, deletedCount: result.deletedCount });
+  } catch (e) {
+    console.error("Błąd podczas usuwania pytań:", e);
+    res.status(500).json({ message: "Błąd usuwania pytań z kategorii" });
+  }
+});
 
 module.exports = router;

@@ -195,7 +195,7 @@ export default {
   props: {
     question: { type: Object, required: true },
   },
-  inject: ['showAlert', 'showLoader', 'hideLoader'],
+  inject: ['showAlert'],
   emits: ['deleted', 'edit'],
   components: { BaseButton, BaseModal, IconButton },
   data() {
@@ -226,7 +226,6 @@ export default {
     },
 
     async saveEdit() {
-      this.showLoader('Zapisywanie zmian...');
       const oldData = { ...this.question };
       Object.assign(this.question, this.editData); // Optymistycznie aktualizuj lokalnie
       this.showEdit = false;
@@ -245,11 +244,9 @@ export default {
         Object.assign(this.question, oldData); // Cofnij zmianę w razie błędu
         this.showAlert('error', 'Błąd podczas zapisywania pytania.');
       }
-      this.hideLoader();
       this.loading = false;
     },
     async deleteQuestion() {
-      this.showLoader('Usuwanie pytania...');
       try {
         const id = this.question.ID;
         await apiClient.delete(`/questions/${id}`);
@@ -262,7 +259,6 @@ export default {
         console.error('Błąd usuwania pytania:', e);
         this.showAlert('error', 'Błąd podczas usuwania pytania.');
       }
-      this.hideLoader();
       this.loading = false;
     },
   },

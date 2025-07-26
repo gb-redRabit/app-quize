@@ -97,7 +97,7 @@ export default {
     BaseLoader,
     ProgressBar,
   },
-  inject: ['showAlert', 'showLoader', 'hideLoader'],
+  inject: ['showAlert'],
   data() {
     return {
       questions: [],
@@ -181,7 +181,6 @@ export default {
   methods: {
     ...mapActions(['fetchUserHistory']),
     async fetchQuestions() {
-      this.showLoader('Ładowanie pytań egzaminu...');
       try {
         const category = this.$route.query.categories || 'all';
         const questions = await this.$store.dispatch(
@@ -202,7 +201,6 @@ export default {
         this.answersStatus = [];
         this.loading = false;
       }
-      this.hideLoader();
     },
 
     async selectAnswer(index, selectedKey) {
@@ -210,7 +208,7 @@ export default {
       const q = this.questions[this.currentQuestionIndex];
       const id = q.ID || q.id || q.Id || q.id_question;
       if (!id) {
-        console.warn('Brak ID pytania!', q);
+        this.showAlert('error', 'Brak ID pytania!');
         return;
       }
       const isCorrect = selectedKey === getCorrectKey(q);
@@ -233,7 +231,9 @@ export default {
           correct: isCorrect,
           category: q.category,
         });
-      } catch (e) {}
+      } catch (e) {
+        this.showAlert('error', 'Błąd podczas zapisywania odpowiedzi.');
+      }
       setTimeout(async () => {
         if (this.currentQuestionIndex < this.questions.length - 1) {
           this.currentQuestionIndex++;
@@ -257,7 +257,9 @@ export default {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-      } catch (e) {}
+      } catch (e) {
+        this.showAlert('error', 'Błąd podczas zapisywania odpowiedzi.');
+      }
     },
     countScore() {
       this.score = this.answersStatus.reduce((acc, a, idx) => {
@@ -334,7 +336,6 @@ export default {
     },
     async saveExamHistory() {
       try {
-        this.showLoader('Zapisywanie wyników...');
         // Tworzenie obiektu historii
         const historyItem = {
           type: this.isCorrection ? 'Egzamin - poprawa błędów' : 'egzamin',
@@ -352,9 +353,7 @@ export default {
         };
 
         await apiClient.put('/users/update-profile', { addHistory: historyItem });
-        this.hideLoader();
       } catch (error) {
-        this.hideLoader();
         this.showAlert('error', 'Błąd podczas zapisywania wyników');
         console.error('Błąd zapisu historii:', error);
       }

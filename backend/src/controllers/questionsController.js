@@ -142,6 +142,10 @@ exports.exportQuestionsToExcel = async (req, res) => {
       { header: "Poprawna C", key: "isCorret_c", width: 10 },
       { header: "Kategoria", key: "category", width: 20 },
       { header: "Opis", key: "description", width: 30 },
+      { header: "flagged", key: "flagged", width: 10 },
+      { header: "bad", key: "bad", width: 10 },
+      { header: "unknown", key: "unknown", width: 10 },
+      { header: "note", key: "note", width: 30 },
     ];
 
     questions.forEach((q) => {
@@ -156,6 +160,10 @@ exports.exportQuestionsToExcel = async (req, res) => {
         isCorret_c: q.answer_c?.isCorret,
         category: q.category,
         description: q.description,
+        flagged: q.flagged ?? false,
+        bad: q.bad ?? false,
+        unknown: q.unknown ?? false,
+        note: q.note ?? "",
       });
     });
 
@@ -194,10 +202,15 @@ exports.importQuestionsFromExcel = async (req, res) => {
       if (typeof val === "string") return val.trim().toLowerCase() === "true";
       return !!val;
     }
+
+    // Pobierz największe ID z bazy
+    const last = await Question.findOne().sort({ ID: -1 });
+    let nextID = last && last.ID ? last.ID + 1 : 1;
+
     worksheet.eachRow((row, rowNumber) => {
       if (rowNumber === 1) return; // pomiń nagłówek
       const [
-        ID,
+        ID, // ignoruj ID z pliku
         question,
         answer_a,
         isCorret_a,
@@ -207,16 +220,24 @@ exports.importQuestionsFromExcel = async (req, res) => {
         isCorret_c,
         category,
         description,
+        flagged,
+        bad,
+        unknown,
+        note,
       ] = row.values.slice(1);
 
       questions.push({
-        ID,
+        ID: nextID++, // nadaj kolejne ID
         question,
         answer_a: { answer: answer_a, isCorret: parseBool(isCorret_a) },
         answer_b: { answer: answer_b, isCorret: parseBool(isCorret_b) },
         answer_c: { answer: answer_c, isCorret: parseBool(isCorret_c) },
         category,
         description,
+        flagged: parseBool(flagged),
+        bad: parseBool(bad),
+        unknown: parseBool(unknown),
+        note: note ?? "",
       });
     });
 

@@ -423,7 +423,9 @@
                       clip-rule="evenodd"
                     />
                   </svg>
-                  <span :class="{ 'text-green-600': passwordMatch, 'text-red-600': !passwordMatch }">
+                  <span
+                    :class="{ 'text-green-600': passwordMatch, 'text-red-600': !passwordMatch }"
+                  >
                     {{ passwordMatch ? 'Hasła są identyczne' : 'Hasła nie są identyczne' }}
                   </span>
                 </div>
@@ -546,7 +548,7 @@ import apiClient from '@/api';
 
 export default {
   components: { BaseButton, Avatar },
-  inject: ['showAlert', 'showLoader', 'hideLoader'],
+  inject: ['showAlert'],
   data() {
     return {
       theme: 'light',
@@ -587,7 +589,6 @@ export default {
     });
 
     try {
-      this.showLoader('Pobieranie kategorii...');
       // Pobierz kategorie z Vuex
       await this.$store.dispatch('questions/fetchStats');
       this.allCategories = this.$store.getters['questions/getCategories']
@@ -597,10 +598,7 @@ export default {
         this.getCategoryNameForDisplay(cat)
       );
     } catch (e) {
-      console.error('Błąd pobierania kategorii:', e);
       this.showAlert('error', 'Nie udało się pobrać kategorii');
-    } finally {
-      this.hideLoader();
     }
   },
   methods: {
@@ -695,7 +693,6 @@ export default {
       this.selectorPosition = { x, y };
     },
     async saveTheme() {
-      this.showLoader('Zapisywanie motywu...');
       try {
         await apiClient.put('/users/update-profile', { option: this.theme });
         this.setTheme(this.theme);
@@ -706,8 +703,6 @@ export default {
         this.showAlert('success', 'Motyw zapisany pomyślnie!');
       } catch (error) {
         this.showAlert('error', 'Błąd zapisu motywu.');
-      } finally {
-        this.hideLoader();
       }
     },
     applyThemeToHtml(theme) {
@@ -727,7 +722,6 @@ export default {
         this.showAlert('error', 'Nowe hasła nie są takie same.');
         return;
       }
-      this.showLoader('Zmiana hasła...');
       try {
         await apiClient.put('/users/update-profile', {
           changePassword: true,
@@ -743,12 +737,10 @@ export default {
         this.passwordMsgType = 'red';
         this.passwordMsg = 'Błąd zmiany hasła. Sprawdź, czy stare hasło jest poprawne.';
       } finally {
-        this.hideLoader();
       }
     },
     async updateAvatar(index) {
       if (index === this.getUser.avatar) return;
-      this.showLoader('Aktualizowanie stylu awatara...');
       try {
         await apiClient.put('/users/update-profile', { avatar: index });
         const updatedUser = { ...this.getUser, avatar: index };
@@ -758,12 +750,10 @@ export default {
       } catch (error) {
         this.showAlert('error', 'Nie udało się zaktualizować stylu awatara');
       } finally {
-        this.hideLoader();
       }
     },
     async updateAvatarColor(colorHex) {
       if (colorHex === this.getUser.avatarColors) return;
-      this.showLoader('Aktualizowanie koloru awatara...');
       try {
         await apiClient.put('/users/update-profile', { avatarColors: colorHex });
         const updatedUser = { ...this.getUser, avatarColors: colorHex };
@@ -773,7 +763,6 @@ export default {
       } catch (error) {
         this.showAlert('error', 'Nie udało się zaktualizować koloru awatara');
       } finally {
-        this.hideLoader();
       }
     },
     startColorSelection(event) {
@@ -844,7 +833,6 @@ export default {
       }
     },
     async saveHiddenCategories() {
-      this.showLoader('Zapisywanie ukrytych kategorii...');
       try {
         const categoriesToSave = this.selectedHiddenCategories.map((cat) =>
           cat === 'Pytania bez kategorii' ? '' : cat
@@ -857,7 +845,6 @@ export default {
       } catch (e) {
         this.showAlert('error', 'Błąd zapisu ukrytych kategorii');
       } finally {
-        this.hideLoader();
       }
     },
     toggleCategory(catDisplayName) {

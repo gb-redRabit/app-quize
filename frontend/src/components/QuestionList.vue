@@ -97,7 +97,7 @@ export default {
     showActions: { type: Boolean, default: false },
     questionNumber: { type: [String, Number], default: null },
   },
-  inject: ['showAlert', 'showLoader', 'hideLoader'],
+  inject: ['showAlert'],
   emits: ['select', 'edit', 'delete'],
   components: {
     QuestionActions,
@@ -136,7 +136,6 @@ export default {
   },
   methods: {
     async refreshQuestions() {
-      this.showLoader('Odświeżanie pytań...'); // Używamy globalnego API
       try {
         const res = await apiClient.get('/questions');
         this.questions = res.data;
@@ -144,7 +143,6 @@ export default {
       } catch (error) {
         this.showAlert('error', 'Nie udało się odświeżyć listy pytań');
       } finally {
-        this.hideLoader(); // Używamy globalnego API
       }
     },
     onSelect(index) {

@@ -147,7 +147,7 @@ import BaseButton from '@/components/BaseButton.vue';
 
 export default {
   components: { BaseButton },
-  inject: ['showAlert', 'showLoader', 'hideLoader'],
+  inject: ['showAlert'],
   data() {
     return {
       loginInput: '',
@@ -158,16 +158,17 @@ export default {
   methods: {
     ...mapActions('user', ['login']),
     async handleLogin() {
+      if (!this.loginInput || !this.password) {
+        this.showAlert('warning', 'Wprowadź login i hasło.');
+        return;
+      }
       try {
         this.errorMessage = '';
-        this.showLoader('Logowanie...');
 
         await this.login({
           login: this.loginInput,
           password: this.password,
         });
-
-        this.hideLoader();
         this.showAlert('success', 'Zalogowano pomyślnie');
 
         // Bezpieczniejsza nawigacja po zalogowaniu
@@ -175,7 +176,6 @@ export default {
           window.location.href = '/';
         }, 300);
       } catch (error) {
-        this.hideLoader();
         this.errorMessage = 'Niepoprawny login lub hasło. Spróbuj ponownie.';
         this.showAlert('error', 'Niepoprawny login lub hasło');
       }

@@ -16,7 +16,6 @@
           </div>
         </div>
       </section>
-      <!-- <RandomQuote style="min-height: 180px" /> -->
       <section class="mb-10">
         <h2 class="text-xl font-bold text-gray-700 dark:text-gray-200 mb-4 px-1">
           Twoje statystyki
@@ -723,8 +722,6 @@ import apiClient from '@/api';
 
 // --- Injections, Store and Router ---
 const showAlert = inject('showAlert');
-const showLoader = inject('showLoader');
-const hideLoader = inject('hideLoader');
 const store = useStore();
 const router = useRouter();
 
@@ -762,10 +759,7 @@ const lawTestCategories = computed(() =>
 
 const otherCategories = computed(() =>
   categories.value.filter(
-    (cat) =>
-      cat &&
-      !examCategories.value.includes(cat) &&
-      !lawTestCategories.value.includes(cat)
+    (cat) => cat && !examCategories.value.includes(cat) && !lawTestCategories.value.includes(cat)
   )
 );
 
@@ -777,8 +771,8 @@ const examStatsByCategory = computed(() => {
       .reverse()
       .find(
         (entry) =>
-          (entry.type === 'quiz' || entry.type === 'egzamin') &&
-          entry.categories?.some((c) => c?.toLowerCase() === cat.toLowerCase())
+          entry.category === cat ||
+          (Array.isArray(entry.categories) && entry.categories.includes(cat))
       );
     stats[cat] = last
       ? {
@@ -799,8 +793,8 @@ const quizStatsByCategory = computed(() => {
       .reverse()
       .find(
         (entry) =>
-          entry.type === 'quiz' &&
-          entry.categories?.some((c) => c?.toLowerCase() === cat.toLowerCase())
+          entry.category === cat ||
+          (Array.isArray(entry.categories) && entry.categories.includes(cat))
       );
     stats[cat] = last
       ? {
@@ -901,53 +895,52 @@ const categoryPercentComplete = (cat) => {
 };
 
 const goToCategoryQuestions = async (cat) => {
-  showLoader('Ładowanie pytań...');
   try {
     await store.dispatch('questions/fetchQuestionsByCategory', cat);
     router.push({ name: 'CategoryQuestions', params: { category: cat } });
   } catch (e) {
     showAlert('error', 'Błąd ładowania pytań z kategorii');
   } finally {
-    hideLoader();
   }
 };
 
-const getQuestionIdsForQuiz = async (cat) => {
-  // Pobierz pytania z danej kategorii przez Vuex
-  const questions = await store.dispatch('questions/fetchQuestionsByCategory', cat);
-  const allIds = questions.map((q) => q.ID || q.id || q.Id || q.id_question);
-
-  const hq = hquestion.value.filter((q) => q.category === cat);
-  const wrongOrNotDoneIds = allIds.filter((id) => {
-    const entry = hq.find((q) => q.id == id);
-    return !entry || entry.correct === false;
-  });
-
-  return wrongOrNotDoneIds.length > 0 ? wrongOrNotDoneIds : allIds;
-};
-
 const startQuizNotDone = async (cat, limit = 150) => {
-  if (typeof showLoader === 'function') showLoader('Przygotowanie quizu...');
-  else console.log('Przygotowanie quizu...');
-
+  if (typeof showAlert === 'function') showAlert('info', 'Przygotowywanie quizu...');
   try {
     const idsToUse = await getQuestionIdsForQuiz(cat);
+    if (!idsToUse.length) {
+      showAlert && showAlert('warning', 'Brak pytań do quizu w tej kategorii.');
+      return;
+    }
     const length = limit === 0 ? idsToUse.length : Math.min(limit, idsToUse.length);
     router.push({
       name: 'QuizView',
       query: { length, categories: cat, onlyNotDone: true, ids: idsToUse.join(',') },
     });
   } catch (e) {
-    if (typeof showAlert === 'function') showAlert('error', 'Błąd pobierania pytań z serwera.');
-    else console.error('Błąd pobierania pytań z serwera.');
-  } finally {
-    if (typeof hideLoader === 'function') hideLoader();
-    else console.log('Koniec ładowania');
+    showAlert && showAlert('error', 'Błąd pobierania pytań z serwera.');
+  }
+};
+
+const getQuestionIdsForQuiz = async (cat) => {
+  try {
+    const questions = await store.dispatch('questions/fetchQuestionsByCategory', cat);
+    const allIds = questions.map((q) => q.ID || q.id || q.Id || q.id_question);
+
+    const hq = hquestion.value.filter((q) => q.category === cat);
+    const wrongOrNotDoneIds = allIds.filter((id) => {
+      const entry = hq.find((q) => q.id == id);
+      return !entry || entry.correct === false;
+    });
+
+    return wrongOrNotDoneIds.length > 0 ? wrongOrNotDoneIds : allIds;
+  } catch (e) {
+    showAlert && showAlert('error', 'Błąd pobierania pytań z serwera.');
+    return [];
   }
 };
 
 const startExamNotDone = async (cat) => {
-  showLoader('Przygotowanie egzaminu...');
   try {
     const idsToUse = await getQuestionIdsForQuiz(cat);
     const length = Math.min(150, idsToUse.length);
@@ -958,12 +951,10 @@ const startExamNotDone = async (cat) => {
   } catch (e) {
     showAlert('error', 'Błąd pobierania pytań z serwera.');
   } finally {
-    hideLoader();
   }
 };
 
 const clearCategoryHistory = async (cat) => {
-  showLoader('Czyszczenie historii kategorii...');
   try {
     await store.dispatch('user/clearCategoryHistory', cat);
     await store.dispatch('user/fetchUserHistoryAndHQ');
@@ -971,19 +962,16 @@ const clearCategoryHistory = async (cat) => {
   } catch (e) {
     showAlert('error', 'Błąd podczas czyszczenia pytań z kategorii.');
   } finally {
-    hideLoader();
   }
 };
 
 const fetchStats = async () => {
-  showLoader('Ładowanie statystyk...');
   try {
     const res = await apiClient.get('/stats');
     stats.value = res.data || { totalQuestions: 0, categories: [] };
   } catch (e) {
     showAlert('error', 'Błąd ładowania statystyk');
   } finally {
-    hideLoader();
   }
 };
 

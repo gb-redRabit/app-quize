@@ -77,6 +77,28 @@
         </svg>
         <span>{{ showDuplicates ? 'Pokaż wszystkie' : 'Pokaż duplikaty' }}</span>
       </BaseButton>
+
+      <BaseButton color="blue" size="md" class="action-button" @click="toggleSortByDescription">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="button-icon"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M3 10h18M3 6h18M3 14h18M3 18h18"
+          />
+        </svg>
+        <span>
+          Sortuj według opisu
+          <span v-if="sortByDescription">(A-Z)</span>
+          <span v-else>(domyślnie)</span>
+        </span>
+      </BaseButton>
     </div>
 
     <!-- Progress bar -->
@@ -404,7 +426,7 @@ export default {
     BaseButton,
     QuestionActions,
   },
-  inject: ['showAlert', 'showLoader', 'hideLoader'],
+  inject: ['showAlert'],
   data() {
     return {
       loading: true,
@@ -413,6 +435,7 @@ export default {
       loadingMore: false,
       localQuestions: [],
       showDuplicates: false,
+      sortByDescription: false,
     };
   },
   computed: {
@@ -499,33 +522,46 @@ export default {
       return { total, correct, wrong };
     },
     sortedQuestions() {
-      const idsInAttempt = this.lastAttempt
-        ? this.lastAttempt.list
-            .filter((item) => {
-              const q = this.getQuestions.find(
-                (qq) =>
-                  qq.ID == item.id_questions ||
-                  qq.id == item.id_questions ||
-                  qq.Id == item.id_questions ||
-                  qq.id_question == item.id_questions
-              );
-              return this.category === 'all' || (q && q.category === this.category);
-            })
-            .map((item) => item.id_questions)
-        : [];
-      const wrong = [];
-      const correct = [];
-      const rest = [];
-      for (const q of this.filteredQuestions) {
-        if (idsInAttempt.includes(q.ID)) {
-          if (this.lastAttemptMap[q.ID] === false) wrong.push(q);
-          else if (this.lastAttemptMap[q.ID] === true) correct.push(q);
-          else rest.push(q);
-        } else {
-          rest.push(q);
+      let questions = [...this.filteredQuestions];
+      if (this.sortByDescription) {
+        questions.sort((a, b) => {
+          const descA = (a.description || '').toLowerCase();
+          const descB = (b.description || '').toLowerCase();
+          if (descA < descB) return -1;
+          if (descA > descB) return 1;
+          return 0;
+        });
+      } else {
+        // dotychczasowa logika sortowania (np. wg błędnych/poprawnych)
+        const idsInAttempt = this.lastAttempt
+          ? this.lastAttempt.list
+              .filter((item) => {
+                const q = this.getQuestions.find(
+                  (qq) =>
+                    qq.ID == item.id_questions ||
+                    qq.id == item.id_questions ||
+                    qq.Id == item.id_questions ||
+                    qq.id_question == item.id_questions
+                );
+                return this.category === 'all' || (q && q.category === this.category);
+              })
+              .map((item) => item.id_questions)
+          : [];
+        const wrong = [];
+        const correct = [];
+        const rest = [];
+        for (const q of questions) {
+          if (idsInAttempt.includes(q.ID)) {
+            if (this.lastAttemptMap[q.ID] === false) wrong.push(q);
+            else if (this.lastAttemptMap[q.ID] === true) correct.push(q);
+            else rest.push(q);
+          } else {
+            rest.push(q);
+          }
         }
+        questions = [...wrong, ...correct, ...rest];
       }
-      return [...wrong, ...correct, ...rest];
+      return questions;
     },
     filteredQuestions() {
       let questions =
@@ -566,7 +602,6 @@ export default {
     },
   },
   async created() {
-    this.showLoader('Ładowanie pytań kategorii...');
     try {
       const questions = await this.$store.dispatch(
         'questions/fetchQuestionsByCategory',
@@ -579,7 +614,6 @@ export default {
       this.localQuestions = [];
       this.loading = false;
     }
-    this.hideLoader();
     // Dodaj nasłuchiwanie scrolla po załadowaniu pytań
     window.addEventListener('scroll', this.handleScroll);
   },
@@ -595,6 +629,9 @@ export default {
       if (scrollY + windowHeight + 200 >= docHeight) {
         this.loadingMore = true;
         setTimeout(() => {
+          if (this.displayCount >= this.sortedQuestions.length) {
+            this.showAlert('info', 'Wszystkie pytania zostały załadowane.');
+          }
           this.displayCount += 100;
           this.loadingMore = false;
         }, 200);
@@ -602,6 +639,10 @@ export default {
     },
     downloadQuestionsTxt() {
       const questions = this.sortedQuestions;
+      if (!questions.length) {
+        this.showAlert('warning', 'Brak pytań do pobrania.');
+        return;
+      }
       let txt = '';
       questions.forEach((q, idx) => {
         txt += `${idx + 1}. ${q.ID}. ${q.question}\n`;
@@ -622,25 +663,34 @@ export default {
         txt += '\n';
       });
 
-      const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `pytania_${this.categoryLabel}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 100);
+      try {
+        const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `pytania_${this.categoryLabel}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 100);
+        this.showAlert('success', 'Pytania zostały pobrane.');
+      } catch (e) {
+        this.showAlert('error', 'Błąd podczas pobierania pytań.');
+      }
     },
     onQuestionDeleted(deletedQuestion) {
       this.localQuestions = this.localQuestions.filter((q) => q.ID !== deletedQuestion.ID);
+      this.showAlert('success', 'Pytanie zostało usunięte.');
     },
     onQuestionEdited(editedQuestion) {
       const idx = this.localQuestions.findIndex((q) => q.ID === editedQuestion.ID);
       if (idx !== -1) {
         this.localQuestions.splice(idx, 1, editedQuestion);
+        this.showAlert('success', 'Pytanie zostało zaktualizowane.');
+      } else {
+        this.showAlert('warning', 'Nie znaleziono pytania do edycji.');
       }
     },
     async toggleFlagged(q) {
@@ -691,13 +741,18 @@ export default {
         this.showAlert('error', 'Błąd podczas zmiany oznaczenia "nie wiem"');
       }
     },
+    toggleSortByDescription() {
+      this.sortByDescription = !this.sortByDescription;
+    },
     normalizeQuestion(text) {
+      if (!text) {
+        this.showAlert('warning', 'Brak treści pytania do normalizacji.');
+        return '';
+      }
       return text
-        ? text
-            .trim()
-            .replace(/[\s:.\?!]+$/, '')
-            .toLowerCase()
-        : '';
+        .trim()
+        .replace(/[\s:.\?!]+$/, '')
+        .toLowerCase();
     },
   },
 };

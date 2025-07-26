@@ -17,4 +17,10 @@ export default [
     component: () => import('@/views/HistoryDetailsView.vue'),
     meta: { requiresAuth: true },
   },
+  {
+    path: '/questions',
+    name: 'AllQuestions',
+    component: () => import('@/views/AllQuestionsView.vue'),
+    meta: { requiresAuth: true },
+  },
 ];

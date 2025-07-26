@@ -5,7 +5,8 @@
     :data-theme="currentTheme"
   >
     <Navbar v-if="showNavbar" />
-    <router-view :key="$route.fullPath" />
+    <BaseSkeleton v-if="isPageLoading" />
+    <router-view v-else :key="$route.fullPath" />
 
     <!-- Globalne komponenty -->
     <BaseAlert ref="globalAlert" />
@@ -17,6 +18,7 @@
 import Navbar from '@/components/Navbar.vue';
 import BaseAlert from '@/components/BaseAlert.vue';
 import BaseLoader from '@/components/BaseLoader.vue';
+import BaseSkeleton from '@/components/BaseSkeleton.vue';
 import { mapGetters } from 'vuex';
 
 export default {
@@ -24,6 +26,13 @@ export default {
     Navbar,
     BaseAlert,
     BaseLoader,
+    BaseSkeleton,
+  },
+
+  data() {
+    return {
+      isPageLoading: false,
+    };
   },
 
   computed: {
@@ -59,14 +68,22 @@ export default {
     } else {
       document.documentElement.classList.remove('dark');
     }
+
+    this.$router.beforeEach((to, from, next) => {
+      this.isPageLoading = true;
+      next();
+    });
+    this.$router.afterEach(() => {
+      setTimeout(() => {
+        this.isPageLoading = false;
+      }, 400); // krótka animacja skeletona
+    });
   },
 
   provide() {
     return {
       showAlert: this.showAlert,
       hideAlert: this.hideAlert,
-      showLoader: this.showLoader,
-      hideLoader: this.hideLoader,
     };
   },
 
@@ -76,12 +93,6 @@ export default {
     },
     hideAlert() {
       this.$refs.globalAlert.hide();
-    },
-    showLoader(text) {
-      this.$refs.globalLoader.show(text);
-    },
-    hideLoader() {
-      this.$refs.globalLoader.hide();
     },
   },
 };

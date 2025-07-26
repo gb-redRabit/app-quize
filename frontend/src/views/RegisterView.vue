@@ -165,7 +165,7 @@ import apiClient from '@/api';
 
 export default {
   components: { BaseButton, BaseAlert }, // Dodaj BaseAlert tutaj
-  inject: ['showAlert', 'showLoader', 'hideLoader'],
+  inject: ['showAlert'],
   data() {
     return {
       loginInput: '',
@@ -227,12 +227,11 @@ export default {
       }
 
       try {
-        this.showLoader('Tworzenie konta...');
         await apiClient.post('/auth/register', {
           login: this.loginInput,
           password: this.password,
         });
-        this.hideLoader();
+
         this.showAlert('success', 'Rejestracja zakończona sukcesem! Możesz się zalogować.');
 
         // Przekierowanie po udanej rejestracji
@@ -240,9 +239,10 @@ export default {
           this.$router.push('/login');
         }, 1500);
       } catch (e) {
-        this.hideLoader();
         if (e.response && e.response.status === 409) {
           this.showAlert('error', 'Użytkownik o podanej nazwie już istnieje.');
+        } else if (e.response && e.response.data && e.response.data.message) {
+          this.showAlert('error', e.response.data.message);
         } else {
           this.showAlert('error', 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.');
         }

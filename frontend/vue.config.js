@@ -3,7 +3,9 @@ const path = require('path');
 module.exports = {
   runtimeCompiler: true,
   // --- POCZĄTEK POPRAWKI ---
-  transpileDependencies: [],
+  transpileDependencies: [
+    '@vueuse/motion'
+  ],
   // --- KONIEC POPRAWKI ---
   chainWebpack: (config) => {
     config.plugin('define').tap((definitions) => {

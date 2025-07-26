@@ -6,52 +6,10 @@
           Panel Administratora
         </h1>
       </div>
-
       <div
         class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 mb-4"
       >
         <div class="p-4 md:p-6">
-          <div class="flex flex-col md:flex-row items-center mb-2">
-            <div class="flex flex-col md:flex-row gap-2 items-center w-full h-full">
-              <SearchBar v-model:search="searchQuery" class="w-full" />
-              <BaseButton
-                :color="searchMode === 'id' ? 'blue' : 'gray'"
-                :outline="searchMode !== 'id'"
-                size="sm"
-                @click="searchMode = 'id'"
-                type="button"
-              >
-                Szukaj po ID
-              </BaseButton>
-              <BaseButton
-                :color="searchMode === 'text' ? 'blue' : 'gray'"
-                :outline="searchMode !== 'text'"
-                size="sm"
-                @click="searchMode = 'text'"
-                type="button"
-              >
-                Szukaj po treści
-              </BaseButton>
-            </div>
-          </div>
-
-          <div class="flex flex-col md:flex-row gap-4 mb-4">
-            <!-- Dodaj select do sortowania po kategorii -->
-            <div class="flex items-center gap-2">
-              <label for="sort-category" class="text-sm text-gray-700 dark:text-gray-200"
-                >Sortuj według kategorii:</label
-              >
-              <select
-                id="sort-category"
-                v-model="selectedSortCategory"
-                class="rounded-md border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-2 py-1 text-sm"
-              >
-                <option value="">Wszystkie</option>
-                <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
-              </select>
-            </div>
-          </div>
-
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div
               @click="openAddPopup"
@@ -170,131 +128,106 @@
           </div>
         </div>
       </div>
+      <div v-if="!isAdmin" class="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
+        Brak uprawnień do wyświetlenia tej strony.
+      </div>
 
-      <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden"
-      >
+      <div v-else>
+        <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
+          Zarejestrowani użytkownicy
+        </h2>
+        <table class="min-w-full bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+          <thead>
+            <tr class="bg-blue-50 dark:bg-blue-900 text-left">
+              <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Login</th>
+              <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Avatar</th>
+              <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Kolor avatara</th>
+              <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Rola</th>
+              <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Akcje</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="user in users"
+              :key="user._id"
+              class="border-b border-gray-200 dark:border-gray-700"
+            >
+              <td class="px-4 py-2">{{ user.login }}</td>
+              <td class="px-4 py-2">
+                <Avatar :avatar-index="user.avatar" :color="user.avatarColors" :size="32" />
+              </td>
+              <td class="px-4 py-2">{{ user.avatarColors }}</td>
+              <td class="px-4 py-2">
+                <span
+                  :class="{
+                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded-full':
+                      user.rola === 'admin',
+                    'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 px-2 py-1 rounded-full':
+                      user.rola !== 'admin',
+                  }"
+                >
+                  {{ user.rola }}
+                </span>
+              </td>
+              <td class="px-4 py-2">
+                <select
+                  v-model="user.rola"
+                  @change="changeRole(user)"
+                  class="rounded px-2 py-1 border bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
+                >
+                  <option value="user">user</option>
+                  <option value="admin">admin</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
         <div
-          class="hidden sm:flex items-center p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"
+          v-if="users.length === 0"
+          class="text-gray-500 dark:text-gray-400 mt-6 text-center w-full"
         >
-          <div
-            class="w-24 font-mono text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-          >
-            ID
-          </div>
-          <div
-            class="flex-grow font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider"
-          >
-            Treść pytania
-          </div>
-          <div
-            class="w-32 text-center font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider"
-          >
-            Akcje
+          Brak zarejestrowanych użytkowników.
+        </div>
+        <div class="mb-6 flex-row items-center mt-6">
+          <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
+            Usuń wybraną kategorię
+          </h2>
+          <div class="flex gap-2 items-center w-full">
+            <select
+              v-model="selectedCategory"
+              class="rounded px-2 py-1 border bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
+            >
+              <option disabled value="">Wybierz kategorię</option>
+              <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
+            </select>
+            <BaseButton
+              color="red"
+              size="md"
+              :disabled="!selectedCategory"
+              @click="confirmDeleteCategory"
+            >
+              Usuń
+            </BaseButton>
           </div>
         </div>
-
-        <DynamicScroller
-          :items="filteredQuestions()"
-          key-field="ID"
-          :min-item-size="72"
-          class="scroller"
-        >
-          <template v-slot="{ item, index, active }">
-            <DynamicScrollerItem
-              :item="item"
-              :active="active"
-              :size-dependencies="[item.question, expandedRows.includes(item.ID)]"
-              :data-index="index"
-              :class="[
-                'border-b border-gray-200 dark:border-gray-700 transition-colors duration-150',
-                'hover:bg-sky-100/50 dark:hover:bg-sky-900/50',
-              ]"
-            >
-              <div
-                :class="[
-                  'block sm:hidden p-4',
-                  index % 2 === 0 ? 'bg-gray-100 dark:bg-gray-800' : 'bg-white dark:bg-gray-700',
-                ]"
+        <BaseModal :show="showConfirmDelete" @close="showConfirmDelete = false">
+          <template #header>Usuń pytania z kategorii</template>
+          <div class="p-4">
+            <p>
+              Czy na pewno chcesz usunąć <b>wszystkie pytania</b> z kategorii
+              <b>{{ selectedCategory }}</b
+              >? Ta operacja jest nieodwracalna.
+            </p>
+            <div class="mt-4 flex gap-2 justify-end">
+              <BaseButton color="gray" @click="showConfirmDelete = false">Anuluj</BaseButton>
+              <BaseButton color="red" @click="deleteCategoryQuestions" :loading="deleting"
+                >Usuń</BaseButton
               >
-                <div
-                  class="flex justify-between items-center cursor-pointer"
-                  @click="toggleRow(item.ID)"
-                >
-                  <div class="flex-grow truncate pr-2">
-                    <span class="text-gray-400 dark:text-gray-500 font-mono text-xs block"
-                      >ID: {{ item.ID }}</span
-                    >
-                    <span class="text-gray-800 dark:text-gray-200">{{ item.question }}</span>
-                    <span v-if="item.flagged" class="text-yellow-500 font-bold ml-2">★ Ważne</span>
-                    <span v-if="item.note" class="text-gray-500 ml-2">📝 {{ item.note }}</span>
-                  </div>
-                  <svg
-                    :class="[
-                      'w-6 h-6 transition-transform flex-shrink-0 text-gray-500 dark:text-gray-400',
-                      { 'rotate-180': expandedRows.includes(item.ID) },
-                    ]"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-                <div
-                  v-if="expandedRows.includes(item.ID)"
-                  class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700"
-                >
-                  <div class="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                    <b>Kategoria:</b> {{ item.category || 'Brak' }}
-                  </div>
-                  <div class="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                    <b>Opis:</b> {{ item.description || 'Brak' }}
-                  </div>
-                  <div class="flex">
-                    <QuestionActions
-                      :question="item"
-                      @edit="onQuestionEdited"
-                      @deleted="onQuestionDeleted"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div
-                :class="[
-                  'hidden sm:flex items-center px-4 py-4',
-                  index % 2 === 0 ? 'bg-white dark:bg-gray-700' : 'bg-gray-100 dark:bg-gray-800',
-                ]"
-              >
-                <div class="w-24 font-mono text-sm text-gray-600 dark:text-gray-400">
-                  {{ item.ID }}
-                </div>
-                <div
-                  class="flex-grow text-gray-800 dark:text-gray-200 pr-4 cursor-pointer"
-                  @click="toggleRow(item.ID)"
-                >
-                  <span v-if="!expandedRows.includes(item.ID) && item.question.length > 150">
-                    {{ item.question.substring(0, 150) }}...
-                  </span>
-                  <span v-else>
-                    {{ item.question }}
-                  </span>
-                  <span v-if="item.flagged" class="text-yellow-500 font-bold ml-2">★ Ważne</span>
-                  <span v-if="item.note" class="text-gray-500 ml-2">📝 {{ item.note }}</span>
-                </div>
-                <div class="w-32 flex justify-center">
-                  <QuestionActions
-                    :question="item"
-                    @edit="onQuestionEdited"
-                    @deleted="onQuestionDeleted"
-                  />
-                </div>
-              </div>
-            </DynamicScrollerItem>
-          </template>
-        </DynamicScroller>
+            </div>
+          </div>
+        </BaseModal>
       </div>
+
       <BaseModal :show="showExcelInfo" @close="showExcelInfo = false">
         <template #header>Import pytań z pliku Excel</template>
         <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
@@ -494,378 +427,225 @@
   </div>
 </template>
 
-<script>
-import SearchBar from '@/components/SearchBar.vue';
-import BaseButton from '@/components/BaseButton.vue';
-import IconButton from '@/components/IconButton.vue';
-import BaseModal from '@/components/BaseModal.vue';
+<script setup>
+import { ref, computed, onMounted, inject, watch } from 'vue';
+import { useStore } from 'vuex';
 import apiClient from '@/api';
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
-import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
-import QuestionActions from '@/components/QuestionActions.vue';
-import store from '@/store';
+import Avatar from '@/components/Avatar.vue';
+import BaseButton from '@/components/BaseButton.vue';
+import BaseModal from '@/components/BaseModal.vue';
 
-export default {
-  components: {
-    SearchBar,
-    BaseButton,
-    IconButton,
-    BaseModal,
-    DynamicScroller,
-    DynamicScrollerItem,
-    QuestionActions,
-  },
-  inject: ['showAlert', 'showLoader', 'hideLoader'],
-  data() {
-    return {
-      questions: [],
-      categories: [],
-      selectedSortCategory: '',
-      showAddPopup: false,
-      newCategoryInput: '',
-      searchQuery: '',
-      showExcelInfo: false,
-      expandedRows: [],
-      loading: false,
-      showClearQuestionsModal: false,
-      formModel: {
-        question: '',
-        answer_a: { answer: '', isCorret: false },
-        answer_b: { answer: '', isCorret: false },
-        answer_c: { answer: '', isCorret: false },
-        category: '',
-        description: '',
-      },
-      // PAGINACJA
-      page: 1,
-      limit: 100,
-      total: 0,
-      pages: 1,
-      isLoadingMore: false,
-      cancelSearching: false,
-      searchMode: 'text',
-    };
-  },
-  created() {
-    this.fetchQuestions();
-  },
-  watch: {
-    async searchQuery(newVal) {
-      // Resetuj listę i pobierz od nowa tylko pierwszą stronę
-      this.page = 1;
-      await this.fetchQuestions(true);
+const store = useStore();
+const showAlert = inject('showAlert');
 
-      const q = newVal && newVal.toLowerCase();
-      if (this.searchMode === 'id') {
-        if (/^\d+$/.test(q)) {
-          const found = this.questions.some(
-            (question) => question.ID && question.ID.toString() === q
-          );
-          if (!found && !this.isLoadingMore) {
-            await this.loadPageWithId(q);
-          }
-        }
-      } else if (this.searchMode === 'text') {
-        if (q && q.length > 2) {
-          let found = this.questions.some(
-            (question) => question.question && question.question.toLowerCase().includes(q)
-          );
-          if (!found && !this.isLoadingMore) {
-            await this.findQuestionByContent(q);
-          }
-        }
-      }
-    },
-  },
-  methods: {
-    async loadPageWithId(id) {
-      const idNum = parseInt(id, 10);
-      if (!idNum || !this.limit) return;
-      const pageToLoad = Math.ceil(idNum / this.limit);
+const currentUser = computed(() => store.getters['user/getUser']);
+const isAdmin = computed(() => currentUser.value?.rola === 'admin');
 
-      // Zabezpieczenie: sprawdź zakres strony
-      if (pageToLoad < 1 || (this.pages && pageToLoad > this.pages)) {
-        this.showAlert('error', `Brak pytania o ID ${id} (poza zakresem bazy pytań).`);
-        return;
-      }
+const users = ref([]);
+const categories = ref([]);
+const selectedCategory = ref('');
+const showConfirmDelete = ref(false);
+const deleting = ref(false);
 
-      this.showLoader(`Pobieranie strony ${pageToLoad} z pytaniem o ID ${id}...`);
-      try {
-        const res = await apiClient.get(`/questions?page=${pageToLoad}&limit=${this.limit}`);
-        const { questions } = res.data;
-        // Dodaj nowe pytania do listy, unikając duplikatów
-        const newQuestions = questions.filter(
-          (q) => !this.questions.some((existing) => existing.ID === q.ID)
-        );
-        this.questions = [...this.questions, ...newQuestions].sort((a, b) => a.ID - b.ID);
-        this.showAlert('success', `Załadowano stronę ${pageToLoad}.`);
-        // Wymuś ponowne przeliczenie filteredQuestions
-        this.$nextTick(() => {
-          const prev = this.searchQuery;
-          this.searchQuery = '';
-          this.$nextTick(() => {
-            this.searchQuery = prev;
-          });
-        });
-      } catch (e) {
-        this.showAlert('error', 'Błąd podczas pobierania strony z pytaniem.');
-      }
-      this.hideLoader();
-    },
-    // --- POCZĄTEK POPRAWKI: DODANIE BRAKUJĄCYCH METOD ---
-    onQuestionEdited(editedQuestion) {
-      const index = this.questions.findIndex((q) => q.ID === editedQuestion.ID);
-      if (index !== -1) {
-        // Użyj $set lub splice, aby zapewnić reaktywność
-        this.questions.splice(index, 1, editedQuestion);
-      }
-    },
-    async onQuestionDeleted(deletedQuestion) {
-      this.questions = this.questions.filter((q) => q.ID !== deletedQuestion.ID);
-    },
-    // --- KONIEC POPRAWKI ---
+const showAddPopup = ref(false);
+const newCategoryInput = ref('');
+const showExcelInfo = ref(false);
+const showClearQuestionsModal = ref(false);
+const formModel = ref({
+  question: '',
+  answer_a: { answer: '', isCorret: false },
+  answer_b: { answer: '', isCorret: false },
+  answer_c: { answer: '', isCorret: false },
+  category: '',
+  description: '',
+});
 
-    async clearQuestions() {
-      this.showClearQuestionsModal = false;
-      this.showLoader('Czyszczenie bazy pytań...');
-      try {
-        await apiClient.post('/questions/clear');
-        this.showAlert('success', 'Baza pytań została pomyślnie wyczyszczona!');
-        await this.fetchQuestions();
-        await store.dispatch('questions/fetchStats');
-      } catch (e) {
-        this.showAlert('error', 'Błąd podczas czyszczenia bazy pytań.');
-      }
-      this.hideLoader();
-    },
-    async fetchQuestions(reset = true) {
-      this.showLoader('Pobieranie pytań...');
-      try {
-        if (reset) {
-          this.page = 1;
-          this.questions = [];
-        }
-        const res = await apiClient.get(`/questions?page=${this.page}&limit=${this.limit}`);
-        const { questions, total, page, pages, limit } = res.data;
-        this.questions = reset ? questions : [...this.questions, ...questions];
-        this.total = total;
-        this.page = page;
-        this.pages = pages;
-        this.limit = limit;
-        this.categories = [...new Set(this.questions.map((q) => q.category).filter(Boolean))];
-      } catch (error) {
-        this.showAlert('error', 'Błąd podczas pobierania pytań.');
-        console.error('Błąd pobierania pytań:', error);
-      }
-      this.hideLoader();
-    },
-    openAddPopup() {
-      this.formModel = {
-        question: '',
-        answer_a: { answer: '', isCorret: false },
-        answer_b: { answer: '', isCorret: false },
-        answer_c: { answer: '', isCorret: false },
-        category: '',
-        description: '',
-      };
-      this.showAddPopup = true;
-    },
-    closeAddPopup() {
-      this.showAddPopup = false;
-    },
-    async saveNewQuestion() {
-      this.showLoader('Zapisywanie nowego pytania...');
-      try {
-        await apiClient.post('/questions', this.formModel);
-        this.showAlert('success', 'Pytanie zostało dodane pomyślnie!');
-        this.closeAddPopup();
-        // Po dodaniu/edycji/usunięciu pytania:
-        await store.dispatch('questions/addQuestion', this.formModel);
-        await this.fetchQuestions();
-      } catch (error) {
-        this.showAlert('error', 'Błąd podczas dodawania pytania.');
-        console.error('Błąd dodawania pytania:', error);
-      }
-      this.hideLoader();
-    },
-    confirmNewCategory() {
-      const newCat = this.newCategoryInput.trim();
-      if (!newCat) return;
-      if (!this.categories.includes(newCat)) {
-        this.categories.push(newCat);
-      }
-      this.formModel.category = newCat;
-      this.newCategoryInput = '';
-    },
-    toggleRow(id) {
-      const idx = this.expandedRows.indexOf(id);
-      if (idx === -1) this.expandedRows.push(id);
-      else this.expandedRows.splice(idx, 1);
-    },
-    async exportQuestionsExcel() {
-      if (this.loading) return;
-      this.showLoader('Eksportowanie do Excela...');
-      try {
-        const response = await apiClient.get('/questions/export/excel', {
-          responseType: 'blob',
-        });
-
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'pytania.xlsx');
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        this.showAlert('success', 'Pytania zostały wyeksportowane do Excela.');
-      } catch (e) {
-        const errorMessage = e.response && e.response.data ? e.response.data.error : e.message;
-        this.showAlert('error', `Błąd eksportu do Excela: ${errorMessage}`);
-      } finally {
-        this.hideLoader();
-      }
-    },
-    async importQuestions(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const formData = new FormData();
-      formData.append('file', file);
-      this.showLoader('Importowanie pytań...');
-      try {
-        const response = await apiClient.post('/questions/import/excel', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-
-        this.showAlert('success', `Dodano ${response.data.added} nowych pytań.`);
-        await store.dispatch('questions/fetchStats');
-        await this.fetchQuestions();
-      } catch (error) {
-        const errorMessage =
-          error.response && error.response.data ? error.response.data.error : error.message;
-        this.showAlert('error', `Wystąpił błąd podczas importu: ${errorMessage}`);
-      } finally {
-        event.target.value = ''; // Reset input file
-        this.hideLoader();
-      }
-    },
-    setCorrectAnswer(correctKey) {
-      this.formModel.answer_a.isCorret = false;
-      this.formModel.answer_b.isCorret = false;
-      this.formModel.answer_c.isCorret = false;
-      this.formModel[`answer_${correctKey}`].isCorret = true;
-    },
-    async loadMoreQuestions() {
-      if (this.isLoadingMore || this.page >= this.pages) return;
-      this.isLoadingMore = true;
-      try {
-        this.page += 1;
-        await this.fetchQuestions(false);
-      } finally {
-        this.isLoadingMore = false;
-      }
-    },
-    filteredQuestions() {
-      let result = this.questions;
-      if (this.searchQuery) {
-        const q = this.searchQuery.toLowerCase();
-        if (/^\d+$/.test(q)) {
-          result = result.filter((question) => question.ID && question.ID.toString() === q);
-          if (result.length === 0) {
-            return [
-              {
-                ID: q,
-                question: `Pytanie o ID ${q} nie zostało znalezione.`,
-                notFound: true,
-              },
-            ];
-          }
-        } else {
-          result = result.filter(
-            (question) =>
-              question.question.toLowerCase().includes(q) ||
-              (question.ID && question.ID.toString().includes(q))
-          );
-        }
-      }
-      if (this.selectedSortCategory) {
-        result = result.filter((q) => q.category === this.selectedSortCategory);
-      }
-      return result;
-    },
-    async findQuestionByContent(query) {
-      let currentPage = this.page;
-      let anyFound = false;
-      this.cancelSearching = false; // resetuj na początku
-
-      while (currentPage < this.pages) {
-        if (this.cancelSearching) break; // przerwij jeśli opuszczono stronę
-        currentPage += 1;
-        this.showLoader(`Szukam pytania: "${query}" (strona ${currentPage})...`);
-        try {
-          const res = await apiClient.get(`/questions?page=${currentPage}&limit=${this.limit}`);
-          const { questions } = res.data;
-          const newQuestions = questions.filter(
-            (q) => !this.questions.some((existing) => existing.ID === q.ID)
-          );
-          this.questions = [...this.questions, ...newQuestions];
-          const foundOnThisPage = newQuestions.some((q) =>
-            q.question.toLowerCase().includes(query.toLowerCase())
-          );
-          if (foundOnThisPage) {
-            anyFound = true;
-          }
-        } catch (e) {
-          this.showAlert('error', 'Błąd podczas pobierania kolejnej strony.');
-          break;
-        }
-        this.hideLoader();
-      }
-      if (!this.cancelSearching) {
-        if (anyFound) {
-          this.showAlert('success', 'Znaleziono dopasowane pytania (przeszukano całą bazę).');
-        } else {
-          this.showAlert('warning', 'Nie znaleziono żadnego pytania z podaną frazą.');
-        }
-        this.$nextTick(() => {
-          const prev = this.searchQuery;
-          this.searchQuery = '';
-          this.$nextTick(() => {
-            this.searchQuery = prev;
-          });
-        });
-      }
-      this.hideLoader();
-    },
-  },
-  mounted() {
-    // Dodaj nasłuchiwanie scrolla do scroller-a
-    const scroller = this.$el.querySelector('.scroller');
-    if (scroller) {
-      scroller.addEventListener('scroll', () => {
-        if (
-          scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 50 &&
-          !this.isLoadingMore &&
-          this.page < this.pages
-        ) {
-          this.loadMoreQuestions();
-        }
-      });
+onMounted(async () => {
+  if (!isAdmin.value) {
+    showAlert && showAlert('error', 'Brak uprawnień do panelu administratora.');
+    return;
+  }
+  try {
+    const res = await apiClient.get('/users/all');
+    users.value = Array.isArray(res.data) ? res.data : [];
+    if (users.value.length === 0) {
+      showAlert && showAlert('info', 'Brak zarejestrowanych użytkowników.');
     }
-  },
-  beforeUnmount() {
-    // jeśli Vue 2: beforeDestroy()
-    this.cancelSearching = true;
-  },
-};
-</script>
+  } catch (e) {
+    users.value = [];
+    showAlert && showAlert('error', 'Błąd podczas pobierania listy użytkowników.');
+  }
+  try {
+    const res = await apiClient.get('/stats');
+    categories.value = res.data.categories.map((cat) => cat.name);
+    if (categories.value.length === 0) {
+      showAlert && showAlert('info', 'Brak kategorii pytań.');
+    }
+  } catch (e) {
+    categories.value = [];
+    showAlert && showAlert('error', 'Błąd podczas pobierania kategorii.');
+  }
+});
 
-<style scoped>
-.scroller {
-  height: 70vh; /* Nadaj scrollerowi konkretną, stałą wysokość */
-  overflow-y: auto; /* KLUCZOWA ZMIANA: Włącz pionowy pasek przewijania w razie potrzeby */
+async function changeRole(user) {
+  try {
+    await apiClient.put(`/users/${user._id}/role`, { rola: user.rola });
+    showAlert && showAlert('success', `Zmieniono rolę użytkownika ${user.login}.`);
+  } catch (e) {
+    showAlert && showAlert('error', 'Błąd podczas zmiany roli użytkownika.');
+  }
 }
-</style>
+
+function confirmDeleteCategory() {
+  showConfirmDelete.value = true;
+}
+
+async function deleteCategoryQuestions() {
+  if (!selectedCategory.value) {
+    showAlert && showAlert('warning', 'Wybierz kategorię!');
+    return;
+  }
+  deleting.value = true;
+  try {
+    const res = await apiClient.delete(
+      `/questions/category/${encodeURIComponent(selectedCategory.value)}`
+    );
+    showConfirmDelete.value = false;
+    deleting.value = false;
+
+    if (res.data && res.data.success) {
+      if (res.data.deletedCount > 0) {
+        showAlert(
+          'success',
+          `Usunięto ${res.data.deletedCount} pytań z kategorii "${selectedCategory.value}"`
+        );
+      } else {
+        showAlert(
+          'info',
+          `Nie znaleziono pytań do usunięcia w kategorii "${selectedCategory.value}"`
+        );
+      }
+      await store.dispatch('questions/fetchStats');
+    } else {
+      showAlert('error', 'Nie udało się usunąć pytań (brak odpowiedzi z serwera)');
+    }
+  } catch (e) {
+    deleting.value = false;
+    showConfirmDelete.value = false;
+    let msg = 'Błąd usuwania pytań z kategorii';
+    if (e.response) {
+      msg += ` (${e.response.status}): ${e.response.data?.message || JSON.stringify(e.response.data)}`;
+    } else {
+      msg += `: ${e.message}`;
+    }
+    showAlert && showAlert('error', msg);
+  }
+}
+
+function openAddPopup() {
+  formModel.value = {
+    question: '',
+    answer_a: { answer: '', isCorret: false },
+    answer_b: { answer: '', isCorret: false },
+    answer_c: { answer: '', isCorret: false },
+    category: '',
+    description: '',
+  };
+  showAddPopup.value = true;
+}
+
+function closeAddPopup() {
+  showAddPopup.value = false;
+}
+
+async function saveNewQuestion() {
+  try {
+    await apiClient.post('/questions', formModel.value);
+    showAlert && showAlert('success', 'Pytanie zostało dodane pomyślnie!');
+    closeAddPopup();
+    await store.dispatch('questions/addQuestion', formModel.value);
+  } catch (error) {
+    showAlert && showAlert('error', 'Błąd podczas dodawania pytania.');
+  }
+}
+
+function confirmNewCategory() {
+  const newCat = newCategoryInput.value.trim();
+  if (!newCat) {
+    showAlert && showAlert('warning', 'Podaj nazwę nowej kategorii.');
+    return;
+  }
+  if (!categories.value.includes(newCat)) {
+    categories.value.push(newCat);
+    showAlert && showAlert('success', `Dodano nową kategorię "${newCat}".`);
+  } else {
+    showAlert && showAlert('info', 'Taka kategoria już istnieje.');
+  }
+  formModel.value.category = newCat;
+  newCategoryInput.value = '';
+}
+
+async function exportQuestionsExcel() {
+  try {
+    const response = await apiClient.get('/questions/export/excel', {
+      responseType: 'blob',
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'pytania.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    showAlert && showAlert('success', 'Pytania zostały wyeksportowane do Excela.');
+  } catch (e) {
+    const errorMessage = e.response && e.response.data ? e.response.data.error : e.message;
+    showAlert && showAlert('error', `Błąd eksportu do Excela: ${errorMessage}`);
+  }
+}
+
+async function importQuestions(event) {
+  const file = event.target.files[0];
+  if (!file) {
+    showAlert && showAlert('warning', 'Nie wybrano pliku do importu.');
+    return;
+  }
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const response = await apiClient.post('/questions/import/excel', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    showAlert && showAlert('success', `Dodano ${response.data.added} nowych pytań.`);
+    await store.dispatch('questions/fetchStats');
+  } catch (error) {
+    const errorMessage =
+      error.response && error.response.data ? error.response.data.error : error.message;
+    showAlert && showAlert('error', `Wystąpił błąd podczas importu: ${errorMessage}`);
+  } finally {
+    event.target.value = ''; // Reset input file
+  }
+}
+
+function setCorrectAnswer(correctKey) {
+  formModel.value.answer_a.isCorret = false;
+  formModel.value.answer_b.isCorret = false;
+  formModel.value.answer_c.isCorret = false;
+  formModel.value[`answer_${correctKey}`].isCorret = true;
+}
+
+async function clearQuestions() {
+  showClearQuestionsModal.value = false;
+  try {
+    await apiClient.post('/questions/clear');
+    showAlert && showAlert('success', 'Baza pytań została pomyślnie wyczyszczona!');
+    await store.dispatch('questions/fetchStats');
+  } catch (e) {
+    showAlert && showAlert('error', 'Błąd podczas czyszczenia bazy pytań.');
+  }
+}
+</script>

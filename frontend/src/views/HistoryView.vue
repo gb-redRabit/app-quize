@@ -305,7 +305,7 @@ import apiClient from '@/api';
 export default {
   name: 'History',
   components: { BaseButton, BaseModal },
-  inject: ['showAlert', 'showLoader', 'hideLoader'],
+  inject: ['showAlert'],
 
   data() {
     return {
@@ -346,13 +346,11 @@ export default {
   methods: {
     ...mapActions('user', ['fetchUserHistory']),
     mounted() {
-      this.showLoader('Pobieranie historii...');
       this.fetchUserHistory()
         .then(() => this.ensureHistoryIds())
-        .catch(() => this.showAlert('error', 'Błąd podczas pobierania historii'))
-        .finally(() => this.hideLoader());
+        .catch(() => this.showAlert('error', 'Błąd podczas pobierania historii'));
     },
-    // Dodane metody
+
     getBadgeClass(type) {
       if (type === 'quiz') return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
       if (type === 'egzamin')
@@ -373,7 +371,10 @@ export default {
     },
 
     formatDate(dateString) {
-      if (!dateString) return '';
+      if (!dateString) {
+        this.showAlert('warning', 'Brak daty w historii.');
+        return '';
+      }
       const date = new Date(dateString);
       return date.toLocaleString('pl-PL', {
         day: '2-digit',
@@ -392,49 +393,51 @@ export default {
     getDashOffset(entry) {
       const circumference = this.getCircumference();
       const total = (entry.correct || 0) + (entry.wrong || 0);
-      if (total === 0) return circumference;
-
+      if (total === 0) {
+        this.showAlert('warning', 'Brak wyników do wyświetlenia.');
+        return circumference;
+      }
       const percent = (entry.correct || 0) / total;
       return circumference * (1 - percent);
     },
 
     ensureHistoryIds() {
+      if (!this.history || !Array.isArray(this.history)) {
+        this.showAlert('error', 'Błąd: historia użytkownika jest nieprawidłowa.');
+        return;
+      }
       const updatedHistory = [...this.history];
-
       updatedHistory.forEach((entry, index) => {
-        entry.id = index; // id równe indeksowi w tablicy
+        entry.id = index;
       });
-
       this.$store.commit('user/SET_USER_HISTORY', updatedHistory);
     },
 
     percentGood(entry) {
       const total = (entry.correct || 0) + (entry.wrong || 0);
-      if (!total) return 0;
+      if (!total) {
+        this.showAlert('warning', 'Brak odpowiedzi w tym wpisie historii.');
+        return 0;
+      }
       return Math.round(((entry.correct || 0) / total) * 100);
     },
 
     async confirmClearHistory() {
       try {
-        this.showLoader('Czyszczenie historii...');
         await apiClient.put('/users/update-profile', { clearHistory: true });
-        await this.fetchUserHistory(); // <-- pobierz historię po czyszczeniu
-        this.hideLoader();
+        await this.fetchUserHistory();
         this.showAlert('success', 'Historia została pomyślnie wyczyszczona');
         this.showConfirmModal = false;
       } catch (e) {
-        this.hideLoader();
         this.showAlert('error', 'Błąd podczas czyszczenia historii.');
         this.showConfirmModal = false;
       }
     },
   },
   mounted() {
-    this.showLoader('Pobieranie historii...');
     this.fetchUserHistory()
       .then(() => this.ensureHistoryIds())
-      .catch(() => this.showAlert('error', 'Błąd podczas pobierania historii'))
-      .finally(() => this.hideLoader());
+      .catch(() => this.showAlert('error', 'Błąd podczas pobierania historii'));
   },
 };
 </script>

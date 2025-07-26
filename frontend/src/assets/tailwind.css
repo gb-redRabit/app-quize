@@ -7,6 +7,9 @@
   padding: 0;
   box-sizing: border-box;
 }
+html {
+  overflow-y: scroll;
+}
 .capitalize-first-letter::first-letter {
   text-transform: uppercase;
 }

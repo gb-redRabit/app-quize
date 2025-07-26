@@ -193,7 +193,7 @@ import apiClient from '@/api';
 
 export default {
   name: 'HistoryDetailsView',
-  inject: ['showAlert', 'showLoader', 'hideLoader'],
+  inject: ['showAlert'],
 
   data() {
     return {
@@ -258,21 +258,20 @@ export default {
 
     // Formatowanie daty
     formatDate(dateStr) {
-      if (!dateStr) return 'Brak daty';
-
+      if (!dateStr) {
+        this.showAlert('warning', 'Brak daty w historii.');
+        return 'Brak daty';
+      }
       try {
         const date = new Date(dateStr);
-
-        // Ręczne formatowanie
         const day = date.getDate().toString().padStart(2, '0');
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const year = date.getFullYear();
         const hours = date.getHours().toString().padStart(2, '0');
         const minutes = date.getMinutes().toString().padStart(2, '0');
-
         return `${day}.${month}.${year}, ${hours}:${minutes}`;
       } catch (e) {
-        console.error('Błąd formatowania daty:', e);
+        this.showAlert('error', 'Błąd formatowania daty.');
         return dateStr;
       }
     },
@@ -342,24 +341,21 @@ export default {
 
     // Sprawdzanie czy odpowiedź jest poprawna - WYKORZYSTUJE ZAPISANĄ FLAGĘ
     isAnswerCorrect(item) {
-      // Najpierw sprawdź zapisaną flagę (może mieć nazwę correct lub isCorrect)
       if (item && (item.correct === true || item.isCorrect === true)) {
         return true;
       }
-
-      // Gdy flaga jest ustawiona na false, już wiemy że odpowiedź jest niepoprawna
       if (item && (item.correct === false || item.isCorrect === false)) {
         return false;
       }
-
-      // Jeśli flaga nie istnieje lub jest null/undefined, musimy obliczyć sami
       if (!item || !item.answer) return false;
 
       const question = this.getQuestion(item.id_questions);
-      if (!question) return false;
+      if (!question) {
+        this.showAlert('warning', 'Brak danych pytania do sprawdzenia odpowiedzi.');
+        return false;
+      }
 
       try {
-        // Znajdź klucz poprawnej odpowiedzi
         let correctKey = null;
         for (const key of ['a', 'b', 'c', 'd']) {
           const answerObj = question[`answer_${key}`];
@@ -368,13 +364,13 @@ export default {
             break;
           }
         }
-
-        if (!correctKey) return false;
-
-        // Porównaj odpowiedzi ignorując wielkość liter
+        if (!correctKey) {
+          this.showAlert('warning', 'Brak zdefiniowanej poprawnej odpowiedzi.');
+          return false;
+        }
         return item.answer.toLowerCase() === correctKey.toLowerCase();
       } catch (e) {
-        console.error('Błąd sprawdzania poprawności odpowiedzi:', e);
+        this.showAlert('error', 'Błąd sprawdzania poprawności odpowiedzi.');
         return false;
       }
     },
@@ -388,18 +384,14 @@ export default {
     // Pobieranie wszystkich pytań
     async fetchAllQuestions() {
       try {
-        // Pobierz wpis historii, aby znaleźć kategorię
         const entry = this.findHistoryEntry();
-        // Jeśli wpis historii nie istnieje, pobierz "all"
         const category = entry?.category || entry?.categories?.[0] || 'all';
-        // Pobierz pytania tylko z tej kategorii przez Vuex
         const questions = await this.$store.dispatch(
           'questions/fetchQuestionsByCategory',
           category
         );
         this.allQuestions = Array.isArray(questions) ? questions : [];
       } catch (e) {
-        console.error('Błąd pobierania pytań:', e);
         this.showAlert('error', 'Błąd podczas pobierania pytań');
         this.allQuestions = [];
         throw e;
@@ -422,16 +414,12 @@ export default {
   },
 
   async created() {
-    this.showLoader('Ładowanie szczegółów historii...');
     this.loading = true;
     this.error = null;
-    this.allQuestions = []; // Inicjalizuj pustą tablicę na początku
+    this.allQuestions = [];
 
     try {
-      // Pobierz wszystkie pytania i odśwież historię użytkownika
       await Promise.all([this.fetchAllQuestions(), this.fetchUserHistory()]);
-
-      // Po załadowaniu wszystkich danych, znajdź odpowiedni wpis historii
       this.historyEntry = this.findHistoryEntry();
 
       if (!this.historyEntry) {
@@ -439,11 +427,9 @@ export default {
         this.showAlert('error', 'Nie znaleziono wpisu historii o podanym ID');
       }
     } catch (e) {
-      console.error('Błąd podczas ładowania szczegółów historii:', e);
       this.error = 'Wystąpił błąd podczas ładowania historii';
       this.showAlert('error', 'Wystąpił błąd podczas ładowania szczegółów historii');
     } finally {
-      this.hideLoader();
       this.loading = false;
     }
   },

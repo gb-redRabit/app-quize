@@ -177,8 +177,6 @@ import { shuffleArray } from '@/utils/shuffleArray';
 
 // Inject globalnych funkcji
 const showAlert = inject('showAlert');
-const showLoader = inject('showLoader');
-const hideLoader = inject('hideLoader');
 
 const keys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
 const store = useStore();
@@ -233,11 +231,15 @@ const startTimer = () => {
   }, 1000);
 };
 const fetchQuestions = async () => {
-  showLoader('Ładowanie pytań quizu...');
   try {
     const category = route.query.categories || 'all';
     const fetchedQuestions = await store.dispatch('questions/fetchQuestionsByCategory', category);
-    // Losuj pytania jeśli trzeba
+    if (!fetchedQuestions || fetchedQuestions.length === 0) {
+      showAlert && showAlert('warning', 'Brak pytań w wybranej kategorii.');
+      questions.value = [];
+      loading.value = false;
+      return;
+    }
     questions.value = getRandomUniqueQuestions(fetchedQuestions, quizLength.value);
     answersStatus.value = questions.value.map(() => ({
       answered: false,
@@ -246,11 +248,10 @@ const fetchQuestions = async () => {
     }));
     loading.value = false;
   } catch (error) {
-    showAlert('error', 'Błąd podczas pobierania pytań quizu');
+    showAlert && showAlert('error', 'Błąd podczas pobierania pytań quizu');
     questions.value = [];
     loading.value = false;
   }
-  hideLoader();
 };
 
 // Logika z `created`
@@ -290,7 +291,7 @@ const selectAnswer = async (index, selectedKey) => {
   const q = questions.value[currentQuestionIndex.value];
   const id = q.ID || q.id || q.Id || q.id_question;
   if (!id) {
-    console.warn('Brak ID pytania!', q);
+    showAlert && showAlert('error', 'Brak ID pytania!');
     return;
   }
   const isCorrect = selectedKey === getCorrectKey(q);
@@ -312,7 +313,7 @@ const selectAnswer = async (index, selectedKey) => {
       category: q.category,
     });
   } catch (e) {
-    // obsługa błędu
+    showAlert && showAlert('error', 'Błąd podczas zapisywania odpowiedzi.');
   }
 };
 
@@ -329,7 +330,6 @@ const nextOrFinish = async () => {
 // W metodzie zapisującej historię quizu
 const saveUserHistory = async () => {
   try {
-    showLoader('Zapisywanie wyników...');
     const historyItem = {
       type: isCorrection.value ? 'Quiz - poprawa błędów' : 'quiz',
       category: route.query.categories || 'all',
@@ -339,28 +339,22 @@ const saveUserHistory = async () => {
       time: null,
       questionTimes: questionTimes.value,
       list: questions.value.map((q, idx) => {
-        // Oryginalna kolejność kluczy:
         const originalKeys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
-        // Indeks wybranej odpowiedzi w przetasowanej liście:
         const selected = answersStatus.value[idx].selected;
-        // Klucz z oryginalnej listy:
         const originalKey = originalKeys[selected];
-
         return {
           id_questions: q.ID || q.id || q.Id,
-          answer: originalKey, // <-- to jest klucz z nieprzestawionej listy
+          answer: originalKey,
           correct: originalKey === getCorrectKey(q),
         };
       }),
     };
 
-    const response = await apiClient.put('/users/update-profile', { addHistory: historyItem });
+    await apiClient.put('/users/update-profile', { addHistory: historyItem });
     isCorrection.value = true;
-    hideLoader(); // Upewnij się, że loader jest ukrywany
+    showAlert && showAlert('success', 'Wyniki quizu zostały zapisane.');
   } catch (error) {
-    console.error('Błąd zapisu historii:', error);
-    hideLoader(); // Ukryj loader nawet w przypadku błędu
-    showAlert('error', 'Błąd podczas zapisywania wyników');
+    showAlert && showAlert('error', 'Błąd podczas zapisywania wyników.');
   }
 };
 
@@ -379,30 +373,41 @@ const restartQuiz = async () => {
 
   if (route.query.categories) {
     const cat = route.query.categories;
-    const allQuestions = await store.dispatch('questions/fetchQuestionsByCategory', cat);
-    const historyRes = await apiClient.get('/users/hquestion');
-    const hq = historyRes.data.filter((q) => q.category === cat);
+    try {
+      const allQuestions = await store.dispatch('questions/fetchQuestionsByCategory', cat);
+      const historyRes = await apiClient.get('/users/hquestion');
+      const hq = historyRes.data.filter((q) => q.category === cat);
 
-    const allIds = allQuestions
-      .filter((q) => q.category === cat)
-      .map((q) => q.ID || q.id || q.Id || q.id_question);
+      const allIds = allQuestions
+        .filter((q) => q.category === cat)
+        .map((q) => q.ID || q.id || q.Id || q.id_question);
 
-    const wrongOrNotDoneIds = allIds.filter((id) => {
-      const entry = hq.find((q) => q.id == id);
-      return !entry || entry.correct === false;
-    });
+      const wrongOrNotDoneIds = allIds.filter((id) => {
+        const entry = hq.find((q) => q.id == id);
+        return !entry || entry.correct === false;
+      });
 
-    const length = Math.min(parseInt(route.query.length, 10) || 10, wrongOrNotDoneIds.length);
+      const length = Math.min(parseInt(route.query.length, 10) || 10, wrongOrNotDoneIds.length);
 
-    router.replace({
-      name: 'QuizView',
-      query: {
-        ...route.query,
-        ids: wrongOrNotDoneIds.join(','),
-        length,
-        r: Math.random().toString(36).substring(2, 8),
-      },
-    });
+      if (!wrongOrNotDoneIds.length) {
+        showAlert && showAlert('warning', 'Brak pytań do powtórki w tej kategorii.');
+        loading.value = false;
+        return;
+      }
+
+      router.replace({
+        name: 'QuizView',
+        query: {
+          ...route.query,
+          ids: wrongOrNotDoneIds.join(','),
+          length,
+          r: Math.random().toString(36).substring(2, 8),
+        },
+      });
+    } catch (e) {
+      showAlert && showAlert('error', 'Błąd podczas przygotowywania powtórki.');
+      loading.value = false;
+    }
   } else {
     fetchQuestions();
     startTime.value = Date.now();
