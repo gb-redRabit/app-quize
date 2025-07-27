@@ -17,7 +17,6 @@
 
 <script>
 import Navbar from '@/components/Navbar.vue';
-import GnomePet from '@/components/GnomePet.vue';
 import BaseAlert from '@/components/BaseAlert.vue';
 import BaseLoader from '@/components/BaseLoader.vue';
 import BaseSkeleton from '@/components/BaseSkeleton.vue';
@@ -26,7 +25,6 @@ import { mapGetters } from 'vuex';
 export default {
   components: {
     Navbar,
-    GnomePet,
     BaseAlert,
     BaseLoader,
     BaseSkeleton,
