@@ -5,7 +5,8 @@
     :data-theme="currentTheme"
   >
     <Navbar v-if="showNavbar" />
-    <BaseSkeleton v-if="isPageLoading" />
+    <!-- <GnomePet :size="120" /> -->
+    <BaseSkeleton v-if="isPageLoading && showNavbar" />
     <router-view v-else :key="$route.fullPath" />
 
     <!-- Globalne komponenty -->
@@ -16,6 +17,7 @@
 
 <script>
 import Navbar from '@/components/Navbar.vue';
+import GnomePet from '@/components/GnomePet.vue';
 import BaseAlert from '@/components/BaseAlert.vue';
 import BaseLoader from '@/components/BaseLoader.vue';
 import BaseSkeleton from '@/components/BaseSkeleton.vue';
@@ -24,6 +26,7 @@ import { mapGetters } from 'vuex';
 export default {
   components: {
     Navbar,
+    GnomePet,
     BaseAlert,
     BaseLoader,
     BaseSkeleton,

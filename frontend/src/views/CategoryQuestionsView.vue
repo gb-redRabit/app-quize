@@ -450,22 +450,36 @@ export default {
     },
     lastAttempt() {
       if (!this.user || !this.user.history) return null;
-      return (
-        [...this.user.history].reverse().find(
-          (entry) =>
-            (entry.type === 'quiz' || entry.type === 'egzamin') &&
-            entry.list.some((item) => {
-              const q = this.getQuestions.find(
-                (qq) =>
-                  qq.ID == item.id_questions ||
-                  qq.id == item.id_questions ||
-                  qq.Id == item.id_questions ||
-                  qq.id_question == item.id_questions
-              );
-              return this.category === 'all' || (q && q.category === this.category);
-            })
-        ) || null
+      // Szukaj wpisu, który ma przynajmniej jedno pytanie z tej kategorii
+      const entry = [...this.user.history].reverse().find(
+        (entry) =>
+          (entry.type === 'quiz' || entry.type === 'egzamin') &&
+          entry.list.some((item) => {
+            const q = this.getQuestions.find(
+              (qq) =>
+                qq.ID == item.id_questions ||
+                qq.id == item.id_questions ||
+                qq.Id == item.id_questions ||
+                qq.id_question == item.id_questions
+            );
+            return this.category === 'all' || (q && q.category === this.category);
+          })
       );
+      if (!entry) return null;
+      // Zwróć entry z listą ograniczoną tylko do pytań z tej kategorii
+      return {
+        ...entry,
+        list: entry.list.filter((item) => {
+          const q = this.getQuestions.find(
+            (qq) =>
+              qq.ID == item.id_questions ||
+              qq.id == item.id_questions ||
+              qq.Id == item.id_questions ||
+              qq.id_question == item.id_questions
+          );
+          return this.category === 'all' || (q && q.category === this.category);
+        }),
+      };
     },
     lastAttemptMap() {
       if (!this.lastAttempt) return {};

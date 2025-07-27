@@ -720,12 +720,10 @@ import BaseButton from '@/components/BaseButton.vue';
 import BaseModal from '@/components/BaseModal.vue';
 import apiClient from '@/api';
 
-// --- Injections, Store and Router ---
 const showAlert = inject('showAlert');
 const store = useStore();
 const router = useRouter();
 
-// --- State ---
 const showExamPopup = ref(false);
 const showOtherQuizPopup = ref(false);
 const showQuizOptions = ref({});
@@ -733,9 +731,6 @@ const activeFilter = ref('all');
 const viewType = ref('grid');
 const gridColumns = ref(3);
 const searchQuery = ref('');
-const stats = ref({ totalQuestions: 0, categories: [] });
-
-// --- Getters and State from Vuex ---
 
 const hiddenCategory = computed(() => store.getters['user/getUser'].hiddenCategory);
 const categories = computed(() =>
@@ -748,19 +743,16 @@ const questionsCount = computed(() =>
 const userHistory = computed(() => store.getters['user/getUserHistory'] || []);
 const hquestion = computed(() => store.getters['user/getHquestion'] || []);
 
-// --- Computed Properties ---
 const examCategories = computed(() =>
   categories.value.filter((cat) => cat && cat.toLowerCase().includes('egzamin'))
 );
 
-const lawTestCategories = computed(() =>
-  categories.value.filter((cat) => cat && cat.startsWith('TP:'))
+const otherCategories = computed(() =>
+  categories.value.filter((cat) => cat && !examCategories.value.includes(cat))
 );
 
-const otherCategories = computed(() =>
-  categories.value.filter(
-    (cat) => cat && !examCategories.value.includes(cat) && !lawTestCategories.value.includes(cat)
-  )
+const lawTestCategories = computed(() =>
+  categories.value.filter((cat) => cat && cat.startsWith('TP:'))
 );
 
 const examStatsByCategory = computed(() => {
@@ -900,7 +892,6 @@ const goToCategoryQuestions = async (cat) => {
     router.push({ name: 'CategoryQuestions', params: { category: cat } });
   } catch (e) {
     showAlert('error', 'Błąd ładowania pytań z kategorii');
-  } finally {
   }
 };
 
@@ -950,7 +941,6 @@ const startExamNotDone = async (cat) => {
     });
   } catch (e) {
     showAlert('error', 'Błąd pobierania pytań z serwera.');
-  } finally {
   }
 };
 
@@ -961,17 +951,6 @@ const clearCategoryHistory = async (cat) => {
     showAlert('success', `Historia kategorii "${cat}" została wyczyszczona`);
   } catch (e) {
     showAlert('error', 'Błąd podczas czyszczenia pytań z kategorii.');
-  } finally {
-  }
-};
-
-const fetchStats = async () => {
-  try {
-    const res = await apiClient.get('/stats');
-    stats.value = res.data || { totalQuestions: 0, categories: [] };
-  } catch (e) {
-    showAlert('error', 'Błąd ładowania statystyk');
-  } finally {
   }
 };
 
@@ -1036,10 +1015,9 @@ const getCategoryStatusClass = (cat) => {
   return classes[status] || 'bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-gray-100';
 };
 
-// --- Lifecycle Hook ---
 onMounted(async () => {
   await store.dispatch('questions/fetchStats');
-  await store.dispatch('user/fetchUserHistoryAndHQ'); // <-- dodaj to!
+  await store.dispatch('user/fetchUserHistoryAndHQ');
 });
 </script>
 

@@ -7,7 +7,13 @@ const upload = multer({ storage: multer.memoryStorage() });
 const Question = require("../models/Question");
 
 // Pobierz wszystkie pytania
-router.get("/", questionsController.getAllQuestions);
+router.get("/", async (req, res) => {
+  if (req.query.ids) {
+    const ids = req.query.ids.split(",").map((id) => Number(id));
+    const questions = await Question.find({ ID: { $in: ids } });
+    return res.json({ questions });
+  }
+});
 
 // Dodaj nowe pytanie
 router.post("/", auth.verifyToken, questionsController.addQuestion);

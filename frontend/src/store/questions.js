@@ -81,10 +81,10 @@ export default {
     async fetchStats({ commit }) {
       try {
         const res = await apiClient.get('/stats');
-        // WYCIĄGNIJ tylko potrzebne pola
+        // WYCIĄGNIJ tylko potrzebne pola i posortuj kategorie alfabetycznie
         const stats = res.data
           ? {
-              categories: res.data.categories || [],
+              categories: (res.data.categories || []).slice().sort((a, b) => a.name.localeCompare(b.name)),
               totalQuestions: res.data.totalQuestions || 0,
               updatedAt: res.data.updatedAt || null,
             }
