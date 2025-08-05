@@ -336,6 +336,14 @@ export default {
     },
     async saveExamHistory() {
       try {
+        // Konwersja kluczy odpowiedzi na litery
+        const keyToLetter = {
+          answer_a: 'A',
+          answer_b: 'B',
+          answer_c: 'C',
+          answer_d: 'D',
+        };
+
         // Tworzenie obiektu historii
         const historyItem = {
           type: this.isCorrection ? 'Egzamin - poprawa błędów' : 'egzamin',
@@ -345,11 +353,22 @@ export default {
           data: new Date().toISOString(),
           time: this.examTimeMinutes * 60 - this.timeLeft,
           questionTimes: this.questionTimes,
-          list: this.questions.map((q, idx) => ({
-            id_questions: q.ID || q.id || q.Id,
-            answer: this.answersStatus[idx].selectedKey,
-            correct: this.answersStatus[idx].selectedKey === getCorrectKey(q),
-          })),
+          list: this.questions.map((q, idx) => {
+            const selectedKey = this.answersStatus[idx].selectedKey || '';
+            const correctKey = getCorrectKey(q);
+
+            // Zamień klucze na litery
+            const selectedLetter = selectedKey ? keyToLetter[selectedKey] || '?' : '';
+            const correctLetter = correctKey ? keyToLetter[correctKey] || '?' : '';
+
+            return {
+              id_questions: q.ID || q.id || q.Id,
+              answer: selectedKey, // Zapisz oryginalny klucz
+              answerLetter: selectedLetter, // Dodaj literę odpowiedzi
+              correctLetter: correctLetter, // Dodaj literę poprawnej odpowiedzi
+              correct: selectedKey === correctKey, // Zachowaj informację o poprawności
+            };
+          }),
         };
 
         await apiClient.put('/users/update-profile', { addHistory: historyItem });
