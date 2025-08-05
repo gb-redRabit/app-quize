@@ -178,7 +178,6 @@ import { shuffleArray } from '@/utils/shuffleArray';
 // Inject globalnych funkcji
 const showAlert = inject('showAlert');
 
-const keys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
@@ -196,7 +195,6 @@ const startTime = ref(null);
 const questionTimes = ref([]);
 const timerInterval = ref(null);
 const isCorrection = ref(false);
-const isExamMode = ref(false);
 const shuffledAnswers = ref([]);
 const questionList = ref(null);
 const forceUpdateKey = ref(0);
@@ -279,11 +277,6 @@ onBeforeUnmount(() => {
 // Pozostałe metody
 const answers = () => {
   return shuffledAnswers.value;
-};
-
-const selectedIndex = () => {
-  if (!selectedKey.value) return null;
-  return answers().findIndex((a) => a.key === selectedKey.value);
 };
 
 const selectAnswer = async (index, selectedKey) => {

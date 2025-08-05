@@ -1,5 +1,4 @@
 import axios from 'axios';
-import store from '../store';
 
 // Tworzenie klienta API
 const apiClient = axios.create({
@@ -52,7 +51,6 @@ apiClient.invalidateCache = function (url, params = {}) {
 };
 
 // Ulepszony mechanizm loadera - zawsze sprawdzaj dostępność i nie wywołuj wielokrotnie
-let loaderActive = false;
 const getLoader = () => {
   try {
     const app = document.getElementById('app')?.__vue_app__;
@@ -120,7 +118,6 @@ apiClient.interceptors.response.use(
   (error) => {
     const loader = getLoader();
     if (loader && (!error.config || !error.config.silent)) loader.hide();
-    // ...obsługa alertów jak wcześniej...
     return Promise.reject(error);
   }
 );

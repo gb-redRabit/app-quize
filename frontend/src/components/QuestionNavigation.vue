@@ -1,5 +1,5 @@
 <template>
-  <div class="md:absolute w-full max-w-4xl mx-auto bottom-0 left-0 right-0 relative -mt-10">
+  <div class="w-full max-w-4xl mx-auto bottom-0 left-0 right-0 relative -mt-10">
     <div ref="scrollNav" class="w-full py-4 px-2 scroll-smooth overflow-x-hidden">
       <div class="flex space-x-2 min-w-max px-8">
         <button

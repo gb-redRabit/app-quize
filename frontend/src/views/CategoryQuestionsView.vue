@@ -99,6 +99,32 @@
           <span v-else>(domyślnie)</span>
         </span>
       </BaseButton>
+
+      <BaseButton
+        color="green"
+        size="md"
+        class="action-button"
+        :loading="massFlagLoading"
+        @click="toggleAllFlagged"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="button-icon"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        <span>
+          {{
+            areAllFlagged
+              ? 'Odznacz wszystkie jako niesprawdzone'
+              : 'Oznacz wszystkie jako sprawdzone'
+          }}
+        </span>
+      </BaseButton>
     </div>
 
     <!-- Progress bar -->
@@ -436,6 +462,7 @@ export default {
       localQuestions: [],
       showDuplicates: false,
       sortByDescription: false,
+      massFlagLoading: false,
     };
   },
   computed: {
@@ -614,6 +641,14 @@ export default {
     hasMoreQuestions() {
       return this.displayCount < this.sortedQuestions.length;
     },
+    areAllFlagged() {
+      // Sprawdź tylko pytania z tej kategorii (po filtrze)
+      const questions =
+        this.category === 'all'
+          ? this.localQuestions
+          : this.localQuestions.filter((q) => q.category === this.category);
+      return questions.length > 0 && questions.every((q) => q.flagged);
+    },
   },
   async created() {
     try {
@@ -767,6 +802,61 @@ export default {
         .trim()
         .replace(/[\s:.\?!]+$/, '')
         .toLowerCase();
+    },
+    toggleAllFlagged() {
+      const newValue = !this.areAllFlagged;
+      this.massFlagLoading = true;
+      const promises = this.visibleQuestions.map((q) => {
+        const prev = q.flagged;
+        q.flagged = newValue; // Optymistycznie zmień od razu
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(q);
+          }, 100);
+        });
+      });
+
+      Promise.all(promises)
+        .then((updatedQuestions) => {
+          // Aktualizacja w bazie danych
+          const updatePromises = updatedQuestions.map((q) => {
+            const updated = { ...q };
+            if ('_id' in updated) delete updated._id;
+            return apiClient.put(`/questions/${q.ID}`, updated);
+          });
+          return Promise.all(updatePromises);
+        })
+        .then(() => {
+          this.showAlert(
+            'success',
+            newValue ? 'Wszystkie pytania oznaczone jako sprawdzone' : 'Oznaczenie usunięte'
+          );
+          this.massFlagLoading = false;
+        })
+        .catch((e) => {
+          this.massFlagLoading = false;
+          this.showAlert('error', 'Błąd podczas masowej zmiany oznaczeń');
+        });
+    },
+  },
+  watch: {
+    // Obserwuj zmiany w lastAttempt i aktualizuj localQuestions
+    lastAttempt(newAttempt) {
+      if (!newAttempt) return;
+      for (const item of newAttempt.list) {
+        const q = this.localQuestions.find((qq) => qq.ID === item.id_questions);
+        if (q) {
+          // Zaktualizuj pytanie w localQuestions na podstawie lastAttempt
+          if (typeof item.correct === 'boolean') {
+            q.userAnswerCorrect = item.correct;
+          } else if (item.answer) {
+            const keys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
+            const correctIdx = keys.findIndex((k) => q[k] && q[k].isCorret);
+            const correctLetter = ['A', 'B', 'C', 'D'][correctIdx];
+            q.userAnswerCorrect = item.answer === correctLetter;
+          }
+        }
+      }
     },
   },
 };
