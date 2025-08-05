@@ -332,13 +332,13 @@ const saveUserHistory = async () => {
       time: null,
       questionTimes: questionTimes.value,
       list: questions.value.map((q, idx) => {
-        const originalKeys = ['answer_a', 'answer_b', 'answer_c', 'answer_d'];
-        const selected = answersStatus.value[idx].selected;
-        const originalKey = originalKeys[selected];
+        // Użyj bezpośrednio zapisanego klucza zamiast mapowania indeksu
+        const selectedKey = answersStatus.value[idx].selectedKey;
+
         return {
           id_questions: q.ID || q.id || q.Id,
-          answer: originalKey,
-          correct: originalKey === getCorrectKey(q),
+          answer: selectedKey || '', // Zapisz faktyczny klucz odpowiedzi (answer_a, answer_b, itd.)
+          correct: selectedKey === getCorrectKey(q), // Porównaj bezpośrednio klucze
         };
       }),
     };

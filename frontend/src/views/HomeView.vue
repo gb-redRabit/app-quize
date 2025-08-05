@@ -803,7 +803,7 @@ const hqStats = computed(() => {
   const hq = hquestion.value;
   const done = hq.length;
   const correct = hq.filter((q) => q.correct === true).length;
-  const wrong = hq.filter((q) => q.correct === false).length;
+  const wrong = hq.filter((q) => q.correct !== true).length;
   const notDone = questionsCount.value - done;
   return { done, correct, wrong, notDone: Math.max(0, notDone) };
 });
