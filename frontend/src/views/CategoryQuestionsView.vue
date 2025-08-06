@@ -1,50 +1,133 @@
 <template>
   <div class="container mx-auto p-4 md:p-6">
-    <!-- Usuwam bezpośrednie użycie BaseLoader -->
+    <!-- Header section -->
+    <div
+      class="mb-6 bg-white dark:bg-gray-800 rounded-xl p-4 md:p-5 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+    >
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <div class="flex items-center gap-3">
+          <!-- Dodaj kółko postępu -->
+          <div class="relative h-14 w-14 flex-shrink-0">
+            <svg class="h-full w-full" viewBox="0 0 36 36">
+              <!-- Tło kółka -->
+              <circle
+                class="fill-transparent"
+                cx="18"
+                cy="18"
+                r="15.5"
+                :stroke="isDarkTheme ? '#2d3748' : '#f9fafb'"
+                stroke-width="3"
+              ></circle>
 
-    <div class="header-section">
-      <div class="category-title-wrapper">
-        <h1 class="category-title">
-          Pytania z kategorii:
-          <span class="category-highlight">{{ categoryLabel }}</span>
-        </h1>
-        <div class="category-stats-badge" v-if="lastAttemptStats.total > 0">
-          <div class="stats-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                fill-rule="evenodd"
-                d="M2.25 13.5a8.25 8.25 0 018.25-8.25.75.75 0 01.75.75v6.75H18a.75.75 0 01.75.75 8.25 8.25 0 01-16.5 0z"
-                clip-rule="evenodd"
-              />
-              <path
-                fill-rule="evenodd"
-                d="M12.75 3a.75.75 0 01.75-.75 8.25 8.25 0 018.25 8.25.75.75 0 01-.75.75h-7.5a.75.75 0 01-.75-.75V3z"
-                clip-rule="evenodd"
-              />
+              <!-- Wypełnienie kółka postępu -->
+              <circle
+                class="fill-transparent"
+                cx="18"
+                cy="18"
+                r="15.5"
+                :stroke="isDarkTheme ? '#10b981' : '#10b981'"
+                stroke-width="3"
+                stroke-dasharray="97.5"
+                :stroke-dashoffset="
+                  categoryQuestionsCount ? 97.5 * (1 - flaggedCount / categoryQuestionsCount) : 97.5
+                "
+                transform="rotate(-90 18 18)"
+              ></circle>
+
+              <!-- Tekst wewnątrz kółka -->
+              <text
+                x="18"
+                y="18"
+                dy=".3em"
+                text-anchor="middle"
+                :fill="isDarkTheme ? '#e2e8f0' : '#4a5568'"
+                class="text-xs font-medium"
+              >
+                {{ Math.round((flaggedCount / categoryQuestionsCount) * 100) || 0 }}
+                %
+              </text>
             </svg>
+
+            <!-- Tooltip z dokładniejszymi danymi -->
+            <div
+              class="absolute -bottom-4 -left-4 h-9 w-9 bg-green-100 dark:bg-green-900 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center"
+            >
+              <span class="text-sm text-green-800 dark:text-green-200 font-bold">
+                {{ flaggedCount }}
+              </span>
+            </div>
+            <div
+              class="absolute -bottom-4 -right-4 h-9 w-9 bg-gray-400 dark:bg-gray-900 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center"
+            >
+              <span class="text-sm text-gray-800 dark:text-gray-200 font-bold">
+                {{ categoryQuestionsCount }}
+              </span>
+            </div>
           </div>
-          <div class="stats-text">
+
+          <h1 class="ml-5 text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
+            Pytania z kategorii:
+            <span
+              class="text-blue-600 dark:text-blue-400 bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent"
+            >
+              {{ categoryLabel }}
+            </span>
+            <!-- Usuwamy stary licznik, bo teraz mamy kółko -->
+          </h1>
+        </div>
+
+        <div
+          v-if="lastAttemptStats.total > 0"
+          class="flex items-center py-1.5 px-3 rounded-full bg-blue-50 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="w-4 h-4 text-blue-500 dark:text-blue-300"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2.25 13.5a8.25 8.25 0 018.25-8.25.75.75 0 01.75.75v6.75H18a.75.75 0 01.75.75 8.25 8.25 0 01-16.5 0z"
+              clip-rule="evenodd"
+            />
+            <path
+              fill-rule="evenodd"
+              d="M12.75 3a.75.75 0 01.75-.75 8.25 8.25 0 018.25 8.25.75.75 0 01-.75.75h-7.5a.75.75 0 01-.75-.75V3z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <div class="text-xs sm:text-sm whitespace-nowrap">
             Ostatnie podejście:
             <span class="font-bold">{{ lastAttemptStats.total }}</span>
-            pytań (<span class="text-green-600 font-bold">{{ lastAttemptStats.correct }}</span
-            >/<span class="text-red-600 font-bold">{{ lastAttemptStats.wrong }}</span
+            pytań (<span class="text-green-600 dark:text-green-400 font-bold">{{
+              lastAttemptStats.correct
+            }}</span
+            >/<span class="text-red-600 dark:text-red-400 font-bold">{{
+              lastAttemptStats.wrong
+            }}</span
             >)
           </div>
         </div>
       </div>
-
       <SearchBar v-model:search="searchQuery" placeholder="Szukaj po treści pytania lub ID..." />
     </div>
 
-    <div class="actions-section">
-      <BaseButton color="green" size="md" class="action-button" @click="downloadQuestionsTxt">
+    <!-- Actions section -->
+    <div class="flex flex-wrap gap-3 mb-6">
+      <BaseButton
+        color="green"
+        size="md"
+        class="flex items-center gap-2"
+        @click="downloadQuestionsTxt"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="button-icon"
+          class="w-5 h-5 group-hover:animate-pulse"
         >
           <path
             stroke-linecap="round"
@@ -58,7 +141,7 @@
       <BaseButton
         :color="showDuplicates ? 'blue' : 'yellow'"
         size="md"
-        class="action-button"
+        class="flex items-center gap-2"
         @click="showDuplicates = !showDuplicates"
       >
         <svg
@@ -67,7 +150,7 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="button-icon"
+          class="w-5 h-5"
         >
           <path
             stroke-linecap="round"
@@ -78,10 +161,15 @@
         <span>{{ showDuplicates ? 'Pokaż wszystkie' : 'Pokaż duplikaty' }}</span>
       </BaseButton>
 
-      <BaseButton color="blue" size="md" class="action-button" @click="toggleSortByDescription">
+      <BaseButton
+        color="blue"
+        size="md"
+        class="flex items-center gap-2"
+        @click="toggleSortByDescription"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="button-icon"
+          class="w-5 h-5"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -103,7 +191,7 @@
       <BaseButton
         color="green"
         size="md"
-        class="action-button"
+        class="flex items-center gap-2"
         :loading="massFlagLoading"
         @click="toggleAllFlagged"
       >
@@ -113,7 +201,7 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="button-icon"
+          class="w-5 h-5"
         >
           <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
         </svg>
@@ -128,36 +216,39 @@
     </div>
 
     <!-- Progress bar -->
-    <div v-if="lastAttemptStats.total > 0" class="progress-container">
-      <div class="progress-labels">
-        <span class="progress-label">
-          <span class="progress-dot correct-dot"></span>
+    <div
+      v-if="lastAttemptStats.total > 0"
+      class="mb-8 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm"
+    >
+      <div class="flex justify-between mb-2 text-sm dark:text-gray-200">
+        <span class="flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>
           Poprawne: {{ lastAttemptStats.correct }}
         </span>
-        <span class="progress-label">
-          <span class="progress-dot incorrect-dot"></span>
+        <span class="flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>
           Niepoprawne: {{ lastAttemptStats.wrong }}
         </span>
       </div>
-      <div class="progress-bar">
+      <div class="h-2.5 rounded-full bg-gray-100 dark:bg-gray-700 flex overflow-hidden">
         <div
           v-if="lastAttemptStats.correct > 0"
-          :style="{
-            width: (lastAttemptStats.correct / lastAttemptStats.total) * 100 + '%',
-          }"
-          class="progress-segment correct"
+          :style="{ width: (lastAttemptStats.correct / lastAttemptStats.total) * 100 + '%' }"
+          class="h-full transition-all duration-500 ease-out bg-green-400"
         ></div>
         <div
           v-if="lastAttemptStats.wrong > 0"
-          :style="{
-            width: (lastAttemptStats.wrong / lastAttemptStats.total) * 100 + '%',
-          }"
-          class="progress-segment incorrect"
+          :style="{ width: (lastAttemptStats.wrong / lastAttemptStats.total) * 100 + '%' }"
+          class="h-full transition-all duration-500 ease-out bg-red-400"
         ></div>
       </div>
     </div>
 
-    <div v-if="loading" class="loading-message">
+    <!-- Loading state -->
+    <div
+      v-if="loading"
+      class="flex items-center justify-center text-lg text-gray-600 dark:text-gray-300 p-12"
+    >
       <svg
         class="animate-spin h-6 w-6 mr-3"
         xmlns="http://www.w3.org/2000/svg"
@@ -181,14 +272,18 @@
       <span>Ładowanie pytań...</span>
     </div>
 
-    <div v-else-if="filteredQuestions.length === 0" class="empty-state">
+    <!-- Empty state -->
+    <div
+      v-else-if="filteredQuestions.length === 0"
+      class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 p-12 bg-white dark:bg-gray-800 rounded-xl shadow-sm"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
         stroke-width="1.5"
         stroke="currentColor"
-        class="empty-icon"
+        class="w-14 h-14 mb-4 text-gray-400 dark:text-gray-500"
       >
         <path
           stroke-linecap="round"
@@ -197,24 +292,35 @@
         />
       </svg>
       <p>Brak pytań w tej kategorii</p>
-      <p class="empty-subtext">Spróbuj zmienić kryteria wyszukiwania lub wybierz inną kategorię</p>
+      <p class="text-sm text-gray-400 dark:text-gray-500 mt-2">
+        Spróbuj zmienić kryteria wyszukiwania lub wybierz inną kategorię
+      </p>
     </div>
 
-    <div v-else class="questions-container">
+    <!-- Questions list -->
+    <div v-else class="space-y-6">
       <div
         v-for="q in visibleQuestions"
         :key="q.ID"
-        class="question-card"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 transition-all border border-gray-100 dark:border-gray-700 hover:shadow-md transform transition duration-300 opacity-0 translate-y-2"
         :class="{
-          'correct-card': lastAttemptMap[q.ID] === true,
-          'incorrect-card': lastAttemptMap[q.ID] === false,
+          'border-l-4 border-green-400 dark:border-green-500 bg-gradient-to-r from-green-50 to-white dark:from-green-900/20 dark:to-gray-800':
+            lastAttemptMap[q.ID] === true,
+          'border-l-4 border-red-400 dark:border-red-500 bg-gradient-to-r from-red-50 to-white dark:from-red-900/20 dark:to-gray-800':
+            lastAttemptMap[q.ID] === false,
         }"
+        style="animation: fadeIn 0.3s ease-out forwards"
       >
-        <div class="question-header">
-          <div class="question-id">ID: {{ q.ID }}</div>
+        <!-- Question header -->
+        <div class="flex justify-between items-start mb-3">
+          <div
+            class="text-sm font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded"
+          >
+            ID: {{ q.ID }}
+          </div>
           <div class="flex items-center gap-2 mt-2">
+            <!-- Flagged/Checked checkbox -->
             <div class="relative">
-              <!-- Ważne / Sprawdzone -->
               <input
                 type="checkbox"
                 :checked="q.flagged"
@@ -226,15 +332,15 @@
                 :for="'flagged-' + q.ID"
                 :class="[
                   q.flagged
-                    ? 'bg-green-100 border-green-400 text-green-700 font-semibold shadow'
-                    : 'bg-white border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-600 cursor-pointer',
+                    ? 'bg-green-100 dark:bg-green-900 border-green-400 dark:border-green-600 text-green-700 dark:text-green-300 font-semibold shadow'
+                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-blue-400 dark:hover:border-blue-600 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer',
                   'px-3 py-1.5 rounded-full flex items-center gap-2 border transition justify-center',
                 ]"
                 style="min-width: 140px"
               >
                 <span v-if="q.flagged">
                   <svg
-                    class="inline w-5 h-5 text-green-500 mr-1"
+                    class="inline w-5 h-5 text-green-500 dark:text-green-400 mr-1"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -250,7 +356,7 @@
                 </span>
                 <span v-else>
                   <svg
-                    class="inline w-5 h-5 text-gray-400 mr-1"
+                    class="inline w-5 h-5 text-gray-400 dark:text-gray-500 mr-1"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -267,7 +373,7 @@
               </label>
             </div>
 
-            <!-- Złe -->
+            <!-- Bad checkbox -->
             <div class="relative">
               <input
                 type="checkbox"
@@ -280,15 +386,15 @@
                 :for="'bad-' + q.ID"
                 :class="[
                   q.bad
-                    ? 'bg-red-100 border-red-400 text-red-700 font-semibold shadow'
-                    : 'bg-white border-gray-300 text-gray-500 hover:border-red-400 hover:text-red-600 cursor-pointer',
+                    ? 'bg-red-100 dark:bg-red-900 border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 font-semibold shadow'
+                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-red-400 dark:hover:border-red-600 hover:text-red-600 dark:hover:text-red-400 cursor-pointer',
                   'px-3 py-1.5 rounded-full flex items-center gap-2 border transition justify-center',
                 ]"
                 style="min-width: 100px"
               >
                 <span v-if="q.bad">
                   <svg
-                    class="inline w-5 h-5 text-red-500 mr-1"
+                    class="inline w-5 h-5 text-red-500 dark:text-red-400 mr-1"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -304,7 +410,7 @@
                 </span>
                 <span v-else>
                   <svg
-                    class="inline w-5 h-5 text-gray-400 mr-1"
+                    class="inline w-5 h-5 text-gray-400 dark:text-gray-500 mr-1"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -321,7 +427,7 @@
               </label>
             </div>
 
-            <!-- Nie wiem -->
+            <!-- Unknown checkbox -->
             <div class="relative">
               <input
                 type="checkbox"
@@ -334,15 +440,15 @@
                 :for="'unknown-' + q.ID"
                 :class="[
                   q.unknown
-                    ? 'bg-yellow-100 border-yellow-400 text-yellow-700 font-semibold shadow'
-                    : 'bg-white border-gray-300 text-gray-500 hover:border-yellow-400 hover:text-yellow-600 cursor-pointer',
+                    ? 'bg-yellow-100 dark:bg-yellow-900 border-yellow-400 dark:border-yellow-600 text-yellow-700 dark:text-yellow-300 font-semibold shadow'
+                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-yellow-400 dark:hover:border-yellow-600 hover:text-yellow-600 dark:hover:text-yellow-400 cursor-pointer',
                   'px-3 py-1.5 rounded-full flex items-center gap-2 border transition justify-center',
                 ]"
                 style="min-width: 110px"
               >
                 <span v-if="q.unknown">
                   <svg
-                    class="inline w-5 h-5 text-yellow-500 mr-1"
+                    class="inline w-5 h-5 text-yellow-500 dark:text-yellow-400 mr-1"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -358,7 +464,7 @@
                 </span>
                 <span v-else>
                   <svg
-                    class="inline w-5 h-5 text-gray-400 mr-1"
+                    class="inline w-5 h-5 text-gray-400 dark:text-gray-500 mr-1"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -379,45 +485,110 @@
               :question="q"
               @deleted="onQuestionDeleted"
               @edit="onQuestionEdited"
-              class="question-actions"
+              class="ml-2"
             />
           </div>
         </div>
 
-        <div class="question-content">{{ q.question }}</div>
+        <!-- Question content -->
+        <div class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-5">
+          {{ q.question }}
+        </div>
 
-        <div class="answers-container">
-          <div class="answer-item" :class="{ 'correct-answer': q.answer_a && q.answer_a.isCorret }">
-            <div class="answer-letter">A</div>
-            <div class="answer-text">{{ q.answer_a && q.answer_a.answer }}</div>
+        <!-- Answers -->
+        <div class="space-y-2 mb-4">
+          <div
+            class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+            :class="{
+              'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 hover:bg-green-100 dark:hover:bg-green-800/40':
+                q.answer_a && q.answer_a.isCorret,
+            }"
+          >
+            <div
+              class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium"
+              :class="{
+                'bg-green-500 dark:bg-green-600 text-white': q.answer_a && q.answer_a.isCorret,
+              }"
+            >
+              A
+            </div>
+            <div class="text-gray-700 dark:text-gray-300">
+              {{ q.answer_a && q.answer_a.answer }}
+            </div>
           </div>
 
-          <div class="answer-item" :class="{ 'correct-answer': q.answer_b && q.answer_b.isCorret }">
-            <div class="answer-letter">B</div>
-            <div class="answer-text">{{ q.answer_b && q.answer_b.answer }}</div>
+          <div
+            class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+            :class="{
+              'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 hover:bg-green-100 dark:hover:bg-green-800/40':
+                q.answer_b && q.answer_b.isCorret,
+            }"
+          >
+            <div
+              class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium"
+              :class="{
+                'bg-green-500 dark:bg-green-600 text-white': q.answer_b && q.answer_b.isCorret,
+              }"
+            >
+              B
+            </div>
+            <div class="text-gray-700 dark:text-gray-300">
+              {{ q.answer_b && q.answer_b.answer }}
+            </div>
           </div>
 
-          <div class="answer-item" :class="{ 'correct-answer': q.answer_c && q.answer_c.isCorret }">
-            <div class="answer-letter">C</div>
-            <div class="answer-text">{{ q.answer_c && q.answer_c.answer }}</div>
+          <div
+            class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+            :class="{
+              'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 hover:bg-green-100 dark:hover:bg-green-800/40':
+                q.answer_c && q.answer_c.isCorret,
+            }"
+          >
+            <div
+              class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium"
+              :class="{
+                'bg-green-500 dark:bg-green-600 text-white': q.answer_c && q.answer_c.isCorret,
+              }"
+            >
+              C
+            </div>
+            <div class="text-gray-700 dark:text-gray-300">
+              {{ q.answer_c && q.answer_c.answer }}
+            </div>
           </div>
 
           <div
             v-if="q.answer_d"
-            class="answer-item"
-            :class="{ 'correct-answer': q.answer_d && q.answer_d.isCorret }"
+            class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+            :class="{
+              'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 hover:bg-green-100 dark:hover:bg-green-800/40':
+                q.answer_d && q.answer_d.isCorret,
+            }"
           >
-            <div class="answer-letter">D</div>
-            <div class="answer-text">{{ q.answer_d && q.answer_d.answer }}</div>
+            <div
+              class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium"
+              :class="{
+                'bg-green-500 dark:bg-green-600 text-white': q.answer_d && q.answer_d.isCorret,
+              }"
+            >
+              D
+            </div>
+            <div class="text-gray-700 dark:text-gray-300">
+              {{ q.answer_d && q.answer_d.answer }}
+            </div>
           </div>
         </div>
 
-        <div v-if="q.description" class="question-description">
+        <!-- Question description -->
+        <div
+          v-if="q.description"
+          class="flex items-start gap-3 mt-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-gray-700 dark:text-gray-500"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="currentColor"
-            class="description-icon"
+            class="w-5 h-5 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5"
           >
             <path
               fill-rule="evenodd"
@@ -425,13 +596,19 @@
               clip-rule="evenodd"
             />
           </svg>
-          <div class="description-text">{{ q.description }}</div>
+          <div class="text-sm">{{ q.description }}</div>
         </div>
-        <span v-if="q.note" class="text-gray-500 ml-2">📝 {{ q.note }}</span>
+        <span v-if="q.note" class="text-gray-500 dark:text-gray-400 ml-2">📝 {{ q.note }}</span>
       </div>
 
-      <div v-if="hasMoreQuestions" class="load-more">
-        <div class="load-more-spinner"></div>
+      <!-- Load more indicator -->
+      <div
+        v-if="hasMoreQuestions"
+        class="flex flex-col items-center justify-center py-8 text-gray-400 dark:text-gray-500 text-sm"
+      >
+        <div
+          class="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 dark:border-t-blue-400 rounded-full animate-spin mb-3"
+        ></div>
         <span>Przewiń w dół, aby załadować więcej pytań...</span>
       </div>
     </div>
@@ -649,6 +826,30 @@ export default {
           : this.localQuestions.filter((q) => q.category === this.category);
       return questions.length > 0 && questions.every((q) => q.flagged);
     },
+    // Liczba wszystkich pytań w bieżącej kategorii
+    categoryQuestionsCount() {
+      return this.category === 'all'
+        ? this.localQuestions.length
+        : this.localQuestions.filter((q) => q.category === this.category).length;
+    },
+
+    // Liczba oznaczonych pytań w bieżącej kategorii
+    flaggedCount() {
+      const questions =
+        this.category === 'all'
+          ? this.localQuestions
+          : this.localQuestions.filter((q) => q.category === this.category);
+
+      return questions.filter((q) => q.flagged).length;
+    },
+    isDarkTheme() {
+      // Sprawdzenie trybu ciemnego - dostosuj do swojej implementacji
+      return (
+        document.documentElement.classList.contains('dark') ||
+        localStorage.getItem('theme') === 'dark' ||
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+      );
+    },
   },
   async created() {
     try {
@@ -806,37 +1007,71 @@ export default {
     toggleAllFlagged() {
       const newValue = !this.areAllFlagged;
       this.massFlagLoading = true;
-      const promises = this.visibleQuestions.map((q) => {
-        const prev = q.flagged;
-        q.flagged = newValue; // Optymistycznie zmień od razu
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(q);
-          }, 100);
-        });
+
+      // Pobierz wszystkie pytania z danej kategorii (nie tylko widoczne)
+      const questionsToUpdate =
+        this.category === 'all'
+          ? this.localQuestions
+          : this.localQuestions.filter((q) => q.category === this.category);
+
+      // Optymistycznie zaktualizuj lokalny stan
+      questionsToUpdate.forEach((q) => {
+        q.flagged = newValue;
       });
 
-      Promise.all(promises)
-        .then((updatedQuestions) => {
-          // Aktualizacja w bazie danych
-          const updatePromises = updatedQuestions.map((q) => {
-            const updated = { ...q };
-            if ('_id' in updated) delete updated._id;
-            return apiClient.put(`/questions/${q.ID}`, updated);
-          });
-          return Promise.all(updatePromises);
-        })
-        .then(() => {
+      // Podziel na mniejsze paczki, aby nie przeciążyć API
+      const batchSize = 20;
+      const batches = [];
+
+      for (let i = 0; i < questionsToUpdate.length; i += batchSize) {
+        batches.push(questionsToUpdate.slice(i, i + batchSize));
+      }
+
+      // Sekwencyjnie aktualizuj paczki pytań
+      let processed = 0;
+
+      const processBatch = (batchIndex) => {
+        if (batchIndex >= batches.length) {
+          // Wszystkie paczki przetworzone
           this.showAlert(
             'success',
-            newValue ? 'Wszystkie pytania oznaczone jako sprawdzone' : 'Oznaczenie usunięte'
+            newValue
+              ? `Oznaczono wszystkie pytania (${questionsToUpdate.length}) jako sprawdzone`
+              : `Usunięto oznaczenie "sprawdzone" ze wszystkich pytań (${questionsToUpdate.length})`
           );
           this.massFlagLoading = false;
-        })
-        .catch((e) => {
-          this.massFlagLoading = false;
-          this.showAlert('error', 'Błąd podczas masowej zmiany oznaczeń');
+          return;
+        }
+
+        const batch = batches[batchIndex];
+        const batchPromises = batch.map((q) => {
+          const updated = { ...q };
+          if ('_id' in updated) delete updated._id;
+          return apiClient.put(`/questions/${q.ID}`, updated).then(() => {
+            processed++;
+            // Opcjonalnie: aktualizuj progress co X pytań
+            if (processed % 10 === 0) {
+              this.showAlert(
+                'info',
+                `Aktualizowanie... ${processed}/${questionsToUpdate.length} pytań`
+              );
+            }
+          });
         });
+
+        Promise.all(batchPromises)
+          .then(() => {
+            // Przetwórz następną paczkę
+            processBatch(batchIndex + 1);
+          })
+          .catch((e) => {
+            this.massFlagLoading = false;
+            this.showAlert('error', `Błąd podczas aktualizacji pytań: ${e.message}`);
+          });
+      };
+
+      // Rozpocznij przetwarzanie pierwszej paczki
+      processBatch(0);
     },
   },
   watch: {
@@ -862,205 +1097,7 @@ export default {
 };
 </script>
 
-<style scoped>
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-.header-section {
-  @apply mb-6 bg-white rounded-xl p-4 md:p-5 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4;
-}
-
-.category-title-wrapper {
-  @apply flex flex-col sm:flex-row items-start sm:items-center gap-3;
-}
-
-.category-title {
-  @apply text-xl sm:text-2xl font-bold text-gray-800;
-}
-
-.category-highlight {
-  @apply text-blue-600;
-  background: linear-gradient(90deg, #3b82f6, #60a5fa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.category-stats-badge {
-  @apply flex items-center py-1.5 px-3 rounded-full bg-blue-50 text-blue-800 text-sm gap-2;
-}
-
-.stats-icon {
-  @apply w-4 h-4 text-blue-500;
-}
-
-.stats-text {
-  @apply text-xs sm:text-sm whitespace-nowrap;
-}
-
-.search-wrapper {
-}
-
-.actions-section {
-  @apply flex flex-wrap gap-3 mb-6;
-}
-
-.action-button {
-  @apply flex items-center gap-2;
-}
-
-.button-icon {
-  @apply w-5 h-5;
-}
-
-.progress-container {
-  @apply mb-8 bg-white p-4 rounded-xl shadow-sm;
-}
-
-.progress-labels {
-  @apply flex justify-between mb-2 text-sm;
-}
-
-.progress-label {
-  @apply flex items-center gap-1.5;
-}
-
-.progress-dot {
-  @apply w-2.5 h-2.5 rounded-full;
-}
-
-.correct-dot {
-  @apply bg-green-400;
-}
-
-.incorrect-dot {
-  @apply bg-red-400;
-}
-
-.progress-bar {
-  @apply h-2.5 rounded-full bg-gray-100 flex overflow-hidden;
-}
-
-.progress-segment {
-  @apply h-full transition-all duration-500 ease-out;
-}
-
-.correct {
-  @apply bg-green-400;
-}
-
-.incorrect {
-  @apply bg-red-400;
-}
-
-.loading-message {
-  @apply flex items-center justify-center text-lg text-gray-600 p-12;
-}
-
-.empty-state {
-  @apply flex flex-col items-center justify-center text-gray-500 p-12 bg-white rounded-xl shadow-sm;
-}
-
-.empty-icon {
-  @apply w-14 h-14 mb-4 text-gray-400;
-}
-
-.empty-subtext {
-  @apply text-sm text-gray-400 mt-2;
-}
-
-.questions-container {
-  @apply space-y-6;
-}
-
-.question-card {
-  @apply bg-white rounded-xl shadow-sm p-5 transition-all border border-gray-100 hover:shadow-md;
-  animation: fadeIn 0.3s ease-out;
-}
-
-.correct-card {
-  @apply border-l-4 border-green-400 bg-gradient-to-r from-green-50 to-white;
-}
-
-.incorrect-card {
-  @apply border-l-4 border-red-400 bg-gradient-to-r from-red-50 to-white;
-}
-
-.question-header {
-  @apply flex justify-between items-start mb-3;
-}
-
-.question-id {
-  @apply text-sm font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded;
-}
-
-.question-actions {
-  @apply ml-2;
-}
-
-.question-content {
-  @apply text-lg font-medium text-gray-800 mb-5;
-}
-
-.answers-container {
-  @apply space-y-2 mb-4;
-}
-
-.answer-item {
-  @apply flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100 transition-all;
-}
-
-.answer-item:hover {
-  @apply bg-gray-100;
-}
-
-.correct-answer {
-  @apply bg-green-50 border-green-200;
-}
-
-.correct-answer:hover {
-  @apply bg-green-100;
-}
-
-.answer-letter {
-  @apply flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-gray-200 text-gray-700 font-medium;
-}
-
-.correct-answer .answer-letter {
-  @apply bg-green-500 text-white;
-}
-
-.answer-text {
-  @apply text-gray-700;
-}
-
-.question-description {
-  @apply flex items-start gap-3 mt-4 p-3 rounded-lg bg-blue-50 text-gray-700;
-}
-
-.description-icon {
-  @apply w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5;
-}
-
-.description-text {
-  @apply text-sm;
-}
-
-.load-more {
-  @apply flex flex-col items-center justify-center py-8 text-gray-400 text-sm;
-}
-
-.load-more-spinner {
-  @apply w-5 h-5 border-2 border-gray-300 rounded-full animate-spin mb-3;
-  border-top-color: #3b82f6; /* blue-500 */
-}
-
+<style>
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -1070,11 +1107,6 @@ export default {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* Animacja podczas hover dla przycisku pobierania */
-.action-button:hover svg {
-  animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
@@ -1087,14 +1119,5 @@ export default {
   100% {
     transform: scale(1);
   }
-}
-
-/* Styl dla ukrywania scrollbara ale zachowania funkcji scrollowania */
-.hide-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
 }
 </style>

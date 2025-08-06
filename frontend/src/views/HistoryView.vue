@@ -345,11 +345,6 @@ export default {
   },
   methods: {
     ...mapActions('user', ['fetchUserHistory']),
-    mounted() {
-      this.fetchUserHistory()
-        .then(() => this.ensureHistoryIds())
-        .catch(() => this.showAlert('error', 'Błąd podczas pobierania historii'));
-    },
 
     getBadgeClass(type) {
       if (type === 'quiz') return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
