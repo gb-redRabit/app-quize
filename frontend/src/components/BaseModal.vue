@@ -3,8 +3,8 @@
     <div
       v-if="show"
       class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity flex items-center justify-center z-50 p-4"
-      @click.self="$emit('close')"
     >
+      <!-- @click.self="$emit('close')" -->
       <div
         class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl transform transition-all sm:my-8 sm:max-w-5xl w-full flex flex-col"
         style="max-height: 90vh"
