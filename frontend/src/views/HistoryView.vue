@@ -153,7 +153,19 @@ async function confirmClearHistory() {
   try {
     await apiClient.put('/users/update-profile', { clearHistory: true });
 
-    // Odśwież dane historii
+    // Czyść dane lokalnie
+    const userStr = sessionStorage.getItem('user');
+    if (userStr) {
+      try {
+        const userData = JSON.parse(userStr);
+        userData.hquestion = []; // Wyczyść historię pytań
+        sessionStorage.setItem('user', JSON.stringify(userData));
+      } catch (e) {
+        console.error('Błąd podczas aktualizacji danych użytkownika w sessionStorage', e);
+      }
+    }
+
+    // Odśwież dane historii z serwera
     await store.dispatch('user/fetchUserHistoryAndHQ');
 
     showAlert('success', 'Historia została pomyślnie wyczyszczona');
@@ -169,9 +181,6 @@ async function confirmClearHistory() {
 function scrollToAnswer(idx) {
   nextTick(() => {
     const target = answerRefs.value[idx];
-
-    // Dodaj debugowanie
-    console.log(`Próba przewinięcia do odpowiedzi ${idx}`, target);
 
     if (target && typeof target.scrollIntoView === 'function') {
       target.scrollIntoView({ behavior: 'smooth', block: 'center' });

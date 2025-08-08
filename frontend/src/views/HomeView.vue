@@ -285,28 +285,15 @@ const startExamNotDone = async (cat) => {
   }
 };
 
-const clearCategoryHistory = async (cat) => {
+async function clearCategoryHistory(category) {
   try {
-    if (!cat) {
-      showAlert('error', 'Nie podano kategorii');
-      return;
-    }
-
-    await apiClient.put('/users/clear-category', { category: cat });
-
-    // Użyj wcześniej zainicjalizowanej referencji do store
-    await store.dispatch('questions/fetchStats');
-    await store.dispatch('user/fetchUserHistoryAndHQ');
-
-    // Po zakończeniu operacji odświeżamy UI
-    nextTick(() => {
-      showAlert('success', `Historia kategorii "${cat}" została wyczyszczona`);
-    });
+    // Wywołanie akcji z modułu user, która teraz czyści też lokalnie
+    await store.dispatch('user/clearCategoryHistory', category);
   } catch (e) {
-    console.error('Błąd podczas czyszczenia pytań z kategorii:', e);
-    showAlert('error', 'Błąd podczas czyszczenia pytań z kategorii.');
+    console.error('Błąd podczas czyszczenia historii kategorii:', e);
+    showAlert('error', 'Nie udało się wyczyścić historii kategorii.');
   }
-};
+}
 
 const openExamPopup = () => {
   if (questionsHelper.examCategories.value && questionsHelper.examCategories.value.length > 0) {

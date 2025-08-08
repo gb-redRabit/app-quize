@@ -98,20 +98,37 @@ export default {
       sessionStorage.removeItem('user');
       // Po wylogowaniu
     },
-    async clearCategoryHistory({ dispatch }, category) {
+    async clearCategoryHistory({ dispatch, commit, state }, category) {
       try {
         // Sprawdź, czy kategoria istnieje
         if (!category) {
-          showAlert('error', 'Nie podano kategorii');
           return;
         }
 
         // Wywołaj API do czyszczenia kategorii
         await apiClient.put('/users/clear-category', { category });
 
+        // Aktualizuj dane lokalnie - usuń historię pytań dla danej kategorii
+        if (state.hquestion && state.hquestion.length > 0) {
+          const updatedHQuestion = state.hquestion.filter((q) => q.category !== category);
+          commit('SET_HQUESTION', updatedHQuestion);
+
+          // Aktualizuj dane użytkownika w sessionStorage
+          const userStr = sessionStorage.getItem('user');
+          if (userStr) {
+            try {
+              const userData = JSON.parse(userStr);
+              userData.hquestion = updatedHQuestion;
+              sessionStorage.setItem('user', JSON.stringify(userData));
+            } catch (e) {
+              console.error('Błąd podczas aktualizacji danych użytkownika w sessionStorage', e);
+            }
+          }
+        }
+
         // Odśwież dane
         await dispatch('fetchUserHistoryAndHQ');
-        await dispatch('questions/fetchStats');
+        await dispatch('questions/fetchStats', null, { root: true });
 
         // Bezpieczne użycie nextTick
         if (typeof nextTick === 'function') {
@@ -119,11 +136,8 @@ export default {
             // Opcjonalna dodatkowa logika aktualizacji UI
           });
         }
-
-        showAlert('success', `Historia kategorii "${category}" została wyczyszczona`);
       } catch (e) {
         console.error('Błąd podczas czyszczenia pytań z kategorii:', e);
-        showAlert('error', 'Błąd podczas czyszczenia pytań z kategorii.');
       }
     },
     async verifySession({ commit }) {

@@ -144,7 +144,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
 import { useUserStats } from '@/composables/useUserStats';
 import BaseButton from '@/components/base/BaseButton.vue';
 
