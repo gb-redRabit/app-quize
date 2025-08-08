@@ -64,12 +64,9 @@ apiClient.get = function (url, config = {}) {
 
   // Sprawdź czy cache jest ważny
   if (cachedResponse && Date.now() - cachedResponse.timestamp < ttl) {
-    console.debug(`[Cache hit] ${url}`);
     return Promise.resolve(cachedResponse.data);
   }
 
-  // Cache miss - wykonaj zapytanie
-  console.debug(`[Cache miss] ${url}`);
   return originalMethods.get(url, config).then((response) => {
     cache.set(cacheKey, {
       data: response,
