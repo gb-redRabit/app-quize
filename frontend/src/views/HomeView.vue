@@ -287,8 +287,36 @@ const startExamNotDone = async (cat) => {
 
 async function clearCategoryHistory(category) {
   try {
-    // Wywołanie akcji z modułu user, która teraz czyści też lokalnie
+    // Wywołanie akcji z modułu user, która czyści dane na serwerze i w sessionStorage
     await store.dispatch('user/clearCategoryHistory', category);
+
+    // Odśwież lokalne statystyki po wyczyszczeniu historii
+    await calculateCategoryStats();
+
+    // Resetuj widok dla tej kategorii
+    if (showQuizOptions.value[category]) {
+      showQuizOptions.value[category] = false;
+    }
+
+    // Wywołaj lokalne odświeżenie UI
+    nextTick(() => {
+      // Wymuszenie przerenderowania komponentów
+      if (viewType.value === 'grid') {
+        const temp = viewType.value;
+        viewType.value = 'list';
+        setTimeout(() => {
+          viewType.value = temp;
+        }, 0);
+      } else {
+        const temp = viewType.value;
+        viewType.value = 'grid';
+        setTimeout(() => {
+          viewType.value = temp;
+        }, 0);
+      }
+    });
+
+    showAlert('success', `Historia kategorii "${category}" została wyczyszczona`);
   } catch (e) {
     console.error('Błąd podczas czyszczenia historii kategorii:', e);
     showAlert('error', 'Nie udało się wyczyścić historii kategorii.');

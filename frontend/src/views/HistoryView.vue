@@ -153,11 +153,16 @@ async function confirmClearHistory() {
   try {
     await apiClient.put('/users/update-profile', { clearHistory: true });
 
-    // Czyść dane lokalnie
+    // 1. Bezpośrednio aktualizuj dane w Vuex store
+    store.commit('user/SET_USER_HISTORY', []);
+    store.commit('user/SET_HQUESTION', []);
+
+    // 2. Czyść dane lokalnie w sessionStorage
     const userStr = sessionStorage.getItem('user');
     if (userStr) {
       try {
         const userData = JSON.parse(userStr);
+        userData.history = []; // Wyczyść historię quizów
         userData.hquestion = []; // Wyczyść historię pytań
         sessionStorage.setItem('user', JSON.stringify(userData));
       } catch (e) {
@@ -165,8 +170,24 @@ async function confirmClearHistory() {
       }
     }
 
-    // Odśwież dane historii z serwera
+    // 3. Odśwież dane historii z serwera (jako weryfikacja)
     await store.dispatch('user/fetchUserHistoryAndHQ');
+
+    // 4. Wymuś natychmiastowe odświeżenie lokalnych referencji
+    nextTick(() => {
+      // Resetujemy wybrane wartości
+      selectedHistoryEntry.value = null;
+      selectedHistoryIndex.value = null;
+      allQuestions.value = [];
+      answerRefs.value = {};
+
+      // Trick do wymuszenia przerenderowania komponentu HistoryOverview
+      const currentFilter = activeFilter.value;
+      activeFilter.value = 'temp_value';
+      setTimeout(() => {
+        activeFilter.value = currentFilter;
+      }, 0);
+    });
 
     showAlert('success', 'Historia została pomyślnie wyczyszczona');
     showConfirmModal.value = false;

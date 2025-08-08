@@ -102,6 +102,7 @@ export default {
       try {
         // Sprawdź, czy kategoria istnieje
         if (!category) {
+          showAlert('error', 'Nie podano kategorii');
           return;
         }
 
@@ -126,18 +127,28 @@ export default {
           }
         }
 
-        // Odśwież dane
+        // Odśwież wszystkie dane
         await dispatch('fetchUserHistoryAndHQ');
         await dispatch('questions/fetchStats', null, { root: true });
 
-        // Bezpieczne użycie nextTick
-        if (typeof nextTick === 'function') {
-          nextTick(() => {
-            // Opcjonalna dodatkowa logika aktualizacji UI
-          });
-        }
+        return true;
       } catch (e) {
         console.error('Błąd podczas czyszczenia pytań z kategorii:', e);
+        throw e;
+      }
+    },
+    async clearHistory({ commit }) {
+      try {
+        await apiClient.put('/users/update-profile', { clearHistory: true });
+
+        // Natychmiast czyść wszystkie powiązane dane
+        commit('SET_USER_HISTORY', []);
+        commit('SET_HQUESTION', []);
+
+        return true;
+      } catch (error) {
+        console.error('Error clearing history:', error);
+        throw error;
       }
     },
     async verifySession({ commit }) {
