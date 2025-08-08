@@ -1,177 +1,133 @@
-# Quiz App Backend
+# Quiz App – Backend
 
-Backend aplikacji Quiz App – REST API w Node.js + Express, z prostym przechowywaniem danych w plikach JSON lub MongoDB.
-
----
-
-## 🚀 Funkcje
-
-- Rejestracja i logowanie użytkowników (JWT)
-- CRUD pytań do quizu (dodawanie, edycja, usuwanie, pobieranie)
-- Historia quizów i egzaminów użytkownika
-- Middleware autoryzujący (token JWT)
-- Przechowywanie danych w plikach JSON lub MongoDB
-- Import/eksport pytań do/z pliku Excel
-- Statystyki pytań i kategorii
-- Panel administracyjny (zmiana roli użytkownika)
-- Obsługa ukrytych kategorii, avatarów, motywów użytkownika
-- Prosta struktura, łatwa do rozbudowy
+Wydajny i skalowalny backend dla aplikacji quizowej, zbudowany w oparciu o **Node.js**, **Express** i **MongoDB**. Zapewnia REST API do zarządzania pytaniami, użytkownikami, uwierzytelnianiem i statystykami.
 
 ---
 
-## 📁 Struktura katalogów
+## 🚀 Kluczowe Funkcje
+
+-   **Uwierzytelnianie JWT**: Bezpieczna rejestracja i logowanie z wykorzystaniem tokenów JSON Web Token i hashowaniem haseł (`bcrypt`).
+-   **Zaawansowane Zarządzanie Pytaniami**: Pełen CRUD z automatycznym, sekwencyjnym nadawaniem ID nowym pytaniom.
+-   **Import/Eksport do Excela**: Wbudowane narzędzia do masowego importu i eksportu pytań za pomocą plików `.xlsx`.
+-   **Panel Administratora**: Dedykowane endpointy do zarządzania użytkownikami (zmiana ról) i bazą pytań (grupowe usuwanie, czyszczenie bazy).
+-   **Szczegółowa Historia Użytkownika**: Śledzenie historii ukończonych quizów (`history`) oraz postępów w poszczególnych pytaniach (`hquestion`).
+-   **Statystyki i Cache'owanie**: Dynamicznie generowane statystyki (liczba pytań, podział na kategorie) z prostym systemem cache'owania w pamięci w celu optymalizacji wydajności.
+-   **Wyszukiwanie i Filtrowanie**: Możliwość wyszukiwania pytań po ID lub treści oraz filtrowania po kategorii.
+-   **Personalizacja Użytkownika**: Obsługa awatarów, kolorów, motywów i ukrytych kategorii na poziomie API.
+-   **Optymalizacja**: Kompresja odpowiedzi HTTP (`gzip`) w celu zmniejszenia transferu danych.
+
+---
+
+## 🛠️ Technologie
+
+-   **Framework**: [Node.js](https://nodejs.org/) z [Express.js](https://expressjs.com/)
+-   **Baza Danych**: [MongoDB](https://www.mongodb.com/) z [Mongoose](https://mongoosejs.com/) jako ODM
+-   **Uwierzytelnianie**: [JSON Web Token](https://jwt.io/) (`jsonwebtoken`), [bcrypt](https://www.npmjs.com/package/bcrypt)
+-   **Obsługa Plików**: [ExcelJS](https://github.com/exceljs/exceljs) do operacji na plikach `.xlsx`, [Multer](https://github.com/expressjs/multer) do obsługi uploadu.
+-   **Optymalizacja**: [compression](https://www.npmjs.com/package/compression)
+-   **Zmienne Środowiskowe**: [dotenv](https://www.npmjs.com/package/dotenv)
+
+---
+
+## 📁 Struktura Projektu
+
+Struktura katalogów jest zorganizowana w sposób modularny, co ułatwia utrzymanie i rozbudowę API.
 
 ```
 backend/
-├── data/                # Pliki z danymi (JSON)
-│   ├── data.json        # Pytania do quizów
-│   └── users.json       # Użytkownicy i ich historia
+├── data/                # Przykładowe dane do importu (JSON)
 ├── src/
-│   ├── app.js           # Główny plik uruchamiający serwer
-│   ├── config/          # Konfiguracja bazy danych (database.js)
-│   ├── controllers/     # Logika tras (usersController.js, questionsController.js, authController.js)
-│   ├── middleware/      # Middleware (authMiddleware.js)
-│   ├── models/          # Schematy Mongoose (User.js, Question.js, Stats.js)
-│   ├── routes/          # Definicje tras (users.js, questions.js, auth.js)
-│   └── utils/           # Narzędzia (fileUtils.js, cache.js)
-├── importData.js        # Skrypt importu danych z plików JSON do MongoDB
-├── .env                 # Zmienne środowiskowe (np. JWT_SECRET, MONGO_URI)
+│   ├── app.js           # Główny plik serwera, konfiguracja Express i middleware
+│   ├── config/          # Konfiguracja połączenia z bazą danych
+│   ├── controllers/     # Logika biznesowa dla poszczególnych endpointów
+│   ├── middleware/      # Middleware (np. do weryfikacji tokena JWT)
+│   ├── models/          # Schematy bazy danych Mongoose (User, Question, Stats)
+│   ├── routes/          # Definicje tras API
+│   └── utils/           # Funkcje pomocnicze (np. prosty cache)
+├── uploads/             # Katalog na tymczasowe pliki (opcjonalnie)
+├── .env                 # Plik ze zmiennymi środowiskowymi (klucz JWT, URI bazy danych)
+├── importData.js        # Skrypt do importu danych z plików JSON do MongoDB
 ├── package.json
-├── package-lock.json
 └── README.md
 ```
 
 ---
 
-## 🛠️ Instalacja i uruchomienie
+## ⚡ Instalacja i Uruchomienie
 
-1. Przejdź do katalogu backend:
+1.  **Sklonuj repozytorium** i przejdź do katalogu `backend`.
 
-   ```bash
-   cd backend
-   ```
+2.  **Zainstaluj zależności**:
+    ```bash
+    npm install
+    ```
 
-2. Skonfiguruj plik `.env` (przykład poniżej):
+3.  **Skonfiguruj zmienne środowiskowe**. Utwórz plik `.env` w głównym katalogu `backend` i uzupełnij go:
+    ```env
+    # Sekretny klucz do podpisywania tokenów JWT
+    JWT_SECRET=twoj_super_tajny_klucz_jwt
 
-   ```
-   JWT_SECRET=twoj_super_tajny_klucz
-   MONGO_URI=mongodb://localhost:27017/quizapp
-   ```
+    # Adres połączenia z bazą danych MongoDB
+    MONGO_URI=mongodb://localhost:27017/quizapp
 
-3. Zainstaluj zależności:
+    # Port, na którym będzie działał serwer
+    PORT=3000
+    ```
 
-   ```bash
-   npm install
-   ```
+4.  **(Opcjonalnie) Zaimportuj dane startowe** do swojej bazy MongoDB:
+    ```bash
+    node importData.js
+    ```
 
-4. Uruchom serwer:
+5.  **Uruchom serwer**:
+    -   W trybie produkcyjnym:
+        ```bash
+        npm start
+        ```
+    -   W trybie deweloperskim (z automatycznym przeładowaniem po zmianach w kodzie):
+        ```bash
+        npm run dev
+        ```
 
-   ```bash
-   npm start
-   # lub tryb developerski (z automatycznym restartem po zmianach):
-   npm run dev
-   ```
-
-Serwer domyślnie działa na [http://localhost:3000](http://localhost:3000).
-
----
-
-## 🗃️ Baza danych
-
-- Domyślnie MongoDB (możesz użyć lokalnej lub Atlas Cloud).
-- Dane testowe możesz zaimportować z plików JSON za pomocą skryptu `importData.js`:
-
-  ```bash
-  node importData.js
-  ```
+Serwer będzie dostępny pod adresem `http://localhost:3000` (lub innym portem zdefiniowanym w `.env`).
 
 ---
 
-## 🔗 API – Endpoints
+## 🔗 Dokumentacja API
 
-### Autoryzacja
+### Autoryzacja (`/api/auth`)
+-   `POST /register`: Rejestracja nowego użytkownika.
+-   `POST /login`: Logowanie i uzyskanie tokena JWT.
+-   `POST /logout`: Wylogowanie (endpoint formalny, usuwa token po stronie klienta).
 
-- `POST /api/auth/register` – rejestracja użytkownika
-- `POST /api/auth/login` – logowanie
-- `POST /api/auth/logout` – wylogowanie
-- `POST /api/auth/refresh` – odświeżenie tokena JWT
+### Pytania (`/api/questions`)
+-   `GET /`: Pobieranie pytań z paginacją (np. `?page=1&limit=20`).
+-   `GET /?ids=1,2,3`: Pobieranie konkretnych pytań po ich ID.
+-   `GET /search?query=...`: Wyszukiwanie pytań po ID lub treści.
+-   `GET /category/:category`: Pobieranie pytań z danej kategorii.
+-   `POST /`: Dodawanie nowego pytania (wymaga autoryzacji).
+-   `PUT /:id`: Aktualizacja pytania o podanym ID (wymaga autoryzacji).
+-   `DELETE /:id`: Usunięcie pytania o podanym ID (wymaga autoryzacji).
+-   `GET /export/excel`: Eksport wszystkich pytań do pliku `.xlsx` (wymaga autoryzacji).
+-   `POST /import/excel`: Masowy import pytań z pliku `.xlsx` (wymaga autoryzacji, `multipart/form-data`).
+-   `POST /clear`: Usunięcie **wszystkich** pytań z bazy (admin).
+-   `DELETE /category/:category`: Usunięcie wszystkich pytań z danej kategorii (admin).
 
-### Pytania
+### Użytkownicy (`/api/users`)
+-   `GET /me`: Pobranie danych zalogowanego użytkownika.
+-   `PUT /update-profile`: Aktualizacja profilu (hasło, awatar, historia, opcje).
+-   `GET /history`: Pobranie historii quizów użytkownika.
+-   `GET /hquestion`: Pobranie historii odpowiedzi na poszczególne pytania.
+-   `POST /hquestion`: Zapisanie lub aktualizacja odpowiedzi na pojedyncze pytanie.
+-   `PUT /clear-category`: Wyczyszczenie historii odpowiedzi (`hquestion`) dla danej kategorii.
+-   `GET /all`: Pobranie listy wszystkich użytkowników (admin).
+-   `PUT /:id/role`: Zmiana roli użytkownika (admin).
 
-- `GET /api/questions` – pobierz wszystkie pytania
-- `POST /api/questions` – dodaj pytanie (wymaga JWT)
-- `PUT /api/questions/:id` – edytuj pytanie (wymaga JWT)
-- `DELETE /api/questions/:id` – usuń pytanie (wymaga JWT)
-- `GET /api/questions/export/excel` – eksport pytań do pliku Excel
-- `POST /api/questions/import/excel` – import pytań z pliku Excel
-- `POST /api/questions/clear` – wyczyść bazę pytań (admin)
-- `GET /api/questions/stats` – statystyki pytań i kategorii
-
-### Użytkownicy
-
-- `GET /api/users/history` – pobierz historię quizów użytkownika (JWT)
-- `PUT /api/users/update-profile` – aktualizuj profil użytkownika (avatar, motyw, historia, ukryte kategorie)
-- `GET /api/users/me` – pobierz dane zalogowanego użytkownika
-- `GET /api/users/hquestion` – pobierz historię odpowiedzi na pytania
-- `POST /api/users/hquestion` – zapisz odpowiedź na pytanie
-- `PUT /api/users/clear-category` – wyczyść historię pytań z danej kategorii
-- `GET /api/users/all` – lista wszystkich użytkowników (admin)
-- `PUT /api/users/:id/role` – zmiana roli użytkownika (admin)
-
----
-
-## 🗂️ Pliki danych
-
-- `data/data.json` – pytania do quizów (przykładowe dane)
-- `data/users.json` – użytkownicy i ich historia (przykładowe dane)
+### Statystyki (`/api/stats`)
+-   `GET /`: Pobranie globalnych statystyk (całkowita liczba pytań, podział na kategorie). Wyniki są cache'owane.
 
 ---
 
-## 🧩 Rozszerzanie
+## 👨‍💻 Autor
 
-Kod jest modularny – możesz łatwo dodawać nowe trasy, modele lub logikę w katalogu `src/`.  
-Możesz podpiąć dowolną bazę danych (np. MongoDB, PostgreSQL) – obecnie obsługiwany jest MongoDB przez Mongoose.
-
----
-
-## 🛡️ Bezpieczeństwo
-
-- Hasła użytkowników są hashowane (bcrypt)
-- Autoryzacja przez JWT
-- Middleware sprawdzający uprawnienia
-- Ograniczenie CORS do zaufanych domen (patrz `src/app.js`)
-
----
-
-## 🧪 Testowanie
-
----
-
-## 📝 Licencja
-
-MIT License  
-Szczegóły w pliku [license.md](../license.md)
-
----
-
-## 💡 FAQ
-
-**Jak dodać nowe pole do użytkownika?**  
-Dodaj je w `src/models/User.js` i obsłuż w kontrolerze.
-
-**Jak zmienić port serwera?**  
-Zmień wartość `PORT` w pliku `.env` lub w `src/app.js`.
-
-**Jak dodać nowy endpoint?**  
-Dodaj trasę w katalogu `src/routes/` i logikę w `src/controllers/`.
-
-**Jak zaimportować pytania z Excela?**  
-Użyj endpointu `POST /api/questions/import/excel` (w panelu admina frontend).
-
----
-
-## 👨‍💻 Autorzy
-
-Projekt stworzony przez [Grzegorz](https://github.com/gb-redRabit)
-
----
+Projekt stworzony i rozwijany przez [Grzegorz](https://github.com/gb-redRabit).

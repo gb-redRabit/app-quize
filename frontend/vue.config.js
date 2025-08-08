@@ -3,9 +3,7 @@ const path = require('path');
 module.exports = {
   runtimeCompiler: true,
   // --- POCZĄTEK POPRAWKI ---
-  transpileDependencies: [
-    '@vueuse/motion'
-  ],
+  transpileDependencies: ['@vueuse/motion'],
   // --- KONIEC POPRAWKI ---
   chainWebpack: (config) => {
     config.plugin('define').tap((definitions) => {
@@ -42,6 +40,27 @@ module.exports = {
           quality: 75,
         },
       });
+
+    // Lepsze nazewnictwo chunków dla łatwiejszej analizy wydajności
+    config.optimization.splitChunks({
+      cacheGroups: {
+        // Wydziel vendor chunks
+        vendors: {
+          name: 'chunk-vendors',
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          chunks: 'initial',
+        },
+        // Wydziel często używane komponenty
+        common: {
+          name: 'chunk-common',
+          minChunks: 2,
+          priority: -20,
+          chunks: 'initial',
+          reuseExistingChunk: true,
+        },
+      },
+    });
   },
 
   // Dodajemy konfigurację dla lepszej wydajności produkcyjnej
@@ -53,6 +72,10 @@ module.exports = {
       },
     },
     optimization: {
+      // Minimalizuj bundle
+      minimize: process.env.NODE_ENV === 'production',
+
+      // Wydziel kod używany tylko w określonych widokach
       splitChunks: {
         chunks: 'all',
         maxInitialRequests: Infinity,
@@ -60,6 +83,12 @@ module.exports = {
         cacheGroups: {
           vendor: {
             test: /[\\/]node_modules[\\/]/,
+            name(module) {
+              // Uzyskaj nazwę pakietu npm
+              const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+              // Zwróć nazwę chunku npm.[nazwa-pakietu]
+              return `npm.${packageName.replace('@', '')}`;
+            },
           },
         },
       },

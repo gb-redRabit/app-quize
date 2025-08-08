@@ -1,128 +1,45 @@
 import axios from 'axios';
 
-// Tworzenie klienta API
+/**
+ * Konfigurowalna instancja klienta API z zaawansowanym cachowaniem i obsługą błędów
+ */
 const apiClient = axios.create({
   baseURL: process.env.VUE_APP_API_URL || 'https://app-quize.onrender.com/api',
   // baseURL: 'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json',
   },
+  // Timeout 15 sekund dla wszystkich zapytań
+  timeout: 15000,
 });
 
-// Implementacja prostego cachowania zapytań
+// System cachowania z różnymi czasami TTL
 const cache = new Map();
-const CACHE_TTL = 1 * 60 * 1000; // 1 minuta
 
-// Dodaj mechanizm cachowania dla metod GET
-const originalGet = apiClient.get;
-apiClient.get = function (url, config = {}) {
-  // Jeśli zapytanie jest oznaczone jako niebuforowane lub to nie jest produkcja, nie używaj cache
-  if (config.noCache || process.env.NODE_ENV !== 'production') {
-    return originalGet(url, config);
-  }
-
-  const cacheKey = url + JSON.stringify(config.params || {});
-  const cachedResponse = cache.get(cacheKey);
-
-  if (cachedResponse && cachedResponse.timestamp > Date.now() - CACHE_TTL) {
-    // Zwróć dane z cache
-    return Promise.resolve(cachedResponse.data);
-  }
-
-  // Jeśli brak w cache lub wygasł, wykonaj zapytanie i zapisz
-  return originalGet(url, config).then((response) => {
-    cache.set(cacheKey, {
-      data: response,
-      timestamp: Date.now(),
-    });
-    return response;
-  });
+// Konfiguracja czasów TTL (w ms) dla różnych endpointów
+const cacheTTLConfig = {
+  '/stats': 5 * 60 * 1000, // 5 minut dla statystyk
+  '/questions': 10 * 60 * 1000, // 10 minut dla pytań
+  '/users/hquestion': 2 * 60 * 1000, // 2 minuty dla historii
+  default: 1 * 60 * 1000, // domyślnie 1 minuta
 };
 
-// Metoda do czyszczenia cache
-apiClient.clearCache = function () {
-  cache.clear();
-};
-
-// Metoda do usuwania konkretnego wpisu z cache
-apiClient.invalidateCache = function (url, params = {}) {
-  const cacheKey = url + JSON.stringify(params);
-  cache.delete(cacheKey);
-};
-
-// Ulepszony mechanizm loadera - zawsze sprawdzaj dostępność i nie wywołuj wielokrotnie
-const getLoader = () => {
-  try {
-    const app = document.getElementById('app')?.__vue_app__;
-    if (app && app._instance && app._instance.proxy) {
-      const root = app._instance.proxy;
-      if (root.$refs && root.$refs.globalLoader) {
-        return root.$refs.globalLoader;
-      }
+/**
+ * Znajduje odpowiedni TTL dla danego URL
+ * @param {string} url - URL zapytania
+ * @return {number} Czas TTL w ms
+ */
+const findTTLForUrl = (url) => {
+  // Szybsze i bardziej optymalne wyszukiwanie
+  for (const key in cacheTTLConfig) {
+    if (key !== 'default' && url.includes(key)) {
+      return cacheTTLConfig[key];
     }
-  } catch (e) {}
-  return null;
+  }
+  return cacheTTLConfig.default;
 };
 
-// Podobnie dla alertera
-const getAlerter = () => {
-  try {
-    const app = document.getElementById('app')?.__vue_app__;
-    if (app && app._instance && app._instance.proxy) {
-      const root = app._instance.proxy;
-      if (root.$alert) {
-        return root.$alert;
-      }
-      if (root.$root && root.$root.$alert) {
-        return root.$root.$alert;
-      }
-    }
-  } catch (e) {
-    console.warn('Nie można uzyskać dostępu do alertera:', e);
-  }
-  return null;
-};
-
-// Funkcja do automatycznego zamykania alertu po 3 sekundy
-const showAutoCloseAlert = (type, message) => {
-  const alert = getAlerter();
-  if (alert) {
-    alert(type, message, 3000); // przekazujemy duration
-  }
-};
-
-apiClient.interceptors.request.use(
-  (config) => {
-    if (!config.silent) {
-      const loader = getLoader();
-      if (loader) loader.show();
-    }
-    const token = sessionStorage.getItem('token');
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-    return config;
-  },
-  (error) => {
-    const loader = getLoader();
-    if (loader) loader.hide();
-    return Promise.reject(error);
-  }
-);
-
-// Interceptor dla odpowiedzi
-apiClient.interceptors.response.use(
-  (response) => {
-    const loader = getLoader();
-    if (loader && !response.config.silent) loader.hide();
-    return response;
-  },
-  (error) => {
-    const loader = getLoader();
-    if (loader && (!error.config || !error.config.silent)) loader.hide();
-    return Promise.reject(error);
-  }
-);
-
-// Dodaj pomocnicze metody do klienta API, aby umożliwić ciche zapytania
+// Przechowaj oryginalne metody API
 const originalMethods = {
   get: apiClient.get,
   post: apiClient.post,
@@ -131,40 +48,229 @@ const originalMethods = {
   patch: apiClient.patch,
 };
 
-// Metoda do wykonywania cichych zapytań (bez loadera)
-apiClient.silentGet = (url, config = {}) => {
-  return originalMethods.get(url, { ...config, silent: true });
+/**
+ * Usprawniony mechanizm GET z cachowaniem
+ */
+apiClient.get = function (url, config = {}) {
+  // Nie używaj cache dla oznaczonych zapytań lub w trybie dev
+  if (config.noCache || process.env.NODE_ENV !== 'production') {
+    return originalMethods.get(url, config);
+  }
+
+  // Tworzenie klucza cache z uwzględnieniem parametrów zapytania
+  const cacheKey = url + (config.params ? JSON.stringify(config.params) : '');
+  const cachedResponse = cache.get(cacheKey);
+  const ttl = findTTLForUrl(url);
+
+  // Sprawdź czy cache jest ważny
+  if (cachedResponse && Date.now() - cachedResponse.timestamp < ttl) {
+    console.debug(`[Cache hit] ${url}`);
+    return Promise.resolve(cachedResponse.data);
+  }
+
+  // Cache miss - wykonaj zapytanie
+  console.debug(`[Cache miss] ${url}`);
+  return originalMethods.get(url, config).then((response) => {
+    cache.set(cacheKey, {
+      data: response,
+      timestamp: Date.now(),
+    });
+    return response;
+  });
 };
 
-apiClient.silentPost = (url, data, config = {}) => {
-  return originalMethods.post(url, data, { ...config, silent: true });
+/**
+ * Uzyskuje dostęp do komponentu loadera
+ */
+const getLoader = () => {
+  try {
+    const app = document.getElementById('app')?.__vue_app__;
+    if (!app) return null;
+
+    const root = app._instance?.proxy;
+    if (!root) return null;
+
+    return root.$refs?.globalLoader;
+  } catch (e) {
+    console.debug('Błąd dostępu do loadera:', e);
+    return null;
+  }
 };
 
-apiClient.silentPut = (url, data, config = {}) => {
-  return originalMethods.put(url, data, { ...config, silent: true });
+/**
+ * Uzyskuje dostęp do systemu alertów
+ */
+const getAlerter = () => {
+  try {
+    const app = document.getElementById('app')?.__vue_app__;
+    if (!app) return null;
+
+    const root = app._instance?.proxy;
+    if (!root) return null;
+
+    return root.$alert || root.$root?.$alert;
+  } catch (e) {
+    console.debug('Błąd dostępu do alertera:', e);
+    return null;
+  }
 };
 
-apiClient.silentDelete = (url, config = {}) => {
-  return originalMethods.delete(url, { ...config, silent: true });
+/**
+ * Pokazuje alert z automatycznym zamknięciem
+ * @param {string} type - Typ alertu (success, error, warning, info)
+ * @param {string} message - Treść alertu
+ * @param {number} duration - Czas wyświetlania w ms (opcjonalny)
+ */
+const showAlert = (type, message, duration = 3000) => {
+  const alert = getAlerter();
+  if (alert) {
+    alert(type, message, duration);
+  } else {
+    console[type === 'error' ? 'error' : 'log'](type, message);
+  }
 };
 
-apiClient.silentPatch = (url, data, config = {}) => {
-  return originalMethods.patch(url, data, { ...config, silent: true });
+/**
+ * Obsługa tokenów uwierzytelniania
+ */
+const tokenManager = {
+  getToken: () => sessionStorage.getItem('token'),
+
+  setToken: (token) => {
+    sessionStorage.setItem('token', token);
+  },
+
+  removeToken: () => {
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+  },
+
+  handleSessionExpired: () => {
+    tokenManager.removeToken();
+    showAlert('warning', 'Twoja sesja wygasła. Zaloguj się ponownie.', 5000);
+
+    // Przekieruj do strony logowania tylko jeśli nie jesteśmy już na niej
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
+  },
 };
 
-// Metoda do ustawiania niestandardowej wiadomości loadera
-apiClient.withLoaderMessage = (message) => {
-  return {
-    get: (url, config = {}) => originalMethods.get(url, { ...config, loaderMessage: message }),
-    post: (url, data, config = {}) =>
-      originalMethods.post(url, data, { ...config, loaderMessage: message }),
-    put: (url, data, config = {}) =>
-      originalMethods.put(url, data, { ...config, loaderMessage: message }),
-    delete: (url, config = {}) =>
-      originalMethods.delete(url, { ...config, loaderMessage: message }),
-    patch: (url, data, config = {}) =>
-      originalMethods.patch(url, data, { ...config, loaderMessage: message }),
-  };
+// Interceptor dla zapytań - dodaje token i obsługuje loader
+apiClient.interceptors.request.use(
+  (config) => {
+    // Pokaż loader jeśli zapytanie nie jest ciche
+    if (!config.silent) {
+      const loader = getLoader();
+      if (loader) {
+        // Używanie niestandardowej wiadomości loadera jeśli jest dostępna
+        if (config.loaderMessage && typeof loader.showWithMessage === 'function') {
+          loader.showWithMessage(config.loaderMessage);
+        } else {
+          loader.show();
+        }
+      }
+    }
+
+    // Dodaj token uwierzytelniania jeśli istnieje
+    const token = tokenManager.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    const loader = getLoader();
+    if (loader) loader.hide();
+
+    return Promise.reject(error);
+  }
+);
+
+// Interceptor dla odpowiedzi - ukrywa loader i obsługuje błędy
+apiClient.interceptors.response.use(
+  (response) => {
+    // Ukryj loader po zakończeniu zapytania
+    if (!response.config.silent) {
+      const loader = getLoader();
+      if (loader) loader.hide();
+    }
+
+    return response;
+  },
+  (error) => {
+    // Ukryj loader w przypadku błędu
+    if (!error.config?.silent) {
+      const loader = getLoader();
+      if (loader) loader.hide();
+    }
+
+    // Obsługa konkretnych kodów błędów HTTP
+    if (error.response) {
+      switch (error.response.status) {
+        case 401:
+        case 403:
+          // Wygaśnięcie sesji lub brak uprawnień
+          tokenManager.handleSessionExpired();
+          break;
+
+        case 404:
+          console.warn('Zasób nie został znaleziony:', error.config.url);
+          break;
+
+        case 429:
+          showAlert('warning', 'Zbyt wiele zapytań. Spróbuj ponownie za chwilę.', 5000);
+          break;
+
+        case 500:
+        case 502:
+        case 503:
+          showAlert('error', 'Wystąpił błąd serwera. Spróbuj ponownie później.', 5000);
+          break;
+      }
+    } else if (error.request) {
+      // Brak odpowiedzi od serwera
+      showAlert('error', 'Brak odpowiedzi z serwera. Sprawdź połączenie internetowe.', 5000);
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+// Metody API dla cichych zapytań (bez loadera)
+apiClient.silentGet = (url, config = {}) => originalMethods.get(url, { ...config, silent: true });
+
+apiClient.silentPost = (url, data, config = {}) =>
+  originalMethods.post(url, data, { ...config, silent: true });
+
+apiClient.silentPut = (url, data, config = {}) =>
+  originalMethods.put(url, data, { ...config, silent: true });
+
+apiClient.silentDelete = (url, config = {}) =>
+  originalMethods.delete(url, { ...config, silent: true });
+
+apiClient.silentPatch = (url, data, config = {}) =>
+  originalMethods.patch(url, data, { ...config, silent: true });
+
+// Metody zarządzania cache
+apiClient.clearCache = () => cache.clear();
+
+apiClient.invalidateCache = (url, params = {}) => {
+  const cacheKey = url + (params ? JSON.stringify(params) : '');
+  cache.delete(cacheKey);
 };
+
+// Metoda do zapytań z niestandardową wiadomością loadera
+apiClient.withLoaderMessage = (message) => ({
+  get: (url, config = {}) => originalMethods.get(url, { ...config, loaderMessage: message }),
+  post: (url, data, config = {}) =>
+    originalMethods.post(url, data, { ...config, loaderMessage: message }),
+  put: (url, data, config = {}) =>
+    originalMethods.put(url, data, { ...config, loaderMessage: message }),
+  delete: (url, config = {}) => originalMethods.delete(url, { ...config, loaderMessage: message }),
+  patch: (url, data, config = {}) =>
+    originalMethods.patch(url, data, { ...config, loaderMessage: message }),
+});
 
 export default apiClient;

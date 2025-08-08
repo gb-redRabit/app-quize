@@ -137,15 +137,29 @@ exports.clearCategoryHQuestion = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     const { category } = req.body;
-    if (!user) return res.status(404).json({ message: "User not found" });
-    if (!category) return res.status(400).json({ message: "Brak kategorii" });
 
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!category) {
+      return res.status(400).json({ message: "Brak kategorii" });
+    }
+
+    // Zapisz liczbę elementów przed i po filtracji dla weryfikacji
+    const beforeCount = (user.hquestion || []).length;
     user.hquestion = (user.hquestion || []).filter(
       (q) => q.category !== category
     );
+    const afterCount = user.hquestion.length;
+
     await user.save();
-    res.json({ message: "Wyczyszczono pytania z tej kategorii" });
+    res.json({
+      message: "Wyczyszczono pytania z tej kategorii",
+      removed: beforeCount - afterCount,
+    });
   } catch (err) {
+    console.error("Błąd czyszczenia kategorii:", err);
     res.status(500).json({ message: "Błąd czyszczenia kategorii" });
   }
 };

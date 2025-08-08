@@ -1,7 +1,7 @@
 import { createStore } from 'vuex';
-import questions from './questions';
-import user from './user';
-import ui from './ui';
+import questions from './modules/questions';
+import user from './modules/user';
+import ui from './modules/ui';
 
 const store = createStore({
   modules: {

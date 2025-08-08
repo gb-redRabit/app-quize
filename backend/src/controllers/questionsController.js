@@ -13,7 +13,10 @@ exports.getAllQuestions = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const total = await Question.countDocuments();
-    const questions = await Question.find().skip(skip).limit(limit);
+    const questions = await Question.find()
+      .sort({ ID: 1 })
+      .skip(skip)
+      .limit(limit);
 
     res.json({
       questions,
@@ -290,7 +293,7 @@ exports.getQuestionsByCategory = async (req, res) => {
     const category = decodeURIComponent(req.params.category);
     // Jeśli chcesz pobrać wszystkie, gdy category = 'all'
     const filter = category === "all" ? {} : { category };
-    const questions = await Question.find(filter);
+    const questions = await Question.find(filter).sort({ ID: 1 });
     res.json(questions);
   } catch (e) {
     res.status(500).json({ message: "Error fetching questions by category" });

@@ -10,8 +10,11 @@ const Question = require("../models/Question");
 router.get("/", async (req, res) => {
   if (req.query.ids) {
     const ids = req.query.ids.split(",").map((id) => Number(id));
-    const questions = await Question.find({ ID: { $in: ids } });
+    const questions = await Question.find({ ID: { $in: ids } }).sort({ ID: 1 });
     return res.json({ questions });
+  } else {
+    // Przekieruj do kontrolera getAllQuestions dla standardowej paginacji
+    return questionsController.getAllQuestions(req, res);
   }
 });
 
@@ -57,7 +60,7 @@ router.get("/search", async (req, res) => {
   } else {
     filter = { question: { $regex: query, $options: "i" } };
   }
-  const questions = await Question.find(filter).limit(100); // limit dla bezpieczeństwa
+  const questions = await Question.find(filter).sort({ ID: 1 }).limit(100); // limit dla bezpieczeństwa
   res.json({ questions });
 });
 // Usuń pytania według kategorii

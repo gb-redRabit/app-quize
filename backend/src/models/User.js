@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   rola: { type: String, default: "user" },
   avatar: { type: Number, default: 0 },
-  avatarColors: { type: String, default: "#f2f2f2" },
+  avatarColors: { type: String, default: "#f200f2" },
   option: { type: String, default: "light" },
   history: { type: Array, default: [] },
   hquestion: { type: [answerHistorySchema], default: [] },

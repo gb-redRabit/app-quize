@@ -26,7 +26,6 @@ async function importQuestions() {
   );
   await Question.deleteMany({});
   await Question.insertMany(questions);
-  console.log("Zaimportowano pytania!");
 }
 
 async function importUsers() {
@@ -35,7 +34,6 @@ async function importUsers() {
   const users = JSON.parse(raw);
   await User.deleteMany({});
   await User.insertMany(users);
-  console.log("Zaimportowano użytkowników!");
 }
 
 async function main() {

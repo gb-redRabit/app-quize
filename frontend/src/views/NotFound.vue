@@ -6,7 +6,7 @@
       <div class="flex flex-col items-center justify-center mb-8 relative h-48">
         <div class="flex items-center justify-center">
           <span
-            class="text-8xl font-black bg-gradient-to-br from-blue-500 to-blue-300 dark:from-blue-400 dark:to-blue-200 bg-clip-text text-transparent animate-pulse"
+            class="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-br from-blue-500 to-blue-300 dark:from-blue-400 dark:to-blue-200 animate-pulse"
             >4</span
           >
           <div
@@ -26,22 +26,20 @@
             </svg>
           </div>
           <span
-            class="text-8xl font-black bg-gradient-to-br from-blue-500 to-blue-300 dark:from-blue-400 dark:to-blue-200 bg-clip-text text-transparent animate-pulse"
+            class="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-br from-blue-500 to-blue-300 dark:from-blue-400 dark:to-blue-200 animate-pulse"
             >4</span
           >
         </div>
+        <!-- Dekoracyjne elementy tła -->
         <div class="absolute inset-0 pointer-events-none -z-10">
           <div
             class="absolute rounded-full opacity-70 w-20 h-20 top-0 right-5 bg-gradient-to-br from-blue-200 to-blue-50 dark:from-blue-800 dark:to-blue-950 animate-float"
-            style="animation-delay: 0s"
           ></div>
           <div
-            class="absolute rounded-full opacity-70 w-16 h-16 bottom-10 left-8 bg-gradient-to-br from-blue-200 to-blue-50 dark:from-blue-800 dark:to-blue-950 animate-float-reverse"
-            style="animation-delay: 1s"
+            class="absolute rounded-full opacity-70 w-16 h-16 bottom-10 left-8 bg-gradient-to-br from-blue-200 to-blue-50 dark:from-blue-800 dark:to-blue-950 animate-float-reverse delay-1000"
           ></div>
           <div
-            class="absolute rounded-full opacity-70 w-10 h-10 bottom-5 right-10 bg-gradient-to-br from-purple-200 to-purple-50 dark:from-purple-800 dark:to-purple-950 animate-float"
-            style="animation-delay: 2s"
+            class="absolute rounded-full opacity-70 w-10 h-10 bottom-5 right-10 bg-gradient-to-br from-purple-200 to-purple-50 dark:from-purple-800 dark:to-purple-950 animate-float delay-2000"
           ></div>
         </div>
       </div>
@@ -77,23 +75,22 @@
   </div>
 </template>
 
-<script>
-import BaseButton from '@/components/BaseButton.vue';
+<script setup>
+import { inject } from 'vue';
+import { useRouter } from 'vue-router';
+import BaseButton from '@/components/base/BaseButton.vue';
 
-export default {
-  components: { BaseButton },
-  inject: ['showAlert'],
-  methods: {
-    goBack() {
-      const canGoBack = window.history.length > 1;
-      if (canGoBack) {
-        this.$router.go(-1);
-      } else {
-        this.$router.push('/');
-        this.showAlert('info', 'Przekierowano na stronę główną');
-      }
-    },
-  },
+const router = useRouter();
+const showAlert = inject('showAlert');
+
+const goBack = () => {
+  const canGoBack = window.history.length > 1;
+  if (canGoBack) {
+    router.go(-1);
+  } else {
+    router.push('/');
+    showAlert('info', 'Przekierowano na stronę główną');
+  }
 };
 </script>
 
@@ -106,25 +103,6 @@ export default {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
   }
 }
 
@@ -146,5 +124,25 @@ export default {
   50% {
     transform: translateY(10px);
   }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 3s ease-in-out infinite;
+}
+
+.delay-1000 {
+  animation-delay: 1s;
+}
+
+.delay-2000 {
+  animation-delay: 2s;
 }
 </style>

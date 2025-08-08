@@ -31,11 +31,12 @@
 </template>
 
 <script>
-import Navbar from '@/components/Navbar.vue';
-import BaseAlert from '@/components/BaseAlert.vue';
-import BaseLoader from '@/components/BaseLoader.vue';
-import BaseSkeleton from '@/components/BaseSkeleton.vue';
+import Navbar from '@/components/layout/Navbar.vue';
+import BaseAlert from '@/components/base/BaseAlert.vue';
+import BaseLoader from '@/components/base/BaseLoader.vue';
+import BaseSkeleton from '@/components/base/BaseSkeleton.vue';
 import { mapGetters } from 'vuex';
+import store from '@/store';
 
 export default {
   components: {
@@ -183,6 +184,19 @@ export default {
         this.isPageLoading = false;
       }, delay);
     });
+
+    // Obsługa powrotu online
+    window.addEventListener('online', this.handleOnline);
+    window.addEventListener('offline', this.handleOffline);
+
+    // Dodaj weryfikację tokenu po wznowieniu ze stanu uśpienia
+    window.addEventListener('focus', this.verifySession);
+  },
+
+  beforeUnmount() {
+    // Usuwanie nasłuchiwania
+    window.removeEventListener('online', this.handleOnline);
+    window.removeEventListener('offline', this.handleOffline);
   },
 
   provide() {
@@ -198,6 +212,44 @@ export default {
     },
     hideAlert() {
       this.$refs.globalAlert.hide();
+    },
+    handleOnline() {
+      this.showAlert('success', 'Połączenie przywrócone. Odświeżanie danych...');
+      this.refreshData();
+    },
+    handleOffline() {
+      this.showAlert('warning', 'Brak połączenia z internetem', 0);
+    },
+    async refreshData() {
+      try {
+        // Odśwież podstawowe dane
+        await store.dispatch('user/fetchUserHistoryAndHQ');
+        await store.dispatch('questions/fetchStats');
+      } catch (error) {
+        console.error('Błąd odświeżania danych:', error);
+      }
+    },
+
+    // Dodaj nową metodę weryfikacji sesji
+    async verifySession() {
+      try {
+        // Sprawdź, czy token istnieje
+        const token = sessionStorage.getItem('token');
+        if (!token) return;
+
+        // Spróbuj odświeżyć token
+        await store.dispatch('user/verifySession');
+
+        // Jeśli wszystko OK, odśwież dane
+        this.refreshData();
+      } catch (error) {
+        console.error('Sesja wygasła:', error);
+        // Jeśli wystąpił błąd, przekieruj do logowania
+        if (this.$route.name !== 'Login') {
+          this.showAlert('warning', 'Twoja sesja wygasła. Zaloguj się ponownie.', 5000);
+          this.$router.push('/login');
+        }
+      }
     },
   },
 };

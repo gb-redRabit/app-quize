@@ -8,27 +8,44 @@ import apiClient from './api'; // Dodaj import apiClient, który był używany a
 // Inicjalizacja tematu przy starcie aplikacji
 store.dispatch('ui/initTheme');
 store.dispatch('user/initUser');
-// ...istniejący kod...
-// Funkcja do odświeżania tokena
-function scheduleTokenRefresh() {
-  const refreshInterval = 10 * 60 * 1000; // 10 minut
-  setInterval(async () => {
+
+// Dodaj funkcję sprawdzającą i odświeżającą token
+function setupTokenRefresh() {
+  // Odświeżaj token co 10 minut
+  const refreshInterval = 10 * 60 * 1000;
+
+  // Odświeżanie tokenu na interwał
+  const intervalId = setInterval(refreshToken, refreshInterval);
+
+  // Odśwież token przy powrocie z hibernacji/uśpienia
+  window.addEventListener('focus', refreshToken);
+
+  // Odśwież token przy przywróceniu połączenia
+  window.addEventListener('online', refreshToken);
+
+  async function refreshToken() {
     const token = sessionStorage.getItem('token');
     if (!token) return;
+
     try {
       const res = await apiClient.silentPost('/auth/refresh', {});
-      if (res.data.token) {
+      if (res.data && res.data.token) {
         sessionStorage.setItem('token', res.data.token);
       }
     } catch (e) {
-      console.error('Błąd odświeżania tokena:', e);
+      console.error('Błąd odświeżania tokenu:', e);
     }
-  }, refreshInterval);
+  }
+
+  // Wyczyść interwał przy zamknięciu aplikacji
+  window.addEventListener('beforeunload', () => {
+    clearInterval(intervalId);
+  });
 }
 
-// Uruchom odświeżanie, jeśli token istnieje przy starcie aplikacji
+// Uruchom mechanizm odświeżania tokenu przy starcie aplikacji
 if (sessionStorage.getItem('token')) {
-  scheduleTokenRefresh();
+  setupTokenRefresh();
 }
 
 const app = createApp(App);
