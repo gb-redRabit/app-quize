@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-import { ref, computed, inject, nextTick, onMounted, watch, provide } from 'vue';
+import { ref, computed, inject, nextTick, onMounted, watch, provide, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
 
@@ -60,6 +60,7 @@ const selectedHistoryEntry = ref(null);
 const selectedHistoryIndex = ref(null);
 const allQuestions = ref([]);
 const answerRefs = ref({});
+const loading = ref(false);
 
 // Pobieranie danych z Vuex
 const history = computed(() => store.getters['user/getUserHistory'] || []);
@@ -149,50 +150,37 @@ function ensureHistoryIds() {
   store.commit('user/SET_USER_HISTORY', updatedHistory);
 }
 
+// Dodaj funkcję czyszczącą historię
 async function confirmClearHistory() {
   try {
-    await apiClient.put('/users/update-profile', { clearHistory: true });
+    loading.value = true;
+
+    await store.dispatch('user/clearHistory');
 
     // 1. Bezpośrednio aktualizuj dane w Vuex store
     store.commit('user/SET_USER_HISTORY', []);
     store.commit('user/SET_HQUESTION', []);
 
-    // 2. Czyść dane lokalnie w sessionStorage
-    const userStr = sessionStorage.getItem('user');
-    if (userStr) {
-      try {
-        const userData = JSON.parse(userStr);
-        userData.history = []; // Wyczyść historię quizów
-        userData.hquestion = []; // Wyczyść historię pytań
-        sessionStorage.setItem('user', JSON.stringify(userData));
-      } catch (e) {
-        console.error('Błąd podczas aktualizacji danych użytkownika w sessionStorage', e);
-      }
-    }
+    // 2. Reset lokalnych zmiennych stanu
+    selectedHistoryEntry.value = null;
+    selectedHistoryIndex.value = null;
+    allQuestions.value = [];
+    answerRefs.value = {};
 
-    // 3. Odśwież dane historii z serwera (jako weryfikacja)
-    await store.dispatch('user/fetchUserHistoryAndHQ');
+    // 3. Zastosuj trick z wymuszeniem przerenderowania
+    const currentFilter = activeFilter.value;
+    activeFilter.value = 'temp_value';
 
-    // 4. Wymuś natychmiastowe odświeżenie lokalnych referencji
-    nextTick(() => {
-      // Resetujemy wybrane wartości
-      selectedHistoryEntry.value = null;
-      selectedHistoryIndex.value = null;
-      allQuestions.value = [];
-      answerRefs.value = {};
+    setTimeout(() => {
+      activeFilter.value = currentFilter;
+      loading.value = false;
+      showAlert('success', 'Historia została pomyślnie wyczyszczona');
+    }, 100);
 
-      // Trick do wymuszenia przerenderowania komponentu HistoryOverview
-      const currentFilter = activeFilter.value;
-      activeFilter.value = 'temp_value';
-      setTimeout(() => {
-        activeFilter.value = currentFilter;
-      }, 0);
-    });
-
-    showAlert('success', 'Historia została pomyślnie wyczyszczona');
     showConfirmModal.value = false;
-    closeDetails(); // Zamknij widok szczegółów jeśli był otwarty
+    closeDetails();
   } catch (e) {
+    loading.value = false;
     console.error('Błąd podczas czyszczenia historii:', e);
     showAlert('error', 'Błąd podczas czyszczenia historii.');
     showConfirmModal.value = false;
@@ -232,4 +220,31 @@ watch(activeFilter, () => {
 
 // Po załadowaniu pytań
 provide('historyQuestions', allQuestions);
+
+// Dodaj nasłuchiwanie na zmiany danych
+onMounted(() => {
+  window.addEventListener('user-data-refreshed', handleDataRefresh);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('user-data-refreshed', handleDataRefresh);
+});
+
+const handleDataRefresh = async (event) => {
+  if (event.detail.all) {
+    // Usunięto: history.value = [];
+
+    // Wywołanie akcji z Vuex zaktualizuje dane w store
+    await store.dispatch('user/fetchUserHistory');
+
+    nextTick(() => {
+      // Dodatkowy trick do wymuszenia renderowania
+      const temp = activeFilter.value;
+      activeFilter.value = 'all';
+      setTimeout(() => {
+        activeFilter.value = temp;
+      }, 50);
+    });
+  }
+};
 </script>

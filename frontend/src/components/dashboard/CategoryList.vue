@@ -146,6 +146,7 @@
 <script setup>
 import { useUserStats } from '@/composables/useUserStats';
 import BaseButton from '@/components/base/BaseButton.vue';
+import { onMounted, onUnmounted, nextTick } from 'vue';
 
 const props = defineProps({
   categories: {
@@ -194,5 +195,37 @@ const getCategoryPercentCompleteClass = (cat) => {
   if (percent > 75) return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
   if (percent > 25) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
   return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+};
+
+onMounted(() => {
+  // Nasłuchuj na zmiany danych użytkownika
+  window.addEventListener('user-data-refreshed', handleDataRefresh);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('user-data-refreshed', handleDataRefresh);
+});
+
+// Dodaj funkcję obsługującą odświeżenie danych
+const handleDataRefresh = (event) => {
+  // Wymuś ponowne obliczenie statystyk
+  if (props.categoryStats) {
+    Object.keys(props.categoryStats).forEach((cat) => {
+      if (!event.detail.category || event.detail.category === cat) {
+        // Resetuj statystyki dla kategorii
+        if (props.categoryStats[cat]) {
+          props.categoryStats[cat].correct = 0;
+          props.categoryStats[cat].wrong = 0;
+          props.categoryStats[cat].notDone = 0;
+        }
+      }
+    });
+  }
+
+  // Wymuś przerenderowanie komponentu
+  nextTick(() => {
+    // Opcjonalnie wywołaj funkcję przekazaną z rodzica do odświeżenia danych
+    emit('refresh-data');
+  });
 };
 </script>

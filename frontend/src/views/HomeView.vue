@@ -109,7 +109,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, inject } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
@@ -230,6 +230,14 @@ const gridLayoutClass = computed(() => {
 });
 
 // Metody
+const openExamPopup = () => {
+  showExamPopup.value = true;
+};
+
+const openOtherQuizPopup = () => {
+  showOtherQuizPopup.value = true;
+};
+
 const startExamFromCategory = (cat) => {
   showExamPopup.value = false;
   const max = questionsHelper.categoryCounts.value[cat] || 10;
@@ -287,10 +295,18 @@ const startExamNotDone = async (cat) => {
 
 async function clearCategoryHistory(category) {
   try {
-    // Wywołanie akcji z modułu user, która czyści dane na serwerze i w sessionStorage
+    // Pokaż indykator ładowania jeśli masz
+    // loading.value = true;
+
+    // Wywołanie akcji z modułu user
     await store.dispatch('user/clearCategoryHistory', category);
 
-    // Odśwież lokalne statystyki po wyczyszczeniu historii
+    // Wyczyść lokalne dane dla tej kategorii
+    if (categoryStats.value[category]) {
+      categoryStats.value[category] = { correct: 0, wrong: 0, notDone: 0 };
+    }
+
+    // Odśwież lokalne statystyki
     await calculateCategoryStats();
 
     // Resetuj widok dla tej kategorii
@@ -298,23 +314,22 @@ async function clearCategoryHistory(category) {
       showQuizOptions.value[category] = false;
     }
 
-    // Wywołaj lokalne odświeżenie UI
-    nextTick(() => {
-      // Wymuszenie przerenderowania komponentów
-      if (viewType.value === 'grid') {
-        const temp = viewType.value;
-        viewType.value = 'list';
-        setTimeout(() => {
-          viewType.value = temp;
-        }, 0);
-      } else {
-        const temp = viewType.value;
-        viewType.value = 'grid';
-        setTimeout(() => {
-          viewType.value = temp;
-        }, 0);
-      }
-    });
+    // // Wymuś przerenderowanie komponentów
+    // nextTick(() => {
+    //   // Wymuś odświeżenie widoku
+    //   const tempView = viewType.value;
+    //   const tempFilter = activeFilter.value;
+
+    //   // Przełącz filtr by wymusić pełne przerenderowanie
+    //   activeFilter.value = 'temp_filter';
+    //   viewType.value = viewType.value === 'grid' ? 'list' : 'grid';
+
+    //   // Przywróć oryginalne wartości po krótkiej chwili
+    //   setTimeout(() => {
+    //     activeFilter.value = tempFilter;
+    //     viewType.value = tempView;
+    //   }, 50);
+    // });
 
     showAlert('success', `Historia kategorii "${category}" została wyczyszczona`);
   } catch (e) {
@@ -323,62 +338,65 @@ async function clearCategoryHistory(category) {
   }
 }
 
-const openExamPopup = () => {
-  if (questionsHelper.examCategories.value && questionsHelper.examCategories.value.length > 0) {
-    showExamPopup.value = true;
-  } else {
-    showAlert('warning', 'Brak dostępnych kategorii egzaminów');
-  }
-};
-
-const openOtherQuizPopup = () => {
-  if (questionsHelper.otherCategories.value && questionsHelper.otherCategories.value.length > 0) {
-    showOtherQuizPopup.value = true;
-  } else {
-    showAlert('warning', 'Brak dostępnych kategorii quizów');
-  }
-};
-
-// Funkcja do obliczania statystyk dla wszystkich kategorii
+// Dodaj tę funkcję po deklaracji zmiennych stanu, przed metodami
 const calculateCategoryStats = async () => {
-  const stats = {};
-  for (const cat of [
-    ...questionsHelper.examCategories.value,
-    ...questionsHelper.otherCategories.value,
-  ]) {
-    try {
-      const hquestion = store.getters['user/getHquestion'] || [];
-      const categoryQuestions = hquestion.filter((q) => q.category === cat);
-      stats[cat] = {
-        correct: categoryQuestions.filter((q) => q.correct === true).length,
-        wrong: categoryQuestions.filter((q) => q.correct === false).length,
+  try {
+    // Pobierz wszystkie kategorie
+    const categories = questionsHelper.categories.value;
+    if (!categories || !categories.length) return;
+
+    // Pobierz historię odpowiedzi użytkownika
+    const hquestion = store.getters['user/getHquestion'] || [];
+
+    // Dla każdej kategorii oblicz statystyki
+    for (const category of categories) {
+      // Pobierz liczbę wszystkich pytań w kategorii
+      const totalQuestions = questionsHelper.categoryCounts.value[category] || 0;
+
+      // Pobierz historię odpowiedzi dla tej kategorii
+      const categoryHistory = hquestion.filter((q) => q.category === category);
+
+      // Oblicz poprawne i błędne odpowiedzi
+      const correctAnswers = categoryHistory.filter((q) => q.correct === true).length;
+      const wrongAnswers = categoryHistory.filter((q) => q.correct === false).length;
+
+      // Oblicz liczbę nierozwiązanych pytań
+      const notDone = totalQuestions - (correctAnswers + wrongAnswers);
+
+      // Zapisz statystyki dla kategorii
+      categoryStats.value[category] = {
+        correct: correctAnswers,
+        wrong: wrongAnswers,
+        notDone: Math.max(0, notDone), // Upewnij się, że liczba jest nieujemna
       };
-    } catch (error) {
-      console.error(`Błąd podczas pobierania statystyk dla kategorii ${cat}:`, error);
-      stats[cat] = { correct: 0, wrong: 0 };
     }
+  } catch (e) {
+    console.error('Błąd podczas obliczania statystyk kategorii:', e);
   }
-  categoryStats.value = stats;
 };
 
-// Inicjalizacja danych
+// Dodaj słuchacza wydarzenia do odświeżania danych
 onMounted(async () => {
-  // Sprawdź czy instrukcja była już pokazana
-  const guideShown = localStorage.getItem('userGuideShown') === 'true';
+  // Oblicz początkowe statystyki kategorii
+  await calculateCategoryStats();
 
-  // Jeśli nie była pokazana, pokaż ją automatycznie
-  if (!guideShown) {
-    showUserGuide.value = true;
-  }
-
-  await Promise.all([
-    store.dispatch('questions/fetchStats'),
-    store.dispatch('user/fetchUserHistoryAndHQ'),
-  ]);
-
-  // Po pobraniu danych, oblicz statystyki
-  calculateCategoryStats();
+  // Istniejący kod...
+  window.addEventListener('user-data-refreshed', handleDataRefresh);
 });
+
+onUnmounted(() => {
+  window.removeEventListener('user-data-refreshed', handleDataRefresh);
+});
+
+const handleDataRefresh = async (event) => {
+  // Odśwież statystyki kategorii
+  await calculateCategoryStats();
+
+  // Wymuś przerenderowanie komponentu
+  nextTick(() => {
+    // Opcjonalnie zrób coś dodatkowo po odświeżeniu
+  });
+};
 </script>
 
 <style scoped></style>

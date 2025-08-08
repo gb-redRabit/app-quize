@@ -109,27 +109,25 @@ export default {
         // Wywołaj API do czyszczenia kategorii
         await apiClient.put('/users/clear-category', { category });
 
-        // Aktualizuj dane lokalnie - usuń historię pytań dla danej kategorii
-        if (state.hquestion && state.hquestion.length > 0) {
-          const updatedHQuestion = state.hquestion.filter((q) => q.category !== category);
-          commit('SET_HQUESTION', updatedHQuestion);
-
-          // Aktualizuj dane użytkownika w sessionStorage
-          const userStr = sessionStorage.getItem('user');
-          if (userStr) {
-            try {
-              const userData = JSON.parse(userStr);
-              userData.hquestion = updatedHQuestion;
-              sessionStorage.setItem('user', JSON.stringify(userData));
-            } catch (e) {
-              console.error('Błąd podczas aktualizacji danych użytkownika w sessionStorage', e);
-            }
-          }
-        }
-
-        // Odśwież wszystkie dane
+        // Pobierz pełne, aktualne dane po czyszczeniu zamiast filtrować lokalnie
+        // To zapewni, że mamy najświeższe dane z serwera
         await dispatch('fetchUserHistoryAndHQ');
         await dispatch('questions/fetchStats', null, { root: true });
+
+        // Wyczyść cache w localStorage/sessionStorage
+        try {
+          const userStr = sessionStorage.getItem('user');
+          if (userStr) {
+            const userData = JSON.parse(userStr);
+            userData.hquestion = userData.hquestion?.filter((q) => q.category !== category) || [];
+            sessionStorage.setItem('user', JSON.stringify(userData));
+          }
+        } catch (e) {
+          console.error('Błąd podczas aktualizacji sessionStorage', e);
+        }
+
+        // Emituj event aby powiadomić wszystkie komponenty o zmianie
+        window.dispatchEvent(new CustomEvent('user-data-refreshed', { detail: { category } }));
 
         return true;
       } catch (e) {
@@ -137,13 +135,32 @@ export default {
         throw e;
       }
     },
-    async clearHistory({ commit }) {
+    async clearHistory({ dispatch, commit }) {
       try {
         await apiClient.put('/users/update-profile', { clearHistory: true });
 
         // Natychmiast czyść wszystkie powiązane dane
         commit('SET_USER_HISTORY', []);
         commit('SET_HQUESTION', []);
+
+        // Wyczyść dane w sessionStorage
+        try {
+          const userStr = sessionStorage.getItem('user');
+          if (userStr) {
+            const userData = JSON.parse(userStr);
+            userData.history = [];
+            userData.hquestion = [];
+            sessionStorage.setItem('user', JSON.stringify(userData));
+          }
+        } catch (e) {
+          console.error('Błąd podczas aktualizacji sessionStorage', e);
+        }
+
+        // Pobierz świeże dane
+        await dispatch('fetchUserHistoryAndHQ');
+
+        // Powiadom komponenty o zmianie
+        window.dispatchEvent(new CustomEvent('user-data-refreshed', { detail: { all: true } }));
 
         return true;
       } catch (error) {
