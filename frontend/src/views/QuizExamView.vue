@@ -212,7 +212,7 @@ import apiClient from '@/api';
 import QuestionList from '@/components/questions/QuestionList.vue';
 import QuestionNavigation from '@/components/questions/QuestionNavigation.vue';
 import SummaryBox from '@/components/questions/SummaryBox.vue';
-import ProgressBar from '@/components/questions/ProgressBar.vue'; // Dodano import ProgressBar
+import ProgressBar from '@/components/questions/ProgressBar.vue';
 import { getRandomUniqueQuestions } from '@/utils/randomQuestions';
 import { shuffleArray } from '@/utils/shuffleArray';
 
@@ -240,6 +240,7 @@ const shuffledAnswers = ref([]);
 const quizLength = ref(initialQuizLength);
 const startTime = ref(null);
 const wrongOrNotDoneIdsCache = ref([]);
+const questionList = ref(null);
 
 // Stan timera (tylko dla trybu egzaminu)
 const examTimeMinutes = ref(parseInt(route.query.time, 10) || 60);
@@ -700,21 +701,29 @@ const goToHome = () => {
 };
 
 const handleKeydown = (e) => {
-  // Obsługa klawiszy 1-4 do wyboru odpowiedzi
   if (['1', '2', '3', '4'].includes(e.key) && currentQuestionIndex.value < questions.value.length) {
     const idx = parseInt(e.key, 10) - 1;
-    const currentAnswers = shuffledAnswers.value;
+
+    // Pobierz referencję do aktywnego komponentu QuestionList
+    const activeQuestionListRef = Array.isArray(questionList.value)
+      ? questionList.value.find((_, i) => currentQuestionIndex.value === i)
+      : questionList.value;
+
+    // Pobierz odpowiedzi z komponentu
+    const currentAnswers = activeQuestionListRef?.answers;
 
     if (
+      answersStatus.value[currentQuestionIndex.value] &&
       !answersStatus.value[currentQuestionIndex.value].answered &&
-      currentAnswers[idx] &&
-      currentAnswers[idx].key
+      currentAnswers &&
+      idx < currentAnswers.length &&
+      currentAnswers[idx]
     ) {
       selectAnswer(idx, currentAnswers[idx].key);
     }
   }
 
-  // Obsługa klawiszy nawigacyjnych
+  // Pozostała część funkcji bez zmian
   if (e.key === 'ArrowRight' || e.key === 'PageDown') {
     if (
       answersStatus.value[currentQuestionIndex.value] &&

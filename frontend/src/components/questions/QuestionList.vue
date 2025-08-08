@@ -197,6 +197,11 @@ function isCorrectAnswer(answer) {
 function isSelectedAnswer(index) {
   return selectedIndex.value === index && !isCorrectAnswer(answers.value[index]);
 }
+
+// Eksponuj odpowiedzi jako właściwość komponentu
+defineExpose({
+  answers: computed(() => shuffledAnswers.value),
+});
 </script>
 
 <style scoped>

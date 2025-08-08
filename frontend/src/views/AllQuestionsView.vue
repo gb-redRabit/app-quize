@@ -182,7 +182,7 @@ import apiClient from '@/api';
 import { useStore } from 'vuex';
 
 const store = useStore();
-const showAlert = inject('showAlert', (type, msg) => console.log(`Alert: ${type} - ${msg}`));
+const showAlert = inject('showAlert');
 
 // Stan komponentu
 const search = ref('');
