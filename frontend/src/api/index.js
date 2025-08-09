@@ -1,4 +1,5 @@
 import axios from 'axios';
+import store from '@/store';
 
 /**
  * Konfigurowalna instancja klienta API z zaawansowanym cachowaniem i obsługą błędów
@@ -185,17 +186,56 @@ apiClient.interceptors.request.use(
 );
 
 // Interceptor dla odpowiedzi - ukrywa loader i obsługuje błędy
+let isRefreshing = false;
+let failedQueue = [];
+
+function processQueue(error, token = null) {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+}
+
 apiClient.interceptors.response.use(
-  (response) => {
-    // Ukryj loader po zakończeniu zapytania
-    if (!response.config.silent) {
-      const loader = getLoader();
-      if (loader) loader.hide();
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise(function (resolve, reject) {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers['Authorization'] = 'Bearer ' + token;
+            return apiClient(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+      originalRequest._retry = true;
+      isRefreshing = true;
+      try {
+        // Odśwież token
+        const res = await apiClient.silentPost('/auth/refresh', {});
+        const newToken = res.data.token;
+        sessionStorage.setItem('token', newToken);
+        apiClient.defaults.headers.common['Authorization'] = 'Bearer ' + newToken;
+        processQueue(null, newToken);
+        originalRequest.headers['Authorization'] = 'Bearer ' + newToken;
+        return apiClient(originalRequest);
+      } catch (err) {
+        processQueue(err, null);
+        // Wyloguj użytkownika tylko jeśli refresh się nie udał
+        tokenManager.handleSessionExpired();
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
     }
 
-    return response;
-  },
-  (error) => {
     // Ukryj loader w przypadku błędu
     if (!error.config?.silent) {
       const loader = getLoader();
@@ -207,8 +247,7 @@ apiClient.interceptors.response.use(
       switch (error.response.status) {
         case 401:
         case 403:
-          // Wygaśnięcie sesji lub brak uprawnień
-          tokenManager.handleSessionExpired();
+          if (!isRefreshing) tokenManager.handleSessionExpired();
           break;
 
         case 404:

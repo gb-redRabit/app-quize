@@ -5,7 +5,13 @@
     :data-theme="currentTheme"
   >
     <Navbar v-if="showNavbar" />
-
+    <!-- testowanie modal sesji -->
+    <!-- <button
+      class="fixed bottom-8 left-8 z-50 bg-yellow-400 px-4 py-2 rounded shadow-lg"
+      @click="showSessionExpirationModal(2)"
+    >
+      Testuj modal sesji
+    </button> -->
     <!-- Ulepszony skeleton z lepszym dopasowaniem do treści strony -->
     <div v-if="isPageLoading && showNavbar" class="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto">
       <BaseSkeleton
@@ -27,14 +33,32 @@
     <!-- Globalne komponenty -->
     <BaseAlert ref="globalAlert" />
     <BaseLoader ref="globalLoader" />
-
-    <!-- Dodaj modal do ostrzegania o wygasaniu tokenu -->
-    <TokenExpirationModal
-      ref="globalModal"
-      :show="modalVisible"
-      :options="modalOptions"
-      @close="modalVisible = false"
-    />
+    <BaseModal :show="showSessionModal" @close="showSessionModal = false">
+      <template #header>
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Sesja wygasa</h2>
+      </template>
+      <div class="p-2 text-gray-700 dark:text-gray-200">
+        Twoja sesja wygaśnie za około <b>{{ sessionMinutesLeft }}</b> minut.<br />
+        Kliknij poniżej, aby odświeżyć sesję i kontynuować pracę.
+      </div>
+      <template #footer>
+        <button
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-60"
+          :disabled="sessionModalLoading"
+          @click="refreshSessionToken"
+        >
+          <span v-if="sessionModalLoading">Odświeżanie...</span>
+          <span v-else>Odśwież sesję</span>
+        </button>
+        <button
+          class="ml-2 px-4 py-2 rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+          @click="showSessionModal = false"
+          :disabled="sessionModalLoading"
+        >
+          Zamknij
+        </button>
+      </template>
+    </BaseModal>
   </div>
 </template>
 
@@ -43,7 +67,8 @@ import Navbar from '@/components/layout/Navbar.vue';
 import BaseAlert from '@/components/base/BaseAlert.vue';
 import BaseLoader from '@/components/base/BaseLoader.vue';
 import BaseSkeleton from '@/components/base/BaseSkeleton.vue';
-import TokenExpirationModal from '@/components/base/TokenExpirationModal.vue';
+import BaseModal from '@/components/base/BaseModal.vue';
+import apiClient from '@/api';
 import { mapGetters } from 'vuex';
 import store from '@/store';
 
@@ -53,14 +78,15 @@ export default {
     BaseAlert,
     BaseLoader,
     BaseSkeleton,
-    TokenExpirationModal,
+    BaseModal, // Dodaj jeśli nie było
   },
 
   data() {
     return {
       isPageLoading: false,
-      modalVisible: false,
-      modalOptions: {},
+      showSessionModal: false,
+      sessionMinutesLeft: 5,
+      sessionModalLoading: false,
     };
   },
 
@@ -203,9 +229,19 @@ export default {
 
     // Dodaj weryfikację tokenu po wznowieniu ze stanu uśpienia
     window.addEventListener('focus', this.verifySession);
+
+    // Sprawdzaj czas ważności tokenu co minutę
+    this.sessionCheckInterval = setInterval(this.checkTokenExpiration, 60 * 1000);
+
+    // Dodaj testowy przycisk do ręcznego wywołania modala
+    window.testSessionModal = () => this.showSessionExpirationModal(5);
+
+    // Sprawdź od razu po starcie
+    this.checkTokenExpiration();
   },
 
   beforeUnmount() {
+    clearInterval(this.sessionCheckInterval);
     // Usuwanie nasłuchiwania
     window.removeEventListener('online', this.handleOnline);
     window.removeEventListener('offline', this.handleOffline);
@@ -215,8 +251,6 @@ export default {
     return {
       showAlert: this.showAlert,
       hideAlert: this.hideAlert,
-      showModal: this.showModal,
-      hideModal: this.hideModal,
     };
   },
 
@@ -265,12 +299,55 @@ export default {
         }
       }
     },
-    showModal(options) {
-      this.$refs.globalModal.show = true;
-      this.modalOptions = options;
+
+    async refreshSessionToken() {
+      this.sessionModalLoading = true;
+      try {
+        const res = await apiClient.silentPost('/auth/refresh', {});
+        if (res.data && res.data.token) {
+          sessionStorage.setItem('token', res.data.token);
+          this.showAlert('success', 'Sesja została odświeżona!');
+          this.showSessionModal = false;
+        } else {
+          this.showAlert('error', 'Nie udało się odświeżyć sesji.');
+        }
+      } catch (e) {
+        this.showAlert('error', 'Błąd podczas odświeżania sesji.');
+      } finally {
+        this.sessionModalLoading = false;
+      }
     },
-    hideModal() {
-      this.$refs.globalModal.show = false;
+
+    showSessionExpirationModal(minutesLeft = 5) {
+      this.sessionMinutesLeft = minutesLeft;
+      this.showSessionModal = true;
+    },
+
+    checkTokenExpiration() {
+      const token = sessionStorage.getItem('token');
+      if (!token) return;
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        const decoded = JSON.parse(jsonPayload);
+        if (!decoded.exp) return;
+        const currentTime = Math.floor(Date.now() / 1000);
+        const timeRemaining = decoded.exp - currentTime;
+        if (timeRemaining < 5 * 60 && timeRemaining > 0) {
+          // Pokaż modal tylko jeśli nie jest już widoczny
+          if (!this.showSessionModal) {
+            this.showSessionExpirationModal(Math.ceil(timeRemaining / 60));
+          }
+        }
+      } catch (e) {
+        // Ignoruj błędy parsowania
+      }
     },
   },
 };

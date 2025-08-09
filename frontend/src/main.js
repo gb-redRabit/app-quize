@@ -83,11 +83,6 @@ function setupTokenRefresh() {
       if (res.data && res.data.token) {
         sessionStorage.setItem('token', res.data.token);
         console.debug('Token odświeżony:', new Date());
-
-        // Jeśli wyświetlamy ostrzeżenie, ukryj je
-        if (isWarningModalShown) {
-          hideExpirationWarning();
-        }
       }
     } catch (e) {
       console.error('Błąd odświeżania tokenu:', e);
@@ -106,72 +101,6 @@ function setupTokenRefresh() {
 
     const currentTime = Math.floor(Date.now() / 1000);
     const timeRemaining = decoded.exp - currentTime;
-
-    // Pokaż ostrzeżenie jeśli zostało mało czasu, a jeszcze go nie pokazujemy
-    if (timeRemaining <= warningThreshold && !isWarningModalShown) {
-      showExpirationWarning(Math.floor(timeRemaining / 60));
-    } else if (timeRemaining > warningThreshold && isWarningModalShown) {
-      hideExpirationWarning();
-    }
-  }
-
-  // Pokaż ostrzeżenie o wygasającym tokenie
-  function showExpirationWarning(minutesRemaining) {
-    isWarningModalShown = true;
-
-    // Dostęp do instancji Vue
-    const app = document.getElementById('app')?.__vue_app__;
-    if (!app) return;
-
-    const root = app._instance?.proxy;
-    if (!root) return;
-
-    // Wyświetl modal za pomocą funkcji showModal z App.vue
-    if (root.showModal) {
-      root.showModal({
-        title: 'Sesja wygasa',
-        message: `Twoja sesja wygaśnie za około ${minutesRemaining} minut. Chcesz kontynuować pracę?`,
-        icon: 'warning',
-        actions: [
-          {
-            text: 'Odśwież sesję',
-            variant: 'primary',
-            handler: refreshToken,
-          },
-          {
-            text: 'Zamknij',
-            variant: 'secondary',
-            handler: hideExpirationWarning,
-          },
-        ],
-      });
-    } else if (root.$refs?.globalAlert) {
-      // Alternatywnie użyj systemu alertów
-      root.$refs.globalAlert.show(
-        'warning',
-        `Twoja sesja wygaśnie za około ${minutesRemaining} minut.`,
-        0
-      );
-    }
-  }
-
-  // Ukryj ostrzeżenie o wygasającym tokenie
-  function hideExpirationWarning() {
-    isWarningModalShown = false;
-
-    // Dostęp do instancji Vue
-    const app = document.getElementById('app')?.__vue_app__;
-    if (!app) return;
-
-    const root = app._instance?.proxy;
-    if (!root) return;
-
-    // Ukryj modal lub alert
-    if (root.hideModal) {
-      root.hideModal();
-    } else if (root.$refs?.globalAlert) {
-      root.$refs.globalAlert.hide();
-    }
   }
 
   // Helper do ograniczenia liczby wywołań funkcji
