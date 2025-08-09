@@ -109,8 +109,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick, inject } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted, onUnmounted, nextTick, inject, watch, onBeforeMount } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
 
@@ -130,6 +130,7 @@ import IconButton from '@/components/base/IconButton.vue';
 const showAlert = inject('showAlert');
 const router = useRouter();
 const store = useStore(); // Inicjalizuj store na najwyższym poziomie
+const route = useRoute();
 
 // Utworzenie lokalnych obiektów pomocniczych (zamiast composables)
 const questionsHelper = (() => {
@@ -298,7 +299,11 @@ async function clearCategoryHistory(category) {
     // Pokaż powiadomienie o rozpoczęciu procesu
     showAlert('info', `Czyszczenie historii kategorii "${category}"...`);
 
-    // 1. Najpierw optymistycznie zaktualizuj lokalny stan
+    // 1. Dodaj blokadę przed ponownym pobraniem danych dla tej kategorii
+    const blockRefreshKey = `block_refresh_${category}`;
+    sessionStorage.setItem(blockRefreshKey, 'true');
+
+    // 2. Najpierw optymistycznie zaktualizuj lokalny stan
     if (categoryStats.value[category]) {
       categoryStats.value[category] = {
         correct: 0,
@@ -307,15 +312,34 @@ async function clearCategoryHistory(category) {
       };
     }
 
-    // 2. Resetuj opcje quizu dla tej kategorii
+    // 3. Resetuj opcje quizu dla tej kategorii
     if (showQuizOptions.value[category]) {
       showQuizOptions.value[category] = false;
     }
 
-    // 3. Wywołaj akcję w store z dodatkowym parametrem refreshUI
-    await store.dispatch('user/clearCategoryHistory', { category, refreshUI: true });
+    // 4. Natychmiast filtruj dane w store dla lepszego UX
+    const hquestion = store.getters['user/getHquestion'] || [];
+    const filteredHq = hquestion.filter((q) => q.category !== category);
+    store.commit('user/SET_HQUESTION', filteredHq);
 
-    // 4. Emituj własne zdarzenie na poziomie komponentu HomeView
+    // 5. Aktualizacja w sessionStorage
+    const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
+    if (userData && userData.hquestion) {
+      userData.hquestion = filteredHq;
+      sessionStorage.setItem('user', JSON.stringify(userData));
+    }
+
+    // 6. Wywołaj akcję w store
+    const success = await store.dispatch('user/clearCategoryHistory', {
+      category,
+      refreshUI: true,
+    });
+
+    if (!success) {
+      throw new Error('Serwer nie potwierdził usunięcia danych');
+    }
+
+    // 7. Emituj zdarzenie czyszczenia kategorii
     window.dispatchEvent(
       new CustomEvent('category-history-cleared', {
         detail: {
@@ -326,20 +350,24 @@ async function clearCategoryHistory(category) {
       })
     );
 
-    // 5. Po otrzymaniu odpowiedzi z serwera, wymuś aktualizację wszystkich danych
-    await Promise.all([
-      store.dispatch('user/fetchUserHistoryAndHQ'),
-      store.dispatch('questions/fetchStats'),
-    ]);
-
-    // 6. Zaktualizuj lokalne statystyki
+    // 8. NIE pobieraj ponownie danych z serwera - to może przywracać stare dane
+    // zamiast tego tylko aktualizuj lokalne statystyki
     await calculateCategoryStats();
 
-    // 7. Pokaż powiadomienie o sukcesie
+    // 9. Poczekaj krótko przed usunięciem blokady (aby zapobiec wyścigom)
+    setTimeout(() => {
+      sessionStorage.removeItem(blockRefreshKey);
+    }, 5000);
+
+    // 10. Pokaż powiadomienie o sukcesie
     showAlert('success', `Historia kategorii "${category}" została wyczyszczona`);
   } catch (e) {
     console.error('Błąd podczas czyszczenia historii kategorii:', e);
     showAlert('error', 'Nie udało się wyczyścić historii kategorii.');
+
+    // Usuń blokadę w przypadku błędu
+    const blockRefreshKey = `block_refresh_${category}`;
+    sessionStorage.removeItem(blockRefreshKey);
   }
 }
 
@@ -348,6 +376,15 @@ async function clearCategoryHistory(category) {
 const handleDataRefresh = async (event) => {
   console.debug('Otrzymano zdarzenie user-data-refreshed');
   try {
+    // Sprawdź czy istnieje blokada dla danej kategorii
+    if (event.detail && event.detail.category) {
+      const blockRefreshKey = `block_refresh_${event.detail.category}`;
+      if (sessionStorage.getItem(blockRefreshKey) === 'true') {
+        console.debug(`Odświeżanie dla kategorii ${event.detail.category} zablokowane`);
+        return; // Przerwij odświeżanie
+      }
+    }
+
     // Pobierz zaktualizowane dane
     await store.dispatch('user/fetchUserHistoryAndHQ');
 
@@ -412,21 +449,6 @@ const calculateCategoryStats = async () => {
   }
 };
 
-// Dodaj słuchacza wydarzeń w onMounted
-onMounted(async () => {
-  // Oblicz początkowe statystyki kategorii
-  await calculateCategoryStats();
-
-  // Nasłuchuj na zdarzenia odświeżające dane
-  window.addEventListener('user-data-refreshed', handleDataRefresh);
-  window.addEventListener('category-history-cleared', handleCategoryClearedEvent);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('user-data-refreshed', handleDataRefresh);
-  window.removeEventListener('category-history-cleared', handleCategoryClearedEvent);
-});
-
 // Dodaj nową funkcję do obsługi zdarzenia czyszczenia kategorii
 const handleCategoryClearedEvent = async (event) => {
   const { category } = event.detail;
@@ -454,6 +476,86 @@ const handleCategoryClearedEvent = async (event) => {
     }
   });
 };
+
+// Dodaj poniżej innych deklaracji
+// Dodaj nową funkcję odświeżania wszystkich danych
+const refreshAllData = async () => {
+  try {
+    showAlert('info', 'Aktualizacja danych...');
+
+    // Pobierz wszystkie dane z serwera
+    await Promise.all([
+      store.dispatch('user/fetchUserHistoryAndHQ'),
+      store.dispatch('questions/fetchStats'),
+    ]);
+
+    // Przelicz statystyki lokalnie
+    await calculateCategoryStats();
+
+    // Wymuś odświeżenie wszystkich komponentów
+    window.dispatchEvent(
+      new CustomEvent('user-data-refreshed', {
+        detail: {
+          all: true,
+          timestamp: Date.now(),
+          forceUIUpdate: true,
+        },
+      })
+    );
+
+    showAlert('success', 'Dane zaktualizowane');
+  } catch (e) {
+    console.error('Błąd podczas odświeżania danych:', e);
+    showAlert('error', 'Nie udało się zaktualizować danych');
+  }
+};
+
+// Dodaj poniżej pozostałych hooków cyklu życia
+onBeforeMount(async () => {
+  // Odśwież dane przed montowaniem komponentu
+  await refreshAllData();
+});
+
+// Dodaj watcher na zmianę ścieżki, aby odświeżać dane gdy użytkownik wraca na stronę główną
+watch(
+  () => route.path,
+  async (newPath, oldPath) => {
+    // Sprawdź czy jest to nawigacja do strony głównej z innej strony
+    if (newPath === '/' && oldPath !== undefined) {
+      console.log('Powrót na stronę główną - odświeżanie danych');
+      await refreshAllData();
+    }
+  }
+);
+
+// Zmodyfikuj istniejącą funkcję onMounted
+onMounted(async () => {
+  // Oblicz początkowe statystyki kategorii
+  await calculateCategoryStats();
+
+  // Nasłuchuj na zdarzenia odświeżające dane
+  window.addEventListener('user-data-refreshed', handleDataRefresh);
+  window.addEventListener('category-history-cleared', handleCategoryClearedEvent);
+
+  // Dodaj obserwowanie zdarzeń nawigacji z poziomu aplikacji
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+});
+
+// Dodaj tę funkcję pod onMounted
+const handleVisibilityChange = async () => {
+  // Sprawdź czy użytkownik wrócił do karty po tym jak była nieaktywna
+  if (document.visibilityState === 'visible' && route.path === '/') {
+    console.log('Karta aktywowana - odświeżanie danych');
+    await refreshAllData();
+  }
+};
+
+// Rozszerz onUnmounted o usunięcie nowego listenera
+onUnmounted(() => {
+  window.removeEventListener('user-data-refreshed', handleDataRefresh);
+  window.removeEventListener('category-history-cleared', handleCategoryClearedEvent);
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
+});
 </script>
 
 <style scoped></style>

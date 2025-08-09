@@ -106,8 +106,7 @@ export default {
       try {
         // Sprawdź, czy kategoria istnieje
         if (!category) {
-          showAlert('error', 'Nie podano kategorii');
-          return;
+          return false;
         }
 
         // Natychmiastowa aktualizacja UI (optymistyczne UI)
@@ -139,10 +138,10 @@ export default {
         }
 
         // Wywołanie API
-        await apiClient.put('/users/clear-category', { category });
-
-        // Pobierz zaktualizowane dane
-        await dispatch('fetchUserHistoryAndHQ');
+        const response = await apiClient.put('/users/clear-category', { category });
+        if (!response.data?.success) {
+          console.warn('Serwer nie potwierdził sukcesu operacji clearCategory');
+        }
 
         // Emituj zdarzenie odświeżenia UI
         window.dispatchEvent(
@@ -158,7 +157,7 @@ export default {
         return true;
       } catch (e) {
         console.error('Błąd podczas czyszczenia pytań z kategorii:', e);
-        throw e;
+        return false;
       }
     },
     async clearHistory({ dispatch, commit }) {
