@@ -102,15 +102,16 @@ const avgScore = computed(() => {
   forceRefresh.value;
   const history = store.getters['user/getUserHistory'] || [];
 
-  let totalScore = 0;
-  let totalQuestions = 0;
+  // Filtruj tylko te, które mają co najmniej jedno pytanie
+  const valid = history.filter(
+    (h) => typeof h.correct === 'number' && typeof h.wrong === 'number' && h.correct + h.wrong > 0
+  );
+  if (!valid.length) return '0%';
 
-  history.forEach((h) => {
-    totalScore += h.score || 0;
-    totalQuestions += h.total || 0;
-  });
-
-  const avg = totalQuestions > 0 ? Math.round((totalScore / totalQuestions) * 100) : 0;
+  // Średnia procentowa z każdego quizu/egzaminu
+  const avg = Math.round(
+    valid.reduce((sum, h) => sum + (h.correct / (h.correct + h.wrong)) * 100, 0) / valid.length
+  );
   return `${avg}%`;
 });
 </script>

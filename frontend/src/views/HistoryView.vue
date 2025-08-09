@@ -40,14 +40,28 @@
 </template>
 
 <script setup>
-import { ref, computed, inject, nextTick, onMounted, watch, provide, onUnmounted } from 'vue';
+import {
+  ref,
+  computed,
+  inject,
+  nextTick,
+  onMounted,
+  watch,
+  provide,
+  onUnmounted,
+  defineAsyncComponent,
+} from 'vue';
 import { useStore } from 'vuex';
-import apiClient from '@/api';
-
-import HistoryHeader from '@/components/history/HistoryHeader.vue';
-import HistoryDetails from '@/components/history/HistoryDetails.vue';
-import HistoryOverview from '@/components/history/HistoryOverview.vue';
-import ConfirmationModal from '@/components/history/ConfirmationModal.vue';
+const HistoryHeader = defineAsyncComponent(() => import('@/components/history/HistoryHeader.vue'));
+const HistoryDetails = defineAsyncComponent(
+  () => import('@/components/history/HistoryDetails.vue')
+);
+const HistoryOverview = defineAsyncComponent(
+  () => import('@/components/history/HistoryOverview.vue')
+);
+const ConfirmationModal = defineAsyncComponent(
+  () => import('@/components/history/ConfirmationModal.vue')
+);
 
 // Store i globalne funkcje
 const store = useStore();

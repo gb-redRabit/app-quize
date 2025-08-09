@@ -228,12 +228,22 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, inject, onBeforeUnmount } from 'vue';
+import {
+  ref,
+  computed,
+  onMounted,
+  nextTick,
+  inject,
+  onBeforeUnmount,
+  defineAsyncComponent,
+} from 'vue';
 import { useStore } from 'vuex';
-import BaseButton from '@/components/base/BaseButton.vue';
-import Avatar from '@/components/base/Avatar.vue';
-import ThemeOption from '@/components/settings/ThemeOption.vue';
-import PasswordChangeForm from '@/components/settings/PasswordChangeForm.vue';
+const BaseButton = defineAsyncComponent(() => import('@/components/base/BaseButton.vue'));
+const Avatar = defineAsyncComponent(() => import('@/components/base/Avatar.vue'));
+const ThemeOption = defineAsyncComponent(() => import('@/components/settings/ThemeOption.vue'));
+const PasswordChangeForm = defineAsyncComponent(
+  () => import('@/components/settings/PasswordChangeForm.vue')
+);
 import apiClient from '@/api';
 
 // Globalny system alertów

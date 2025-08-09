@@ -110,22 +110,31 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick, inject, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, inject, watch, defineAsyncComponent } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
 
 // Komponenty
-import RandomQuote from '@/components/dashboard/RandomQuote.vue';
-import StatisticsSummary from '@/components/dashboard/StatisticsSummary.vue';
-import QuizButtons from '@/components/dashboard/QuizButtons.vue';
-import CategoryFilter from '@/components/dashboard/CategoryFilter.vue';
-import CategoryCard from '@/components/dashboard/CategoryCard.vue';
-import CategoryList from '@/components/dashboard/CategoryList.vue';
-import ExamCategoriesModal from '@/components/quiz/ExamCategoriesModal.vue';
-import OtherQuizCategoriesModal from '@/components/quiz/OtherQuizCategoriesModal.vue';
-import UserGuide from '@/components/UserGuide.vue';
-import IconButton from '@/components/base/IconButton.vue';
+const StatisticsSummary = defineAsyncComponent(
+  () => import('@/components/dashboard/StatisticsSummary.vue')
+);
+const RandomQuote = defineAsyncComponent(() => import('@/components/dashboard/RandomQuote.vue'));
+const QuizButtons = defineAsyncComponent(() => import('@/components/dashboard/QuizButtons.vue'));
+const CategoryFilter = defineAsyncComponent(
+  () => import('@/components/dashboard/CategoryFilter.vue')
+);
+const CategoryCard = defineAsyncComponent(() => import('@/components/dashboard/CategoryCard.vue'));
+
+const CategoryList = defineAsyncComponent(() => import('@/components/dashboard/CategoryList.vue'));
+const ExamCategoriesModal = defineAsyncComponent(
+  () => import('@/components/quiz/ExamCategoriesModal.vue')
+);
+const OtherQuizCategoriesModal = defineAsyncComponent(
+  () => import('@/components/quiz/OtherQuizCategoriesModal.vue')
+);
+const UserGuide = defineAsyncComponent(() => import('@/components/UserGuide.vue'));
+const IconButton = defineAsyncComponent(() => import('@/components/base/IconButton.vue'));
 
 // Hooki
 const showAlert = inject('showAlert');

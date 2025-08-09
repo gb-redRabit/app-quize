@@ -159,10 +159,10 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue';
+import { ref, inject, defineAsyncComponent } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import BaseButton from '@/components/base/BaseButton.vue';
+const BaseButton = defineAsyncComponent(() => import('@/components/base/BaseButton.vue'));
 
 // Zmienne reaktywne
 const loginInput = ref('');

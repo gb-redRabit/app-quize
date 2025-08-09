@@ -17,6 +17,11 @@ const routes = [
     name: 'NotFound',
     component: () => import(/* webpackChunkName: "notfound" */ '../views/NotFound.vue'),
   },
+  {
+    path: '/server-error',
+    name: 'ServerError',
+    component: () => import('../views/ServerError.vue'),
+  },
 ];
 
 const router = createRouter({

@@ -262,6 +262,7 @@ apiClient.interceptors.response.use(
         case 502:
         case 503:
           showAlert('error', 'Wystąpił błąd serwera. Spróbuj ponownie później.', 5000);
+          window.location.href = '/server-error';
           break;
       }
     } else if (error.request) {

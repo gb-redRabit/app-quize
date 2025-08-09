@@ -244,9 +244,9 @@
 </template>
 
 <script setup>
-import { ref, computed, inject } from 'vue';
+import { ref, computed, inject, defineAsyncComponent } from 'vue';
 import { useRouter } from 'vue-router';
-import BaseButton from '@/components/base/BaseButton.vue';
+const BaseButton = defineAsyncComponent(() => import('@/components/base/BaseButton.vue'));
 import apiClient from '@/api';
 
 // Router i alert

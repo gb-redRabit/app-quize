@@ -1,54 +1,49 @@
 <template>
-  <div class="w-full min-h-screen -mt-20 flex items-center justify-center p-4">
+  <div class="w-full min-h-screen -mt-20 flex items-center justify-center p-4 bg-gradient-to-br">
     <div
-      class="w-full max-w-md text-center bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 relative overflow-hidden animate-fadeIn"
+      class="w-full max-w-md text-center bg-white dark:bg-gray-900 rounded-xl shadow-lg p-8 relative overflow-hidden animate-fadeIn"
     >
       <div class="flex flex-col items-center justify-center mb-8 relative h-48">
         <div class="flex items-center justify-center">
-          <span
-            class="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-br from-blue-500 to-blue-300 dark:from-blue-400 dark:to-blue-200 animate-pulse"
-            >4</span
-          >
           <div
-            class="w-24 h-24 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-2 border-4 border-blue-200 dark:border-blue-700 animate-spin"
+            class="w-24 h-24 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-2 border-4 border-red-200 dark:border-red-700 animate-spin-slow"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="w-12 h-12 text-blue-500 dark:text-blue-300"
+              viewBox="0 0 48 48"
+              fill="none"
+              class="w-14 h-14 text-red-500 dark:text-red-400"
+              stroke="currentColor"
+              stroke-width="2"
             >
+              <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="3" fill="none" />
               <path
-                fill-rule="evenodd"
-                d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z"
-                clip-rule="evenodd"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="3"
+                d="M24 16v10M24 34h.01"
               />
             </svg>
           </div>
-          <span
-            class="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-br from-blue-500 to-blue-300 dark:from-blue-400 dark:to-blue-200 animate-pulse"
-            >4</span
-          >
         </div>
         <!-- Dekoracyjne elementy tła -->
         <div class="absolute inset-0 pointer-events-none -z-10">
           <div
-            class="absolute rounded-full opacity-70 w-20 h-20 top-0 right-5 bg-gradient-to-br from-blue-200 to-blue-50 dark:from-blue-800 dark:to-blue-950 animate-float"
+            class="absolute rounded-full opacity-60 w-20 h-20 top-0 right-5 bg-gradient-to-br from-red-200 to-red-50 dark:from-red-800 dark:to-red-950 animate-float"
           ></div>
           <div
-            class="absolute rounded-full opacity-70 w-16 h-16 bottom-10 left-8 bg-gradient-to-br from-blue-200 to-blue-50 dark:from-blue-800 dark:to-blue-950 animate-float-reverse delay-1000"
+            class="absolute rounded-full opacity-60 w-16 h-16 bottom-10 left-8 bg-gradient-to-br from-red-200 to-red-50 dark:from-red-800 dark:to-red-950 animate-float-reverse delay-1000"
           ></div>
           <div
-            class="absolute rounded-full opacity-70 w-10 h-10 bottom-5 right-10 bg-gradient-to-br from-purple-200 to-purple-50 dark:from-purple-800 dark:to-purple-950 animate-float delay-2000"
+            class="absolute rounded-full opacity-60 w-10 h-10 bottom-5 right-10 bg-gradient-to-br from-yellow-200 to-yellow-50 dark:from-yellow-800 dark:to-yellow-950 animate-float delay-2000"
           ></div>
         </div>
       </div>
 
-      <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">
-        Strona nie została znaleziona
-      </h1>
+      <h1 class="text-2xl font-bold text-red-700 dark:text-red-400 mb-4">Błąd serwera (500)</h1>
       <p class="text-gray-500 dark:text-gray-300 text-lg mb-8">
-        Wygląda na to, że strona, której szukasz, nie istnieje lub została przeniesiona.
+        Coś poszło nie tak po stronie serwera.<br />
+        Spróbuj ponownie za chwilę lub wróć na stronę główną.
       </p>
 
       <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -61,7 +56,6 @@
         >
           Wróć na stronę główną
         </BaseButton>
-
         <BaseButton
           color="gray"
           size="lg"
@@ -79,6 +73,7 @@
 import { inject, defineAsyncComponent } from 'vue';
 import { useRouter } from 'vue-router';
 const BaseButton = defineAsyncComponent(() => import('@/components/base/BaseButton.vue'));
+
 const router = useRouter();
 const showAlert = inject('showAlert');
 
@@ -88,12 +83,12 @@ const goBack = () => {
     router.go(-1);
   } else {
     router.push('/');
-    showAlert('info', 'Przekierowano na stronę główną');
+    showAlert && showAlert('info', 'Przekierowano na stronę główną');
   }
 };
 </script>
 
-<style>
+<style scoped>
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -143,5 +138,9 @@ const goBack = () => {
 
 .delay-2000 {
   animation-delay: 2s;
+}
+
+.animate-spin-slow {
+  animation: spin 2.5s linear infinite;
 }
 </style>

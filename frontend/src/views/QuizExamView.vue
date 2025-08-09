@@ -205,14 +205,25 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick, inject } from 'vue';
+import {
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+  nextTick,
+  inject,
+  defineAsyncComponent,
+} from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
-import QuestionList from '@/components/questions/QuestionList.vue';
-import QuestionNavigation from '@/components/questions/QuestionNavigation.vue';
-import SummaryBox from '@/components/questions/SummaryBox.vue';
-import ProgressBar from '@/components/questions/ProgressBar.vue';
+const QuestionList = defineAsyncComponent(() => import('@/components/questions/QuestionList.vue'));
+const QuestionNavigation = defineAsyncComponent(
+  () => import('@/components/questions/QuestionNavigation.vue')
+);
+const SummaryBox = defineAsyncComponent(() => import('@/components/questions/SummaryBox.vue'));
+const ProgressBar = defineAsyncComponent(() => import('@/components/questions/ProgressBar.vue'));
 import { getRandomUniqueQuestions } from '@/utils/randomQuestions';
 import { shuffleArray } from '@/utils/shuffleArray';
 

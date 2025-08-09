@@ -7,7 +7,7 @@
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div class="flex items-center gap-3">
           <!-- Kółko postępu -->
-          <div class="relative h-14 w-14 flex-shrink-0">
+          <div v-if="isAdmin" class="relative h-14 w-14 flex-shrink-0">
             <svg class="h-full w-full" viewBox="0 0 36 36">
               <!-- Tło kółka -->
               <circle
@@ -217,12 +217,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, inject, defineAsyncComponent } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
-import SearchBar from '@/components/base/SearchBar.vue';
-import BaseButton from '@/components/base/BaseButton.vue';
-import QuestionCard from '@/components/questions/QuestionCard.vue';
+const SearchBar = defineAsyncComponent(() => import('@/components/base/SearchBar.vue'));
+const BaseButton = defineAsyncComponent(() => import('@/components/base/BaseButton.vue'));
+const QuestionCard = defineAsyncComponent(() => import('@/components/questions/QuestionCard.vue'));
 import apiClient from '@/api';
 
 // Wstrzykiwane zależności

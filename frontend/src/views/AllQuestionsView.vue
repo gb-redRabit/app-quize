@@ -174,10 +174,22 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, inject, nextTick, onUnmounted } from 'vue';
-import SearchBar from '@/components/base/SearchBar.vue';
-import QuestionActions from '@/components/questions/QuestionActions.vue';
-import BaseSkeleton from '@/components/base/BaseSkeleton.vue';
+import {
+  ref,
+  computed,
+  onMounted,
+  watch,
+  inject,
+  nextTick,
+  onUnmounted,
+  defineAsyncComponent,
+} from 'vue';
+
+const SearchBar = defineAsyncComponent(() => import('@/components/base/SearchBar.vue'));
+const QuestionActions = defineAsyncComponent(
+  () => import('@/components/questions/QuestionActions.vue')
+);
+const BaseSkeleton = defineAsyncComponent(() => import('@/components/base/BaseSkeleton.vue'));
 import apiClient from '@/api';
 import { useStore } from 'vuex';
 
