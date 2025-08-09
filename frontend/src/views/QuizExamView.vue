@@ -233,14 +233,15 @@ const currentQuestionIndex = ref(0);
 const score = ref(0);
 const loading = ref(true);
 const answersStatus = ref([]);
-const showSummary = ref(false); // Dodana brakująca deklaracja
-const questionTimes = ref([]); // Dodana brakująca deklaracja
+const showSummary = ref(false);
+const questionTimes = ref([]);
 const isCorrection = ref(false);
 const shuffledAnswers = ref([]);
 const quizLength = ref(initialQuizLength);
 const startTime = ref(null);
 const wrongOrNotDoneIdsCache = ref([]);
 const questionList = ref(null);
+const quizActivityInterval = ref(null); // <-- DODAJ TĘ LINIĘ
 
 // Stan timera (tylko dla trybu egzaminu)
 const examTimeMinutes = ref(parseInt(route.query.time, 10) || 60);
@@ -796,6 +797,14 @@ watch(
 onMounted(async () => {
   window.addEventListener('keydown', handleKeydown);
 
+  // Przypisz do zewnętrznej zmiennej ref
+  quizActivityInterval.value = setInterval(
+    () => {
+      window.dispatchEvent(new CustomEvent('quiz-activity'));
+    },
+    2 * 60 * 1000
+  );
+
   try {
     await fetchQuestions();
     await updateWrongOrNotDoneCache();
@@ -810,10 +819,19 @@ onMounted(async () => {
     showAlert?.('error', 'Wystąpił błąd podczas ładowania pytań.');
     loading.value = false;
   }
+
+  // Wyemituj zdarzenie aktywności quizu na początku
+  window.dispatchEvent(new CustomEvent('quiz-activity'));
 });
 
+// Dodaj tę funkcję POZA onMounted, na tym samym poziomie co onMounted
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleKeydown);
+
+  // Użyj wartości z ref
+  if (quizActivityInterval.value) {
+    clearInterval(quizActivityInterval.value);
+  }
 
   if (timer.value) {
     clearInterval(timer.value);

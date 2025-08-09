@@ -27,6 +27,14 @@
     <!-- Globalne komponenty -->
     <BaseAlert ref="globalAlert" />
     <BaseLoader ref="globalLoader" />
+
+    <!-- Dodaj modal do ostrzegania o wygasaniu tokenu -->
+    <TokenExpirationModal
+      ref="globalModal"
+      :show="modalVisible"
+      :options="modalOptions"
+      @close="modalVisible = false"
+    />
   </div>
 </template>
 
@@ -35,6 +43,7 @@ import Navbar from '@/components/layout/Navbar.vue';
 import BaseAlert from '@/components/base/BaseAlert.vue';
 import BaseLoader from '@/components/base/BaseLoader.vue';
 import BaseSkeleton from '@/components/base/BaseSkeleton.vue';
+import TokenExpirationModal from '@/components/base/TokenExpirationModal.vue';
 import { mapGetters } from 'vuex';
 import store from '@/store';
 
@@ -44,11 +53,14 @@ export default {
     BaseAlert,
     BaseLoader,
     BaseSkeleton,
+    TokenExpirationModal,
   },
 
   data() {
     return {
       isPageLoading: false,
+      modalVisible: false,
+      modalOptions: {},
     };
   },
 
@@ -203,6 +215,8 @@ export default {
     return {
       showAlert: this.showAlert,
       hideAlert: this.hideAlert,
+      showModal: this.showModal,
+      hideModal: this.hideModal,
     };
   },
 
@@ -250,6 +264,13 @@ export default {
           this.$router.push('/login');
         }
       }
+    },
+    showModal(options) {
+      this.$refs.globalModal.show = true;
+      this.modalOptions = options;
+    },
+    hideModal() {
+      this.$refs.globalModal.show = false;
     },
   },
 };
