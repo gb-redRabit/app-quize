@@ -138,12 +138,15 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import BaseButton from '@/components/base/BaseButton.vue';
 
 // Zainicjuj store na początku
 const store = useStore();
+
+// Używany do wymuszenia przerenderowania
+const forceUpdate = ref(0);
 
 const props = defineProps({
   category: { type: String, required: true },
@@ -156,10 +159,14 @@ const emit = defineEmits([
   'start-exam',
   'go-to-questions',
   'clear-history',
+  'refresh-data',
 ]);
 
 // Wszystkie funkcje pomocnicze bezpośrednio w komponencie
 const categoryStats = (cat) => {
+  // Wymuszenie przerenderowania przy każdym wywołaniu
+  forceUpdate.value;
+
   const hquestion = store.getters['user/getHquestion'] || [];
   const all = hquestion.filter((q) => q.category === cat);
   const correct = all.filter((q) => q.correct === true).length;
@@ -254,16 +261,49 @@ const getCategoryCardClass = (cat) => {
   return 'bg-orange-100 border-orange-300 text-orange-800 dark:bg-orange-900 dark:border-orange-500 dark:text-orange-200';
 };
 
-const stats = computed(() => categoryStats(props.category));
-const percentage = computed(() => categoryPercentage(props.category));
-const percentComplete = computed(() => categoryPercentComplete(props.category));
-const total = computed(() => stats.value.correct + stats.value.wrong + stats.value.notDone);
-const isDisabled = computed(() => stats.value.notDone === 0 && stats.value.wrong === 0);
-const categoryStatus = computed(() => getCategoryStatus(props.category));
-const statusClass = computed(() => getCategoryStatusClass(props.category));
-const cardClass = computed(() => getCategoryCardClass(props.category));
+// Computed properties wykorzystujące forceUpdate do wymuszania przeliczania
+const stats = computed(() => {
+  forceUpdate.value; // To wymusza przeliczenie
+  return categoryStats(props.category);
+});
+
+const percentage = computed(() => {
+  forceUpdate.value;
+  return categoryPercentage(props.category);
+});
+
+const percentComplete = computed(() => {
+  forceUpdate.value;
+  return categoryPercentComplete(props.category);
+});
+
+const total = computed(() => {
+  forceUpdate.value;
+  return stats.value.correct + stats.value.wrong + stats.value.notDone;
+});
+
+const isDisabled = computed(() => {
+  forceUpdate.value;
+  return stats.value.notDone === 0 && stats.value.wrong === 0;
+});
+
+const categoryStatus = computed(() => {
+  forceUpdate.value;
+  return getCategoryStatus(props.category);
+});
+
+const statusClass = computed(() => {
+  forceUpdate.value;
+  return getCategoryStatusClass(props.category);
+});
+
+const cardClass = computed(() => {
+  forceUpdate.value;
+  return getCategoryCardClass(props.category);
+});
 
 const percentCompleteClass = computed(() => {
+  forceUpdate.value;
   const percent = percentComplete.value;
   if (percent > 75) return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
   if (percent > 25) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
@@ -274,4 +314,48 @@ const startQuizWithLimit = (limit) => {
   emit('toggle-quiz-options');
   emit('start-quiz', props.category, limit);
 };
+
+// Dodanie nasłuchiwania na zdarzenie odświeżania danych
+onMounted(() => {
+  window.addEventListener('user-data-refreshed', handleDataRefresh);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('user-data-refreshed', handleDataRefresh);
+});
+
+// Funkcja obsługująca odświeżanie danych
+const handleDataRefresh = (event) => {
+  // Sprawdzamy czy zdarzenie dotyczy naszej kategorii
+  if (!event.detail.category || event.detail.category === props.category) {
+    // Zwiększamy forceUpdate aby wymusić przerenderowanie
+    forceUpdate.value++;
+
+    // Powiadom rodzica o potrzebie odświeżenia danych
+    emit('refresh-data');
+  }
+};
+
+// Obserwuj zmiany w danych użytkownika, aby aktualizować statystyki
+watch(
+  () => store.getters['user/getHquestion'],
+  () => {
+    forceUpdate.value++;
+  }
+);
 </script>
+
+<style scoped>
+@keyframes refresh {
+  0% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.refreshing {
+  animation: refresh 0.3s ease-out;
+}
+</style>

@@ -106,11 +106,6 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['select', 'edit', 'delete']);
 
-// Inject
-const showAlert = inject('showAlert', (type, msg) =>
-  console.warn(`Alert not available: ${type} - ${msg}`)
-);
-
 // Route
 const route = useRoute();
 const routeName = computed(() => route.name);
