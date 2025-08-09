@@ -573,6 +573,7 @@ const correctAnswerText = (q) => {
 const forceDataRefresh = async () => {
   try {
     // 1. Pobierz najnowsze dane z serwera
+    await apiClient.clearCache();
     await store.dispatch('user/fetchUserHistoryAndHQ');
     await store.dispatch('questions/fetchStats');
 

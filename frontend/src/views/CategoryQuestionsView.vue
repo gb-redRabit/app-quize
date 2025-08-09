@@ -646,7 +646,6 @@ async function toggleUnknown(q) {
 
 function toggleSortByDescription() {
   sortByDescription.value = !sortByDescription.value;
-  console.log('Sortowanie według opisu:', sortByDescription.value ? 'włączone' : 'wyłączone');
 
   // Opcjonalnie dodaj powiadomienie, aby użytkownik wiedział, że sortowanie zostało zmienione
   showAlert(
