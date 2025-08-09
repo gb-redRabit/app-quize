@@ -664,20 +664,27 @@ async function toggleAllFlagged() {
       ? localQuestions.value
       : localQuestions.value.filter((q) => q.category === category.value);
 
+  let toChange = [];
+  if (newValue) {
+    // Oznacz tylko te, które NIE są oznaczone jako sprawdzone
+    toChange = questionsToUpdate.filter((q) => !q.flagged);
+  } else {
+    // Odznacz WSZYSTKIE
+    toChange = questionsToUpdate;
+  }
+
   // Optymistycznie zaktualizuj lokalny stan
-  questionsToUpdate.forEach((q) => {
+  toChange.forEach((q) => {
     q.flagged = newValue;
   });
 
   // Podziel na mniejsze paczki
   const batchSize = 20;
   const batches = [];
-
-  for (let i = 0; i < questionsToUpdate.length; i += batchSize) {
-    batches.push(questionsToUpdate.slice(i, i + batchSize));
+  for (let i = 0; i < toChange.length; i += batchSize) {
+    batches.push(toChange.slice(i, i + batchSize));
   }
 
-  // Sekwencyjnie aktualizuj paczki pytań
   let processed = 0;
 
   const processBatch = (batchIndex) => {
@@ -685,8 +692,8 @@ async function toggleAllFlagged() {
       showAlert(
         'success',
         newValue
-          ? `Oznaczono wszystkie pytania (${questionsToUpdate.length}) jako sprawdzone`
-          : `Usunięto oznaczenie "sprawdzone" ze wszystkich pytań (${questionsToUpdate.length})`
+          ? `Oznaczono wszystkie pytania (${toChange.length}) jako sprawdzone`
+          : `Usunięto oznaczenie "sprawdzone" ze wszystkich pytań (${toChange.length})`
       );
       massFlagLoading.value = false;
       return;
@@ -696,11 +703,10 @@ async function toggleAllFlagged() {
     const batchPromises = batch.map((q) => {
       const updated = { ...q };
       if ('_id' in updated) delete updated._id;
-
       return apiClient.put(`/questions/${q.ID}`, updated).then(() => {
         processed++;
         if (processed % 10 === 0) {
-          showAlert('info', `Aktualizowanie... ${processed}/${questionsToUpdate.length} pytań`);
+          showAlert('info', `Aktualizowanie... ${processed}/${toChange.length} pytań`);
         }
       });
     });

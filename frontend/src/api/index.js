@@ -10,7 +10,6 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
   // Timeout 15 sekund dla wszystkich zapytań
-  timeout: 15000,
 });
 
 // System cachowania z różnymi czasami TTL
