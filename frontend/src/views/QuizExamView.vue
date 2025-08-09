@@ -504,7 +504,6 @@ const saveUserHistory = async () => {
       answer_d: 'D',
     };
 
-    // Tworzenie obiektu historii
     const historyItem = {
       type: isCorrection.value
         ? mode.value === 'exam'
@@ -520,11 +519,8 @@ const saveUserHistory = async () => {
       list: questions.value.map((q, idx) => {
         const selectedKey = answersStatus.value[idx].selectedKey || '';
         const correctKey = getCorrectKey(q);
-
-        // Zamień klucze na litery
         const selectedLetter = selectedKey ? keyToLetter[selectedKey] || '?' : '';
         const correctLetter = correctKey ? keyToLetter[correctKey] || '?' : '';
-
         return {
           id_questions: q.ID || q.id || q.Id || q.id_question,
           answer: selectedKey,
@@ -535,24 +531,27 @@ const saveUserHistory = async () => {
       }),
     };
 
-    // 1. Natychmiast aktualizuj dane w store - optymistyczne aktualizacje
+    // 1. Optymistyczna aktualizacja lokalnie
     const updatedHistory = [...store.state.user.history, historyItem];
     store.commit('user/SET_USER_HISTORY', updatedHistory);
 
-    // 2. Natychmiast emituj zdarzenie, nie czekając na serwer
     window.dispatchEvent(
       new CustomEvent('quiz-completed', {
         detail: { score: score.value, total: questions.value.length },
       })
     );
 
-    // 3. Wyślij do API (w tle)
-    await apiClient.put('/users/update-profile', { addHistory: historyItem });
-
-    // 4. Po otrzymaniu odpowiedzi z API, odśwież dane
-    await forceDataRefresh();
-
+    // 2. POKAŻ ALERT OD RAZU
     showAlert?.('success', 'Wyniki zostały zapisane.');
+
+    // 3. Synchronizuj z API i odśwież dane w tle (nie await!)
+    apiClient
+      .put('/users/update-profile', { addHistory: historyItem })
+      .then(() => forceDataRefresh())
+      .catch((error) => {
+        showAlert?.('error', 'Błąd podczas zapisywania wyników.');
+        console.error('Błąd zapisu historii:', error);
+      });
   } catch (error) {
     showAlert?.('error', 'Błąd podczas zapisywania wyników.');
     console.error('Błąd zapisu historii:', error);
