@@ -371,20 +371,23 @@ const updateSelectorPositionFromColor = (hexColor) => {
 
 // Obsługa motywu
 const saveTheme = async () => {
+  // 1. Natychmiastowa zmiana motywu lokalnie
+  store.dispatch('ui/setTheme', theme.value);
+
+  if (theme.value === 'dark') {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+
+  // 2. Zapisz w local/sessionStorage i store
+  const updatedUser = { ...user.value, option: theme.value };
+  store.commit('user/SET_USER', updatedUser);
+  sessionStorage.setItem('user', JSON.stringify(updatedUser));
+
+  // 3. Dopiero teraz wyślij żądanie do API (asynchronicznie)
   try {
     await apiClient.put('/users/update-profile', { option: theme.value });
-    store.dispatch('ui/setTheme', theme.value);
-
-    if (theme.value === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-
-    const updatedUser = { ...user.value, option: theme.value };
-    store.commit('user/SET_USER', updatedUser);
-    sessionStorage.setItem('user', JSON.stringify(updatedUser));
-
     showAlert('success', 'Motyw zapisany pomyślnie!');
   } catch (error) {
     showAlert('error', 'Błąd zapisu motywu.');

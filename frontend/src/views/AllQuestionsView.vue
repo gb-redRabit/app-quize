@@ -105,8 +105,8 @@
                     class="p-3 rounded-lg border border-transparent transition-all"
                     :class="
                       answer.isCorrect || answer.isCorret
-                        ? 'bg-green-50 border-green-200 dark:bg-green-900/30 dark:border-green-800'
-                        : 'bg-gray-100 dark:bg-gray-700/70 dark:border-gray-700'
+                        ? 'bg-green-50 border-green-200 dark:bg-green-900 dark:border-green-800'
+                        : 'bg-gray-100 dark:bg-gray-700 dark:border-gray-700'
                     "
                   >
                     <div class="flex items-center">
@@ -125,7 +125,7 @@
                       </span>
                       <span
                         v-if="answer.isCorrect || answer.isCorret"
-                        class="ml-3 text-green-600 dark:text-green-400 font-medium text-sm bg-green-100 dark:bg-green-900/60 py-1 px-2 rounded"
+                        class="ml-3 text-green-600 dark:text-green-400 font-medium text-sm bg-green-100 dark:bg-green-600 py-1 px-2 rounded"
                       >
                         Poprawna
                       </span>
@@ -137,7 +137,7 @@
               <div v-if="q.description" class="mt-4">
                 <h3 class="font-medium mb-2 text-gray-700 dark:text-gray-300">Opis:</h3>
                 <p
-                  class="text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700/70 p-3 rounded-lg"
+                  class="text-gray-600 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg"
                 >
                   {{ q.description }}
                 </p>

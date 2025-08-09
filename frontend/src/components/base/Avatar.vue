@@ -1,6 +1,6 @@
 <template>
   <div
-    class="inline-flex items-center justify-center rounded-full overflow-hidden dark:bg-white dark:bg-opacity-10"
+    class="inline-flex items-center justify-center rounded-full overflow-hidden bg-transparent"
     :style="{ width: `${size}px`, height: `${size}px`, padding: paddingSize }"
   >
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-full h-full relative">

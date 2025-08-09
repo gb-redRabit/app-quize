@@ -391,7 +391,6 @@ watch(
   () => route.path,
   (newPath) => {
     if (newPath === '/') {
-      console.log('Powrót na stronę główną - odświeżanie danych.');
       refreshAllData();
     }
   },
