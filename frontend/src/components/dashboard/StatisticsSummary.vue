@@ -83,13 +83,19 @@ const wrongAnswers = computed(() => {
 const quizCount = computed(() => {
   forceRefresh.value;
   const history = store.getters['user/getUserHistory'] || [];
-  return history.filter((h) => h.type === 'quiz').length;
+  // Zlicz wszystkie, których typ zaczyna się od "Quiz"
+  return history.filter(
+    (h) => typeof h.type === 'string' && h.type.toLowerCase().startsWith('quiz')
+  ).length;
 });
 
 const examCount = computed(() => {
   forceRefresh.value;
   const history = store.getters['user/getUserHistory'] || [];
-  return history.filter((h) => h.type === 'exam').length;
+  // Zlicz wszystkie, których typ zaczyna się od "Egzamin"
+  return history.filter(
+    (h) => typeof h.type === 'string' && h.type.toLowerCase().startsWith('egzamin')
+  ).length;
 });
 
 const avgScore = computed(() => {
