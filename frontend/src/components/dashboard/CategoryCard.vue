@@ -1,8 +1,10 @@
 <!-- filepath: d:\git nowe\app-quize\frontend\src\components\dashboard\CategoryCard.vue -->
 <template>
+  <!-- Dodaj data-category do identyfikacji elementu podczas odświeżania -->
   <div
+    :data-category="category"
     class="categories-container rounded-lg border-2 shadow-sm p-4 transition-all duration-300 hover:shadow-lg"
-    :class="cardClass"
+    :class="[cardClass, isRefreshing ? 'refreshing' : '']"
   >
     <div class="flex justify-between items-start mb-3">
       <h3
@@ -162,6 +164,9 @@ const emit = defineEmits([
   'refresh-data',
 ]);
 
+// Dodaj stan do śledzenia odświeżania
+const isRefreshing = ref(false);
+
 // Wszystkie funkcje pomocnicze bezpośrednio w komponencie
 const categoryStats = (cat) => {
   // Wymuszenie przerenderowania przy każdym wywołaniu
@@ -318,21 +323,31 @@ const startQuizWithLimit = (limit) => {
 // Dodanie nasłuchiwania na zdarzenie odświeżania danych
 onMounted(() => {
   window.addEventListener('user-data-refreshed', handleDataRefresh);
+  window.addEventListener('category-history-cleared', handleDataRefresh);
 });
 
 onUnmounted(() => {
   window.removeEventListener('user-data-refreshed', handleDataRefresh);
+  window.removeEventListener('category-history-cleared', handleDataRefresh);
 });
 
-// Funkcja obsługująca odświeżanie danych
+// Funkcja obsługująca odświeżanie danych - rozszerz istniejącą funkcję
 const handleDataRefresh = (event) => {
   // Sprawdzamy czy zdarzenie dotyczy naszej kategorii
   if (!event.detail.category || event.detail.category === props.category) {
+    // Ustaw flagę odświeżania na true
+    isRefreshing.value = true;
+
     // Zwiększamy forceUpdate aby wymusić przerenderowanie
     forceUpdate.value++;
 
     // Powiadom rodzica o potrzebie odświeżenia danych
     emit('refresh-data');
+
+    // Resetuj flagę odświeżania po krótkim czasie
+    setTimeout(() => {
+      isRefreshing.value = false;
+    }, 500);
   }
 };
 
@@ -348,14 +363,23 @@ watch(
 <style scoped>
 @keyframes refresh {
   0% {
+    opacity: 0.5;
+    transform: scale(0.98);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+  50% {
     opacity: 0.8;
+    transform: scale(1.01);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
   }
   100% {
     opacity: 1;
+    transform: scale(1);
+    box-shadow: none;
   }
 }
 
 .refreshing {
-  animation: refresh 0.3s ease-out;
+  animation: refresh 0.8s ease-out forwards;
 }
 </style>

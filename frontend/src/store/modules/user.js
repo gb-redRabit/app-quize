@@ -98,7 +98,11 @@ export default {
       sessionStorage.removeItem('user');
       // Po wylogowaniu
     },
-    async clearCategoryHistory({ dispatch, commit, state }, category) {
+    async clearCategoryHistory({ dispatch, commit, state }, payload) {
+      // Obsługa zarówno string jak i obiektu jako argumentu
+      const category = typeof payload === 'string' ? payload : payload.category;
+      const refreshUI = typeof payload === 'object' && payload.refreshUI === true;
+
       try {
         // Sprawdź, czy kategoria istnieje
         if (!category) {
@@ -106,28 +110,50 @@ export default {
           return;
         }
 
-        // Wywołaj API do czyszczenia kategorii
-        await apiClient.put('/users/clear-category', { category });
+        // Natychmiastowa aktualizacja UI (optymistyczne UI)
+        if (refreshUI) {
+          // Filtruj hquestion dla tej kategorii
+          const filteredHq = state.hquestion.filter((q) => q.category !== category);
+          commit('SET_HQUESTION', filteredHq);
 
-        // Pobierz pełne, aktualne dane po czyszczeniu zamiast filtrować lokalnie
-        // To zapewni, że mamy najświeższe dane z serwera
-        await dispatch('fetchUserHistoryAndHQ');
-        await dispatch('questions/fetchStats', null, { root: true });
+          // Filtruj historię zawierającą tę kategorię
+          const filteredHistory = state.history.filter((h) => {
+            if (h.category) return h.category !== category;
+            if (h.categories) return !h.categories.includes(category);
+            return true;
+          });
+          commit('SET_USER_HISTORY', filteredHistory);
 
-        // Wyczyść cache w localStorage/sessionStorage
-        try {
-          const userStr = sessionStorage.getItem('user');
-          if (userStr) {
-            const userData = JSON.parse(userStr);
-            userData.hquestion = userData.hquestion?.filter((q) => q.category !== category) || [];
-            sessionStorage.setItem('user', JSON.stringify(userData));
+          // Aktualizacja session storage
+          try {
+            const userStr = sessionStorage.getItem('user');
+            if (userStr) {
+              const userData = JSON.parse(userStr);
+              userData.hquestion = filteredHq;
+              userData.history = filteredHistory;
+              sessionStorage.setItem('user', JSON.stringify(userData));
+            }
+          } catch (e) {
+            console.error('Błąd aktualizacji sessionStorage', e);
           }
-        } catch (e) {
-          console.error('Błąd podczas aktualizacji sessionStorage', e);
         }
 
-        // Emituj event aby powiadomić wszystkie komponenty o zmianie
-        window.dispatchEvent(new CustomEvent('user-data-refreshed', { detail: { category } }));
+        // Wywołanie API
+        await apiClient.put('/users/clear-category', { category });
+
+        // Pobierz zaktualizowane dane
+        await dispatch('fetchUserHistoryAndHQ');
+
+        // Emituj zdarzenie odświeżenia UI
+        window.dispatchEvent(
+          new CustomEvent('user-data-refreshed', {
+            detail: {
+              category,
+              timestamp: Date.now(),
+              source: 'clearCategoryHistory',
+            },
+          })
+        );
 
         return true;
       } catch (e) {

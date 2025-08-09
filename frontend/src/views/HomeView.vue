@@ -295,48 +295,85 @@ const startExamNotDone = async (cat) => {
 
 async function clearCategoryHistory(category) {
   try {
-    // Pokaż indykator ładowania jeśli masz
-    // loading.value = true;
+    // Pokaż powiadomienie o rozpoczęciu procesu
+    showAlert('info', `Czyszczenie historii kategorii "${category}"...`);
 
-    // Wywołanie akcji z modułu user
-    await store.dispatch('user/clearCategoryHistory', category);
-
-    // Wyczyść lokalne dane dla tej kategorii
+    // 1. Najpierw optymistycznie zaktualizuj lokalny stan
     if (categoryStats.value[category]) {
-      categoryStats.value[category] = { correct: 0, wrong: 0, notDone: 0 };
+      categoryStats.value[category] = {
+        correct: 0,
+        wrong: 0,
+        notDone: questionsHelper.categoryCounts.value[category] || 0,
+      };
     }
 
-    // Odśwież lokalne statystyki
-    await calculateCategoryStats();
-
-    // Resetuj widok dla tej kategorii
+    // 2. Resetuj opcje quizu dla tej kategorii
     if (showQuizOptions.value[category]) {
       showQuizOptions.value[category] = false;
     }
 
-    // // Wymuś przerenderowanie komponentów
-    // nextTick(() => {
-    //   // Wymuś odświeżenie widoku
-    //   const tempView = viewType.value;
-    //   const tempFilter = activeFilter.value;
+    // 3. Wywołaj akcję w store z dodatkowym parametrem refreshUI
+    await store.dispatch('user/clearCategoryHistory', { category, refreshUI: true });
 
-    //   // Przełącz filtr by wymusić pełne przerenderowanie
-    //   activeFilter.value = 'temp_filter';
-    //   viewType.value = viewType.value === 'grid' ? 'list' : 'grid';
+    // 4. Emituj własne zdarzenie na poziomie komponentu HomeView
+    window.dispatchEvent(
+      new CustomEvent('category-history-cleared', {
+        detail: {
+          category,
+          timestamp: Date.now(),
+          forceUIRefresh: true,
+        },
+      })
+    );
 
-    //   // Przywróć oryginalne wartości po krótkiej chwili
-    //   setTimeout(() => {
-    //     activeFilter.value = tempFilter;
-    //     viewType.value = tempView;
-    //   }, 50);
-    // });
+    // 5. Po otrzymaniu odpowiedzi z serwera, wymuś aktualizację wszystkich danych
+    await Promise.all([
+      store.dispatch('user/fetchUserHistoryAndHQ'),
+      store.dispatch('questions/fetchStats'),
+    ]);
 
+    // 6. Zaktualizuj lokalne statystyki
+    await calculateCategoryStats();
+
+    // 7. Pokaż powiadomienie o sukcesie
     showAlert('success', `Historia kategorii "${category}" została wyczyszczona`);
   } catch (e) {
     console.error('Błąd podczas czyszczenia historii kategorii:', e);
     showAlert('error', 'Nie udało się wyczyścić historii kategorii.');
   }
 }
+
+// Dodaj tę funkcję przed onMounted, razem z innymi funkcjami obsługującymi zdarzenia
+// Funkcja obsługująca odświeżanie danych użytkownika
+const handleDataRefresh = async (event) => {
+  console.debug('Otrzymano zdarzenie user-data-refreshed');
+  try {
+    // Pobierz zaktualizowane dane
+    await store.dispatch('user/fetchUserHistoryAndHQ');
+
+    // Ponownie oblicz statystyki kategorii
+    await calculateCategoryStats();
+
+    // Jeśli zdarzenie zawiera konkretną kategorię, odśwież tylko jej UI
+    if (event.detail && event.detail.category) {
+      const category = event.detail.category;
+      nextTick(() => {
+        const cardsContainer = document.querySelector('.categories-list');
+        if (cardsContainer) {
+          const cards = cardsContainer.querySelectorAll('.categories-container');
+          cards.forEach((card) => {
+            if (card.dataset.category === category) {
+              card.classList.add('refreshing');
+              setTimeout(() => card.classList.remove('refreshing'), 500);
+            }
+          });
+        }
+      });
+    }
+  } catch (e) {
+    console.error('Błąd podczas odświeżania danych:', e);
+  }
+};
 
 // Dodaj tę funkcję po deklaracji zmiennych stanu, przed metodami
 const calculateCategoryStats = async () => {
@@ -375,26 +412,46 @@ const calculateCategoryStats = async () => {
   }
 };
 
-// Dodaj słuchacza wydarzenia do odświeżania danych
+// Dodaj słuchacza wydarzeń w onMounted
 onMounted(async () => {
   // Oblicz początkowe statystyki kategorii
   await calculateCategoryStats();
 
-  // Istniejący kod...
+  // Nasłuchuj na zdarzenia odświeżające dane
   window.addEventListener('user-data-refreshed', handleDataRefresh);
+  window.addEventListener('category-history-cleared', handleCategoryClearedEvent);
 });
 
 onUnmounted(() => {
   window.removeEventListener('user-data-refreshed', handleDataRefresh);
+  window.removeEventListener('category-history-cleared', handleCategoryClearedEvent);
 });
 
-const handleDataRefresh = async (event) => {
-  // Odśwież statystyki kategorii
-  await calculateCategoryStats();
+// Dodaj nową funkcję do obsługi zdarzenia czyszczenia kategorii
+const handleCategoryClearedEvent = async (event) => {
+  const { category } = event.detail;
 
-  // Wymuś przerenderowanie komponentu
+  // Wymuś natychmiastowe przeliczenie statystyk dla tej kategorii
+  const totalQuestions = questionsHelper.categoryCounts.value[category] || 0;
+  categoryStats.value[category] = {
+    correct: 0,
+    wrong: 0,
+    notDone: totalQuestions,
+  };
+
+  // Wymuś przerenderowanie komponentów poprzez zmianę ich kluczy
+  // Jest to bardziej efektywne niż manipulowanie stanem widoku
   nextTick(() => {
-    // Opcjonalnie zrób coś dodatkowo po odświeżeniu
+    const cardsContainer = document.querySelector('.categories-list');
+    if (cardsContainer) {
+      const cards = cardsContainer.querySelectorAll('.categories-container');
+      cards.forEach((card) => {
+        if (card.dataset.category === category) {
+          card.classList.add('refreshing');
+          setTimeout(() => card.classList.remove('refreshing'), 500);
+        }
+      });
+    }
   });
 };
 </script>

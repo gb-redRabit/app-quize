@@ -200,10 +200,12 @@ const getCategoryPercentCompleteClass = (cat) => {
 onMounted(() => {
   // Nasłuchuj na zmiany danych użytkownika
   window.addEventListener('user-data-refreshed', handleDataRefresh);
+  window.addEventListener('category-history-cleared', handleCategoryClearedEvent);
 });
 
 onUnmounted(() => {
   window.removeEventListener('user-data-refreshed', handleDataRefresh);
+  window.removeEventListener('category-history-cleared', handleCategoryClearedEvent);
 });
 
 // Dodaj funkcję obsługującą odświeżenie danych
@@ -224,6 +226,33 @@ const handleDataRefresh = (event) => {
 
   // Wymuś przerenderowanie komponentu
   nextTick(() => {
+    // Opcjonalnie wywołaj funkcję przekazaną z rodzica do odświeżenia danych
+    emit('refresh-data');
+  });
+};
+
+// Dodaj nową funkcję obsługi zdarzenia
+const handleCategoryClearedEvent = (event) => {
+  const { category } = event.detail;
+
+  // Natychmiast zresetuj statystyki dla czyszczonej kategorii
+  if (props.categoryStats && props.categoryStats[category]) {
+    props.categoryStats[category] = {
+      correct: 0,
+      wrong: 0,
+      notDone: questionsHelper.categoryCounts.value[category] || 0,
+    };
+  }
+
+  // Wymuś przerenderowanie komponentu
+  nextTick(() => {
+    // Znajdź element kategorii i dodaj klasę animacji
+    const categoryRow = document.querySelector(`[data-category="${category}"]`);
+    if (categoryRow) {
+      categoryRow.classList.add('refreshing');
+      setTimeout(() => categoryRow.classList.remove('refreshing'), 800);
+    }
+
     // Opcjonalnie wywołaj funkcję przekazaną z rodzica do odświeżenia danych
     emit('refresh-data');
   });

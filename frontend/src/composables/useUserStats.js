@@ -1,9 +1,10 @@
 // useUserStats.js
-import { computed } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useStore } from 'vuex';
 
 export function useUserStats() {
   const store = useStore();
+  const forceRefresh = ref(0);
 
   // Dane użytkownika
   const hquestion = computed(() => store.getters['user/getHquestion'] || []);
@@ -15,6 +16,7 @@ export function useUserStats() {
 
   // Statystyki odpowiedzi
   const hqStats = computed(() => {
+    forceRefresh.value; // Wymuś przeliczenie
     const hq = hquestion.value;
     const done = hq.length;
     const correct = hq.filter((q) => q.correct === true).length;
@@ -25,6 +27,7 @@ export function useUserStats() {
 
   // Statystyki historii
   const historyStats = computed(() => {
+    forceRefresh.value; // Wymuś przeliczenie
     const onlyMain = userHistory.value.filter((h) => h.type === 'quiz' || h.type === 'egzamin');
     const quizCount = userHistory.value.filter((h) => h.type === 'quiz').length;
     const examCount = userHistory.value.filter((h) => h.type === 'egzamin').length;
@@ -140,6 +143,22 @@ export function useUserStats() {
     return await store.dispatch('user/fetchUserHistoryAndHQ');
   };
 
+  const refreshStats = async () => {
+    await store.dispatch('user/fetchUserHistoryAndHQ');
+    forceRefresh.value++;
+  };
+
+  // Obsługa zdarzeń
+  onMounted(() => {
+    window.addEventListener('quiz-completed', () => forceRefresh.value++);
+    window.addEventListener('user-data-refreshed', () => forceRefresh.value++);
+  });
+
+  onUnmounted(() => {
+    window.removeEventListener('quiz-completed', () => forceRefresh.value++);
+    window.removeEventListener('user-data-refreshed', () => forceRefresh.value++);
+  });
+
   // Zwracane API
   return {
     hquestion,
@@ -154,5 +173,6 @@ export function useUserStats() {
     getCategoryStatusClass,
     getCategoryCardClass,
     refreshData,
+    refreshStats,
   };
 }

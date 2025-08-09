@@ -535,9 +535,21 @@ const saveUserHistory = async () => {
       }),
     };
 
+    // 1. Natychmiast aktualizuj dane w store - optymistyczne aktualizacje
+    const updatedHistory = [...store.state.user.history, historyItem];
+    store.commit('user/SET_USER_HISTORY', updatedHistory);
+
+    // 2. Natychmiast emituj zdarzenie, nie czekając na serwer
+    window.dispatchEvent(
+      new CustomEvent('quiz-completed', {
+        detail: { score: score.value, total: questions.value.length },
+      })
+    );
+
+    // 3. Wyślij do API (w tle)
     await apiClient.put('/users/update-profile', { addHistory: historyItem });
 
-    // Odśwież dane
+    // 4. Po otrzymaniu odpowiedzi z API, odśwież dane
     await forceDataRefresh();
 
     showAlert?.('success', 'Wyniki zostały zapisane.');
@@ -560,8 +572,22 @@ const correctAnswerText = (q) => {
 
 const forceDataRefresh = async () => {
   try {
+    // 1. Pobierz najnowsze dane z serwera
     await store.dispatch('user/fetchUserHistoryAndHQ');
+    await store.dispatch('questions/fetchStats');
+
+    // 2. Ręcznie aktualizuj cache
     await updateWrongOrNotDoneCache();
+
+    // 3. Wymuś odświeżenie komponentów przez zdarzenie
+    window.dispatchEvent(
+      new CustomEvent('user-data-refreshed', {
+        detail: {
+          timestamp: Date.now(),
+          forceUIUpdate: true,
+        },
+      })
+    );
   } catch (error) {
     console.error('Błąd podczas odświeżania danych:', error);
   }
@@ -767,7 +793,7 @@ watch(
   }
 );
 
-// Obserwuj zmiany w answersStatus i aktualizuj cache
+// Obserwuj zmiany in answersStatus i aktualizuj cache
 watch(
   () => answersStatus.value.filter((a) => a.answered).length,
   async (newCount) => {
