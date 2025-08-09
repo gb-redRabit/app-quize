@@ -109,7 +109,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick, inject, watch, onBeforeMount } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick, inject, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
@@ -196,8 +196,31 @@ const activeFilter = ref('all');
 const viewType = ref('grid');
 const gridColumns = ref(3);
 const searchQuery = ref('');
-const categoryStats = ref({});
 const showUserGuide = ref(false);
+
+const categoryStats = computed(() => {
+  const stats = {};
+  const categories = questionsHelper.categories.value;
+  const hquestion = store.getters['user/getHquestion'] || [];
+  const categoryCounts = questionsHelper.categoryCounts.value;
+
+  if (!categories || !categories.length) return {};
+
+  for (const category of categories) {
+    const totalQuestions = categoryCounts[category] || 0;
+    const categoryHistory = hquestion.filter((q) => q.category === category);
+    const correctAnswers = categoryHistory.filter((q) => q.correct === true).length;
+    const wrongAnswers = categoryHistory.length - correctAnswers;
+    const notDone = totalQuestions - categoryHistory.length;
+
+    stats[category] = {
+      correct: correctAnswers,
+      wrong: wrongAnswers,
+      notDone: Math.max(0, notDone),
+    };
+  }
+  return stats;
+});
 
 // Obliczone właściwości
 const filteredCategories = computed(() => {
@@ -296,344 +319,85 @@ const startExamNotDone = async (cat) => {
 
 async function clearCategoryHistory(category) {
   try {
-    // Pokaż powiadomienie o rozpoczęciu procesu
-    showAlert('info', `Czyszczenie historii kategorii "${category}"...`);
+    showAlert('info', `Czyszczenie historii dla kategorii: "${category}"...`);
 
-    // 1. Dodaj trwałą blokadę dla kategorii (zwiększ czas do 24h)
-    const blockRefreshKey = `block_refresh_${category}`;
-    const expiryTime = Date.now() + 24 * 60 * 60 * 1000; // 24 godziny
-    sessionStorage.setItem(blockRefreshKey, expiryTime.toString());
+    // 1. Optymistyczna aktualizacja w store (to automatycznie odświeży computed `categoryStats`)
+    store.commit('user/CLEAR_CATEGORY_HISTORY_OPTIMISTIC', category);
 
-    // 2. Najpierw optymistycznie zaktualizuj lokalny stan
-    if (categoryStats.value[category]) {
-      categoryStats.value[category] = {
-        correct: 0,
-        wrong: 0,
-        notDone: questionsHelper.categoryCounts.value[category] || 0,
-      };
-    }
-
-    // 3. Resetuj opcje quizu dla tej kategorii
-    if (showQuizOptions.value[category]) {
-      showQuizOptions.value[category] = false;
-    }
-
-    // 4. Natychmiast filtruj dane w store dla lepszego UX
-    const hquestion = store.getters['user/getHquestion'] || [];
-    const filteredHq = hquestion.filter((q) => q.category !== category);
-    store.commit('user/SET_HQUESTION', filteredHq);
-
-    // Filtruj też historię zawierającą tę kategorię
-    const history = store.getters['user/getUserHistory'] || [];
-    const filteredHistory = history.filter((h) => {
-      if (h.category) return h.category !== category;
-      if (h.categories) return !h.categories.includes(category);
-      return true;
-    });
-    store.commit('user/SET_USER_HISTORY', filteredHistory);
-
-    // 5. Aktualizacja w sessionStorage z flagą blokady
+    // 2. Aktualizacja w sessionStorage
     const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
     if (userData) {
-      userData.hquestion = filteredHq;
-      userData.history = filteredHistory;
-      userData.clearedCategories = userData.clearedCategories || {};
-      userData.clearedCategories[category] = Date.now();
+      userData.hquestion = (userData.hquestion || []).filter((q) => q.category !== category);
+      userData.history = (userData.history || []).filter(
+        (h) => h.category !== category && !h.categories?.includes(category)
+      );
       sessionStorage.setItem('user', JSON.stringify(userData));
     }
 
-    // 6. Wywołaj akcję w store z dodatkowym parametrem permanent
-    const success = await store.dispatch('user/clearCategoryHistory', {
-      category,
-      refreshUI: true,
-      permanent: true,
-    });
+    // 3. Wywołaj akcję w store, która komunikuje się z API
+    const success = await store.dispatch('user/clearCategoryHistory', { category });
 
-    if (!success) {
-      throw new Error('Serwer nie potwierdził usunięcia danych');
+    if (success) {
+      showAlert('success', `Historia kategorii "${category}" została wyczyszczona.`);
+    } else {
+      throw new Error('Serwer nie potwierdził usunięcia danych.');
     }
-
-    // 7. Emituj zdarzenie czyszczenia kategorii
-    window.dispatchEvent(
-      new CustomEvent('category-history-cleared', {
-        detail: {
-          category,
-          timestamp: Date.now(),
-          forceUIRefresh: true,
-          permanent: true,
-        },
-      })
-    );
-
-    // 8. Tylko aktualizuj lokalne statystyki
-    await calculateCategoryStats();
-
-    // 9. Pokaż powiadomienie o sukcesie
-    showAlert('success', `Historia kategorii "${category}" została wyczyszczona`);
   } catch (e) {
     console.error('Błąd podczas czyszczenia historii kategorii:', e);
-    showAlert('error', 'Nie udało się wyczyścić historii kategorii.');
-
-    // Usuń blokadę w przypadku błędu
-    const blockRefreshKey = `block_refresh_${category}`;
-    sessionStorage.removeItem(blockRefreshKey);
+    showAlert('error', 'Nie udało się wyczyścić historii. Odświeżanie danych...');
+    // W razie błędu, pobierz świeże dane z serwera, aby zsynchronizować stan
+    await refreshAllData();
   }
 }
 
-// Dodaj tę funkcję przed onMounted, razem z innymi funkcjami obsługującymi zdarzenia
-// Funkcja obsługująca odświeżanie danych użytkownika
-const handleDataRefresh = async (event) => {
-  console.debug('Otrzymano zdarzenie user-data-refreshed');
-  try {
-    // Sprawdź czy istnieje blokada dla danej kategorii z uwzględnieniem czasu wygaśnięcia
-    if (event.detail && event.detail.category) {
-      const category = event.detail.category;
-      const blockRefreshKey = `block_refresh_${category}`;
-      const blockValue = sessionStorage.getItem(blockRefreshKey);
-
-      if (blockValue) {
-        const blockUntil = parseInt(blockValue, 10);
-        // Jeśli blokada jest aktywna i nie wygasła
-        if (!isNaN(blockUntil) && blockUntil > Date.now()) {
-          console.debug(
-            `Odświeżanie dla kategorii ${category} zablokowane do ${new Date(blockUntil)}`
-          );
-          return; // Przerwij odświeżanie
-        } else {
-          // Blokada wygasła, usuń ją
-          sessionStorage.removeItem(blockRefreshKey);
-        }
-      }
-    }
-
-    // Pobierz zaktualizowane dane, ale zastosuj filtr dla wyczyszczonych kategorii
-    const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
-    const clearedCategories = userData.clearedCategories || {};
-
-    // Pobierz dane
-    await store.dispatch('user/fetchUserHistoryAndHQ');
-
-    // Zastosuj filtr dla wyczyszczonych kategorii
-    if (Object.keys(clearedCategories).length > 0) {
-      const hquestion = store.getters['user/getHquestion'] || [];
-      const history = store.getters['user/getUserHistory'] || [];
-
-      // Filtruj pytania z wyczyszczonych kategorii
-      const filteredHq = hquestion.filter((q) => !clearedCategories[q.category]);
-
-      // Filtruj historię zawierającą wyczyszczone kategorie
-      const filteredHistory = history.filter((h) => {
-        if (h.category) return !clearedCategories[h.category];
-        if (h.categories) return !h.categories.some((cat) => clearedCategories[cat]);
-        return true;
-      });
-
-      // Aktualizuj store
-      if (filteredHq.length !== hquestion.length) {
-        store.commit('user/SET_HQUESTION', filteredHq);
-      }
-
-      if (filteredHistory.length !== history.length) {
-        store.commit('user/SET_USER_HISTORY', filteredHistory);
-      }
-    }
-
-    // Ponownie oblicz statystyki kategorii
-    await calculateCategoryStats();
-
-    // Odśwież UI dla konkretnej kategorii jeśli określono
-    if (event.detail && event.detail.category) {
-      const category = event.detail.category;
-      nextTick(() => {
-        const cardsContainer = document.querySelector('.categories-list');
-        if (cardsContainer) {
-          const cards = cardsContainer.querySelectorAll('.categories-container');
-          cards.forEach((card) => {
-            if (card.dataset.category === category) {
-              card.classList.add('refreshing');
-              setTimeout(() => card.classList.remove('refreshing'), 500);
-            }
-          });
-        }
-      });
-    }
-  } catch (e) {
-    console.error('Błąd podczas odświeżania danych:', e);
-  }
-};
-
-// Dodaj tę funkcję po deklaracji zmiennych stanu, przed metodami
-const calculateCategoryStats = async () => {
-  try {
-    // Pobierz wszystkie kategorie
-    const categories = questionsHelper.categories.value;
-    if (!categories || !categories.length) return;
-
-    // Pobierz historię odpowiedzi użytkownika
-    const hquestion = store.getters['user/getHquestion'] || [];
-
-    // Dla każdej kategorii oblicz statystyki
-    for (const category of categories) {
-      // Pobierz liczbę wszystkich pytań w kategorii
-      const totalQuestions = questionsHelper.categoryCounts.value[category] || 0;
-
-      // Pobierz historię odpowiedzi dla tej kategorii
-      const categoryHistory = hquestion.filter((q) => q.category === category);
-
-      // Oblicz poprawne i błędne odpowiedzi
-      const correctAnswers = categoryHistory.filter((q) => q.correct === true).length;
-      const wrongAnswers = categoryHistory.filter((q) => q.correct === false).length;
-
-      // Oblicz liczbę nierozwiązanych pytań
-      const notDone = totalQuestions - (correctAnswers + wrongAnswers);
-
-      // Zapisz statystyki dla kategorii
-      categoryStats.value[category] = {
-        correct: correctAnswers,
-        wrong: wrongAnswers,
-        notDone: Math.max(0, notDone), // Upewnij się, że liczba jest nieujemna
-      };
-    }
-  } catch (e) {
-    console.error('Błąd podczas obliczania statystyk kategorii:', e);
-  }
-};
-
-// Dodaj nową funkcję do obsługi zdarzenia czyszczenia kategorii
-const handleCategoryClearedEvent = async (event) => {
-  const { category } = event.detail;
-
-  // Wymuś natychmiastowe przeliczenie statystyk dla tej kategorii
-  const totalQuestions = questionsHelper.categoryCounts.value[category] || 0;
-  categoryStats.value[category] = {
-    correct: 0,
-    wrong: 0,
-    notDone: totalQuestions,
-  };
-
-  // Wymuś przerenderowanie komponentów poprzez zmianę ich kluczy
-  // Jest to bardziej efektywne niż manipulowanie stanem widoku
-  nextTick(() => {
-    const cardsContainer = document.querySelector('.categories-list');
-    if (cardsContainer) {
-      const cards = cardsContainer.querySelectorAll('.categories-container');
-      cards.forEach((card) => {
-        if (card.dataset.category === category) {
-          card.classList.add('refreshing');
-          setTimeout(() => card.classList.remove('refreshing'), 500);
-        }
-      });
-    }
-  });
-};
-
-// Dodaj poniżej innych deklaracji
-// Dodaj nową funkcję odświeżania wszystkich danych
+// ZASTĄP istniejącą funkcję refreshAllData
 const refreshAllData = async () => {
   try {
-    showAlert('info', 'Aktualizacja danych...');
-
-    // Pobierz wszystkie dane z serwera
     await Promise.all([
       store.dispatch('user/fetchUserHistoryAndHQ'),
       store.dispatch('questions/fetchStats'),
     ]);
-
-    // Zastosuj filtr dla wyczyszczonych kategorii
-    const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
-    const clearedCategories = userData.clearedCategories || {};
-
-    if (Object.keys(clearedCategories).length > 0) {
-      const hquestion = store.getters['user/getHquestion'] || [];
-      const history = store.getters['user/getUserHistory'] || [];
-
-      // Filtruj pytania z wyczyszczonych kategorii
-      const filteredHq = hquestion.filter((q) => !clearedCategories[q.category]);
-
-      // Filtruj historię
-      const filteredHistory = history.filter((h) => {
-        if (h.category) return !clearedCategories[h.category];
-        if (h.categories) return !h.categories.some((cat) => clearedCategories[cat]);
-        return true;
-      });
-
-      // Aktualizuj store
-      if (filteredHq.length !== hquestion.length) {
-        store.commit('user/SET_HQUESTION', filteredHq);
-      }
-
-      if (filteredHistory.length !== history.length) {
-        store.commit('user/SET_USER_HISTORY', filteredHistory);
-      }
-    }
-
-    // Przelicz statystyki lokalnie
-    await calculateCategoryStats();
-
-    // Wymuś odświeżenie wszystkich komponentów
-    window.dispatchEvent(
-      new CustomEvent('user-data-refreshed', {
-        detail: {
-          all: true,
-          timestamp: Date.now(),
-          forceUIUpdate: true,
-        },
-      })
-    );
-
-    showAlert('success', 'Dane zaktualizowane');
   } catch (e) {
     console.error('Błąd podczas odświeżania danych:', e);
-    showAlert('error', 'Nie udało się zaktualizować danych');
+    showAlert('error', 'Nie udało się zaktualizować danych.');
   }
 };
 
-// Dodaj poniżej pozostałych hooków cyklu życia
-onBeforeMount(async () => {
-  // Odśwież dane przed montowaniem komponentu
-  await refreshAllData();
-});
-
-// Dodaj watcher na zmianę ścieżki, aby odświeżać dane gdy użytkownik wraca na stronę główną
-watch(
-  () => route.path,
-  async (newPath, oldPath) => {
-    // Sprawdź czy jest to nawigacja do strony głównej z innej strony
-    if (newPath === '/' && oldPath !== undefined) {
-      console.log('Powrót na stronę główną - odświeżanie danych');
-      await refreshAllData();
-    }
-  }
-);
-
-// Zmodyfikuj istniejącą funkcję onMounted
-onMounted(async () => {
-  // Oblicz początkowe statystyki kategorii
-  await calculateCategoryStats();
-
-  // Nasłuchuj na zdarzenia odświeżające dane
-  window.addEventListener('user-data-refreshed', handleDataRefresh);
-  window.addEventListener('category-history-cleared', handleCategoryClearedEvent);
-
-  // Dodaj obserwowanie zdarzeń nawigacji z poziomu aplikacji
+// Zmodyfikuj hooki cyklu życia
+onMounted(() => {
+  // Nasłuchuj na zdarzenia
   document.addEventListener('visibilitychange', handleVisibilityChange);
+  // Odśwież dane przy pierwszym załadowaniu
+  refreshAllData();
 });
 
-// Dodaj tę funkcję pod onMounted
-const handleVisibilityChange = async () => {
-  // Sprawdź czy użytkownik wrócił do karty po tym jak była nieaktywna
-  if (document.visibilityState === 'visible' && route.path === '/') {
-    console.log('Karta aktywowana - odświeżanie danych');
-    await refreshAllData();
-  }
-};
-
-// Rozszerz onUnmounted o usunięcie nowego listenera
 onUnmounted(() => {
-  window.removeEventListener('user-data-refreshed', handleDataRefresh);
-  window.removeEventListener('category-history-cleared', handleCategoryClearedEvent);
   document.removeEventListener('visibilitychange', handleVisibilityChange);
 });
+
+// ZASTĄP istniejący watcher
+watch(
+  () => route.path,
+  (newPath) => {
+    if (newPath === '/') {
+      console.log('Powrót na stronę główną - odświeżanie danych.');
+      refreshAllData();
+    }
+  },
+  { immediate: true } // `immediate: true` uruchomi watcher od razu po załadowaniu komponentu
+);
+
+// USUŃ hook onBeforeMount
+
+// Zmodyfikuj handleVisibilityChange
+const handleVisibilityChange = () => {
+  if (document.visibilityState === 'visible' && route.path === '/') {
+    console.log('Karta aktywowana - odświeżanie danych.');
+    refreshAllData();
+  }
+};
+
+// ... reszta kodu ...
 </script>
 
 <style scoped></style>

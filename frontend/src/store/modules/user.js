@@ -20,6 +20,14 @@ export default {
     SET_AUTHENTICATED(state, status) {
       state.isAuthenticated = status;
     },
+    CLEAR_CATEGORY_HISTORY_OPTIMISTIC(state, category) {
+      state.hquestion = state.hquestion.filter((q) => q.category !== category);
+      state.history = state.history.filter((h) => {
+        if (h.category) return h.category !== category;
+        if (h.categories) return !h.categories.includes(category);
+        return true;
+      });
+    },
   },
   actions: {
     // Dodajemy akcję inicjalizacji danych użytkownika
