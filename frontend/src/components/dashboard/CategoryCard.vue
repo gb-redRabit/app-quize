@@ -1,10 +1,9 @@
 <!-- filepath: d:\git nowe\app-quize\frontend\src\components\dashboard\CategoryCard.vue -->
 <template>
-  <!-- Dodaj data-category do identyfikacji elementu podczas odświeżania -->
   <div
     :data-category="category"
     class="categories-container rounded-lg border-2 shadow-sm p-4 transition-all duration-300 hover:shadow-lg"
-    :class="[cardClass, isRefreshing ? 'refreshing' : '']"
+    :class="cardClass"
   >
     <div class="flex justify-between items-start mb-3">
       <h3
@@ -29,9 +28,11 @@
         </span>
       </div>
     </div>
-    <div class="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700 flex overflow-hidden mb-3">
+    <!-- POPRAWIONY PASEK POSTĘPU -->
+    <div class="w-full h-2 rounded-full bg-gray-300 dark:bg-gray-700 flex overflow-hidden mb-3">
       <div class="bg-green-400 h-full" :style="{ width: `${percentage.correct}%` }"></div>
       <div class="bg-red-400 h-full" :style="{ width: `${percentage.wrong}%` }"></div>
+      <div class="bg-gray-400 h-full" :style="{ width: `${percentage.notDone}%` }"></div>
     </div>
     <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-4">
       <div class="flex gap-2">
@@ -140,18 +141,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import { useStore } from 'vuex';
+import { computed, defineProps, defineEmits } from 'vue';
 import BaseButton from '@/components/base/BaseButton.vue';
-
-// Zainicjuj store na początku
-const store = useStore();
-
-// Używany do wymuszenia przerenderowania
-const forceUpdate = ref(0);
 
 const props = defineProps({
   category: { type: String, required: true },
+  stats: {
+    type: Object,
+    required: true,
+    default: () => ({ correct: 0, wrong: 0, notDone: 0 }),
+  },
   showQuizOptions: { type: Boolean, default: false },
 });
 
@@ -161,55 +160,50 @@ const emit = defineEmits([
   'start-exam',
   'go-to-questions',
   'clear-history',
-  'refresh-data',
 ]);
 
-// Dodaj stan do śledzenia odświeżania
-const isRefreshing = ref(false);
+// --- Obliczone właściwości dla statystyk ---
 
-// Wszystkie funkcje pomocnicze bezpośrednio w komponencie
-const categoryStats = (cat) => {
-  // Wymuszenie przerenderowania przy każdym wywołaniu
-  forceUpdate.value;
+const total = computed(() => {
+  if (!props.stats) return 0;
+  return props.stats.correct + props.stats.wrong + props.stats.notDone;
+});
 
-  const hquestion = store.getters['user/getHquestion'] || [];
-  const all = hquestion.filter((q) => q.category === cat);
-  const correct = all.filter((q) => q.correct === true).length;
-  const wrong = all.filter((q) => q.correct === false).length;
-  const categoryCounts = store.getters['questions/getCategoryCounts'] || {};
-  const total = categoryCounts[cat] || 0;
-  const notDone = total - all.length;
-  return { correct, wrong, notDone: Math.max(0, notDone) };
-};
+const doneCount = computed(() => {
+  if (!props.stats) return 0;
+  return props.stats.correct + props.stats.wrong;
+});
 
-const categoryPercentage = (cat) => {
-  const stats = categoryStats(cat);
-  const categoryCounts = store.getters['questions/getCategoryCounts'] || {};
-  const total = categoryCounts[cat] || 0;
-  if (total === 0) return { correct: 0, wrong: 0 };
+const percentComplete = computed(() => {
+  if (total.value === 0) return 0;
+  return Math.round((doneCount.value / total.value) * 100);
+});
+
+const percentage = computed(() => {
+  // Pasek postępu pokazuje proporcje wszystkich 3 statusów WZGLĘDEM całej puli pytań.
+  if (total.value === 0) {
+    return { correct: 0, wrong: 0, notDone: 100 };
+  }
   return {
-    correct: (stats.correct / total) * 100,
-    wrong: (stats.wrong / total) * 100,
+    correct: (props.stats.correct / total.value) * 100,
+    wrong: (props.stats.wrong / total.value) * 100,
+    notDone: (props.stats.notDone / total.value) * 100,
   };
-};
+});
 
-const categoryPercentComplete = (cat) => {
-  const stats = categoryStats(cat);
-  const categoryCounts = store.getters['questions/getCategoryCounts'] || {};
-  const total = categoryCounts[cat] || 0;
-  if (total === 0) return 0;
-  return Math.round(((stats.correct + stats.wrong) / total) * 100);
-};
+const isDisabled = computed(() => {
+  if (!props.stats) return true;
+  return props.stats.notDone === 0 && props.stats.wrong === 0;
+});
 
-const getCategoryStatus = (cat) => {
-  const stats = categoryStats(cat);
-  const categoryCounts = store.getters['questions/getCategoryCounts'] || {};
-  const total = categoryCounts[cat] || 0;
-  if (total === 0) return '';
-  const percentDone = ((stats.correct + stats.wrong) / total) * 100;
+// --- PRZYWRÓCONA, PEŁNA LOGIKA STATUSU I KLAS CSS ---
+
+const categoryStatus = computed(() => {
+  if (!props.stats || total.value === 0) return 'Nowa';
+  const percentDone = (doneCount.value / total.value) * 100;
   if (percentDone === 0) return 'Nowa';
   if (percentDone === 100) {
-    const percentCorrect = (stats.correct / total) * 100;
+    const percentCorrect = (props.stats.correct / total.value) * 100;
     if (percentCorrect === 100) return 'Opanowana';
     if (percentCorrect >= 80) return 'Bardzo dobra';
     if (percentCorrect >= 60) return 'Dobra';
@@ -220,10 +214,9 @@ const getCategoryStatus = (cat) => {
   if (percentDone >= 50) return 'Połowa';
   if (percentDone >= 25) return 'Rozpoczęta';
   return 'Nowa';
-};
+});
 
-const getCategoryStatusClass = (cat) => {
-  const status = getCategoryStatus(cat);
+const statusClass = computed(() => {
   const classes = {
     Opanowana: 'bg-green-200 text-green-900 dark:bg-green-700 dark:text-green-100',
     'Bardzo dobra': 'bg-blue-300 text-blue-900 dark:bg-blue-700 dark:text-blue-100',
@@ -235,132 +228,53 @@ const getCategoryStatusClass = (cat) => {
     Rozpoczęta: 'bg-purple-200 text-purple-900 dark:bg-purple-700 dark:text-purple-100',
     Nowa: 'bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-gray-100',
   };
-  return classes[status] || 'bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-gray-100';
-};
-
-const getCategoryCardClass = (cat) => {
-  const stats = categoryStats(cat);
-  const categoryCounts = store.getters['questions/getCategoryCounts'] || {};
-  const total = categoryCounts[cat] || 0;
-  if (total === 0) return 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700';
-  const percentDone = ((stats.correct + stats.wrong) / total) * 100;
-  const percentCorrect =
-    stats.correct > 0 ? (stats.correct / (stats.correct + stats.wrong)) * 100 : 0;
-
-  if (percentDone === 0) return 'bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600';
-  if (stats.correct === total)
-    return 'bg-green-200 border-green-500 shadow-lg text-green-900 dark:bg-green-800 dark:border-green-600 dark:text-green-100';
-  if (stats.wrong === total)
-    return 'bg-red-200 border-red-500 shadow-lg text-red-900 dark:bg-red-800 dark:border-red-600 dark:text-red-100';
-  if (percentDone > 50 && percentCorrect > 70)
-    return 'bg-green-100 border-green-400 shadow-md text-green-800 dark:bg-green-900 dark:border-green-500 dark:text-green-200';
-  if (percentDone > 50 && percentCorrect >= 40)
-    return 'bg-yellow-100 border-yellow-400 shadow-md text-yellow-800 dark:bg-yellow-900 dark:border-yellow-500 dark:text-yellow-200';
-  if (percentDone > 50)
-    return 'bg-red-100 border-red-400 shadow-md text-red-800 dark:bg-red-900 dark:border-red-500 dark:text-red-200';
-  if (percentCorrect > 70)
-    return 'bg-emerald-100 border-emerald-300 text-emerald-800 dark:bg-emerald-900 dark:border-emerald-500 dark:text-emerald-200';
-  if (percentCorrect >= 40)
-    return 'bg-amber-100 border-amber-300 text-amber-800 dark:bg-amber-900 dark:border-amber-500 dark:text-amber-200';
-
-  return 'bg-orange-100 border-orange-300 text-orange-800 dark:bg-orange-900 dark:border-orange-500 dark:text-orange-200';
-};
-
-// Computed properties wykorzystujące forceUpdate do wymuszania przeliczania
-const stats = computed(() => {
-  forceUpdate.value; // To wymusza przeliczenie
-  return categoryStats(props.category);
-});
-
-const percentage = computed(() => {
-  forceUpdate.value;
-  return categoryPercentage(props.category);
-});
-
-const percentComplete = computed(() => {
-  forceUpdate.value;
-  return categoryPercentComplete(props.category);
-});
-
-const total = computed(() => {
-  forceUpdate.value;
-  return stats.value.correct + stats.value.wrong + stats.value.notDone;
-});
-
-const isDisabled = computed(() => {
-  forceUpdate.value;
-  return stats.value.notDone === 0 && stats.value.wrong === 0;
-});
-
-const categoryStatus = computed(() => {
-  forceUpdate.value;
-  return getCategoryStatus(props.category);
-});
-
-const statusClass = computed(() => {
-  forceUpdate.value;
-  return getCategoryStatusClass(props.category);
+  return classes[categoryStatus.value] || classes['Nowa'];
 });
 
 const cardClass = computed(() => {
-  forceUpdate.value;
-  return getCategoryCardClass(props.category);
+  if (!props.stats || total.value === 0)
+    return 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700';
+
+  const percentDone = (doneCount.value / total.value) * 100;
+  const percentCorrectOfDone =
+    doneCount.value > 0 ? (props.stats.correct / doneCount.value) * 100 : 0;
+
+  if (percentDone === 0) return 'bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600';
+  if (props.stats.correct === total.value)
+    return 'bg-green-200 border-green-500 shadow-lg text-green-900 dark:bg-green-800 dark:border-green-600 dark:text-green-100';
+  if (props.stats.wrong === total.value)
+    return 'bg-red-200 border-red-500 shadow-lg text-red-900 dark:bg-red-800 dark:border-red-600 dark:text-red-100';
+  if (percentDone > 50 && percentCorrectOfDone > 70)
+    return 'bg-green-100 border-green-400 shadow-md text-green-800 dark:bg-green-900 dark:border-green-500 dark:text-green-200';
+  if (percentDone > 50 && percentCorrectOfDone >= 40)
+    return 'bg-yellow-100 border-yellow-400 shadow-md text-yellow-800 dark:bg-yellow-900 dark:border-yellow-500 dark:text-yellow-200';
+  if (percentDone > 50)
+    return 'bg-red-100 border-red-400 shadow-md text-red-800 dark:bg-red-900 dark:border-red-500 dark:text-red-200';
+  if (percentCorrectOfDone > 70)
+    return 'bg-emerald-100 border-emerald-300 text-emerald-800 dark:bg-emerald-900 dark:border-emerald-500 dark:text-emerald-200';
+  if (percentCorrectOfDone >= 40)
+    return 'bg-amber-100 border-amber-300 text-amber-800 dark:bg-amber-900 dark:border-amber-500 dark:text-amber-200';
+
+  return 'bg-orange-100 border-orange-300 text-orange-800 dark:bg-orange-900 dark:border-orange-500 dark:text-orange-200';
 });
 
 const percentCompleteClass = computed(() => {
-  forceUpdate.value;
   const percent = percentComplete.value;
   if (percent > 75) return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
   if (percent > 25) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-  return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+  return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
 });
+
+// --- Funkcje pomocnicze ---
 
 const startQuizWithLimit = (limit) => {
   emit('toggle-quiz-options');
   emit('start-quiz', props.category, limit);
 };
-
-// Dodanie nasłuchiwania na zdarzenie odświeżania danych
-onMounted(() => {
-  window.addEventListener('user-data-refreshed', handleDataRefresh);
-  window.addEventListener('category-history-cleared', handleDataRefresh);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('user-data-refreshed', handleDataRefresh);
-  window.removeEventListener('category-history-cleared', handleDataRefresh);
-});
-
-// Funkcja obsługująca odświeżanie danych - rozszerz istniejącą funkcję
-const handleDataRefresh = (event) => {
-  // Sprawdzamy czy zdarzenie dotyczy naszej kategorii
-  if (!event.detail.category || event.detail.category === props.category) {
-    // Ustaw flagę odświeżania na true
-    isRefreshing.value = true;
-
-    // Zwiększamy forceUpdate aby wymusić przerenderowanie
-    forceUpdate.value++;
-
-    // Powiadom rodzica o potrzebie odświeżenia danych
-    emit('refresh-data');
-
-    // Resetuj flagę odświeżania po krótkim czasie
-    setTimeout(() => {
-      isRefreshing.value = false;
-    }, 500);
-  }
-};
-
-// Obserwuj zmiany w danych użytkownika, aby aktualizować statystyki
-watch(
-  () => store.getters['user/getHquestion'],
-  () => {
-    forceUpdate.value++;
-  }
-);
 </script>
 
 <style scoped>
+/* Styl animacji pozostaje bez zmian */
 @keyframes refresh {
   0% {
     opacity: 0.5;

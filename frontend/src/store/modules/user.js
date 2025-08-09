@@ -21,12 +21,21 @@ export default {
       state.isAuthenticated = status;
     },
     CLEAR_CATEGORY_HISTORY_OPTIMISTIC(state, category) {
-      state.hquestion = state.hquestion.filter((q) => q.category !== category);
-      state.history = state.history.filter((h) => {
-        if (h.category) return h.category !== category;
-        if (h.categories) return !h.categories.includes(category);
-        return true;
-      });
+      // Ta część jest POPRAWNA - usuwa historię odpowiedzi na poszczególne pytania
+      if (state.hquestion) {
+        state.hquestion = state.hquestion.filter((q) => q.category !== category);
+      }
+
+      // Usuwamy tę część, aby nie kasować historii ukończonych quizów/egzaminów
+      /*
+      if (state.history) {
+        state.history = state.history.filter(h => {
+          if (h.category) return h.category !== category;
+          if (h.categories) return !h.categories.includes(category);
+          return true;
+        });
+      }
+      */
     },
   },
   actions: {
@@ -106,65 +115,14 @@ export default {
       sessionStorage.removeItem('user');
       // Po wylogowaniu
     },
-    async clearCategoryHistory({ dispatch, commit, state }, payload) {
-      // Obsługa zarówno string jak i obiektu jako argumentu
-      const category = typeof payload === 'string' ? payload : payload.category;
-      const refreshUI = typeof payload === 'object' && payload.refreshUI === true;
-
+    async clearCategoryHistory({ dispatch }, { category }) {
       try {
-        // Sprawdź, czy kategoria istnieje
-        if (!category) {
-          return false;
-        }
-
-        // Natychmiastowa aktualizacja UI (optymistyczne UI)
-        if (refreshUI) {
-          // Filtruj hquestion dla tej kategorii
-          const filteredHq = state.hquestion.filter((q) => q.category !== category);
-          commit('SET_HQUESTION', filteredHq);
-
-          // Filtruj historię zawierającą tę kategorię
-          const filteredHistory = state.history.filter((h) => {
-            if (h.category) return h.category !== category;
-            if (h.categories) return !h.categories.includes(category);
-            return true;
-          });
-          commit('SET_USER_HISTORY', filteredHistory);
-
-          // Aktualizacja session storage
-          try {
-            const userStr = sessionStorage.getItem('user');
-            if (userStr) {
-              const userData = JSON.parse(userStr);
-              userData.hquestion = filteredHq;
-              userData.history = filteredHistory;
-              sessionStorage.setItem('user', JSON.stringify(userData));
-            }
-          } catch (e) {
-            console.error('Błąd aktualizacji sessionStorage', e);
-          }
-        }
-
-        // Wywołanie API
         const response = await apiClient.put('/users/clear-category', { category });
-        if (!response.data?.success) {
-          console.warn('Serwer nie potwierdził sukcesu operacji clearCategory');
-        }
-
-        // Emituj zdarzenie odświeżenia UI
-        window.dispatchEvent(
-          new CustomEvent('user-data-refreshed', {
-            detail: {
-              category,
-              timestamp: Date.now(),
-              source: 'clearCategoryHistory',
-            },
-          })
-        );
-
-        return true;
+        // Po pomyślnym wyczyszczeniu na serwerze, odświeżamy tylko ogólne statystyki pytań
+        dispatch('questions/fetchStats', null, { root: true });
+        return response.data?.success ?? true;
       } catch (e) {
-        console.error('Błąd podczas czyszczenia pytań z kategorii:', e);
+        console.error('Błąd API podczas czyszczenia pytań z kategorii:', e);
         return false;
       }
     },

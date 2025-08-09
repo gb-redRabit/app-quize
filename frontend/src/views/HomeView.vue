@@ -62,6 +62,7 @@
               v-for="cat in searchedCategories"
               :key="cat"
               :category="cat"
+              :stats="categoryStats[cat] || { correct: 0, wrong: 0, notDone: 0 }"
               :show-quiz-options="showQuizOptions[cat]"
               class="categories-list"
               @toggle-quiz-options="showQuizOptions[cat] = !showQuizOptions[cat]"
@@ -317,40 +318,39 @@ const startExamNotDone = async (cat) => {
   }
 };
 
+// ZASTĄP ISTNIEJĄCĄ FUNKCJĘ clearCategoryHistory
 async function clearCategoryHistory(category) {
+  showAlert('info', `Czyszczenie historii dla kategorii: "${category}"...`);
+
+  // 1. Optymistyczna aktualizacja UI poprzez zmianę w store.
+  // `categoryStats` (computed) automatycznie przeliczy się i odświeży widok.
+  store.commit('user/CLEAR_CATEGORY_HISTORY_OPTIMISTIC', category);
+
+  // 2. Aktualizacja sessionStorage, aby stan przetrwał odświeżenie strony.
+  const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
+  if (userData.hquestion) {
+    // Upewniamy się, że modyfikujemy TYLKO hquestion, a nie główną historię
+    userData.hquestion = userData.hquestion.filter((q) => q.category !== category);
+    sessionStorage.setItem('user', JSON.stringify(userData));
+  }
+
   try {
-    showAlert('info', `Czyszczenie historii dla kategorii: "${category}"...`);
-
-    // 1. Optymistyczna aktualizacja w store (to automatycznie odświeży computed `categoryStats`)
-    store.commit('user/CLEAR_CATEGORY_HISTORY_OPTIMISTIC', category);
-
-    // 2. Aktualizacja w sessionStorage
-    const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
-    if (userData) {
-      userData.hquestion = (userData.hquestion || []).filter((q) => q.category !== category);
-      userData.history = (userData.history || []).filter(
-        (h) => h.category !== category && !h.categories?.includes(category)
-      );
-      sessionStorage.setItem('user', JSON.stringify(userData));
-    }
-
-    // 3. Wywołaj akcję w store, która komunikuje się z API
+    // 3. Wywołaj API w tle. Nie czekamy na wynik, aby UI było responsywne.
     const success = await store.dispatch('user/clearCategoryHistory', { category });
-
     if (success) {
       showAlert('success', `Historia kategorii "${category}" została wyczyszczona.`);
     } else {
       throw new Error('Serwer nie potwierdził usunięcia danych.');
     }
   } catch (e) {
+    // 4. W razie błędu API, przywróć prawdziwy stan z serwera.
     console.error('Błąd podczas czyszczenia historii kategorii:', e);
-    showAlert('error', 'Nie udało się wyczyścić historii. Odświeżanie danych...');
-    // W razie błędu, pobierz świeże dane z serwera, aby zsynchronizować stan
+    showAlert('error', 'Nie udało się wyczyścić historii. Przywracanie stanu...');
     await refreshAllData();
   }
 }
 
-// ZASTĄP istniejącą funkcję refreshAllData
+// ZASTĄP ISTNIEJĄCĄ FUNKCJĘ refreshAllData
 const refreshAllData = async () => {
   try {
     await Promise.all([
@@ -363,16 +363,16 @@ const refreshAllData = async () => {
   }
 };
 
-// Zmodyfikuj hooki cyklu życia
+// ZASTĄP ISTNIEJĄCE onMounted i onUnmounted
 onMounted(() => {
-  // Nasłuchuj na zdarzenia
   document.addEventListener('visibilitychange', handleVisibilityChange);
-  // Odśwież dane przy pierwszym załadowaniu
-  refreshAllData();
+  // Nasłuchuj na zdarzenie zakończenia quizu, aby odświeżyć dane
+  window.addEventListener('quiz-completed', refreshAllData);
 });
 
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', handleVisibilityChange);
+  window.removeEventListener('quiz-completed', refreshAllData);
 });
 
 // ZASTĄP istniejący watcher
