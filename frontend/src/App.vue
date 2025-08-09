@@ -4,61 +4,55 @@
     class="w-[100vw] flex flex-col items-center justify-start min-h-screen dark:bg-gray-900 dark:text-gray-200"
     :data-theme="currentTheme"
   >
-    <Navbar v-if="showNavbar" />
-    <!-- testowanie modal sesji -->
-    <!-- <button
-      class="fixed bottom-8 left-8 z-50 bg-yellow-400 px-4 py-2 rounded shadow-lg"
-      @click="showSessionExpirationModal(2)"
-    >
-      Testuj modal sesji
-    </button> -->
-    <!-- Ulepszony skeleton z lepszym dopasowaniem do treści strony -->
-    <div v-if="isPageLoading && showNavbar" class="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto">
-      <BaseSkeleton
-        :variant="skeletonVariant"
-        :cardCount="skeletonCardCount"
-        :showLines="showSkeletonLines"
-        :showCards="showSkeletonCards"
-        :showHeader="showSkeletonHeader"
-        :showSubtitle="showSkeletonSubtitle"
-        :containerClass="skeletonContainerClass"
-        :gridCols="skeletonGridCols"
-        :lineWidths="getLineWidths"
-        class="my-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
-      />
-    </div>
-
-    <router-view v-else :key="$route.fullPath" />
-
-    <!-- Globalne komponenty -->
-    <BaseAlert ref="globalAlert" />
-    <BaseLoader ref="globalLoader" />
-    <BaseModal :show="showSessionModal" @close="showSessionModal = false">
-      <template #header>
-        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Sesja wygasa</h2>
-      </template>
-      <div class="p-2 text-gray-700 dark:text-gray-200">
-        Twoja sesja wygaśnie za około <b>{{ sessionMinutesLeft }}</b> minut.<br />
-        Kliknij poniżej, aby odświeżyć sesję i kontynuować pracę.
+    <template v-if="isAuthChecked">
+      <Navbar v-if="showNavbar" />
+      <div v-if="isPageLoading && showNavbar" class="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto">
+        <BaseSkeleton
+          :variant="skeletonVariant"
+          :cardCount="skeletonCardCount"
+          :showLines="showSkeletonLines"
+          :showCards="showSkeletonCards"
+          :showHeader="showSkeletonHeader"
+          :showSubtitle="showSkeletonSubtitle"
+          :containerClass="skeletonContainerClass"
+          :gridCols="skeletonGridCols"
+          :lineWidths="getLineWidths"
+          class="my-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
+        />
       </div>
-      <template #footer>
-        <button
-          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-60"
-          :disabled="sessionModalLoading"
-          @click="refreshSessionToken"
-        >
-          <span v-if="sessionModalLoading">Odświeżanie...</span>
-          <span v-else>Odśwież sesję</span>
-        </button>
-        <button
-          class="ml-2 px-4 py-2 rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-          @click="showSessionModal = false"
-          :disabled="sessionModalLoading"
-        >
-          Zamknij
-        </button>
-      </template>
-    </BaseModal>
+
+      <router-view :key="$route.fullPath" />
+
+      <!-- Globalne komponenty -->
+      <BaseAlert ref="globalAlert" />
+      <BaseLoader ref="globalLoader" v-if="globalLoaderVisible" />
+      <BaseModal :show="showSessionModal" @close="showSessionModal = false">
+        <template #header>
+          <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Sesja wygasa</h2>
+        </template>
+        <div class="p-2 text-gray-700 dark:text-gray-200">
+          Twoja sesja wygaśnie za około <b>{{ sessionMinutesLeft }}</b> minut.<br />
+          Kliknij poniżej, aby odświeżyć sesję i kontynuować pracę.
+        </div>
+        <template #footer>
+          <button
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-60"
+            :disabled="sessionModalLoading"
+            @click="refreshSessionToken"
+          >
+            <span v-if="sessionModalLoading">Odświeżanie...</span>
+            <span v-else>Odśwież sesję</span>
+          </button>
+          <button
+            class="ml-2 px-4 py-2 rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            @click="showSessionModal = false"
+            :disabled="sessionModalLoading"
+          >
+            Zamknij
+          </button>
+        </template>
+      </BaseModal>
+    </template>
   </div>
 </template>
 
@@ -85,8 +79,10 @@ export default {
     return {
       isPageLoading: false,
       showSessionModal: false,
+      globalLoaderVisible: false,
       sessionMinutesLeft: 5,
       sessionModalLoading: false,
+      isAuthChecked: false,
     };
   },
 
@@ -238,6 +234,9 @@ export default {
 
     // Sprawdź od razu po starcie
     this.checkTokenExpiration();
+
+    // Sprawdź autoryzację przed pokazaniem aplikacji
+    this.checkAuthOnStart();
   },
 
   beforeUnmount() {
@@ -348,6 +347,40 @@ export default {
       } catch (e) {
         // Ignoruj błędy parsowania
       }
+    },
+
+    async checkAuthOnStart() {
+      const token = sessionStorage.getItem('token');
+      if (!token) {
+        // Jeśli nie ma tokenu, przekieruj na login (jeśli nie jesteś już na login)
+        if (this.$route.name !== 'Login' && this.$route.name !== 'Register') {
+          await this.$router.replace({ name: 'Login' });
+        }
+        this.isAuthChecked = true;
+        this.$hideLoader();
+        return;
+      }
+      // Jeśli jest token, możesz dodać dodatkową weryfikację (np. /users/me)
+      try {
+        await this.$store.dispatch('user/verifySession');
+        this.isAuthChecked = true;
+        this.$hideLoader();
+      } catch (e) {
+        // Jeśli token nieważny, przekieruj na login
+        if (this.$route.name !== 'Login' && this.$route.name !== 'Register') {
+          await this.$router.replace({ name: 'Login' });
+        }
+        this.isAuthChecked = true;
+        this.$hideLoader();
+      }
+    },
+    $showLoader() {
+      this.globalLoaderVisible = true;
+      this.$refs.globalLoader?.show();
+    },
+    $hideLoader() {
+      this.globalLoaderVisible = false;
+      this.$refs.globalLoader?.hide();
     },
   },
 };

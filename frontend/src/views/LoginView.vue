@@ -80,8 +80,32 @@
             color="blue"
             size="lg"
             class="w-full py-3 mt-6 font-semibold flex items-center justify-center gap-2 rounded-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            :disabled="isLoggingIn"
           >
-            <span>Zaloguj się</span>
+            <span class="flex items-center justify-center">
+              <svg
+                v-if="isLoggingIn"
+                class="animate-spin h-5 w-5 mr-2 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+              <span>{{ isLoggingIn ? 'Logowanie...' : 'Zaloguj się' }}</span>
+            </span>
           </BaseButton>
         </form>
 
@@ -143,7 +167,7 @@ import BaseButton from '@/components/base/BaseButton.vue';
 // Zmienne reaktywne
 const loginInput = ref('');
 const password = ref('');
-
+const isLoggingIn = ref(false);
 // Store, router i alert
 const store = useStore();
 const router = useRouter();
@@ -156,6 +180,7 @@ const handleLogin = async () => {
     return;
   }
 
+  isLoggingIn.value = true;
   try {
     await store.dispatch('user/login', {
       login: loginInput.value,
@@ -163,13 +188,13 @@ const handleLogin = async () => {
     });
 
     showAlert('success', 'Zalogowano pomyślnie');
-
-    // Przekierowanie po zalogowaniu
     setTimeout(() => {
       router.push('/');
     }, 300);
   } catch (error) {
     showAlert('error', 'Niepoprawny login lub hasło');
+  } finally {
+    isLoggingIn.value = false;
   }
 };
 </script>
