@@ -353,6 +353,8 @@ async function clearCategoryHistory(category) {
 // ZASTĄP ISTNIEJĄCĄ FUNKCJĘ refreshAllData
 const refreshAllData = async () => {
   try {
+    // Przed odświeżeniem danych
+    await apiClient.clearCache();
     await Promise.all([
       store.dispatch('user/fetchUserHistoryAndHQ'),
       store.dispatch('questions/fetchStats'),

@@ -48,6 +48,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// Dodaj globalny middleware PRZED obsługą tras API
+app.use((req, res, next) => {
+  res.setHeader(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate"
+  );
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+  next();
+});
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
