@@ -299,9 +299,10 @@ async function clearCategoryHistory(category) {
     // Pokaż powiadomienie o rozpoczęciu procesu
     showAlert('info', `Czyszczenie historii kategorii "${category}"...`);
 
-    // 1. Dodaj blokadę przed ponownym pobraniem danych dla tej kategorii
+    // 1. Dodaj trwałą blokadę dla kategorii (zwiększ czas do 24h)
     const blockRefreshKey = `block_refresh_${category}`;
-    sessionStorage.setItem(blockRefreshKey, 'true');
+    const expiryTime = Date.now() + 24 * 60 * 60 * 1000; // 24 godziny
+    sessionStorage.setItem(blockRefreshKey, expiryTime.toString());
 
     // 2. Najpierw optymistycznie zaktualizuj lokalny stan
     if (categoryStats.value[category]) {
@@ -322,17 +323,30 @@ async function clearCategoryHistory(category) {
     const filteredHq = hquestion.filter((q) => q.category !== category);
     store.commit('user/SET_HQUESTION', filteredHq);
 
-    // 5. Aktualizacja w sessionStorage
+    // Filtruj też historię zawierającą tę kategorię
+    const history = store.getters['user/getUserHistory'] || [];
+    const filteredHistory = history.filter((h) => {
+      if (h.category) return h.category !== category;
+      if (h.categories) return !h.categories.includes(category);
+      return true;
+    });
+    store.commit('user/SET_USER_HISTORY', filteredHistory);
+
+    // 5. Aktualizacja w sessionStorage z flagą blokady
     const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
-    if (userData && userData.hquestion) {
+    if (userData) {
       userData.hquestion = filteredHq;
+      userData.history = filteredHistory;
+      userData.clearedCategories = userData.clearedCategories || {};
+      userData.clearedCategories[category] = Date.now();
       sessionStorage.setItem('user', JSON.stringify(userData));
     }
 
-    // 6. Wywołaj akcję w store
+    // 6. Wywołaj akcję w store z dodatkowym parametrem permanent
     const success = await store.dispatch('user/clearCategoryHistory', {
       category,
       refreshUI: true,
+      permanent: true,
     });
 
     if (!success) {
@@ -346,20 +360,15 @@ async function clearCategoryHistory(category) {
           category,
           timestamp: Date.now(),
           forceUIRefresh: true,
+          permanent: true,
         },
       })
     );
 
-    // 8. NIE pobieraj ponownie danych z serwera - to może przywracać stare dane
-    // zamiast tego tylko aktualizuj lokalne statystyki
+    // 8. Tylko aktualizuj lokalne statystyki
     await calculateCategoryStats();
 
-    // 9. Poczekaj krótko przed usunięciem blokady (aby zapobiec wyścigom)
-    setTimeout(() => {
-      sessionStorage.removeItem(blockRefreshKey);
-    }, 5000);
-
-    // 10. Pokaż powiadomienie o sukcesie
+    // 9. Pokaż powiadomienie o sukcesie
     showAlert('success', `Historia kategorii "${category}" została wyczyszczona`);
   } catch (e) {
     console.error('Błąd podczas czyszczenia historii kategorii:', e);
@@ -376,22 +385,63 @@ async function clearCategoryHistory(category) {
 const handleDataRefresh = async (event) => {
   console.debug('Otrzymano zdarzenie user-data-refreshed');
   try {
-    // Sprawdź czy istnieje blokada dla danej kategorii
+    // Sprawdź czy istnieje blokada dla danej kategorii z uwzględnieniem czasu wygaśnięcia
     if (event.detail && event.detail.category) {
-      const blockRefreshKey = `block_refresh_${event.detail.category}`;
-      if (sessionStorage.getItem(blockRefreshKey) === 'true') {
-        console.debug(`Odświeżanie dla kategorii ${event.detail.category} zablokowane`);
-        return; // Przerwij odświeżanie
+      const category = event.detail.category;
+      const blockRefreshKey = `block_refresh_${category}`;
+      const blockValue = sessionStorage.getItem(blockRefreshKey);
+
+      if (blockValue) {
+        const blockUntil = parseInt(blockValue, 10);
+        // Jeśli blokada jest aktywna i nie wygasła
+        if (!isNaN(blockUntil) && blockUntil > Date.now()) {
+          console.debug(
+            `Odświeżanie dla kategorii ${category} zablokowane do ${new Date(blockUntil)}`
+          );
+          return; // Przerwij odświeżanie
+        } else {
+          // Blokada wygasła, usuń ją
+          sessionStorage.removeItem(blockRefreshKey);
+        }
       }
     }
 
-    // Pobierz zaktualizowane dane
+    // Pobierz zaktualizowane dane, ale zastosuj filtr dla wyczyszczonych kategorii
+    const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
+    const clearedCategories = userData.clearedCategories || {};
+
+    // Pobierz dane
     await store.dispatch('user/fetchUserHistoryAndHQ');
+
+    // Zastosuj filtr dla wyczyszczonych kategorii
+    if (Object.keys(clearedCategories).length > 0) {
+      const hquestion = store.getters['user/getHquestion'] || [];
+      const history = store.getters['user/getUserHistory'] || [];
+
+      // Filtruj pytania z wyczyszczonych kategorii
+      const filteredHq = hquestion.filter((q) => !clearedCategories[q.category]);
+
+      // Filtruj historię zawierającą wyczyszczone kategorie
+      const filteredHistory = history.filter((h) => {
+        if (h.category) return !clearedCategories[h.category];
+        if (h.categories) return !h.categories.some((cat) => clearedCategories[cat]);
+        return true;
+      });
+
+      // Aktualizuj store
+      if (filteredHq.length !== hquestion.length) {
+        store.commit('user/SET_HQUESTION', filteredHq);
+      }
+
+      if (filteredHistory.length !== history.length) {
+        store.commit('user/SET_USER_HISTORY', filteredHistory);
+      }
+    }
 
     // Ponownie oblicz statystyki kategorii
     await calculateCategoryStats();
 
-    // Jeśli zdarzenie zawiera konkretną kategorię, odśwież tylko jej UI
+    // Odśwież UI dla konkretnej kategorii jeśli określono
     if (event.detail && event.detail.category) {
       const category = event.detail.category;
       nextTick(() => {
@@ -488,6 +538,34 @@ const refreshAllData = async () => {
       store.dispatch('user/fetchUserHistoryAndHQ'),
       store.dispatch('questions/fetchStats'),
     ]);
+
+    // Zastosuj filtr dla wyczyszczonych kategorii
+    const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
+    const clearedCategories = userData.clearedCategories || {};
+
+    if (Object.keys(clearedCategories).length > 0) {
+      const hquestion = store.getters['user/getHquestion'] || [];
+      const history = store.getters['user/getUserHistory'] || [];
+
+      // Filtruj pytania z wyczyszczonych kategorii
+      const filteredHq = hquestion.filter((q) => !clearedCategories[q.category]);
+
+      // Filtruj historię
+      const filteredHistory = history.filter((h) => {
+        if (h.category) return !clearedCategories[h.category];
+        if (h.categories) return !h.categories.some((cat) => clearedCategories[cat]);
+        return true;
+      });
+
+      // Aktualizuj store
+      if (filteredHq.length !== hquestion.length) {
+        store.commit('user/SET_HQUESTION', filteredHq);
+      }
+
+      if (filteredHistory.length !== history.length) {
+        store.commit('user/SET_USER_HISTORY', filteredHistory);
+      }
+    }
 
     // Przelicz statystyki lokalnie
     await calculateCategoryStats();
