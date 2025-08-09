@@ -193,7 +193,7 @@
           :total="quizLength"
           :userAnswerText="userAnswerText"
           :correctAnswerText="correctAnswerText"
-          :allQuestionsCompleted="noMoreQuestions"
+          :allQuestionsCompleted="allQuestionsCompleted"
           @restart="restartQuiz"
           @retry-wrong="retryWrongQuestions"
           @go-home="goToHome"
@@ -224,7 +224,7 @@ const showAlert = inject('showAlert');
 
 // Parametry przekazywane z URL
 const mode = computed(() => (route.name === 'ExamView' ? 'exam' : 'quiz'));
-const categories = ref(route.query.categories || 'all');
+const hquestion = computed(() => store.getters['user/getHquestion'] || []);
 const initialQuizLength = parseInt(route.query.length, 10) || 10;
 
 // Stan komponentu
@@ -242,7 +242,7 @@ const startTime = ref(null);
 const wrongOrNotDoneIdsCache = ref([]);
 const questionList = ref(null);
 const quizActivityInterval = ref(null); // <-- DODAJ TĘ LINIĘ
-
+const allQuestionsInCategory = ref([]);
 // Stan timera (tylko dla trybu egzaminu)
 const examTimeMinutes = ref(parseInt(route.query.time, 10) || 60);
 const timeLeft = ref(examTimeMinutes.value * 60);
@@ -267,9 +267,17 @@ const answeredCount = computed(() => {
   return (answersStatus.value || []).filter((a) => a.answered).length;
 });
 
-const noMoreQuestions = computed(() => {
-  if (!route.query.categories) return false;
-  return (wrongOrNotDoneIdsCache.value || []).length === 0;
+const allQuestionsCompleted = computed(() => {
+  if (!route.query.categories || !allQuestionsInCategory.value.length) return false;
+  // Każde pytanie musi mieć wpis w historii i być poprawnie rozwiązane
+  return allQuestionsInCategory.value.every((q) =>
+    hquestion.value.some(
+      (hq) =>
+        (hq.id === q.ID || hq.id === q.id || hq.id === q.Id || hq.id === q.id_question) &&
+        hq.category === q.category &&
+        hq.correct === true
+    )
+  );
 });
 
 // Funkcja inicjalizująca timer (tylko dla egzaminu)
@@ -848,6 +856,13 @@ onMounted(async () => {
 
   // Wyemituj zdarzenie aktywności quizu na początku
   window.dispatchEvent(new CustomEvent('quiz-activity'));
+
+  if (route.query.categories) {
+    allQuestionsInCategory.value = await store.dispatch(
+      'questions/fetchQuestionsByCategory',
+      route.query.categories
+    );
+  }
 });
 
 // Dodaj tę funkcję POZA onMounted, na tym samym poziomie co onMounted
