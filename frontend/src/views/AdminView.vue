@@ -113,14 +113,14 @@
             <label
               for="batch-ids"
               class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
-              >ID pytań (oddzielone przecinkami)</label
+              >ID pytań (oddzielone przecinkami lub zakresami)</label
             >
             <input
               type="text"
               id="batch-ids"
               v-model="batchIdsInput"
               class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-              placeholder="Np. 123, 456, 789"
+              placeholder="Np. 123, 456, 789 lub 123 - 125 albo 123-130, 131, 132-134"
             />
           </div>
           <div>
@@ -163,16 +163,23 @@
           </div>
         </div>
         <div class="mt-4 flex flex-col md:flex-row gap-2">
-          <BaseButton color="blue" @click="fetchBatchQuestions" class="w-full md:w-auto"
-            >Pobierz pytania</BaseButton
+          <BaseButton
+            color="blue"
+            @click="fetchBatchQuestions"
+            class="w-full md:w-auto"
+            :loading="isFetchingBatch"
           >
+            Pobierz pytania
+          </BaseButton>
           <BaseButton
             color="green"
             @click="saveBatchEdit"
             :disabled="!batchQuestions.length"
             class="w-full md:w-auto"
-            >Zapisz zmiany</BaseButton
+            :loading="isSavingBatch"
           >
+            Zapisz zmiany
+          </BaseButton>
         </div>
 
         <!-- Tabela z pytaniami do edycji grupowej -->
@@ -571,7 +578,8 @@ const categories = ref([]);
 const selectedCategory = ref('');
 const showConfirmDelete = ref(false);
 const deleting = ref(false);
-
+const isFetchingBatch = ref(false);
+const isSavingBatch = ref(false);
 const showAddPopup = ref(false);
 const newCategoryInput = ref('');
 const showExcelInfo = ref(false);
@@ -818,29 +826,57 @@ async function clearQuestions() {
 
 // Pobieranie pytań do edycji grupowej
 async function fetchBatchQuestions() {
-  const ids = batchIdsInput.value
-    .split(',')
-    .map((id) => id.trim())
-    .filter((id) => /^\d+$/.test(id));
-  if (!ids.length) {
-    showAlert?.('warning', 'Podaj poprawne ID pytań (oddzielone przecinkami)');
-    return;
-  }
+  isFetchingBatch.value = true;
   try {
-    const res = await apiClient.get(`/questions?ids=${ids.join(',')}`);
-    batchQuestions.value = Array.isArray(res.data.questions) ? res.data.questions : [];
-    if (batchQuestions.value.length === 0) {
-      showAlert?.('info', 'Nie znaleziono pytań o podanych ID.');
+    // Rozdziel po przecinku, obsłuż pojedyncze ID i zakresy
+    const ids = batchIdsInput.value
+      .split(',')
+      .map((part) => part.trim())
+      .flatMap((part) => {
+        if (/^\d+$/.test(part)) {
+          // pojedyncze ID
+          return [part];
+        }
+        // zakres np. 123-130
+        const match = part.match(/^(\d+)\s*-\s*(\d+)$/);
+        if (match) {
+          const from = parseInt(match[1], 10);
+          const to = parseInt(match[2], 10);
+          if (from <= to) {
+            // generuj tablicę ID z zakresu
+            return Array.from({ length: to - from + 1 }, (_, i) => String(from + i));
+          }
+        }
+        return [];
+      })
+      .filter((id) => /^\d+$/.test(id));
+
+    if (!ids.length) {
+      showAlert?.(
+        'warning',
+        'Podaj poprawne ID pytań (oddzielone przecinkami lub zakresy np. 123-130)'
+      );
+      return;
     }
-  } catch (e) {
-    showAlert?.('error', 'Błąd podczas pobierania pytań.');
-    batchQuestions.value = [];
+    try {
+      const res = await apiClient.get(`/questions?ids=${ids.join(',')}`);
+      batchQuestions.value = Array.isArray(res.data.questions) ? res.data.questions : [];
+      if (batchQuestions.value.length === 0) {
+        showAlert?.('info', 'Nie znaleziono pytań o podanych ID.');
+      }
+    } catch (e) {
+      showAlert?.('error', 'Błąd podczas pobierania pytań.');
+      batchQuestions.value = [];
+    }
+  } finally {
+    isFetchingBatch.value = false;
   }
 }
 
 // Zapisywanie zmian w pytaniach
 async function saveBatchEdit() {
   if (!batchQuestions.value.length) return;
+  isSavingBatch.value = true;
   try {
     await Promise.all(
       batchQuestions.value.map((q) => {
@@ -871,6 +907,8 @@ async function saveBatchEdit() {
     await store.dispatch('questions/fetchStats');
   } catch (e) {
     showAlert?.('error', 'Błąd podczas grupowej edycji pytań.');
+  } finally {
+    isSavingBatch.value = false;
   }
 }
 </script>
