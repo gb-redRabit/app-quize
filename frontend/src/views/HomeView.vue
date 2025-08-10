@@ -153,11 +153,17 @@ const questionsHelper = (() => {
   );
 
   const otherCategories = computed(() =>
-    categories.value.filter((cat) => cat && !examCategories.value.includes(cat))
+    categories.value.filter(
+      (cat) =>
+        cat &&
+        !examCategories.value.includes(cat) &&
+        !cat.startsWith('TP:') &&
+        !cat.startsWith('TP :')
+    )
   );
 
   const lawTestCategories = computed(() =>
-    categories.value.filter((cat) => cat && cat.startsWith('TP:'))
+    categories.value.filter((cat) => (cat && cat.startsWith('TP:')) || cat.startsWith('TP :'))
   );
 
   const getQuestionIdsForQuiz = async (cat) => {
