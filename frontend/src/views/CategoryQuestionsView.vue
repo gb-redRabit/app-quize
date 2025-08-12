@@ -135,12 +135,28 @@
         </BaseButton>
 
         <!-- Przycisk Sortuj według opisu -->
-        <BaseButton color="blue" size="md" @click="toggleSortByDescription">
+        <!-- <BaseButton color="blue" size="md" @click="toggleSortByDescription">
           <div class="flex items-center">
             <img src="@/assets/icons/bars-3.svg" alt="Sortuj" class="h-5 w-5 mr-2 icon-filter" />
             <span>
-              Sortuj według opisu
+              Sortuj według pytania
               <span v-if="sortByDescription">(A-Z)</span>
+              <span v-else>(domyślnie)</span>
+            </span>
+          </div>
+        </BaseButton> -->
+
+        <!-- Przycisk Sortuj według pola "description" -->
+        <BaseButton color="blue" size="md" @click="toggleSortByDescriptionField">
+          <div class="flex items-center">
+            <img
+              src="@/assets/icons/bars-3.svg"
+              alt="Sortuj opis"
+              class="h-5 w-5 mr-2 icon-filter"
+            />
+            <span>
+              Sortuj według pola "art"
+              <span v-if="sortByDescriptionField">(A-Z)</span>
               <span v-else>(domyślnie)</span>
             </span>
           </div>
@@ -239,6 +255,7 @@ const sortByDescription = ref(false);
 const massFlagLoading = ref(false);
 // Dodaj forceUpdate tutaj, przed jego użyciem
 const forceUpdate = ref(0);
+const sortByDescriptionField = ref(false);
 
 // Store i router
 const store = useStore();
@@ -401,7 +418,13 @@ const duplicateQuestions = computed(() => {
 const sortedQuestions = computed(() => {
   let questions = [...filteredQuestions.value];
 
-  if (sortByDescription.value) {
+  if (sortByDescriptionField.value) {
+    questions.sort((a, b) => {
+      const descA = (a.description || '').toLowerCase();
+      const descB = (b.description || '').toLowerCase();
+      return descA.localeCompare(descB);
+    });
+  } else if (sortByDescription.value) {
     questions.sort((a, b) => {
       // Najpierw porównuj opisy
       const descA = (a.id || '').toLowerCase();
@@ -651,6 +674,16 @@ function toggleSortByDescription() {
   showAlert(
     'info',
     sortByDescription.value ? 'Sortowanie według opisu (A-Z)' : 'Przywrócono domyślne sortowanie'
+  );
+}
+
+function toggleSortByDescriptionField() {
+  sortByDescriptionField.value = !sortByDescriptionField.value;
+  showAlert(
+    'info',
+    sortByDescriptionField.value
+      ? 'Sortowanie według pola "description" (A-Z)'
+      : 'Przywrócono domyślne sortowanie'
   );
 }
 

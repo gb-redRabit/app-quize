@@ -210,6 +210,14 @@ const gridColumns = ref(3);
 const searchQuery = ref('');
 const showUserGuide = ref(false);
 
+// Sprawdź, czy użytkownik widział już instrukcję
+onMounted(() => {
+  if (!localStorage.getItem('userGuideSeen')) {
+    showUserGuide.value = true;
+    localStorage.setItem('userGuideSeen', '1');
+  }
+});
+
 const categoryStats = computed(() => {
   const stats = {};
   const categories = questionsHelper.categories.value;
