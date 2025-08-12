@@ -562,10 +562,12 @@ const prevStep = () => {
 // Zmodyfikuj funkcję closeGuide, aby upewnić się, że przewijanie jest odblokowane
 const closeGuide = () => {
   resetElementStyles();
-  enableScroll(); // Odblokuj przewijanie
-  localStorage.setItem('userGuideShown', 'true');
   emit('close');
   currentStep.value = 0;
+  localStorage.setItem('userGuideShown', 'true');
+  setTimeout(() => {
+    enableScroll();
+  }, 200); // 200ms - czas na zniknięcie modala
 };
 
 // Funkcja resetująca style elementów
