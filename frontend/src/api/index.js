@@ -309,4 +309,50 @@ apiClient.withLoaderMessage = (message) => ({
     originalMethods.patch(url, data, { ...config, loaderMessage: message }),
 });
 
+/**
+ * Automatyczne odświeżanie tokena co 5 minut
+ */
+function setupAutoTokenRefresh() {
+  setInterval(
+    async () => {
+      const token = tokenManager.getToken();
+      if (!token) return;
+
+      // Sprawdź czas wygaśnięcia tokenu
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        const decoded = JSON.parse(jsonPayload);
+        if (!decoded.exp) return;
+
+        const currentTime = Math.floor(Date.now() / 1000);
+        // Odśwież token, jeśli do wygaśnięcia zostało mniej niż 10 minut
+
+        try {
+          const res = await apiClient.silentPost('/auth/refresh', {});
+          const newToken = res.data.token;
+          if (newToken) {
+            sessionStorage.setItem('token', newToken);
+            apiClient.defaults.headers.common['Authorization'] = 'Bearer ' + newToken;
+          }
+        } catch (e) {
+          // Jeśli odświeżenie się nie powiedzie, nie rób nic (interceptor obsłuży wylogowanie)
+        }
+      } catch (e) {
+        // Błąd parsowania tokenu – ignoruj
+      }
+    },
+    5 * 60 * 1000
+  ); // co 5 minut
+}
+
+// Uruchom automatyczne odświeżanie tokenu
+setupAutoTokenRefresh();
+
 export default apiClient;

@@ -34,6 +34,14 @@
         />
       </router-view>
 
+      <!-- Pasek z czasem ważności tokenu -->
+      <!-- <div
+        v-if="tokenTimeLeft > 0 && isAuthChecked"
+        class="fixed bottom-2 right-2 bg-gray-800 text-white px-4 py-2 rounded shadow-lg text-sm z-50 opacity-90"
+      >
+        Token ważny jeszcze: <b>{{ tokenTimeLeftStr }}</b>
+      </div> -->
+
       <!-- Globalne komponenty -->
       <BaseAlert ref="globalAlert" />
       <BaseLoader ref="globalLoader" v-if="globalLoaderVisible" />
@@ -203,6 +211,42 @@ function checkTokenExpiration() {
   }
 }
 
+// Token time left logic
+const tokenTimeLeft = ref(0);
+const tokenTimeLeftStr = computed(() => {
+  if (tokenTimeLeft.value <= 0) return 'wygasł';
+  const min = Math.floor(tokenTimeLeft.value / 60);
+  const sec = tokenTimeLeft.value % 60;
+  return `${min} min ${sec < 10 ? '0' : ''}${sec} s`;
+});
+
+function updateTokenTimeLeft() {
+  const token = sessionStorage.getItem('token');
+  if (!token) {
+    tokenTimeLeft.value = 0;
+    return;
+  }
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const decoded = JSON.parse(jsonPayload);
+    if (!decoded.exp) {
+      tokenTimeLeft.value = 0;
+      return;
+    }
+    const currentTime = Math.floor(Date.now() / 1000);
+    tokenTimeLeft.value = Math.max(0, decoded.exp - currentTime);
+  } catch (e) {
+    tokenTimeLeft.value = 0;
+  }
+}
+
 // Autoryzacja na starcie
 async function checkAuthOnStart() {
   const token = sessionStorage.getItem('token');
@@ -303,6 +347,9 @@ onMounted(() => {
   window.testSessionModal = () => showSessionExpirationModal(5);
   checkTokenExpiration();
   checkAuthOnStart();
+
+  setInterval(updateTokenTimeLeft, 1000);
+  updateTokenTimeLeft();
 });
 
 onBeforeUnmount(() => {
