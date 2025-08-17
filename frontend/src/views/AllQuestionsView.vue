@@ -10,8 +10,27 @@
       />
     </div>
 
+    <div class="flex gap-2 mb-4">
+      <button
+        class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
+        @click="toggleShowDuplicates"
+      >
+        {{ showDuplicates ? 'Pokaż wszystkie pytania' : 'Pokaż duplikaty pytań' }}
+      </button>
+    </div>
+
+    <div v-if="showDuplicates" class="mb-4 text-sky-700 dark:text-sky-300 font-medium">
+      Duplikatów: {{ duplicateGroupsCount || 0 }}
+    </div>
+
     <!-- Stan ładowania -->
-    <div v-if="isLoading && page === 1" class="mt-8">
+    <div
+      v-if="isLoading && page === 1"
+      class="mt-8 text-center text-gray-600 dark:text-gray-300 font-medium text-lg"
+    >
+      Wczytywanie danych...
+    </div>
+    <div v-if="isLoading && page === 1">
       <BaseSkeleton
         variant="table"
         :card-count="7"
@@ -209,10 +228,64 @@ const expandedQuestions = ref([]);
 const loadingTrigger = ref(null);
 let observer = null;
 
+const showDuplicates = ref(false);
+const duplicatesPage = ref(1);
+const duplicatesPerPage = 100;
+
 // Computed properties
 const currentUser = computed(() => store.getters['user/getUser']);
 const isAdmin = computed(() => currentUser.value?.rola === 'admin');
-const filteredQuestions = computed(() => questions.value);
+const filteredQuestions = computed(() => {
+  if (showDuplicates.value) {
+    const start = 0;
+    const end = duplicatesPage.value * duplicatesPerPage;
+    return duplicateQuestions.value.slice(start, end);
+  }
+  return questions.value;
+});
+
+// Funkcja do czyszczenia znaków specjalnych na końcu pytania
+function normalizeQuestionText(text) {
+  return (text || '')
+    .replace(/[\s\.\,\;\:\!\?\-–—_]+$/g, '') // usuń spacje i znaki specjalne na końcu
+    .trim()
+    .toLowerCase();
+}
+
+const duplicateQuestions = computed(() => {
+  const map = {};
+  questions.value.forEach((q) => {
+    const norm = normalizeQuestionText(q.question);
+    if (!map[norm]) map[norm] = [];
+    map[norm].push(q);
+  });
+  // Zwróć tylko te, które mają więcej niż 1 wystąpienie
+  return (
+    Object.values(map)
+      .filter((arr) => arr.length > 1)
+      .flat() || []
+  );
+});
+
+const duplicateGroupsCount = computed(() => {
+  const map = {};
+  questions.value.forEach((q) => {
+    const norm = normalizeQuestionText(q.question);
+    if (!map[norm]) map[norm] = [];
+    map[norm].push(q);
+  });
+  return Object.values(map).filter((arr) => arr.length > 1).length || 0;
+});
+
+async function toggleShowDuplicates() {
+  showDuplicates.value = !showDuplicates.value;
+  duplicatesPage.value = 1; // resetuj paginację duplikatów
+  if (showDuplicates.value) {
+    await fetchAllQuestions();
+  } else {
+    fetchQuestions(true);
+  }
+}
 
 // Funkcje
 async function fetchQuestions(forceRefresh = false, append = false) {
@@ -256,7 +329,7 @@ async function fetchQuestions(forceRefresh = false, append = false) {
     if (append) {
       questions.value = [...questions.value, ...questionsData];
     } else {
-      questions.value = questionsData;
+      questions.value = Array.isArray(questionsData) ? questionsData : [];
     }
 
     total.value = totalCount;
@@ -302,11 +375,37 @@ async function fetchQuestions(forceRefresh = false, append = false) {
   }
 }
 
+async function fetchAllQuestions() {
+  isLoading.value = true;
+  try {
+    const res = await apiClient.get('/questions/all');
+    console.log(res.data);
+    let questionsData = [];
+    if (Array.isArray(res.data)) {
+      questionsData = res.data;
+    } else if (Array.isArray(res.data.questions)) {
+      questionsData = res.data.questions;
+    }
+    questions.value = questionsData;
+    total.value = questionsData.length;
+    pages.value = 1;
+  } catch (e) {
+    showAlert('error', 'Błąd pobierania wszystkich pytań: ' + e.message);
+    questions.value = [];
+    total.value = 0;
+    pages.value = 1;
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 function handleSearch(value) {
   search.value = value;
   page.value = 1;
   fetchQuestions(true);
 }
+
+// Jeśli chcesz, możesz też normalizować wpisywany tekst w wyszukiwarce
 
 function clearSearch() {
   search.value = '';
@@ -315,7 +414,11 @@ function clearSearch() {
 }
 
 function loadMore() {
-  if (page.value < pages.value) {
+  if (showDuplicates.value) {
+    if (filteredQuestions.value.length < duplicateQuestions.value.length) {
+      duplicatesPage.value += 1;
+    }
+  } else if (page.value < pages.value) {
     page.value += 1;
     fetchQuestions(false, true);
   }
@@ -372,7 +475,7 @@ function setupInfiniteScroll() {
     (entries) => {
       const entry = entries[0];
 
-      if (entry.isIntersecting && page.value < pages.value) {
+      if (entry.isIntersecting) {
         loadMore();
       }
     },

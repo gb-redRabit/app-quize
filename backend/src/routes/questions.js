@@ -18,6 +18,17 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Pobierz wszystkie pytania BEZ paginacji
+router.get("/all", auth.verifyToken, async (req, res) => {
+  try {
+    const questions = await Question.find({}).sort({ ID: 1 });
+    res.json({ questions });
+  } catch (e) {
+    console.error("Błąd pobierania wszystkich pytań:", e);
+    res.status(500).json({ message: "Błąd pobierania wszystkich pytań" });
+  }
+});
+
 // Dodaj nowe pytanie
 router.post("/", auth.verifyToken, questionsController.addQuestion);
 
