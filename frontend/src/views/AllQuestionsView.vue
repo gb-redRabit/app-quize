@@ -455,11 +455,27 @@ function hasAnswers(question) {
 }
 
 function handleQuestionDeleted(question) {
-  fetchQuestions(true);
-  const index = expandedQuestions.value.indexOf(question.ID);
-  if (index > -1) {
-    expandedQuestions.value.splice(index, 1);
+  // Usuń pytanie z lokalnej listy questions
+  const idx = questions.value.findIndex((q) => q.ID === question.ID);
+  if (idx > -1) {
+    questions.value.splice(idx, 1);
   }
+
+  // Zamknij szczegóły, jeśli były otwarte
+  const expandedIdx = expandedQuestions.value.indexOf(question.ID);
+  if (expandedIdx > -1) {
+    expandedQuestions.value.splice(expandedIdx, 1);
+  }
+
+  // Jeśli jesteśmy w trybie duplikatów, zresetuj paginację jeśli liczba widocznych > liczba dostępnych
+  if (showDuplicates.value) {
+    // Jeśli po usunięciu liczba widocznych przekracza liczbę duplikatów, zmniejsz stronę
+    const maxPage = Math.ceil(duplicateQuestions.value.length / duplicatesPerPage);
+    if (duplicatesPage.value > maxPage) {
+      duplicatesPage.value = maxPage;
+    }
+  }
+
   showAlert('success', 'Pytanie zostało usunięte');
 }
 
