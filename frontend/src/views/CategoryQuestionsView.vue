@@ -205,29 +205,37 @@
     </div>
 
     <!-- Questions list -->
-    <div v-else class="space-y-6">
-      <QuestionCard
-        v-for="q in visibleQuestions"
-        :key="q.ID"
-        :question="q"
-        :last-attempt-map="lastAttemptMap"
-        @toggle-flagged="toggleFlagged"
-        @toggle-bad="toggleBad"
-        @toggle-unknown="toggleUnknown"
-        @deleted="onQuestionDeleted"
-        @edited="onQuestionEdited"
-      />
+    <div v-else>
+      <DynamicScroller
+        :items="sortedQuestions"
+        key-field="ID"
+        :buffer="200"
+        :page-mode="true"
+        :min-item-size="405.5"
+        v-slot="{ item: q, index }"
+      >
+        <DynamicScrollerItem
+          :item="q"
+          :active="true"
+          :index="index"
+          :size-dependencies="[q.question, q.description]"
+        >
+          <div class="py-2">
+            <!-- Odstęp między kartami -->
+            <QuestionCard
+              :question="q"
+              :last-attempt-map="lastAttemptMap"
+              @toggle-flagged="toggleFlagged"
+              @toggle-bad="toggleBad"
+              @toggle-unknown="toggleUnknown"
+              @deleted="onQuestionDeleted"
+              @edited="onQuestionEdited"
+            />
+          </div>
+        </DynamicScrollerItem>
+      </DynamicScroller>
 
       <!-- Load more indicator -->
-      <div
-        v-if="hasMoreQuestions"
-        class="flex flex-col items-center justify-center py-8 text-gray-400 dark:text-gray-500 text-sm"
-      >
-        <div
-          class="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 dark:border-t-blue-400 rounded-full animate-spin mb-3"
-        ></div>
-        <span>Przewiń w dół, aby załadować więcej pytań...</span>
-      </div>
     </div>
   </div>
 </template>
@@ -240,6 +248,8 @@ const SearchBar = defineAsyncComponent(() => import('@/components/base/SearchBar
 const BaseButton = defineAsyncComponent(() => import('@/components/base/BaseButton.vue'));
 const QuestionCard = defineAsyncComponent(() => import('@/components/questions/QuestionCard.vue'));
 import apiClient from '@/api';
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 // Wstrzykiwane zależności
 const showAlert = inject('showAlert');
@@ -247,8 +257,6 @@ const showAlert = inject('showAlert');
 // Stan komponentu
 const loading = ref(true);
 const searchQuery = ref('');
-const displayCount = ref(100);
-const loadingMore = ref(false);
 const localQuestions = ref([]);
 const showDuplicates = ref(false);
 const sortByDescription = ref(false);
@@ -477,14 +485,6 @@ const sortedQuestions = computed(() => {
   return questions;
 });
 
-const visibleQuestions = computed(() => {
-  return sortedQuestions.value.slice(0, displayCount.value);
-});
-
-const hasMoreQuestions = computed(() => {
-  return displayCount.value < sortedQuestions.value.length;
-});
-
 const areAllFlagged = computed(() => {
   // Używamy forceUpdate jako zależności reaktywnej, ale nie wpływa ona na wynik
   forceUpdate.value;
@@ -520,26 +520,6 @@ function normalizeQuestion(text) {
     .trim()
     .replace(/[\s:.\?!]+$/, '')
     .toLowerCase();
-}
-
-function handleScroll() {
-  if (loadingMore.value || !hasMoreQuestions.value) return;
-
-  const scrollY = window.scrollY || window.pageYOffset;
-  const windowHeight = window.innerHeight;
-  const docHeight = document.documentElement.scrollHeight;
-
-  if (scrollY + windowHeight + 200 >= docHeight) {
-    loadingMore.value = true;
-
-    setTimeout(() => {
-      if (displayCount.value >= sortedQuestions.value.length) {
-        showAlert('info', 'Wszystkie pytania zostały załadowane.');
-      }
-      displayCount.value += 100;
-      loadingMore.value = false;
-    }, 200);
-  }
 }
 
 function downloadQuestionsTxt() {
@@ -766,13 +746,9 @@ onMounted(async () => {
     localQuestions.value = [];
     loading.value = false;
   }
-
-  window.addEventListener('scroll', handleScroll);
 });
 
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
-});
+onUnmounted(() => {});
 
 // Obserwuj zmiany w lastAttempt i aktualizuj localQuestions
 watch(lastAttempt, (newAttempt) => {

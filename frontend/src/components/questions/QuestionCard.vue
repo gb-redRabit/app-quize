@@ -7,7 +7,6 @@
       'border-l-4 border-red-400 dark:border-red-500 bg-gradient-to-r from-red-50 to-white dark:from-red-900/20 dark:to-gray-800':
         lastAttemptMap[question.ID] === false,
     }"
-    style="animation: fadeIn 0.3s ease-out forwards"
   >
     <!-- Question header -->
     <div class="flex justify-between items-start mb-3">
