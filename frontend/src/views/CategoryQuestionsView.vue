@@ -209,7 +209,7 @@
       <DynamicScroller
         :items="sortedQuestions"
         key-field="ID"
-        :buffer="200"
+        :buffer="10"
         :page-mode="true"
         :min-item-size="405.5"
         v-slot="{ item: q, index }"
