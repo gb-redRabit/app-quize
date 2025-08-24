@@ -175,6 +175,22 @@
             </span>
           </div>
         </BaseButton>
+        <BaseButton
+          :color="showOnlyUnflagged ? 'yellow' : 'blue'"
+          size="md"
+          @click="showOnlyUnflagged = !showOnlyUnflagged"
+        >
+          <div class="flex items-center">
+            <img
+              src="@/assets/icons/eye-slash.svg"
+              alt="Niesprawdzone"
+              class="h-5 w-5 mr-2 icon-filter"
+            />
+            <span>
+              {{ showOnlyUnflagged ? 'Pokaż wszystkie' : 'Pokaż tylko niesprawdzone' }}
+            </span>
+          </div>
+        </BaseButton>
       </template>
     </div>
     <!-- Loading state -->
@@ -261,6 +277,7 @@ const localQuestions = ref([]);
 const showDuplicates = ref(false);
 const sortByDescription = ref(false);
 const massFlagLoading = ref(false);
+const showOnlyUnflagged = ref(false);
 // Dodaj forceUpdate tutaj, przed jego użyciem
 const forceUpdate = ref(0);
 const sortByDescriptionField = ref(false);
@@ -391,6 +408,10 @@ const filteredQuestions = computed(() => {
     category.value === 'all'
       ? localQuestions.value
       : localQuestions.value.filter((q) => q.category === category.value);
+
+  if (showOnlyUnflagged.value) {
+    questions = questions.filter((q) => q.flagged === false);
+  }
 
   if (!searchQuery.value) return showDuplicates.value ? duplicateQuestions.value : questions;
 
