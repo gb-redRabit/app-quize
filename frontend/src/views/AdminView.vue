@@ -413,9 +413,9 @@
       </template>
     </BaseModal>
 
-    <BaseModal :show="showAddPopup" @close="closeAddPopup" class="max-w-5xl">
+    <BaseModal :show="showAddPopup" @close="closeAddPopup">
       <template #header>Nowe pytanie</template>
-      <form @submit.prevent="saveNewQuestion()">
+      <form @submit.prevent>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6">
           <div class="lg:col-span-2 space-y-6">
             <div>
@@ -490,7 +490,9 @@
                 required
               >
                 <option value="" disabled>Wybierz kategorię</option>
-                <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
+                <option v-for="cat in categoriesFromStats" :key="cat" :value="cat">
+                  {{ cat }}
+                </option>
                 <option value="__nowa__">[Dodaj nową kategorię]</option>
               </select>
               <div v-if="formModel.category === '__nowa__'" class="flex gap-2 mt-2">
@@ -522,12 +524,101 @@
             </div>
           </div>
         </div>
+
+        <div
+          class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 mt-6"
+        >
+          <h3 class="text-sm font-medium text-gray-800 dark:text-gray-200 mb-3">
+            Flagi i oznaczenia pytania
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <!-- Flagged -->
+            <div
+              class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-sm"
+              :class="{ 'ring-2 ring-green-300 dark:ring-green-500': formModel.flagged }"
+            >
+              <label class="flex items-center justify-between gap-2 cursor-pointer">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >Ważne/Sprawdzone</span
+                >
+                <div class="relative">
+                  <input
+                    type="checkbox"
+                    v-model="formModel.flagged"
+                    class="sr-only peer"
+                    @change="flagChangedAdd('flagged')"
+                  />
+                  <div
+                    :class="{ 'bg-green-300 dark:bg-green-500': formModel.flagged }"
+                    class="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"
+                  ></div>
+                </div>
+              </label>
+            </div>
+            <!-- Bad -->
+            <div
+              class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-sm"
+              :class="{ 'ring-2 ring-red-300 dark:ring-red-500': formModel.bad }"
+            >
+              <label class="flex items-center justify-between gap-2 cursor-pointer">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >Złe pytanie</span
+                >
+                <div class="relative">
+                  <input
+                    type="checkbox"
+                    v-model="formModel.bad"
+                    class="sr-only peer"
+                    @change="flagChangedAdd('bad')"
+                  />
+                  <div
+                    :class="{ 'bg-red-300 dark:bg-red-500': formModel.bad }"
+                    class="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-red-500"
+                  ></div>
+                </div>
+              </label>
+            </div>
+            <!-- Unknown -->
+            <div
+              class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-sm"
+              :class="{ 'ring-2 ring-yellow-300 dark:ring-yellow-500': formModel.unknown }"
+            >
+              <label class="flex items-center justify-between gap-2 cursor-pointer">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Nie wiem</span>
+                <div class="relative">
+                  <input
+                    type="checkbox"
+                    v-model="formModel.unknown"
+                    class="sr-only peer"
+                    @change="flagChangedAdd('unknown')"
+                  />
+                  <div
+                    :class="{ 'bg-yellow-300 dark:bg-yellow-500': formModel.unknown }"
+                    class="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-500"
+                  ></div>
+                </div>
+              </label>
+            </div>
+          </div>
+          <!-- Notatka -->
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >Notatka do pytania</label
+            >
+            <input
+              type="text"
+              v-model="formModel.note"
+              class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
+              placeholder="Dodaj notatkę..."
+            />
+          </div>
+        </div>
       </form>
       <template #footer>
         <BaseButton color="gray" type="button" @click="closeAddPopup()">Anuluj</BaseButton>
-        <BaseButton color="blue" type="submit" @click="saveNewQuestion()"
-          >Zapisz pytanie</BaseButton
-        >
+        <BaseButton color="blue" type="button" :loading="isSaving" @click="saveNewQuestion">
+          Zapisz pytanie
+        </BaseButton>
       </template>
     </BaseModal>
 
@@ -568,6 +659,7 @@ const tabs = [
 const activeTab = ref('questions');
 
 const store = useStore();
+const categoriesFromStats = computed(() => store.getters['questions/getCategories'] || []);
 const showAlert = inject('showAlert');
 
 const currentUser = computed(() => store.getters['user/getUser']);
@@ -591,6 +683,10 @@ const formModel = ref({
   answer_c: { answer: '', isCorret: false },
   category: '',
   description: '',
+  flagged: false,
+  bad: false,
+  unknown: false,
+  note: '',
 });
 
 const batchIdsInput = ref('');
@@ -598,6 +694,7 @@ const batchQuestions = ref([]);
 const batchEditCategory = ref('');
 const batchEditDescPart1 = ref('');
 const batchEditDescPart2 = ref('');
+const isSaving = ref(false);
 
 // Funkcja do podziału opisu na dwa człony
 function splitDescription(desc) {
@@ -729,13 +826,28 @@ function closeAddPopup() {
 
 // Zapisywanie nowego pytania
 async function saveNewQuestion() {
+  if (isSaving.value) return;
+  isSaving.value = true;
   try {
-    await apiClient.post('/questions', formModel.value);
-    showAlert?.('success', 'Pytanie zostało dodane pomyślnie!');
-    closeAddPopup();
-    await store.dispatch('questions/addQuestion', formModel.value);
-  } catch (error) {
-    showAlert?.('error', 'Błąd podczas dodawania pytania.');
+    // Obsługa nowej kategorii
+    if (formModel.value.category === '__nowa__' && newCategoryInput.value.trim()) {
+      formModel.value.category = newCategoryInput.value.trim();
+      if (!categories.value.includes(formModel.value.category)) {
+        categories.value.push(formModel.value.category);
+      }
+      newCategoryInput.value = '';
+    }
+
+    try {
+      await apiClient.post('/questions', formModel.value);
+      showAlert?.('success', 'Pytanie zostało dodane pomyślnie!');
+      closeAddPopup();
+      await store.dispatch('questions/addQuestion', formModel.value);
+    } catch (error) {
+      showAlert?.('error', 'Błąd podczas dodawania pytania.');
+    }
+  } finally {
+    isSaving.value = false;
   }
 }
 
@@ -909,6 +1021,15 @@ async function saveBatchEdit() {
     showAlert?.('error', 'Błąd podczas grupowej edycji pytań.');
   } finally {
     isSavingBatch.value = false;
+  }
+}
+
+function flagChangedAdd(flagType) {
+  // Wykluczanie się flagged i bad
+  if (flagType === 'flagged' && formModel.value.flagged) {
+    formModel.value.bad = false;
+  } else if (flagType === 'bad' && formModel.value.bad) {
+    formModel.value.flagged = false;
   }
 }
 </script>

@@ -21,7 +21,7 @@ Nowoczesna, w pełni responsywna aplikacja quizowa zbudowana w oparciu o **Vue 3
 
 ### Zarządzanie Pytaniami
 
-- 📚 Przeglądanie wszystkich pytań z **nieskończonym przewijaniem** (`IntersectionObserver`).
+- 📚 Przeglądanie wszystkich pytań z **nieskończonym przewijaniem** (`IntersectionObserver`) oraz **wydajnym renderowaniem dużych list** dzięki [vue-virtual-scroller](https://github.com/Akryum/vue-virtual-scroller).
 - 🔍 Zaawansowane wyszukiwanie i filtrowanie pytań po ID, treści i kategorii.
 - 🗂️ Widok pytań pogrupowanych według kategorii z możliwością sortowania i oznaczania.
 
@@ -63,6 +63,7 @@ Nowoczesna, w pełni responsywna aplikacja quizowa zbudowana w oparciu o **Vue 3
 - **Zarządzanie Stanem**: [Vuex](https://vuex.vuejs.org/) (modularna struktura)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) (z wtyczkami `@tailwindcss/forms`, `@tailwindcss/typography`)
 - **Komunikacja API**: [Axios](https://axios-http.com/) (z interceptorami, globalną obsługą błędów i cache'owaniem)
+- **Wydajne listy**: [vue-virtual-scroller](https://github.com/Akryum/vue-virtual-scroller) – szybkie renderowanie dużych kolekcji pytań
 - **Narzędzia Budowania**: [Vue CLI](https://cli.vuejs.org/), Babel, PostCSS
 - **Import/Eksport**: [ExcelJS](https://github.com/exceljs/exceljs)
 - **Linting**: ESLint z konfiguracją dla Vue

@@ -7,11 +7,11 @@ const questionsRoutes = require("./routes/questions");
 const usersRouter = require("./routes/users");
 const statsRoutes = require("./routes/stats");
 const connectDB = require("./config/database");
+const agenda = require("./jobs/agenda");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// <-- 2. Dodaj middleware do kompresji z warunkiem
 app.use(
   compression({
     filter: (req, res) => {
@@ -67,8 +67,19 @@ app.use("/api/questions", questionsRoutes);
 app.use("/api/users", usersRouter);
 app.use("/api/stats", statsRoutes);
 
-connectDB(); // Dodaj to przed app.listen
+(async () => {
+  await connectDB();
+  await agenda.start();
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+  // Jednorazowo utwórz indeks TTL (możesz potem usunąć ten kod)
+  const db = agenda._mdb;
+  if (db) {
+    await db
+      .collection("agendaJobs")
+      .createIndex({ lastFinishedAt: 1 }, { expireAfterSeconds: 86400 });
+  }
+
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+})();

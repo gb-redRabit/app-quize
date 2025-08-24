@@ -1,22 +1,30 @@
-const Question = require("../models/Question");
+const Question = require("../models/QuestionQueued");
+const QuestionNot = require("../models/Question");
 const Stats = require("../models/Stats");
 const ExcelJS = require("exceljs");
 const { setCache, getCache, clearCache } = require("../utils/cache");
+const { agenda, waitForJobResult } = require("../jobs/fetchJob");
 const CACHE_KEY = "stats";
 
-// Pobierz wszystkie pytania
+// Pobierz wszystkie pytania (z paginacją)
 exports.getAllQuestions = async (req, res) => {
   try {
-    // Pobierz parametry paginacji z zapytania
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 100;
-    const skip = (page - 1) * limit;
-
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(
+      500,
+      Math.max(1, parseInt(req.query.limit, 10) || 100)
+    ); // max 500
     const total = await Question.countDocuments();
-    const questions = await Question.find()
-      .sort({ ID: 1 })
-      .skip(skip)
-      .limit(limit);
+
+    // Jeśli skip przekracza liczbę dokumentów, ustaw na 0 (lub na max dozwolony)
+    let skip = Math.max(0, (page - 1) * limit);
+    if (skip >= total) skip = 0;
+
+    const questions = await Question.find({}, null, {
+      sort: { ID: 1 },
+      skip,
+      limit,
+    });
 
     res.json({
       questions,
@@ -33,33 +41,13 @@ exports.getAllQuestions = async (req, res) => {
 // Dodaj pytanie
 exports.addQuestion = async (req, res) => {
   try {
-    // Znajdź największe ID w bazie
-    const last = await Question.findOne().sort({ ID: -1 });
+    const last = await Question.findOne({}, null, { sort: { ID: -1 } });
     const nextID = last && last.ID ? last.ID + 1 : 1;
 
     const question = new Question({ ...req.body, ID: nextID });
     await question.save();
 
-    // Aktualizuj statystyki po dodaniu pytania
-    if (typeof Stats.updateStats === "function") {
-      await Stats.updateStats();
-    } else {
-      // Jeśli nie eksportujesz funkcji, możesz zaimportować i wywołać lokalnie
-      const Question = require("../models/Question");
-      const totalQuestions = await Question.countDocuments();
-      const categoriesAgg = await Question.aggregate([
-        { $group: { _id: "$category", count: { $sum: 1 } } },
-      ]);
-      const categories = categoriesAgg.map((cat) => ({
-        name: cat._id,
-        count: cat.count,
-      }));
-      await Stats.findOneAndUpdate(
-        {},
-        { totalQuestions, categories, updatedAt: new Date() },
-        { upsert: true }
-      );
-    }
+    await updateStats();
 
     res.status(201).json({ message: "Question added" });
   } catch (e) {
@@ -91,29 +79,11 @@ exports.updateQuestion = async (req, res) => {
 // Usuń pytanie
 exports.deleteQuestion = async (req, res) => {
   try {
-    // Popraw: szukaj po polu ID, nie _id!
     const deleted = await Question.findOneAndDelete({
       ID: Number(req.params.id),
     });
 
-    // Aktualizuj statystyki po usunięciu pytania
-    if (typeof Stats.updateStats === "function") {
-      await Stats.updateStats();
-    } else {
-      const totalQuestions = await Question.countDocuments();
-      const categoriesAgg = await Question.aggregate([
-        { $group: { _id: "$category", count: { $sum: 1 } } },
-      ]);
-      const categories = categoriesAgg.map((cat) => ({
-        name: cat._id,
-        count: cat.count,
-      }));
-      await Stats.findOneAndUpdate(
-        {},
-        { totalQuestions, categories, updatedAt: new Date() },
-        { upsert: true }
-      );
-    }
+    await updateStats();
 
     if (!deleted) {
       return res
@@ -127,9 +97,10 @@ exports.deleteQuestion = async (req, res) => {
   }
 };
 
+// Eksportuj pytania do Excela
 exports.exportQuestionsToExcel = async (req, res) => {
   try {
-    const questions = await Question.find();
+    const questions = await QuestionNot.find({}, null, { sort: { ID: 1 } });
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Questions");
@@ -183,15 +154,18 @@ exports.exportQuestionsToExcel = async (req, res) => {
   }
 };
 
+// Wyczyść wszystkie pytania
 exports.clearQuestions = async (req, res) => {
   try {
     await Question.deleteMany({});
+    await updateStats();
     res.json({ message: "Wyczyszczono wszystkie pytania" });
   } catch (e) {
     res.status(500).json({ message: "Błąd czyszczenia pytań" });
   }
 };
 
+// Import pytań z Excela
 exports.importQuestionsFromExcel = async (req, res) => {
   try {
     if (!req.file) {
@@ -207,7 +181,7 @@ exports.importQuestionsFromExcel = async (req, res) => {
     }
 
     // Pobierz największe ID z bazy
-    const last = await Question.findOne().sort({ ID: -1 });
+    const last = await Question.findOne({}, null, { sort: { ID: -1 } });
     let nextID = last && last.ID ? last.ID + 1 : 1;
 
     worksheet.eachRow((row, rowNumber) => {
@@ -245,6 +219,7 @@ exports.importQuestionsFromExcel = async (req, res) => {
     });
 
     await Question.insertMany(questions);
+    await updateStats();
     res.json({
       message: "Zaimportowano pytania z Excela",
       count: questions.length,
@@ -257,43 +232,41 @@ exports.importQuestionsFromExcel = async (req, res) => {
   }
 };
 
+// Funkcja do aktualizacji statystyk (agregacja!)
 async function updateStats() {
   const totalQuestions = await Question.countDocuments();
-  const categoryNames = await Question.distinct("category");
-  const categories = [];
-
-  for (const name of categoryNames) {
-    const count = await Question.countDocuments({ category: name });
-    categories.push({ name, count });
-  }
+  const categoriesAgg = await Question.aggregate([
+    { $group: { _id: "$category", count: { $sum: 1 } } },
+  ]);
+  const categories = categoriesAgg.map((cat) => ({
+    name: cat._id,
+    count: cat.count,
+  }));
 
   await Stats.findOneAndUpdate(
     {},
     { totalQuestions, categories, updatedAt: new Date() },
     { upsert: true }
   );
-  // Odśwież cache
   clearCache(CACHE_KEY);
 }
 
+// Endpoint statystyk (cache)
 exports.getStats = async (req, res) => {
-  // Najpierw sprawdź cache
   const cached = getCache(CACHE_KEY);
   if (cached) return res.json(cached);
 
-  // Jeśli nie ma w cache, pobierz z bazy
   const stats = await Stats.findOne({});
   setCache(CACHE_KEY, stats || { totalQuestions: 0, categories: [] });
   res.json(stats || { totalQuestions: 0, categories: [] });
 };
 
+// Pobierz pytania wg kategorii
 exports.getQuestionsByCategory = async (req, res) => {
   try {
-    // Dekoduj kategorię z URL
     const category = decodeURIComponent(req.params.category);
-    // Jeśli chcesz pobrać wszystkie, gdy category = 'all'
     const filter = category === "all" ? {} : { category };
-    const questions = await Question.find(filter).sort({ ID: 1 });
+    const questions = await Question.find(filter, null, { sort: { ID: 1 } });
     res.json(questions);
   } catch (e) {
     res.status(500).json({ message: "Error fetching questions by category" });

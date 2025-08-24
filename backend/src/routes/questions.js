@@ -55,7 +55,9 @@ router.post(
   upload.single("file"),
   questionsController.importQuestionsFromExcel
 );
-
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 // Pobierz pytania według kategorii
 router.get(
   "/category/:category(*)",
@@ -69,7 +71,7 @@ router.get("/search", async (req, res) => {
   if (/^\d+$/.test(query)) {
     filter = { ID: Number(query) };
   } else {
-    filter = { question: { $regex: query, $options: "i" } };
+    filter = { question: { $regex: escapeRegex(query), $options: "i" } };
   }
   const questions = await Question.find(filter).sort({ ID: 1 }).limit(100); // limit dla bezpieczeństwa
   res.json({ questions });
