@@ -10,19 +10,7 @@
       />
     </div>
 
-    <div class="flex gap-2 mb-4">
-      <button
-        class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
-        @click="toggleShowDuplicates"
-      >
-        {{ showDuplicates ? 'Pokaż wszystkie pytania' : 'Pokaż duplikaty pytań' }}
-      </button>
-    </div>
-
-    <div v-if="showDuplicates" class="mb-4 text-sky-700 dark:text-sky-300 font-medium">
-      Duplikatów: {{ duplicateGroupsCount || 0 }}
-    </div>
-
+    <!-- Brak duplikatów, tylko lista pytań -->
     <!-- Stan ładowania -->
     <div
       v-if="isLoading && page === 1"
@@ -203,7 +191,7 @@ import {
   onUnmounted,
   defineAsyncComponent,
 } from 'vue';
-
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 const SearchBar = defineAsyncComponent(() => import('@/components/base/SearchBar.vue'));
 const QuestionActions = defineAsyncComponent(
   () => import('@/components/questions/QuestionActions.vue')
@@ -228,21 +216,10 @@ const expandedQuestions = ref([]);
 const loadingTrigger = ref(null);
 let observer = null;
 
-const showDuplicates = ref(false);
-const duplicatesPage = ref(1);
-const duplicatesPerPage = 100;
-
 // Computed properties
 const currentUser = computed(() => store.getters['user/getUser']);
 const isAdmin = computed(() => currentUser.value?.rola === 'admin');
-const filteredQuestions = computed(() => {
-  if (showDuplicates.value) {
-    const start = 0;
-    const end = duplicatesPage.value * duplicatesPerPage;
-    return duplicateQuestions.value.slice(start, end);
-  }
-  return questions.value;
-});
+const filteredQuestions = computed(() => questions.value);
 
 // Funkcja do czyszczenia znaków specjalnych na końcu pytania
 function normalizeQuestionText(text) {
@@ -252,49 +229,10 @@ function normalizeQuestionText(text) {
     .toLowerCase();
 }
 
-const duplicateQuestions = computed(() => {
-  const map = {};
-  questions.value.forEach((q) => {
-    const norm = normalizeQuestionText(q.question);
-    if (!map[norm]) map[norm] = [];
-    map[norm].push(q);
-  });
-  // Zwróć tylko te, które mają więcej niż 1 wystąpienie
-  return (
-    Object.values(map)
-      .filter((arr) => arr.length > 1)
-      .flat() || []
-  );
-});
-
-const duplicateGroupsCount = computed(() => {
-  const map = {};
-  questions.value.forEach((q) => {
-    const norm = normalizeQuestionText(q.question);
-    if (!map[norm]) map[norm] = [];
-    map[norm].push(q);
-  });
-  return Object.values(map).filter((arr) => arr.length > 1).length || 0;
-});
-
-async function toggleShowDuplicates() {
-  showDuplicates.value = !showDuplicates.value;
-  duplicatesPage.value = 1; // resetuj paginację duplikatów
-  if (showDuplicates.value) {
-    await fetchAllQuestions();
-  } else {
-    fetchQuestions(true);
-  }
-}
-
-// Funkcje
 async function fetchQuestions(forceRefresh = false, append = false) {
   isLoading.value = true;
 
   try {
-    // Dodajmy timeout dla debugowania
-    // await new Promise(resolve => setTimeout(resolve, 1000));
-
     const endpoint =
       search.value.trim() === ''
         ? `/questions?page=${page.value}&limit=${limit.value}`
@@ -375,37 +313,11 @@ async function fetchQuestions(forceRefresh = false, append = false) {
   }
 }
 
-async function fetchAllQuestions() {
-  isLoading.value = true;
-  try {
-    const res = await apiClient.get('/questions/all');
-    console.log(res.data);
-    let questionsData = [];
-    if (Array.isArray(res.data)) {
-      questionsData = res.data;
-    } else if (Array.isArray(res.data.questions)) {
-      questionsData = res.data.questions;
-    }
-    questions.value = questionsData;
-    total.value = questionsData.length;
-    pages.value = 1;
-  } catch (e) {
-    showAlert('error', 'Błąd pobierania wszystkich pytań: ' + e.message);
-    questions.value = [];
-    total.value = 0;
-    pages.value = 1;
-  } finally {
-    isLoading.value = false;
-  }
-}
-
 function handleSearch(value) {
   search.value = value;
   page.value = 1;
   fetchQuestions(true);
 }
-
-// Jeśli chcesz, możesz też normalizować wpisywany tekst w wyszukiwarce
 
 function clearSearch() {
   search.value = '';
@@ -414,11 +326,7 @@ function clearSearch() {
 }
 
 function loadMore() {
-  if (showDuplicates.value) {
-    if (filteredQuestions.value.length < duplicateQuestions.value.length) {
-      duplicatesPage.value += 1;
-    }
-  } else if (page.value < pages.value) {
+  if (page.value < pages.value) {
     page.value += 1;
     fetchQuestions(false, true);
   }
@@ -466,16 +374,6 @@ function handleQuestionDeleted(question) {
   if (expandedIdx > -1) {
     expandedQuestions.value.splice(expandedIdx, 1);
   }
-
-  // Jeśli jesteśmy w trybie duplikatów, zresetuj paginację jeśli liczba widocznych > liczba dostępnych
-  if (showDuplicates.value) {
-    // Jeśli po usunięciu liczba widocznych przekracza liczbę duplikatów, zmniejsz stronę
-    const maxPage = Math.ceil(duplicateQuestions.value.length / duplicatesPerPage);
-    if (duplicatesPage.value > maxPage) {
-      duplicatesPage.value = maxPage;
-    }
-  }
-
   showAlert('success', 'Pytanie zostało usunięte');
 }
 
@@ -511,28 +409,21 @@ function setupInfiniteScroll() {
 
 // Inicjalizacja
 onMounted(() => {
-  // Dodanie timeout aby dać komponentowi czas na pełne zainicjowanie
   setTimeout(() => {
     fetchQuestions(true);
     setupInfiniteScroll();
-
-    // Dodatkowe zabezpieczenie - sprawdzanie przewijania
     window.addEventListener('scroll', handleScroll);
   }, 100);
 });
 
-// Czyszczenie przy odmontowaniu komponentu
 onUnmounted(() => {
   if (observer) {
     observer.disconnect();
     observer = null;
   }
-
-  // Usuwamy event listener
   window.removeEventListener('scroll', handleScroll);
 });
 
-// Watchers
 watch(
   () => search.value,
   () => {
@@ -543,10 +434,8 @@ watch(
 watch(
   () => page.value,
   () => {
-    // Dajemy komponentowi czas na wyrenderowanie nowych elementów
     setTimeout(() => {
       if (loadingTrigger.value && observer) {
-        // Re-obserwujemy element po zmianie strony
         observer.unobserve(loadingTrigger.value);
         observer.observe(loadingTrigger.value);
       }
@@ -554,43 +443,18 @@ watch(
   }
 );
 
-// Dodajemy dodatkowy watcher na zmiany rozmiaru listy pytań
 watch(
   () => filteredQuestions.value.length,
   (newLength) => {
-    // Przy zmianie liczby pytań ponownie ustawiamy observer
     setTimeout(setupInfiniteScroll, 200);
   }
 );
 
-// Dodajemy nasłuchiwanie na zdarzenie przewijania jako zabezpieczenie
-onMounted(() => {
-  setTimeout(() => {
-    fetchQuestions(true);
-    setupInfiniteScroll();
-
-    // Dodatkowe zabezpieczenie - sprawdzanie przewijania
-    window.addEventListener('scroll', handleScroll);
-  }, 100);
-});
-
-onUnmounted(() => {
-  if (observer) {
-    observer.disconnect();
-    observer = null;
-  }
-
-  // Usuwamy event listener
-  window.removeEventListener('scroll', handleScroll);
-});
-
-// Funkcja pomocnicza do wykrywania, czy strona została przewinięta do końca
 function handleScroll() {
   const scrollHeight = document.documentElement.scrollHeight;
   const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
   const clientHeight = document.documentElement.clientHeight;
 
-  // Jeśli przewinęliśmy do prawie końca strony
   if (scrollHeight - scrollTop - clientHeight < 300) {
     if (!isLoading.value && page.value < pages.value) {
       loadMore();
@@ -600,7 +464,6 @@ function handleScroll() {
 </script>
 
 <style scoped>
-/* Style dla dark mode */
 :deep(.dark .bg-gray-750) {
   background-color: rgba(55, 65, 81, 0.5);
 }

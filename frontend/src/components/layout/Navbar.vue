@@ -233,6 +233,15 @@ const AdminIcon = {
   `,
 };
 
+const DuplicateIcon = {
+  template: `
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <rect x="4" y="4" width="16" height="16" rx="2" stroke-width="2" stroke="currentColor" fill="none"/>
+      <rect x="8" y="8" width="8" height="8" rx="1" stroke-width="2" stroke="currentColor" fill="none"/>
+    </svg>
+  `,
+};
+
 // Elementy nawigacyjne
 const navItems = [
   {
@@ -249,6 +258,12 @@ const navItems = [
     path: '/questions',
     label: 'Lista pytań',
     icon: ListIcon,
+  },
+  {
+    path: '/duplikaty',
+    label: 'Duplikaty pytań',
+    icon: DuplicateIcon,
+    adminOnly: true,
   },
   {
     path: '/user',

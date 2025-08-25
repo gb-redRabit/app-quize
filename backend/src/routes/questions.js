@@ -21,11 +21,27 @@ router.get("/", async (req, res) => {
 // Pobierz wszystkie pytania BEZ paginacji
 router.get("/all", auth.verifyToken, async (req, res) => {
   try {
-    const questions = await Question.find({}).sort({ ID: 1 });
-    res.json({ questions });
+    // Pobierz wszystkie pytania z pełnymi danymi
+    const questions = await Question.find({}).lean();
+    // Funkcja do normalizacji pytania
+    const normalize = (q) =>
+      (q || "")
+        .replace(/[.?!\s]+$/g, "")
+        .trim()
+        .toLowerCase();
+    // Grupowanie po oczyszczonym pytaniu
+    const map = {};
+    for (const q of questions) {
+      const key = normalize(q.question);
+      if (!map[key]) map[key] = [];
+      map[key].push(q);
+    }
+    // Zwróć tylko te, które mają duplikaty
+    const duplicates = Object.values(map).filter((arr) => arr.length > 1);
+    res.json({ duplicates });
   } catch (e) {
-    console.error("Błąd pobierania wszystkich pytań:", e);
-    res.status(500).json({ message: "Błąd pobierania wszystkich pytań" });
+    console.error("Błąd pobierania duplikatów pytań:", e);
+    res.status(500).json({ message: "Błąd pobierania duplikatów pytań" });
   }
 });
 

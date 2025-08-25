@@ -6,4 +6,10 @@ export default [
     name: 'CategoryQuestions',
     component: () => import('../views/CategoryQuestionsView.vue'),
   },
+  {
+    path: '/duplikaty',
+    name: 'DuplicateQuestions',
+    component: () => import('@/views/DuplicateQuestionsView.vue'),
+    meta: { requiresAuth: true }, // jeśli potrzebujesz autoryzacji
+  },
 ];
