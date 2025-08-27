@@ -3,7 +3,9 @@
     <!-- Nagłówek strony -->
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
       <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Duplikaty pytań</h1>
-
+<div class="text-gray-600 dark:text-gray-300 text-lg">
+        Ilość duplikatów: <span class="font-semibold">{{ total }}</span>
+      </div>
 
     </div>
 
