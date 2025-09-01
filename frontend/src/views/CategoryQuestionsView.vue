@@ -161,7 +161,21 @@
             </span>
           </div>
         </BaseButton>
-
+        <!-- Przycisk Sortuj według treści pytania -->
+        <BaseButton color="blue" size="md" @click="toggleSortByQuestion">
+          <div class="flex items-center">
+            <img
+              src="@/assets/icons/bars-3.svg"
+              alt="Sortuj pytanie"
+              class="h-5 w-5 mr-2 icon-filter"
+            />
+            <span>
+              Sortuj według pytania
+              <span v-if="sortByQuestion">(A-Z)</span>
+              <span v-else>(domyślnie)</span>
+            </span>
+          </div>
+        </BaseButton>
         <!-- Przycisk Zaznacz/Odznacz wszystkie -->
         <BaseButton color="green" size="md" :loading="massFlagLoading" @click="toggleAllFlagged">
           <div class="flex items-center">
@@ -281,6 +295,7 @@ const showOnlyUnflagged = ref(false);
 // Dodaj forceUpdate tutaj, przed jego użyciem
 const forceUpdate = ref(0);
 const sortByDescriptionField = ref(false);
+const sortByQuestion = ref(false);
 
 // Store i router
 const store = useStore();
@@ -447,7 +462,9 @@ const duplicateQuestions = computed(() => {
 const sortedQuestions = computed(() => {
   let questions = [...filteredQuestions.value];
 
-  if (sortByDescriptionField.value) {
+  if (sortByQuestion.value) {
+    questions.sort((a, b) => (a.question || '').localeCompare(b.question || ''));
+  } else if (sortByDescriptionField.value) {
     questions.sort((a, b) => {
       const descA = (a.description || '').toLowerCase();
       const descB = (b.description || '').toLowerCase();
@@ -455,19 +472,13 @@ const sortedQuestions = computed(() => {
     });
   } else if (sortByDescription.value) {
     questions.sort((a, b) => {
-      // Najpierw porównuj opisy
       const descA = (a.id || '').toLowerCase();
       const descB = (b.id || '').toLowerCase();
-
-      // Jeśli opisy są różne, sortuj według nich
       if (descA !== descB) {
         return descA < descB ? -1 : 1;
       }
-
-      // Jeśli opisy są takie same, sortuj według treści pytań jako zapasowe kryterium
       const qA = (a.question || '').toLowerCase();
       const qB = (b.question || '').toLowerCase();
-
       return qA.localeCompare(qB);
     });
   } else {
@@ -684,6 +695,16 @@ function toggleSortByDescriptionField() {
     'info',
     sortByDescriptionField.value
       ? 'Sortowanie według pola "description" (A-Z)'
+      : 'Przywrócono domyślne sortowanie'
+  );
+}
+
+function toggleSortByQuestion() {
+  sortByQuestion.value = !sortByQuestion.value;
+  showAlert(
+    'info',
+    sortByQuestion.value
+      ? 'Sortowanie według treści pytania (A-Z)'
       : 'Przywrócono domyślne sortowanie'
   );
 }

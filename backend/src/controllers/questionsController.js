@@ -206,24 +206,51 @@ exports.importQuestionsFromExcel = async (req, res) => {
       questions.push({
         ID: nextID++, // nadaj kolejne ID
         question,
-        answer_a: { answer: answer_a, isCorret: parseBool(isCorret_a) },
-        answer_b: { answer: answer_b, isCorret: parseBool(isCorret_b) },
-        answer_c: { answer: answer_c, isCorret: parseBool(isCorret_c) },
+        answer_a: answer_a
+          ? { answer: answer_a, isCorret: parseBool(isCorret_a) }
+          : undefined,
+        answer_b: answer_b
+          ? { answer: answer_b, isCorret: parseBool(isCorret_b) }
+          : undefined,
+        answer_c: answer_c
+          ? { answer: answer_c, isCorret: parseBool(isCorret_c) }
+          : undefined,
         category,
         description,
         flagged: parseBool(flagged),
         bad: parseBool(bad),
         unknown: parseBool(unknown),
         note: note ?? "",
+        __excelRow: rowNumber, // dodaj info o wierszu z excela
       });
     });
 
-    await Question.insertMany(questions);
-    await updateStats();
-    res.json({
-      message: "Zaimportowano pytania z Excela",
-      count: questions.length,
-    });
+    try {
+      await Question.insertMany(questions);
+      await updateStats();
+      res.json({
+        message: "Zaimportowano pytania z Excela",
+        count: questions.length,
+      });
+    } catch (e) {
+      // Szukaj, które pytanie powoduje błąd walidacji
+      if (e.name === "ValidationError" && Array.isArray(questions)) {
+        for (const q of questions) {
+          try {
+            await new Question(q).validate();
+          } catch (err) {
+            console.error(
+              `Błąd walidacji w pytaniu z Excela (ID: ${q.ID}, wiersz: ${q.__excelRow}):`,
+              err.message
+            );
+          }
+        }
+      }
+      console.error("Błąd importu z Excela:", e);
+      res
+        .status(500)
+        .json({ message: "Błąd importu z Excela", error: e.message });
+    }
   } catch (e) {
     console.error("Błąd importu z Excela:", e);
     res
