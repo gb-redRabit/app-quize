@@ -93,7 +93,7 @@ app-quize/
 3. **Frontend:**
 
    ```bash
-   cd ../frontend
+   cd frontend
    npm install
    # Skonfiguruj frontend/.env (patrz poniżej)
    npm run serve

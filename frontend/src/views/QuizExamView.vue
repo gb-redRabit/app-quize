@@ -71,7 +71,31 @@
             />
           </div>
         </div>
-
+        <!-- Dodaj do nagłówka quizu (np. pod ProgressBar) -->
+        <div v-if="mode === 'quiz'" class="flex items-center gap-4 mb-2">
+          <button
+            @click="toggleAutoNext"
+            class="px-4 py-2 rounded-lg font-semibold shadow transition-colors duration-200"
+            :class="autoNextEnabled ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-700'"
+            style="min-width: 120px"
+          >
+            Auto-Next: <span>{{ autoNextEnabled ? 'ON' : 'OFF' }}</span>
+          </button>
+          <div
+            v-if="showAutoNextTimer"
+            class="ml-2 text-sm text-gray-500 dark:text-gray-300 flex items-center"
+          >
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            Następne za {{ autoNextTimer }}s
+          </div>
+        </div>
         <!-- Przyciski nawigacji - tylko dla trybu quiz -->
         <div v-if="mode === 'quiz'" class="grid grid-cols-2 gap-4 mb-6">
           <button
@@ -122,7 +146,7 @@
             >
               <path
                 fill-rule="evenodd"
-                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4-4a1 1 0 01-1.414 0z"
                 clip-rule="evenodd"
               />
             </svg>
@@ -258,6 +282,31 @@ const allQuestionsInCategory = ref([]);
 const examTimeMinutes = ref(parseInt(route.query.time, 10) || 60);
 const timeLeft = ref(examTimeMinutes.value * 60);
 const timer = ref(null);
+
+// Auto-Next
+const autoNextEnabled = ref(true); // domyślnie włączone
+const showAutoNextTimer = ref(false);
+const autoNextTimer = ref(5);
+let autoNextTimeout = null;
+let autoNextInterval = null;
+
+function toggleAutoNext() {
+  autoNextEnabled.value = !autoNextEnabled.value;
+  showAutoNextTimer.value = false;
+  clearAutoNextTimers();
+}
+
+function clearAutoNextTimers() {
+  if (autoNextTimeout) {
+    clearTimeout(autoNextTimeout);
+    autoNextTimeout = null;
+  }
+  if (autoNextInterval) {
+    clearInterval(autoNextInterval);
+    autoNextInterval = null;
+  }
+  showAutoNextTimer.value = false;
+}
 
 // Helper do znajdowania poprawnego klucza odpowiedzi
 const getCorrectKey = (q) => {
@@ -399,6 +448,7 @@ const selectAnswer = async (index, selectedKey) => {
 
   if (isCorrect) score.value++;
 
+  // Aktualizacja lokalnego stanu natychmiast (optimizm)
   answersStatus.value[currentQuestionIndex.value] = {
     answered: true,
     correct: isCorrect,
@@ -410,8 +460,8 @@ const selectAnswer = async (index, selectedKey) => {
   const now = Date.now();
   questionTimes.value[currentQuestionIndex.value] = (now - startTime.value) / 1000;
 
+  // LOKALNA aktualizacja historii (szybko, synchronicznie)
   try {
-    // Natychmiastowa aktualizacja lokalnego stanu
     const updatedHQ = [...(store.state.user.hquestion || [])];
 
     const existingIndex = updatedHQ.findIndex(
@@ -428,34 +478,70 @@ const selectAnswer = async (index, selectedKey) => {
       });
     }
 
-    // Aktualizuj store bezpośrednio
+    // commit lokalny (od razu widoczny w UI)
     store.commit('user/SET_HQUESTION', updatedHQ);
 
-    // Wyślij do API
-    await apiClient.post('/users/hquestion', {
-      id,
-      correct: isCorrect,
-      category: q.category,
-    });
+    // WYWOŁANIA SIECIOWE BEZ AWAIT (fire-and-forget) - nie blokują UI
+    apiClient
+      .post('/users/hquestion', {
+        id,
+        correct: isCorrect,
+        category: q.category,
+      })
+      .catch((err) => {
+        console.error('Błąd zapisu hquestion:', err);
+        // opcjonalnie rollback lub alert
+      });
 
-    // Aktualizuj cache
-    await updateWrongOrNotDoneCache();
+    // aktualizacja cache asynchronicznie, bez await
+    updateWrongOrNotDoneCache().catch((err) => {
+      console.error('Błąd updateWrongOrNotDoneCache:', err);
+    });
   } catch (e) {
-    showAlert?.('error', 'Błąd podczas zapisywania odpowiedzi.');
+    // nie powinno blokować Auto-Next
+    console.error('Błąd podczas lokalnej aktualizacji historii:', e);
   }
 
-  // Automatyczne przejście do następnego pytania w trybie egzaminu
-  if (mode.value === 'exam') {
-    setTimeout(async () => {
+  // --- AUTO-NEXT dla quizu (wykonaj natychmiast, NIE czekaj na sieć) ---
+  if (mode.value === 'quiz' && autoNextEnabled.value) {
+    clearAutoNextTimers();
+
+    if (isCorrect) {
+      // Poprawna: natychmiast przejdź do kolejnego pytania lub zakończ quiz
       if (currentQuestionIndex.value < questions.value.length - 1) {
         currentQuestionIndex.value++;
       } else {
+        // ostatnie pytanie -> pokaż podsumowanie i zapisz historię
         showSummary.value = true;
-        clearInterval(timer.value);
-        await saveUserHistory();
+        // fire-and-forget zapis historii
+        saveUserHistory().catch((err) => console.error('Błąd zapisu historii:', err));
       }
-    }, 300);
+    } else {
+      // Błędna: pokaż licznik natychmiast i po 5s przejdź dalej
+      showAutoNextTimer.value = true;
+      autoNextTimer.value = 5;
+
+      autoNextInterval = setInterval(() => {
+        autoNextTimer.value--;
+        if (autoNextTimer.value <= 0) {
+          clearInterval(autoNextInterval);
+          autoNextInterval = null;
+        }
+      }, 1000);
+
+      autoNextTimeout = setTimeout(() => {
+        showAutoNextTimer.value = false;
+        if (currentQuestionIndex.value < questions.value.length - 1) {
+          currentQuestionIndex.value++;
+        } else {
+          showSummary.value = true;
+          saveUserHistory().catch((err) => console.error('Błąd zapisu historii:', err));
+        }
+        clearAutoNextTimers();
+      }, 5000);
+    }
   }
+  // --- KONIEC AUTO-NEXT ---
 };
 
 // Aktualizacja cache pytań do powtórzenia
@@ -888,6 +974,8 @@ onBeforeUnmount(() => {
   if (timer.value) {
     clearInterval(timer.value);
   }
+
+  clearAutoNextTimers();
 });
 </script>
 
