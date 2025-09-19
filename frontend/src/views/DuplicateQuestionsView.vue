@@ -4,7 +4,7 @@
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
       <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Duplikaty pytań</h1>
       <div class="flex items-center gap-4">
-        <div class="text-gray-600 dark:text-gray-300 text-lg">
+        <div class="text-gray-600 dark:text-gray-300 text-lg w-4/12">
           Ilość duplikatów: <span class="font-semibold">{{ total }}</span>
         </div>
         <button
@@ -16,6 +16,17 @@
           <span v-if="sortByCategory">(A-Z)</span>
           <span v-else>(domyślnie)</span>
         </button>
+        <div class="">
+          <select
+            v-model="selectedCategory"
+            class="px-3 py-2 rounded-lg border border-gray-300 dark:bg-gray-700 dark:text-gray-100"
+          >
+            <option value="">Wszystkie kategorie</option>
+            <option v-for="cat in uniqueCategories" :key="cat" :value="cat">
+              {{ cat || 'Bez kategorii' }}
+            </option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -201,6 +212,7 @@ const page = ref(1);
 const pageSize = 20;
 const loadingTrigger = ref(null);
 const sortByCategory = ref(false);
+const selectedCategory = ref('');
 
 const isAdmin = true; // lub pobierz z auth
 
@@ -210,9 +222,11 @@ const visibleQuestions = computed(() => filteredQuestions.value.slice(0, page.va
 
 const filteredQuestions = computed(() => {
   let arr = questions.value.slice();
+  if (selectedCategory.value) {
+    arr = arr.filter((q) => (q.category || 'Bez kategorii') === selectedCategory.value);
+  }
   if (sortByCategory.value) {
     arr.sort((a, b) => {
-      // Najpierw po kategorii, potem alfabetycznie po treści pytania
       const catA = (a.category || '').toLowerCase();
       const catB = (b.category || '').toLowerCase();
       if (catA !== catB) return catA.localeCompare(catB);
@@ -220,6 +234,11 @@ const filteredQuestions = computed(() => {
     });
   }
   return arr;
+});
+
+const uniqueCategories = computed(() => {
+  const set = new Set(questions.value.map((q) => q.category || 'Bez kategorii'));
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
 });
 
 onMounted(async () => {
