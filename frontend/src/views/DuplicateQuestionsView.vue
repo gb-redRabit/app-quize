@@ -3,10 +3,20 @@
     <!-- Nagłówek strony -->
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
       <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Duplikaty pytań</h1>
-<div class="text-gray-600 dark:text-gray-300 text-lg">
-        Ilość duplikatów: <span class="font-semibold">{{ total }}</span>
+      <div class="flex items-center gap-4">
+        <div class="text-gray-600 dark:text-gray-300 text-lg">
+          Ilość duplikatów: <span class="font-semibold">{{ total }}</span>
+        </div>
+        <button
+          @click="toggleSortByCategory"
+          class="px-4 py-2 rounded-lg font-semibold shadow transition-colors duration-200"
+          :class="sortByCategory ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
+        >
+          Sortuj według kategorii
+          <span v-if="sortByCategory">(A-Z)</span>
+          <span v-else>(domyślnie)</span>
+        </button>
       </div>
-
     </div>
 
     <!-- Loading state -->
@@ -190,6 +200,7 @@ const isLoading = ref(false);
 const page = ref(1);
 const pageSize = 20;
 const loadingTrigger = ref(null);
+const sortByCategory = ref(false);
 
 const isAdmin = true; // lub pobierz z auth
 
@@ -197,7 +208,19 @@ const total = computed(() => filteredQuestions.value.length);
 const pages = computed(() => Math.ceil(total.value / pageSize));
 const visibleQuestions = computed(() => filteredQuestions.value.slice(0, page.value * pageSize));
 
-const filteredQuestions = computed(() => questions.value);
+const filteredQuestions = computed(() => {
+  let arr = questions.value.slice();
+  if (sortByCategory.value) {
+    arr.sort((a, b) => {
+      // Najpierw po kategorii, potem alfabetycznie po treści pytania
+      const catA = (a.category || '').toLowerCase();
+      const catB = (b.category || '').toLowerCase();
+      if (catA !== catB) return catA.localeCompare(catB);
+      return (a.question || '').localeCompare(b.question || '');
+    });
+  }
+  return arr;
+});
 
 onMounted(async () => {
   await loadQuestions();
@@ -275,5 +298,9 @@ function getAnswers(q) {
       .filter(([k]) => k.startsWith('answer_') && q[k])
       .map(([k, v]) => [k, typeof v === 'object' ? v : { answer: v }])
   );
+}
+
+function toggleSortByCategory() {
+  sortByCategory.value = !sortByCategory.value;
 }
 </script>
