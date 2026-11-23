@@ -12,7 +12,6 @@
         aria-modal="true"
         :aria-labelledby="$slots.header ? 'modal-title' : undefined"
         tabindex="-1"
-        @keydown.esc="$emit('close')"
         class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl transform transition-all sm:my-8 w-full flex flex-col outline-none"
         style="max-height: 90vh; max-width: 64rem"
       >
@@ -80,22 +79,78 @@ const props = defineProps({
 });
 
 // Definicja emitów
-defineEmits(['close']);
+const emit = defineEmits(['close']);
 
 const dialogRef = ref(null);
 let previousOverflow = '';
+let previouslyFocused = null;
+
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled]):not([type="hidden"])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',');
+
+function getFocusable() {
+  if (!dialogRef.value) return [];
+  return Array.from(dialogRef.value.querySelectorAll(FOCUSABLE_SELECTOR)).filter(
+    (el) => el.offsetParent !== null || el === document.activeElement
+  );
+}
+
+function handleDocumentKeydown(event) {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    emit('close');
+    return;
+  }
+
+  if (event.key !== 'Tab') return;
+
+  const focusable = getFocusable();
+  if (focusable.length === 0) {
+    event.preventDefault();
+    dialogRef.value?.focus();
+    return;
+  }
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  const active = document.activeElement;
+
+  if (event.shiftKey) {
+    if (active === first || !dialogRef.value?.contains(active)) {
+      event.preventDefault();
+      last.focus();
+    }
+  } else if (active === last || !dialogRef.value?.contains(active)) {
+    event.preventDefault();
+    first.focus();
+  }
+}
 
 watch(
   () => props.show,
   async (visible) => {
     if (typeof document === 'undefined') return;
     if (visible) {
+      previouslyFocused = document.activeElement;
       previousOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
+      document.addEventListener('keydown', handleDocumentKeydown);
       await nextTick();
-      dialogRef.value?.focus();
+      const focusable = getFocusable();
+      (focusable[0] || dialogRef.value)?.focus();
     } else {
       document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleDocumentKeydown);
+      if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+        previouslyFocused.focus();
+      }
+      previouslyFocused = null;
     }
   }
 );
@@ -103,6 +158,7 @@ watch(
 onBeforeUnmount(() => {
   if (typeof document !== 'undefined') {
     document.body.style.overflow = previousOverflow;
+    document.removeEventListener('keydown', handleDocumentKeydown);
   }
 });
 </script>
