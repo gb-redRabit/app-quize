@@ -24,7 +24,9 @@
         id="main"
         tabindex="-1"
         class="w-full"
-        :class="showBottomNav ? 'pb-20 lg:pb-0' : ''"
+        :class="
+          showBottomNav ? 'pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0' : ''
+        "
       >
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
