@@ -10,7 +10,7 @@ const CACHE_KEY = "stats";
 // Cache pełnych list kategorii (krótki TTL, ograniczona liczba wpisów).
 const categoryCache = new Map();
 const CATEGORY_CACHE_TTL_MS = 60 * 1000;
-const CATEGORY_CACHE_MAX = 10;
+const CATEGORY_CACHE_MAX = 30;
 
 function getCategoryCache(key) {
   const entry = categoryCache.get(key);
@@ -310,12 +310,20 @@ exports.getQuestionsByCategory = async (req, res) => {
 
     if (limit > 0) {
       const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+      const pageKey = `${category}:${page}:${limit}`;
+      const cachedPage = getCategoryCache(pageKey);
+      if (cachedPage) {
+        res.set("X-Total-Count", String(cachedPage.total));
+        return res.json(cachedPage.questions);
+      }
+
       const total = await Question.countDocuments(filter);
       const questions = await Question.find(filter, null, {
         sort: { ID: 1 },
         skip: (page - 1) * limit,
         limit,
       }).lean();
+      setCategoryCache(pageKey, { questions, total });
       res.set("X-Total-Count", String(total));
       return res.json(questions);
     }
