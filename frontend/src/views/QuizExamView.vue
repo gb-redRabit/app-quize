@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-6">
+  <div class="container mx-auto px-4 py-6" :class="mode === 'quiz' ? 'pb-28 lg:pb-6' : ''">
     <div class="mx-auto">
       <!-- Widok pytania (gdy nie pokazujemy podsumowania) -->
       <div v-if="!showSummary" class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6">
@@ -96,8 +96,8 @@
             Następne za {{ autoNextTimer }}s
           </div>
         </div>
-        <!-- Przyciski nawigacji - tylko dla trybu quiz -->
-        <div v-if="mode === 'quiz'" class="grid grid-cols-2 gap-4 mb-6">
+        <!-- Przyciski nawigacji - desktop (na mobile stały dolny pasek) -->
+        <div v-if="mode === 'quiz'" class="hidden lg:grid grid-cols-2 gap-4 mb-6">
           <button
             class="flex items-center justify-center px-4 py-3 rounded-xl bg-gray-500 text-white font-medium text-base transition-all duration-200 shadow-sm hover:bg-gray-600"
             :class="{ 'opacity-50 cursor-not-allowed': currentQuestionIndex === 0 }"
@@ -173,7 +173,11 @@
         </div>
         <div v-else>
           <!-- Renderujemy tylko aktualne pytanie (zamiast całej puli w DOM) -->
-          <div class="space-y-6">
+          <div
+            class="space-y-6"
+            @touchstart.passive="onTouchStart"
+            @touchend.passive="onTouchEnd"
+          >
             <QuestionList
               v-if="currentQuestion"
               ref="questionList"
@@ -217,6 +221,47 @@
           class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sm:p-6 dark:text-white"
         ></SummaryBox>
       </transition>
+    </div>
+
+    <!-- Stały pasek akcji quizu na mobile -->
+    <div
+      v-if="mode === 'quiz' && !showSummary"
+      class="fixed bottom-0 left-0 right-0 z-30 lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]"
+      style="padding-bottom: env(safe-area-inset-bottom)"
+    >
+      <div class="flex items-center gap-3 p-3">
+        <button
+          class="flex-1 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 font-semibold disabled:opacity-40"
+          :disabled="currentQuestionIndex === 0"
+          aria-label="Poprzednie pytanie"
+          @click="prevQuestion"
+        >
+          Poprzednie
+        </button>
+        <span
+          class="text-xs font-medium text-gray-500 dark:text-gray-400 min-w-[3.5rem] text-center"
+          aria-live="polite"
+        >
+          {{ currentQuestionIndex + 1 }} / {{ questions.length }}
+        </span>
+        <button
+          class="flex-1 h-12 rounded-xl text-white font-semibold disabled:opacity-40"
+          :class="
+            currentQuestionIndex === questions.length - 1
+              ? 'bg-green-700 hover:bg-green-800'
+              : 'bg-blue-600 hover:bg-blue-700'
+          "
+          :disabled="!answersStatus[currentQuestionIndex]?.answered"
+          :aria-label="
+            currentQuestionIndex === questions.length - 1
+              ? 'Zakończ quiz'
+              : 'Następne pytanie'
+          "
+          @click="nextOrFinish"
+        >
+          {{ currentQuestionIndex === questions.length - 1 ? 'Zakończ' : 'Następne' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -576,6 +621,26 @@ const nextOrFinish = async () => {
 
 const prevQuestion = () => {
   if (currentQuestionIndex.value > 0) currentQuestionIndex.value--;
+};
+
+// Swipe: lewo = następne, prawo = poprzednie (tylko quiz)
+let touchStartX = null;
+const onTouchStart = (event) => {
+  if (mode.value !== 'quiz' || showSummary.value) return;
+  touchStartX = event.changedTouches[0]?.clientX ?? null;
+};
+const onTouchEnd = (event) => {
+  if (touchStartX === null || mode.value !== 'quiz' || showSummary.value) return;
+  const deltaX = (event.changedTouches[0]?.clientX ?? touchStartX) - touchStartX;
+  touchStartX = null;
+  if (Math.abs(deltaX) < 60) return;
+  if (deltaX < 0) {
+    if (answersStatus.value[currentQuestionIndex.value]?.answered) {
+      nextOrFinish();
+    }
+  } else {
+    prevQuestion();
+  }
 };
 
 const goToQuestion = (idx) => {
