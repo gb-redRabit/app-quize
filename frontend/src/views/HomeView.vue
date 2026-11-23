@@ -61,6 +61,24 @@
         </div>
       </section>
 
+      <section v-else class="mb-4">
+        <div
+          class="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-sm"
+        >
+          <div class="flex-1 min-w-0">
+            <p class="text-xs uppercase tracking-wide text-blue-100">Zacznij naukę</p>
+            <p class="text-lg font-semibold">Wybierz kategorię i rozpocznij quiz</p>
+            <p class="text-sm text-blue-100">Twoje postępy będą zapisywane automatycznie.</p>
+          </div>
+          <button
+            class="h-12 px-5 rounded-lg bg-white text-blue-700 font-semibold hover:bg-blue-50 transition-colors shrink-0"
+            @click="scrollToCategories"
+          >
+            Wybierz kategorię
+          </button>
+        </div>
+      </section>
+
       <!-- Statystyki -->
       <StatisticsSummary class="statistics-summary" />
 
@@ -72,7 +90,7 @@
       />
 
       <!-- Lista kategorii -->
-      <section>
+      <section id="categories">
         <CategoryFilter
           v-model:active-filter="activeFilter"
           v-model:view-type="viewType"
@@ -380,6 +398,11 @@ const continueLastActivity = () => {
     startQuizNotDone(cat);
   }
 };
+
+function scrollToCategories() {
+  const el = document.getElementById('categories');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 // ZASTĄP ISTNIEJĄCĄ FUNKCJĘ clearCategoryHistory
 async function clearCategoryHistory(category) {
