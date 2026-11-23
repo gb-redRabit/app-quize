@@ -273,7 +273,7 @@ const startTime = ref(null);
 const wrongOrNotDoneIdsCache = ref([]);
 const questionList = ref(null);
 const quizActivityInterval = ref(null); // <-- DODAJ TĘ LINIĘ
-const allQuestionsInCategory = ref([]);
+const allQuestionIdsInCategory = ref([]);
 // Stan timera (tylko dla trybu egzaminu)
 const examTimeMinutes = ref(parseInt(route.query.time, 10) || 60);
 const timeLeft = ref(examTimeMinutes.value * 60);
@@ -324,13 +324,13 @@ const answeredCount = computed(() => {
 });
 
 const allQuestionsCompleted = computed(() => {
-  if (!route.query.categories || !allQuestionsInCategory.value.length) return false;
+  if (!route.query.categories || !allQuestionIdsInCategory.value.length) return false;
   // Każde pytanie musi mieć wpis w historii i być poprawnie rozwiązane
-  return allQuestionsInCategory.value.every((q) =>
+  return allQuestionIdsInCategory.value.every((id) =>
     hquestion.value.some(
       (hq) =>
-        (hq.id === q.ID || hq.id === q.id || hq.id === q.Id || hq.id === q.id_question) &&
-        hq.category === q.category &&
+        String(hq.id) === String(id) &&
+        hq.category === route.query.categories &&
         hq.correct === true
     )
   );
@@ -938,8 +938,8 @@ onMounted(async () => {
   window.dispatchEvent(new CustomEvent('quiz-activity'));
 
   if (route.query.categories) {
-    allQuestionsInCategory.value = await store.dispatch(
-      'questions/fetchQuestionsByCategory',
+    allQuestionIdsInCategory.value = await store.dispatch(
+      'questions/fetchQuestionIdsByCategory',
       route.query.categories
     );
   }
