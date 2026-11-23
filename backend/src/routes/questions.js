@@ -61,8 +61,13 @@ router.get(
   questionsController.exportQuestionsToExcel
 );
 
-// Wyczyść pytania
-router.post("/clear", auth.verifyToken, questionsController.clearQuestions);
+// Wyczyść pytania (admin)
+router.post(
+  "/clear",
+  auth.verifyToken,
+  auth.requireAdmin,
+  questionsController.clearQuestions
+);
 
 // Importuj pytania z Excela
 router.post(
@@ -92,16 +97,21 @@ router.get("/search", async (req, res) => {
   const questions = await Question.find(filter).sort({ ID: 1 }).limit(100); // limit dla bezpieczeństwa
   res.json({ questions });
 });
-// Usuń pytania według kategorii
-router.delete("/category/:category", auth.verifyToken, async (req, res) => {
-  try {
-    const category = decodeURIComponent(req.params.category);
-    const result = await Question.deleteMany({ category });
-    res.json({ success: true, deletedCount: result.deletedCount });
-  } catch (e) {
-    console.error("Błąd podczas usuwania pytań:", e);
-    res.status(500).json({ message: "Błąd usuwania pytań z kategorii" });
+// Usuń pytania według kategorii (admin)
+router.delete(
+  "/category/:category",
+  auth.verifyToken,
+  auth.requireAdmin,
+  async (req, res) => {
+    try {
+      const category = decodeURIComponent(req.params.category);
+      const result = await Question.deleteMany({ category });
+      res.json({ success: true, deletedCount: result.deletedCount });
+    } catch (e) {
+      console.error("Błąd podczas usuwania pytań:", e);
+      res.status(500).json({ message: "Błąd usuwania pytań z kategorii" });
+    }
   }
-});
+);
 
 module.exports = router;

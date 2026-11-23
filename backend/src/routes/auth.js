@@ -3,7 +3,10 @@ const router = express.Router();
 const authController = require("../controllers/authController");
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("Brak JWT_SECRET w zmiennych środowiskowych");
+}
 
 // User registration route
 router.post("/register", authController.register);

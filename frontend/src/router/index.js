@@ -34,10 +34,23 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = !!sessionStorage.getItem('user') && !!sessionStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
+  const rawUser = sessionStorage.getItem('user');
+  let user = null;
+  try {
+    user = rawUser ? JSON.parse(rawUser) : null;
+  } catch (e) {
+    console.warn('Nieprawidłowe dane użytkownika w sessionStorage');
+  }
+
+  const isAuthenticated = !!token && !!user;
+  const isAdmin = user?.rola === 'admin';
+
   if (to.name !== 'Login' && to.name !== 'Register' && !isAuthenticated) {
     next({ name: 'Login' });
   } else if ((to.name === 'Login' || to.name === 'Register') && isAuthenticated) {
+    next({ name: 'Home' });
+  } else if (to.meta.requiresAdmin && !isAdmin) {
     next({ name: 'Home' });
   } else {
     // Bezpieczniejsze pokazywanie loadera

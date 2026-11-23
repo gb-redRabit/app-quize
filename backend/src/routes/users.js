@@ -5,14 +5,22 @@ const usersController = require("../controllers/usersController");
 const User = require("../models/User");
 
 // Tylko dla admina!
-router.get("/all", authMiddleware.verifyToken, async (req, res) => {
-  try {
-    const users = await User.find({}, "login avatar avatarColors rola option history hquestion hiddenCategory"); // tylko potrzebne pola
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ message: "Błąd pobierania użytkowników" });
+router.get(
+  "/all",
+  authMiddleware.verifyToken,
+  authMiddleware.requireAdmin,
+  async (req, res) => {
+    try {
+      const users = await User.find(
+        {},
+        "login avatar avatarColors rola option history hquestion hiddenCategory"
+      ); // tylko potrzebne pola
+      res.json(users);
+    } catch (err) {
+      res.status(500).json({ message: "Błąd pobierania użytkowników" });
+    }
   }
-});
+);
 // Historia użytkownika
 router.get(
   "/history",
@@ -51,21 +59,36 @@ router.put(
   usersController.clearCategoryHQuestion
 );
 
-router.put("/:id/role", authMiddleware.verifyToken, async (req, res) => {
-  // Tylko admin może zmieniać role
+router.put(
+  "/:id/role",
+  authMiddleware.verifyToken,
+  authMiddleware.requireAdmin,
+  async (req, res) => {
+    const { rola } = req.body;
 
-  try {
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { rola: req.body.rola },
-      { new: true }
-    );
-    if (!user)
-      return res.status(404).json({ message: "Użytkownik nie znaleziony" });
-    res.json({ message: "Rola zaktualizowana", user });
-  } catch (err) {
-    res.status(500).json({ message: "Błąd aktualizacji roli" });
+    if (!["user", "admin"].includes(rola)) {
+      return res.status(400).json({ message: "Nieprawidłowa rola" });
+    }
+
+    if (String(req.params.id) === String(req.user.id) && rola !== "admin") {
+      return res
+        .status(400)
+        .json({ message: "Nie można odebrać roli administratora sobie" });
+    }
+
+    try {
+      const user = await User.findByIdAndUpdate(
+        req.params.id,
+        { rola },
+        { new: true, select: "login rola avatar avatarColors option" }
+      );
+      if (!user)
+        return res.status(404).json({ message: "Użytkownik nie znaleziony" });
+      res.json({ message: "Rola zaktualizowana", user });
+    } catch (err) {
+      res.status(500).json({ message: "Błąd aktualizacji roli" });
+    }
   }
-});
+);
 
 module.exports = router;

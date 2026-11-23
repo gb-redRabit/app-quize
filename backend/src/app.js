@@ -1,4 +1,12 @@
 require("dotenv").config();
+
+if (!process.env.JWT_SECRET || !process.env.MONGO_URI) {
+  console.error(
+    "Brak wymaganych zmiennych środowiskowych: JWT_SECRET i MONGO_URI"
+  );
+  process.exit(1);
+}
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const compression = require("compression"); // <-- 1. Dodaj import
@@ -27,13 +35,18 @@ app.use(
 
 // RĘCZNE ustawianie nagłówków CORS dla każdej odpowiedzi
 app.use((req, res, next) => {
-  const allowedOrigins = [
+  const defaultOrigins = [
     "https://quize-nnjdhzbym-grzegorzs-projects-7e242f51.vercel.app",
     "https://quize-git-main-grzegorzs-projects-7e242f51.vercel.app",
     "https://quiz-app-rysh.onrender.com",
     "https://quize-tawny.vercel.app",
     "http://localhost:8080",
   ];
+  const extraOrigins = (process.env.CORS_ORIGINS || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  const allowedOrigins = [...new Set([...defaultOrigins, ...extraOrigins])];
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.header("Access-Control-Allow-Origin", origin);
