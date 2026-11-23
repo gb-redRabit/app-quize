@@ -57,6 +57,8 @@
     >
       <button
         @click="scrollLeft"
+        aria-label="Przewiń pytania w lewo"
+        title="Przewiń pytania w lewo"
         class="flex items-center justify-center bg-white dark:bg-gray-800 rounded-full shadow-md border border-gray-200 dark:border-gray-700 h-8 w-8 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 pointer-events-auto mt-4"
         :style="{ marginLeft: '-2rem' }"
         :disabled="isAtStart"
@@ -71,6 +73,8 @@
       </button>
       <button
         @click="scrollRight"
+        aria-label="Przewiń pytania w prawo"
+        title="Przewiń pytania w prawo"
         class="flex items-center justify-center bg-white dark:bg-gray-800 rounded-full shadow-md border border-gray-200 dark:border-gray-700 h-8 w-8 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 pointer-events-auto mt-4"
         :style="{ marginRight: '-2rem' }"
         :disabled="isAtEnd"

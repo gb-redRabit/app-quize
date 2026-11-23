@@ -76,7 +76,7 @@
           <button
             @click="toggleAutoNext"
             class="px-4 py-2 rounded-lg font-semibold shadow transition-colors duration-200"
-            :class="autoNextEnabled ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-700'"
+            :class="autoNextEnabled ? 'bg-green-700 text-white hover:bg-green-800' : 'bg-gray-300 text-gray-700'"
             style="min-width: 120px"
           >
             Auto-Next: <span>{{ autoNextEnabled ? 'ON' : 'OFF' }}</span>
