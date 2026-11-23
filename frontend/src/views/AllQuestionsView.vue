@@ -55,12 +55,18 @@
       >
         <!-- Nagłówek pytania -->
         <div
-          class="flex items-start p-4 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-gray-700"
+          class="flex items-start p-4 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
           :class="{
             'border-b border-gray-200 dark:border-gray-700': expandedQuestions.includes(q.ID),
             'bg-blue-50 dark:bg-gray-700': expandedQuestions.includes(q.ID),
           }"
+          role="button"
+          tabindex="0"
+          :aria-expanded="isDesktop ? undefined : expandedQuestions.includes(q.ID)"
+          :aria-current="isDesktop && selectedQuestion?.ID === q.ID ? 'true' : undefined"
           @click="handleRowClick(q)"
+          @keydown.enter.prevent="handleRowClick(q)"
+          @keydown.space.prevent="handleRowClick(q)"
         >
           <div class="font-mono text-sm text-gray-500 dark:text-gray-400 mt-1" style="min-width: 36px">
             {{ q.ID }}
@@ -336,6 +342,8 @@ const isDesktop = ref(
 );
 let desktopMediaQuery = null;
 let desktopMediaChangeHandler = null;
+let searchTimer = null;
+let fetchToken = 0;
 const loadingTrigger = ref(null);
 let observer = null;
 
@@ -362,6 +370,7 @@ function normalizeQuestionText(text) {
 }
 
 async function fetchQuestions(forceRefresh = false, append = false) {
+  const token = ++fetchToken;
   isLoading.value = true;
 
   try {
@@ -371,6 +380,7 @@ async function fetchQuestions(forceRefresh = false, append = false) {
         : `/questions/search?query=${encodeURIComponent(search.value.trim())}`;
 
     const res = await apiClient.get(endpoint);
+    if (token !== fetchToken) return;
     if (!res.data) {
       throw new Error('Brak danych w odpowiedzi');
     }
@@ -406,6 +416,7 @@ async function fetchQuestions(forceRefresh = false, append = false) {
     pages.value = pagesCount;
     searching.value = search.value.trim() !== '';
   } catch (e) {
+    if (token !== fetchToken) return;
     console.error('Błąd podczas pobierania pytań:', e);
     showAlert('error', `Błąd pobierania pytań: ${e.message}`);
 
@@ -441,17 +452,21 @@ async function fetchQuestions(forceRefresh = false, append = false) {
     }
   } finally {
     // Upewnijmy się, że zawsze zmieniamy stan isLoading na false
-    isLoading.value = false;
+    if (token === fetchToken) isLoading.value = false;
   }
 }
 
 function handleSearch(value) {
   search.value = value;
   page.value = 1;
-  fetchQuestions(true);
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    fetchQuestions(true);
+  }, 300);
 }
 
 function clearSearch() {
+  clearTimeout(searchTimer);
   search.value = '';
   page.value = 1;
   fetchQuestions(true);
@@ -602,6 +617,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  clearTimeout(searchTimer);
   if (observer) {
     observer.disconnect();
     observer = null;
