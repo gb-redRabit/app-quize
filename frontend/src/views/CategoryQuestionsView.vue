@@ -615,18 +615,18 @@ function downloadQuestionsTxt() {
   }
 }
 
-function onQuestionDeleted(deletedQuestion) {
+function onQuestionDeleted(deletedQuestion, silent = false) {
   localQuestions.value = localQuestions.value.filter((q) => q.ID !== deletedQuestion.ID);
-  showAlert('success', 'Pytanie zostało usunięte.');
+  if (!silent) showAlert('success', 'Pytanie zostało usunięte.');
 }
 
-function onQuestionEdited(editedQuestion) {
+function onQuestionEdited(editedQuestion, silent = false) {
   const idx = localQuestions.value.findIndex((q) => q.ID === editedQuestion.ID);
 
   if (idx !== -1) {
     localQuestions.value.splice(idx, 1, editedQuestion);
-    showAlert('success', 'Pytanie zostało zaktualizowane.');
-  } else {
+    if (!silent) showAlert('success', 'Pytanie zostało zaktualizowane.');
+  } else if (!silent) {
     showAlert('warning', 'Nie znaleziono pytania do edycji.');
   }
 }
@@ -788,7 +788,7 @@ async function toggleAllFlagged() {
 }
 
 // Inicjalizacja
-onMounted(async () => {
+async function loadQuestions() {
   const encodedCategory = encodeURIComponent(category.value);
   try {
     // Pierwsza porcja: szybki pierwszy render.
@@ -832,9 +832,30 @@ onMounted(async () => {
   } finally {
     isLoadingMore.value = false;
   }
+}
+
+function handleQuestionsRealtime(event) {
+  const detail = event.detail || {};
+  if (detail.type === 'update' && detail.question) {
+    onQuestionEdited(detail.question, true);
+    return;
+  }
+  if (detail.type === 'delete' && detail.ID) {
+    onQuestionDeleted({ ID: detail.ID }, true);
+    return;
+  }
+  localQuestions.value = [];
+  loadQuestions();
+}
+
+onMounted(() => {
+  loadQuestions();
+  window.addEventListener('questions-changed', handleQuestionsRealtime);
 });
 
-onUnmounted(() => {});
+onUnmounted(() => {
+  window.removeEventListener('questions-changed', handleQuestionsRealtime);
+});
 
 // Obserwuj zmiany w lastAttempt i aktualizuj localQuestions
 watch(lastAttempt, (newAttempt) => {

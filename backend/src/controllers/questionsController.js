@@ -5,6 +5,7 @@ const ExcelJS = require("exceljs");
 const { setCache, getCache, clearCache } = require("../utils/cache");
 const { parseWorkbook } = require("../utils/excelImport");
 const { validateQuestionPayload } = require("../utils/validateQuestion");
+const events = require("../utils/events");
 const CACHE_KEY = "stats";
 
 // Cache pełnych list kategorii (krótki TTL, ograniczona liczba wpisów).
@@ -84,6 +85,7 @@ exports.addQuestion = async (req, res) => {
     await question.save();
 
     await updateStats();
+    events.emit("questions-changed", { type: "create", ID: nextID });
 
     res.status(201).json({ message: "Question added", ID: nextID });
   } catch (e) {
@@ -111,6 +113,11 @@ exports.updateQuestion = async (req, res) => {
     if (!updatedQuestion) {
       return res.status(404).json({ message: "Question not found" });
     }
+    events.emit("questions-changed", {
+      type: "update",
+      ID: updatedQuestion.ID,
+      question: updatedQuestion,
+    });
     res.json(updatedQuestion);
   } catch (e) {
     res.status(500).json({ message: "Error updating question" });
@@ -132,6 +139,10 @@ exports.deleteQuestion = async (req, res) => {
         .json({ message: "Nie znaleziono pytania do usunięcia" });
     }
 
+    events.emit("questions-changed", {
+      type: "delete",
+      ID: Number(req.params.id),
+    });
     res.json({ success: true });
   } catch (e) {
     res.status(500).json({ message: "Błąd usuwania pytania" });
@@ -200,6 +211,7 @@ exports.clearQuestions = async (req, res) => {
   try {
     await Question.deleteMany({});
     await updateStats();
+    events.emit("questions-changed", { type: "bulk", action: "clear" });
     res.json({ message: "Wyczyszczono wszystkie pytania" });
   } catch (e) {
     res.status(500).json({ message: "Błąd czyszczenia pytań" });
@@ -235,6 +247,11 @@ exports.importQuestionsFromExcel = async (req, res) => {
 
     if (inserted > 0) {
       await updateStats();
+      events.emit("questions-changed", {
+        type: "bulk",
+        action: "import",
+        count: inserted,
+      });
     }
 
     res.json({
@@ -337,3 +354,4 @@ exports.getQuestionsByCategory = async (req, res) => {
 };
 
 exports.invalidateCategoryCache = invalidateCategoryCache;
+exports.refreshStats = updateStats;

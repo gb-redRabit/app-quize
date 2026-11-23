@@ -110,6 +110,7 @@ const BaseLoader = defineAsyncComponent(() => import('@/components/base/BaseLoad
 const BaseSkeleton = defineAsyncComponent(() => import('@/components/base/BaseSkeleton.vue'));
 const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal.vue'));
 import apiClient from '@/api';
+import { startRealtime, stopRealtime } from '@/utils/realtime';
 import { useSkeletonConfig } from '@/composables/useSkeletonConfig.js';
 import { useGlobalLoader } from '@/composables/useGlobalLoader.js';
 
@@ -306,8 +307,26 @@ watch(
 );
 
 let sessionCheckInterval;
+let statsRefreshTimer = null;
+
+function handleQuestionsChanged() {
+  clearTimeout(statsRefreshTimer);
+  statsRefreshTimer = setTimeout(() => {
+    store.dispatch('questions/fetchStats');
+  }, 300);
+}
+
+watch(
+  () => store.state.user.isAuthenticated,
+  (authenticated) => {
+    if (authenticated) startRealtime();
+    else stopRealtime();
+  },
+  { immediate: true }
+);
 
 onMounted(() => {
+  window.addEventListener('questions-changed', handleQuestionsChanged);
   // Motyw na starcie
   const savedTheme = localStorage.getItem('theme') || currentTheme.value;
   if (savedTheme === 'dark') {
@@ -329,6 +348,9 @@ onMounted(() => {
 onBeforeUnmount(() => {
   clearInterval(sessionCountdownInterval);
   clearInterval(sessionCheckInterval);
+  clearTimeout(statsRefreshTimer);
+  stopRealtime();
+  window.removeEventListener('questions-changed', handleQuestionsChanged);
   window.removeEventListener('online', handleOnline);
   window.removeEventListener('offline', handleOffline);
   window.removeEventListener('focus', verifySession);

@@ -241,12 +241,18 @@ const uniqueCategories = computed(() => {
   return Array.from(set).sort((a, b) => a.localeCompare(b));
 });
 
+function handleQuestionsRealtime() {
+  loadQuestions();
+}
+
 onMounted(async () => {
   await loadQuestions();
   observeTrigger();
+  window.addEventListener('questions-changed', handleQuestionsRealtime);
 });
 onBeforeUnmount(() => {
   if (observer) observer.disconnect();
+  window.removeEventListener('questions-changed', handleQuestionsRealtime);
 });
 
 async function loadQuestions() {

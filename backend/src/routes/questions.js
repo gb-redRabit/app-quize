@@ -27,6 +27,7 @@ function uploadExcelMiddleware(req, res, next) {
   });
 }
 const Question = require("../models/Question");
+const events = require("../utils/events");
 
 // Pobierz wszystkie pytania
 router.get("/", auth.verifyToken, async (req, res) => {
@@ -142,6 +143,12 @@ router.delete(
       const category = decodeURIComponent(req.params.category);
       const result = await Question.deleteMany({ category });
       questionsController.invalidateCategoryCache();
+      await questionsController.refreshStats();
+      events.emit("questions-changed", {
+        type: "bulk",
+        action: "delete-category",
+        category,
+      });
       res.json({ success: true, deletedCount: result.deletedCount });
     } catch (e) {
       console.error("Błąd podczas usuwania pytań:", e);

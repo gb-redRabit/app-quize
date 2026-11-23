@@ -14,6 +14,7 @@ const authRoutes = require("./routes/auth");
 const questionsRoutes = require("./routes/questions");
 const usersRouter = require("./routes/users");
 const statsRoutes = require("./routes/stats");
+const eventsRoutes = require("./routes/events");
 const connectDB = require("./config/database");
 
 const app = express();
@@ -23,8 +24,11 @@ const PORT = process.env.PORT || 3000;
 app.use(
   compression({
     filter: (req, res) => {
-      // Nie kompresuj, jeśli to żądanie eksportu do Excela
-      if (req.path.includes("/export/excel")) {
+      // Nie kompresuj eksportu Excel ani strumienia SSE
+      if (
+        req.path.includes("/export/excel") ||
+        req.path.includes("/api/events")
+      ) {
         return false;
       }
       // W przeciwnym razie, użyj domyślnego progu kompresji
@@ -86,6 +90,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/questions", questionsRoutes);
 app.use("/api/users", usersRouter);
 app.use("/api/stats", statsRoutes);
+app.use("/api/events", eventsRoutes);
 
 (async () => {
   await connectDB();

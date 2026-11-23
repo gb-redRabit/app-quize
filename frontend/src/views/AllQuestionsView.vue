@@ -68,7 +68,11 @@
               Kategoria: <span class="font-medium">{{ q.category || 'Bez kategorii' }}</span>
             </div>
             <div v-if="isAdmin" class="mt-3 sm:hidden">
-              <QuestionActions :question="q" @deleted="handleQuestionDeleted" />
+              <QuestionActions
+                :question="q"
+                @deleted="handleQuestionDeleted"
+                @edit="handleQuestionEdited"
+              />
             </div>
           </div>
           <div class="ml-2 flex items-center justify-center shrink-0">
@@ -92,7 +96,11 @@
               </svg>
             </div>
             <div v-if="isAdmin" class="ml-3 hidden sm:block">
-              <QuestionActions :question="q" @deleted="handleQuestionDeleted" />
+              <QuestionActions
+                :question="q"
+                @deleted="handleQuestionDeleted"
+                @edit="handleQuestionEdited"
+              />
             </div>
           </div>
         </div>
@@ -413,12 +421,35 @@ function setupInfiniteScroll() {
 }
 
 // Inicjalizacja
+function handleQuestionEdited(question) {
+  const idx = questions.value.findIndex((q) => q.ID === question.ID);
+  if (idx > -1) {
+    questions.value.splice(idx, 1, { ...questions.value[idx], ...question });
+  }
+}
+
+function handleQuestionsRealtime(event) {
+  const detail = event.detail || {};
+  if (detail.type === 'update' && detail.question) {
+    handleQuestionEdited(detail.question);
+    return;
+  }
+  if (detail.type === 'delete' && detail.ID) {
+    questions.value = questions.value.filter((q) => q.ID !== detail.ID);
+    return;
+  }
+  // create / bulk / import / clear — odśwież pierwszą stronę
+  page.value = 1;
+  fetchQuestions(true);
+}
+
 onMounted(() => {
   setTimeout(() => {
     fetchQuestions(true);
     setupInfiniteScroll();
     window.addEventListener('scroll', handleScroll);
   }, 100);
+  window.addEventListener('questions-changed', handleQuestionsRealtime);
 });
 
 onUnmounted(() => {
@@ -427,6 +458,7 @@ onUnmounted(() => {
     observer = null;
   }
   window.removeEventListener('scroll', handleScroll);
+  window.removeEventListener('questions-changed', handleQuestionsRealtime);
 });
 
 watch(
