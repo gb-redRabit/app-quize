@@ -44,23 +44,34 @@ router.get("/", auth.verifyToken, async (req, res) => {
 // Pobierz wszystkie pytania BEZ paginacji
 router.get("/all", auth.verifyToken, auth.requireAdmin, async (req, res) => {
   try {
-    // Pobierz wszystkie pytania z pełnymi danymi
-    const questions = await Question.find({}).lean();
-    // Funkcja do normalizacji pytania
+    // Do grupowania wystarczy treść pytania — pełne dokumenty pobieramy
+    // tylko dla faktycznych duplikatów (oszczędza pamięć i transfer).
     const normalize = (q) =>
       (q || "")
         .replace(/[.?!\s]+$/g, "")
         .trim()
         .toLowerCase();
-    // Grupowanie po oczyszczonym pytaniu
-    const map = {};
-    for (const q of questions) {
+
+    const meta = await Question.find({}, { ID: 1, question: 1 }).lean();
+    const groups = new Map();
+    for (const q of meta) {
       const key = normalize(q.question);
-      if (!map[key]) map[key] = [];
-      map[key].push(q);
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(q);
     }
-    // Zwróć tylko te, które mają duplikaty
-    const duplicates = Object.values(map).filter((arr) => arr.length > 1);
+
+    const duplicateGroups = [...groups.values()].filter((arr) => arr.length > 1);
+    if (duplicateGroups.length === 0) {
+      return res.json({ duplicates: [] });
+    }
+
+    const ids = duplicateGroups.flatMap((arr) => arr.map((q) => q.ID));
+    const full = await Question.find({ ID: { $in: ids } }).lean();
+    const byId = new Map(full.map((q) => [q.ID, q]));
+
+    const duplicates = duplicateGroups.map((arr) =>
+      arr.map((q) => byId.get(q.ID) || q)
+    );
     res.json({ duplicates });
   } catch (e) {
     console.error("Błąd pobierania duplikatów pytań:", e);
