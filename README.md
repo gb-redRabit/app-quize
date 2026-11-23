@@ -126,20 +126,22 @@ app-quize/
 
 ### Autoryzacja (`/api/auth`)
 
-- `POST /register` – rejestracja
+- `POST /register` – rejestracja (jeśli backend ma ustawiony `REGISTRATION_INVITE_CODE`, wymagany jest kod zaproszenia)
 - `POST /login` – logowanie
 - `POST /logout` – wylogowanie
 
 ### Pytania (`/api/questions`)
 
+> Wszystkie endpointy pytań wymagają JWT; zapis, edycja, usuwanie, import i eksport — rola `admin`.
+
 - `GET /` – pobierz pytania (paginacja, limity)
 - `GET /search?query=...` – wyszukiwanie po ID/treści
 - `GET /category/:category` – pytania z kategorii
-- `POST /` – dodaj pytanie (autoryzacja)
-- `PUT /:id` – edytuj pytanie (autoryzacja)
-- `DELETE /:id` – usuń pytanie (autoryzacja)
-- `GET /export/excel` – eksport do Excela (**bez kolejki**)
-- `POST /import/excel` – import z Excela (autoryzacja)
+- `POST /` – dodaj pytanie (admin)
+- `PUT /:id` – edytuj pytanie (admin)
+- `DELETE /:id` – usuń pytanie (admin)
+- `GET /export/excel` – eksport do Excela (admin)
+- `POST /import/excel` – import z Excela (admin)
 - `POST /clear` – usuń wszystkie pytania (admin)
 - `DELETE /category/:category` – usuń pytania z kategorii (admin)
 
@@ -156,7 +158,7 @@ app-quize/
 
 ### Statystyki (`/api/stats`)
 
-- `GET /` – globalne statystyki (cache)
+- `GET /` – globalne statystyki (wymaga JWT, cache)
 
 ---
 

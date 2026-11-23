@@ -69,8 +69,10 @@ backend/
 
     ```env
     JWT_SECRET=twoj_super_tajny_klucz_jwt
-    MONGO_URI=mongodb://localhost:27017/quizapp
+    MONGO_URI=mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/quizapp
     PORT=3000
+    # Opcjonalnie: wymuszaj kod zaproszenia przy rejestracji
+    REGISTRATION_INVITE_CODE=twoj_kod
     ```
 
 4.  **(Opcjonalnie) Zaimportuj dane startowe**:
@@ -97,11 +99,13 @@ Serwer będzie dostępny pod adresem `http://localhost:3000`.
 
 ### Autoryzacja (`/api/auth`)
 
-- `POST /register`: Rejestracja nowego użytkownika.
+- `POST /register`: Rejestracja nowego użytkownika (jeśli ustawiono `REGISTRATION_INVITE_CODE`, wymagany `inviteCode`).
 - `POST /login`: Logowanie i uzyskanie tokena JWT.
 - `POST /logout`: Wylogowanie (usuwa token po stronie klienta).
 
 ### Pytania (`/api/questions`)
+
+> Odczyty wymagają JWT; zapis, edycja, usuwanie, import/eksport — rola `admin`.
 
 - `GET /`: Pobieranie pytań z paginacją (`?page=1&limit=20`).
 - `GET /?ids=1,2,3`: Pobieranie pytań po ID.
@@ -128,7 +132,7 @@ Serwer będzie dostępny pod adresem `http://localhost:3000`.
 
 ### Statystyki (`/api/stats`)
 
-- `GET /`: Globalne statystyki (liczba pytań, podział na kategorie, cache).
+- `GET /`: Globalne statystyki (wymaga JWT; liczba pytań, podział na kategorie, cache).
 
 ---
 
