@@ -20,7 +20,11 @@
         Brak połączenia z internetem. Niektóre funkcje mogą być niedostępne.
       </div>
 
-      <main id="main" tabindex="-1">
+      <main
+        id="main"
+        tabindex="-1"
+        :class="showBottomNav ? 'pb-20 lg:pb-0' : ''"
+      >
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
             <component :is="isPageLoading ? null : Component" :key="$route.fullPath" />
@@ -41,6 +45,8 @@
           />
         </router-view>
       </main>
+
+      <BottomNav v-if="showBottomNav" />
 
       <!-- Pasek z czasem ważności tokenu -->
       <!-- <div
@@ -97,6 +103,7 @@ import {
 import { useStore, mapGetters } from 'vuex';
 import { useRouter, useRoute } from 'vue-router';
 const Navbar = defineAsyncComponent(() => import('@/components/layout/Navbar.vue'));
+const BottomNav = defineAsyncComponent(() => import('@/components/layout/BottomNav.vue'));
 const BaseAlert = defineAsyncComponent(() => import('@/components/base/BaseAlert.vue'));
 const BaseLoader = defineAsyncComponent(() => import('@/components/base/BaseLoader.vue'));
 const BaseSkeleton = defineAsyncComponent(() => import('@/components/base/BaseSkeleton.vue'));
@@ -123,6 +130,9 @@ const globalLoader = ref();
 
 const currentTheme = computed(() => store.getters['ui/currentTheme']);
 const showNavbar = computed(() => route.name !== 'Login' && route.name !== 'Register');
+const showBottomNav = computed(
+  () => showNavbar.value && !['QuizView', 'ExamView'].includes(route.name)
+);
 
 // Skeleton logic
 const {
