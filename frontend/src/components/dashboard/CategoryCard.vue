@@ -258,9 +258,9 @@ const cardClass = computed(() => {
   if (percentDone > 50)
     return 'bg-red-100 border-red-400 shadow-md text-red-800 dark:bg-red-900 dark:border-red-500 dark:text-red-200';
   if (percentCorrectOfDone > 70)
-    return 'bg-emerald-100 border-emerald-300 text-emerald-800 dark:bg-emerald-900 dark:border-emerald-500 dark:text-emerald-200';
+    return 'bg-green-100 border-green-300 text-green-800 dark:bg-green-900 dark:border-green-500 dark:text-green-200';
   if (percentCorrectOfDone >= 40)
-    return 'bg-amber-100 border-amber-300 text-amber-800 dark:bg-amber-900 dark:border-amber-500 dark:text-amber-200';
+    return 'bg-yellow-100 border-yellow-300 text-yellow-800 dark:bg-yellow-900 dark:border-yellow-500 dark:text-yellow-200';
 
   return 'bg-orange-100 border-orange-300 text-orange-800 dark:bg-orange-900 dark:border-orange-500 dark:text-orange-200';
 });

@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-6 text-sky-700 dark:text-sky-300">Lista wszystkich pytań</h1>
+    <h1 class="text-2xl font-bold mb-6 text-blue-700 dark:text-blue-300">Lista wszystkich pytań</h1>
     <div class="flex flex-col md:flex-row md:items-center gap-4 mb-6">
       <SearchBar
         :model-value="search"
@@ -33,7 +33,7 @@
     <!-- Brak wyników -->
     <div v-else-if="filteredQuestions.length === 0" class="text-gray-500 mt-8 text-center">
       <p>Brak pytań spełniających kryteria.</p>
-      <button v-if="search" @click="clearSearch" class="mt-2 text-sky-600 hover:text-sky-800">
+      <button v-if="search" @click="clearSearch" class="mt-2 text-blue-600 hover:text-blue-800">
         Wyczyść wyszukiwanie
       </button>
     </div>
@@ -45,15 +45,15 @@
         :key="q.ID"
         class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
         :class="{
-          'shadow-md ring-2 ring-sky-100 dark:ring-sky-900': expandedQuestions.includes(q.ID),
+          'shadow-md ring-2 ring-blue-100 dark:ring-blue-900': expandedQuestions.includes(q.ID),
         }"
       >
         <!-- Nagłówek pytania -->
         <div
-          class="flex items-start p-4 cursor-pointer transition-colors hover:bg-sky-50 dark:hover:bg-gray-750"
+          class="flex items-start p-4 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-gray-750"
           :class="{
             'border-b border-gray-200 dark:border-gray-700': expandedQuestions.includes(q.ID),
-            'bg-sky-50 dark:bg-gray-750': expandedQuestions.includes(q.ID),
+            'bg-blue-50 dark:bg-gray-750': expandedQuestions.includes(q.ID),
           }"
           @click="toggleQuestionDetails(q.ID)"
         >
@@ -68,7 +68,7 @@
           </div>
           <div class="ml-4 flex items-center justify-center">
             <div
-              class="flex items-center justify-center h-8 w-8 rounded-full transition-colors duration-300 bg-gray-100 dark:bg-gray-700 hover:bg-sky-100 dark:hover:bg-sky-900"
+              class="flex items-center justify-center h-8 w-8 rounded-full transition-colors duration-300 bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

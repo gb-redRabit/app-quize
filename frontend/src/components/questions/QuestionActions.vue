@@ -77,7 +77,7 @@
                   v-model="editData.question"
                   id="edit-question-text"
                   rows="4"
-                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
+                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
                   required
                 ></textarea>
               </div>
@@ -94,7 +94,7 @@
                     type="text"
                     :id="`edit-answer-${key}`"
                     v-model="editData[`answer_${key}`].answer"
-                    class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
+                    class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
                     required
                   />
                 </div>
@@ -200,7 +200,7 @@
                   <input
                     type="text"
                     v-model="editData.note"
-                    class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
+                    class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
                     placeholder="Dodaj notatkę..."
                   />
                 </div>
@@ -241,7 +241,7 @@
                 <select
                   v-model="editData.category"
                   id="edit-category"
-                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
+                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
                 >
                   <option disabled value="">-- wybierz kategorię --</option>
                   <option v-for="cat in categoriesFromStats" :key="cat" :value="cat">
@@ -253,7 +253,7 @@
                   v-if="editData.category === '__new__'"
                   v-model="editData.newCategory"
                   placeholder="Nowa kategoria"
-                  class="mt-2 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
+                  class="mt-2 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
                 />
               </div>
               <div>
@@ -266,7 +266,7 @@
                   type="text"
                   v-model="editData.description"
                   id="edit-description"
-                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
+                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
                 />
               </div>
             </div>

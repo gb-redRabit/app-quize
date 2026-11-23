@@ -9,11 +9,11 @@
       // Kolory solid
       color === 'blue' && variant === 'solid' ? 'bg-blue-600 text-white hover:bg-blue-700' : '',
       color === 'green' && variant === 'solid'
-        ? 'bg-emerald-700 text-white hover:bg-emerald-800'
+        ? 'bg-green-700 text-white hover:bg-green-800'
         : '',
       color === 'red' && variant === 'solid' ? 'bg-red-600 text-white hover:bg-red-700' : '',
       color === 'yellow' && variant === 'solid'
-        ? 'bg-amber-700 text-white hover:bg-amber-800'
+        ? 'bg-yellow-700 text-white hover:bg-yellow-800'
         : '',
       color === 'gray' && variant === 'solid' ? 'bg-gray-700 text-white hover:bg-gray-800' : '',
       color === 'purple' && variant === 'solid'
@@ -25,13 +25,13 @@
         ? 'border-blue-600 text-blue-700 hover:bg-blue-50 dark:bg-gray-800'
         : '',
       variant === 'outline' && color === 'green'
-        ? 'border-emerald-700 text-emerald-800 hover:bg-emerald-50 dark:bg-gray-800'
+        ? 'border-green-700 text-green-800 hover:bg-green-50 dark:bg-gray-800'
         : '',
       variant === 'outline' && color === 'red'
         ? 'border-red-600 text-red-700 hover:bg-red-50 dark:bg-gray-800'
         : '',
       variant === 'outline' && color === 'yellow'
-        ? 'border-amber-700 text-amber-800 hover:bg-amber-50 dark:bg-gray-800'
+        ? 'border-yellow-700 text-yellow-800 hover:bg-yellow-50 dark:bg-gray-800'
         : '',
       variant === 'outline' && color === 'gray'
         ? 'border-gray-600 text-gray-700 hover:bg-gray-50 dark:bg-gray-800'
@@ -45,13 +45,13 @@
         ? 'text-blue-700 hover:bg-blue-50 dark:hover:bg-gray-800'
         : '',
       variant === 'ghost' && color === 'green'
-        ? 'text-emerald-800 hover:bg-emerald-50 dark:hover:bg-gray-800'
+        ? 'text-green-800 hover:bg-green-50 dark:hover:bg-gray-800'
         : '',
       variant === 'ghost' && color === 'red'
         ? 'text-red-700 hover:bg-red-50 dark:hover:bg-gray-800'
         : '',
       variant === 'ghost' && color === 'yellow'
-        ? 'text-amber-800 hover:bg-amber-50 dark:hover:bg-gray-800'
+        ? 'text-yellow-800 hover:bg-yellow-50 dark:hover:bg-gray-800'
         : '',
       variant === 'ghost' && color === 'gray'
         ? 'text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'

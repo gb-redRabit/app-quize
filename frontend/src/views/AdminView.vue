@@ -28,7 +28,7 @@
           @click="openAddPopup"
           class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow"
         >
-          <div class="bg-sky-500 p-3 rounded-full">
+          <div class="bg-blue-500 p-3 rounded-full">
             <img
               src="@/assets/icons/add.svg"
               alt="Dodaj"
@@ -37,7 +37,7 @@
           </div>
           <div>
             <h3 class="font-semibold text-gray-800 dark:text-gray-100">Dodaj pytanie</h3>
-            <p class="text-sm text-sky-600 dark:text-sky-400">Otwórz formularz</p>
+            <p class="text-sm text-blue-600 dark:text-blue-400">Otwórz formularz</p>
           </div>
         </div>
         <div
@@ -60,7 +60,7 @@
         <div
           class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 flex items-center gap-4"
         >
-          <div class="bg-sky-100 dark:bg-sky-700 p-3 rounded-full">
+          <div class="bg-blue-100 dark:bg-blue-700 p-3 rounded-full">
             <img
               src="@/assets/icons/import.svg"
               alt="Import"
@@ -70,7 +70,7 @@
           <div>
             <h3 class="font-semibold text-gray-700 dark:text-gray-100">Import</h3>
             <label
-              class="text-sm text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-200 font-medium cursor-pointer"
+              class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 font-medium cursor-pointer"
             >
               Wybierz plik .xlsx
               <input type="file" accept=".xlsx" @change="importQuestions" class="hidden" />
@@ -119,7 +119,7 @@
               type="text"
               id="batch-ids"
               v-model="batchIdsInput"
-              class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+              class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
               placeholder="Np. 123, 456, 789 lub 123 - 125 albo 123-130, 131, 132-134"
             />
           </div>
@@ -132,7 +132,7 @@
             <select
               id="batch-category"
               v-model="batchEditCategory"
-              class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             >
               <option value="">-- Bez zmiany --</option>
               <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
@@ -146,14 +146,14 @@
               <input
                 type="text"
                 v-model="batchEditDescPart1"
-                class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                 placeholder="Część 1 opisu (np. dowolny tekst)"
               />
               <input
                 type="text"
                 v-model="batchEditDescPart2"
                 style="width: 12rem"
-                class="p-2 block rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                class="p-2 block rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                 placeholder='Część "art..."'
               />
             </div>
@@ -428,7 +428,7 @@
                 v-model="formModel.question"
                 id="question-text"
                 rows="4"
-                class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                 placeholder="Wpisz treść pytania..."
                 required
               ></textarea>
@@ -444,7 +444,7 @@
                   type="text"
                   :id="`answer-${key}`"
                   v-model="formModel[`answer_${key}`].answer"
-                  class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                  class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                   :placeholder="`Treść odpowiedzi ${key.toUpperCase()}`"
                   required
                 />
@@ -486,7 +486,7 @@
               <select
                 v-model="formModel.category"
                 id="category"
-                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 required
               >
                 <option value="" disabled>Wybierz kategorię</option>
@@ -499,7 +499,7 @@
                 <input
                   v-model="newCategoryInput"
                   @keyup.enter.prevent="confirmNewCategory()"
-                  class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                  class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                   placeholder="Nowa kategoria"
                 />
                 <BaseButton size="sm" color="green" type="button" @click="confirmNewCategory()"
@@ -518,7 +518,7 @@
                 type="text"
                 v-model="formModel.description"
                 id="description"
-                class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                 placeholder="Np. podstawa prawna"
               />
             </div>
@@ -608,7 +608,7 @@
             <input
               type="text"
               v-model="formModel.note"
-              class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400"
+              class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
               placeholder="Dodaj notatkę..."
             />
           </div>
