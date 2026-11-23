@@ -24,10 +24,32 @@
       </div>
     </div>
 
+    <!-- Zakładki panelu -->
+    <div class="flex gap-2 overflow-x-auto hide-scrollbar mb-6 pb-1" role="tablist" aria-label="Ustawienia profilu">
+      <button
+        v-for="tab in profileTabs"
+        :key="tab.id"
+        role="tab"
+        :aria-selected="activeTab === tab.id"
+        class="h-11 px-4 rounded-full text-sm font-medium whitespace-nowrap transition-colors"
+        :class="
+          activeTab === tab.id
+            ? 'bg-blue-600 text-white shadow-sm'
+            : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+        "
+        @click="activeTab = tab.id"
+      >
+        {{ tab.label }}
+      </button>
+    </div>
+
     <!-- Sekcje ustawień -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <div class="space-y-8 mb-8">
       <!-- Personalizacja awatara -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+      <div
+        v-if="activeTab === 'profile'"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
+      >
         <div class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
           <div class="px-6 py-4 flex items-center">
             <div
@@ -129,7 +151,10 @@
 
       <div class="grid grid-cols-1 gap-8">
         <!-- Personalizacja motywu -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden h-fit">
+        <div
+          v-if="activeTab === 'appearance'"
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden h-fit"
+        >
           <div
             class="border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900"
           >
@@ -175,12 +200,19 @@
         </div>
 
         <!-- Zmiana hasła -->
-        <PasswordChangeForm :user="user" @password-changed="onPasswordChanged" />
+        <PasswordChangeForm
+          v-if="activeTab === 'security'"
+          :user="user"
+          @password-changed="onPasswordChanged"
+        />
       </div>
     </div>
 
     <!-- Ukrywanie kategorii -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8">
+    <div
+      v-if="activeTab === 'categories'"
+      class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8"
+    >
       <div class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
         <div class="px-6 py-4 flex items-center">
           <div
@@ -236,6 +268,7 @@ import {
   inject,
   onBeforeUnmount,
   defineAsyncComponent,
+  watch,
 } from 'vue';
 import { useStore } from 'vuex';
 const BaseButton = defineAsyncComponent(() => import('@/components/base/BaseButton.vue'));
@@ -251,6 +284,13 @@ const showAlert = inject('showAlert');
 const store = useStore();
 
 // Stan reaktywny
+const activeTab = ref('profile');
+const profileTabs = [
+  { id: 'profile', label: 'Profil' },
+  { id: 'appearance', label: 'Wygląd' },
+  { id: 'security', label: 'Bezpieczeństwo' },
+  { id: 'categories', label: 'Kategorie' },
+];
 const theme = ref('light');
 const selectorPosition = ref({ x: 0, y: 0 });
 const selectedColor = ref('#3B82F6');
@@ -535,6 +575,15 @@ const getCategoryNameForDisplay = (categoryName) =>
   categoryName === '' ? 'Pytania bez kategorii' : categoryName;
 
 // Inicjalizacja komponentu
+watch(activeTab, (tab) => {
+  if (tab === 'profile') {
+    nextTick(() => {
+      drawColorWheel();
+      updateSelectorPositionFromColor(selectedColor.value);
+    });
+  }
+});
+
 onMounted(async () => {
   // Ustawienie początkowego stanu
   theme.value = user.value?.option || 'light';
