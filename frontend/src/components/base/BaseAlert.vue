@@ -2,7 +2,7 @@
   <transition name="alert-fade">
     <div
       v-if="visible"
-      class="fixed bottom-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-md"
+      class="alert-toast fixed bottom-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-md"
       :class="alertTypeClass"
     >
       <div class="flex items-center">
@@ -256,6 +256,18 @@ defineExpose({
 .alert-fade-leave-to {
   opacity: 0;
   transform: translateY(-20px);
+}
+
+.alert-toast {
+  bottom: calc(0.75rem + env(safe-area-inset-bottom));
+}
+@media (max-width: 1023px) {
+  .alert-toast {
+    bottom: calc(4.5rem + env(safe-area-inset-bottom));
+    left: 0.75rem;
+    right: 0.75rem;
+    max-width: none;
+  }
 }
 
 .modal-fade-enter-active,
