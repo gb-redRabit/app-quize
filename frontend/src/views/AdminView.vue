@@ -7,13 +7,13 @@
     </div>
 
     <!-- Zakładki -->
-    <div class="mb-8 border-b border-gray-200 dark:border-gray-700 flex gap-2">
+    <div class="mb-8 border-b border-gray-200 dark:border-gray-700 flex gap-2 overflow-x-auto pb-1">
       <BaseButton
         v-for="tab in tabs"
         :key="tab.key"
         :color="activeTab === tab.key ? 'blue' : 'gray'"
         :variant="activeTab === tab.key ? 'solid' : 'outline'"
-        class="rounded-t px-4 py-2 font-medium"
+        class="rounded-t px-4 py-2 font-medium shrink-0 whitespace-nowrap"
         @click="activeTab = tab.key"
       >
         {{ tab.label }}
@@ -260,52 +260,54 @@
         <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
           Zarejestrowani użytkownicy
         </h2>
-        <table class="min-w-full bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
-          <thead>
-            <tr class="bg-blue-50 dark:bg-blue-900 text-left">
-              <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Login</th>
-              <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Avatar</th>
-              <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Kolor avatara</th>
-              <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Rola</th>
-              <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Akcje</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="user in users"
-              :key="user._id"
-              class="border-b border-gray-200 dark:border-gray-700"
-            >
-              <td class="px-4 py-2">{{ user.login }}</td>
-              <td class="px-4 py-2">
-                <Avatar :avatar-index="user.avatar" :color="user.avatarColors" :size="32" />
-              </td>
-              <td class="px-4 py-2">{{ user.avatarColors }}</td>
-              <td class="px-4 py-2">
-                <span
-                  :class="{
-                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded-full':
-                      user.rola === 'admin',
-                    'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 px-2 py-1 rounded-full':
-                      user.rola !== 'admin',
-                  }"
-                >
-                  {{ user.rola }}
-                </span>
-              </td>
-              <td class="px-4 py-2">
-                <select
-                  v-model="user.rola"
-                  @change="changeRole(user)"
-                  class="rounded px-2 py-1 border bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
-                >
-                  <option value="user">user</option>
-                  <option value="admin">admin</option>
-                </select>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+            <thead>
+              <tr class="bg-blue-50 dark:bg-blue-900 text-left">
+                <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Login</th>
+                <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Avatar</th>
+                <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Kolor avatara</th>
+                <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Rola</th>
+                <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Akcje</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="user in users"
+                :key="user._id"
+                class="border-b border-gray-200 dark:border-gray-700"
+              >
+                <td class="px-4 py-2">{{ user.login }}</td>
+                <td class="px-4 py-2">
+                  <Avatar :avatar-index="user.avatar" :color="user.avatarColors" :size="32" />
+                </td>
+                <td class="px-4 py-2">{{ user.avatarColors }}</td>
+                <td class="px-4 py-2">
+                  <span
+                    :class="{
+                      'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded-full':
+                        user.rola === 'admin',
+                      'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 px-2 py-1 rounded-full':
+                        user.rola !== 'admin',
+                    }"
+                  >
+                    {{ user.rola }}
+                  </span>
+                </td>
+                <td class="px-4 py-2">
+                  <select
+                    v-model="user.rola"
+                    @change="changeRole(user)"
+                    class="rounded px-2 py-1 border bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
+                  >
+                    <option value="user">user</option>
+                    <option value="admin">admin</option>
+                  </select>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <div
           v-if="users.length === 0"
           class="text-gray-500 dark:text-gray-400 mt-6 text-center w-full"
