@@ -316,6 +316,20 @@ function handleQuestionsChanged() {
   }, 300);
 }
 
+function handleUserUpdated(event) {
+  const incoming = event.detail?.user;
+  if (!incoming) return;
+  const merged = {
+    ...(store.state.user.user || {}),
+    ...incoming,
+  };
+  store.commit('user/SET_USER', merged);
+  sessionStorage.setItem('user', JSON.stringify(merged));
+  if (incoming.option) {
+    store.dispatch('ui/setTheme', incoming.option);
+  }
+}
+
 watch(
   () => store.state.user.isAuthenticated,
   (authenticated) => {
@@ -327,6 +341,7 @@ watch(
 
 onMounted(() => {
   window.addEventListener('questions-changed', handleQuestionsChanged);
+  window.addEventListener('user-updated', handleUserUpdated);
   // Motyw na starcie
   const savedTheme = localStorage.getItem('theme') || currentTheme.value;
   if (savedTheme === 'dark') {
@@ -351,6 +366,7 @@ onBeforeUnmount(() => {
   clearTimeout(statsRefreshTimer);
   stopRealtime();
   window.removeEventListener('questions-changed', handleQuestionsChanged);
+  window.removeEventListener('user-updated', handleUserUpdated);
   window.removeEventListener('online', handleOnline);
   window.removeEventListener('offline', handleOffline);
   window.removeEventListener('focus', verifySession);

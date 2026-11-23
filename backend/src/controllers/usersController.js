@@ -1,5 +1,22 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
+const events = require("../utils/events");
+
+function emitUserUpdate(user) {
+  const obj = user.toObject();
+  delete obj.password;
+  events.emit("user-updated", {
+    userId: String(user._id),
+    user: {
+      login: obj.login,
+      rola: obj.rola,
+      avatar: obj.avatar,
+      avatarColors: obj.avatarColors,
+      option: obj.option,
+      hiddenCategory: obj.hiddenCategory || [],
+    },
+  });
+}
 
 // Pobierz historię użytkownika
 exports.getUserHistory = async (req, res) => {
@@ -40,6 +57,7 @@ exports.updateProfile = async (req, res) => {
     if (req.body.clearHistory) {
       user.history = [];
       await user.save();
+      emitUserUpdate(user);
       return res.json({ message: "Historia wyczyszczona" });
     }
 
@@ -67,6 +85,7 @@ exports.updateProfile = async (req, res) => {
       user.hiddenCategory = req.body.hiddenCategory;
     }
     await user.save();
+    emitUserUpdate(user);
     const { password, ...userWithoutPassword } = user.toObject();
     res.json(userWithoutPassword);
   } catch (error) {

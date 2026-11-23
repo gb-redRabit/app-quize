@@ -54,9 +54,8 @@ async function connect() {
         if (!dataLine) continue;
         try {
           const payload = JSON.parse(dataLine.slice(5).trim());
-          window.dispatchEvent(
-            new CustomEvent('questions-changed', { detail: payload })
-          );
+          const eventName = payload.userId ? 'user-updated' : 'questions-changed';
+          window.dispatchEvent(new CustomEvent(eventName, { detail: payload }));
         } catch (e) {
           // Ignoruj niepoprawne ramki SSE.
         }
