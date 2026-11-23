@@ -266,6 +266,13 @@
       </DynamicScroller>
 
       <!-- Load more indicator -->
+      <div
+        v-if="isLoadingMore"
+        class="text-center text-sm text-gray-500 dark:text-gray-400 py-4"
+        aria-live="polite"
+      >
+        Wczytywanie pozostałych pytań… {{ localQuestions.length }}/{{ totalCount }}
+      </div>
     </div>
   </div>
 </template>
@@ -286,6 +293,9 @@ const showAlert = inject('showAlert');
 
 // Stan komponentu
 const loading = ref(true);
+const isLoadingMore = ref(false);
+const totalCount = ref(0);
+const PAGE_SIZE = 200;
 const searchQuery = ref('');
 const localQuestions = ref([]);
 const showDuplicates = ref(false);
@@ -779,14 +789,37 @@ async function toggleAllFlagged() {
 
 // Inicjalizacja
 onMounted(async () => {
+  const encodedCategory = encodeURIComponent(category.value);
   try {
-    const questions = await store.dispatch('questions/fetchQuestionsByCategory', category.value);
-    localQuestions.value = Array.isArray(questions) ? questions : [];
+    // Pierwsza porcja: szybki pierwszy render.
+    const first = await apiClient.get(
+      `/questions/category/${encodedCategory}?page=1&limit=${PAGE_SIZE}`,
+      { noCache: true }
+    );
+    localQuestions.value = Array.isArray(first.data) ? first.data : [];
+    totalCount.value = Number(first.headers['x-total-count'] || localQuestions.value.length);
     loading.value = false;
+
+    // Reszta w tle — filtry i wyszukiwanie z czasem obejmą całość.
+    const pages = Math.ceil(totalCount.value / PAGE_SIZE);
+    if (pages > 1) {
+      isLoadingMore.value = true;
+      for (let page = 2; page <= pages; page += 1) {
+        const next = await apiClient.get(
+          `/questions/category/${encodedCategory}?page=${page}&limit=${PAGE_SIZE}`,
+          { noCache: true }
+        );
+        if (Array.isArray(next.data) && next.data.length) {
+          localQuestions.value = [...localQuestions.value, ...next.data];
+        }
+      }
+    }
   } catch (error) {
     showAlert('error', 'Błąd podczas ładowania pytań');
     localQuestions.value = [];
     loading.value = false;
+  } finally {
+    isLoadingMore.value = false;
   }
 });
 

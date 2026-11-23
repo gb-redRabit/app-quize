@@ -303,6 +303,23 @@ exports.getQuestionsByCategory = async (req, res) => {
     const cached = getCategoryCache(category);
     if (cached) return res.json(cached);
 
+    const limit = Math.min(
+      500,
+      Math.max(0, parseInt(req.query.limit, 10) || 0)
+    );
+
+    if (limit > 0) {
+      const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+      const total = await Question.countDocuments(filter);
+      const questions = await Question.find(filter, null, {
+        sort: { ID: 1 },
+        skip: (page - 1) * limit,
+        limit,
+      }).lean();
+      res.set("X-Total-Count", String(total));
+      return res.json(questions);
+    }
+
     const questions = await Question.find(filter, null, { sort: { ID: 1 } }).lean();
     setCategoryCache(category, questions);
     res.json(questions);
