@@ -1,0 +1,24 @@
+# Agent docs (local only, never commit)
+docs/
+
+# Environment variables (never commit real secrets)
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Dependencies
+node_modules/
+
+# Local MongoDB data (mongodb-memory-server / portable mongod)
+.mongo-data/
+.data/
+mongodb/
+
+# Build output
+dist/
+coverage/
+
+# OS / editor
+.DS_Store
+Thumbs.db
