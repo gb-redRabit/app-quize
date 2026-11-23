@@ -4,6 +4,7 @@ const Stats = require("../models/Stats");
 const ExcelJS = require("exceljs");
 const { setCache, getCache, clearCache } = require("../utils/cache");
 const { parseWorkbook } = require("../utils/excelImport");
+const { validateQuestionPayload } = require("../utils/validateQuestion");
 const CACHE_KEY = "stats";
 
 // Zabezpieczenie przed równoległym importem (jeden plik na raz).
@@ -44,15 +45,20 @@ exports.getAllQuestions = async (req, res) => {
 // Dodaj pytanie
 exports.addQuestion = async (req, res) => {
   try {
+    const { errors, value } = validateQuestionPayload(req.body);
+    if (errors.length) {
+      return res.status(400).json({ message: errors.join("; ") });
+    }
+
     const last = await Question.findOne({}, null, { sort: { ID: -1 } });
     const nextID = last && last.ID ? last.ID + 1 : 1;
 
-    const question = new Question({ ...req.body, ID: nextID });
+    const question = new Question({ ...value, ID: nextID });
     await question.save();
 
     await updateStats();
 
-    res.status(201).json({ message: "Question added" });
+    res.status(201).json({ message: "Question added", ID: nextID });
   } catch (e) {
     res
       .status(500)
@@ -63,10 +69,15 @@ exports.addQuestion = async (req, res) => {
 // Edytuj pytanie
 exports.updateQuestion = async (req, res) => {
   try {
+    const { errors, value } = validateQuestionPayload(req.body);
+    if (errors.length) {
+      return res.status(400).json({ message: errors.join("; ") });
+    }
+
     const { id } = req.params;
     const updatedQuestion = await Question.findOneAndUpdate(
       { ID: Number(id) },
-      req.body,
+      value,
       { new: true }
     );
     await updateStats();

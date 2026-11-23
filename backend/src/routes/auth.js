@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
 const jwt = require("jsonwebtoken");
+const { loginLimiter, registerLimiter } = require("../middleware/rateLimit");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -9,10 +10,10 @@ if (!JWT_SECRET) {
 }
 
 // User registration route
-router.post("/register", authController.register);
+router.post("/register", registerLimiter, authController.register);
 
 // User login route
-router.post("/login", authController.login);
+router.post("/login", loginLimiter, authController.login);
 
 // User logout route
 router.post("/logout", authController.logout);
