@@ -22,4 +22,7 @@ const questionSchema = new mongoose.Schema({
   note: { type: String, default: "" },
 });
 
+questionSchema.index({ ID: 1 }, { unique: true });
+questionSchema.index({ category: 1, ID: 1 });
+
 module.exports = mongoose.model("Question", questionSchema);

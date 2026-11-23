@@ -905,7 +905,10 @@ async function importQuestions(event) {
       },
     });
 
-    showAlert?.('success', `Dodano ${response.data.added} nowych pytań.`);
+    const data = response.data || {};
+    const seconds = data.durationMs ? ` w ${Math.round(data.durationMs / 1000)} s` : '';
+    const skipped = data.skipped ? `, pominięto ${data.skipped}` : '';
+    showAlert?.('success', `Dodano ${data.added ?? 0} nowych pytań${skipped}${seconds}.`);
     await store.dispatch('questions/fetchStats');
   } catch (error) {
     const errorMessage =

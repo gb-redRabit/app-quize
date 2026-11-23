@@ -3,7 +3,29 @@ const router = express.Router();
 const auth = require("../middleware/authMiddleware");
 const questionsController = require("../controllers/questionsController");
 const multer = require("multer");
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const isXlsx = /\.xlsx$/i.test(file.originalname || "");
+    if (!isXlsx) {
+      return cb(new Error("Dozwolone są tylko pliki .xlsx"));
+    }
+    cb(null, true);
+  },
+});
+
+const uploadExcel = upload.single("file");
+function uploadExcelMiddleware(req, res, next) {
+  uploadExcel(req, res, (err) => {
+    if (!err) return next();
+    const message =
+      err.code === "LIMIT_FILE_SIZE"
+        ? "Plik jest za duży (maksymalnie 25 MB)"
+        : err.message || "Błąd uploadu pliku";
+    return res.status(400).json({ message });
+  });
+}
 const Question = require("../models/Question");
 
 // Pobierz wszystkie pytania
@@ -85,7 +107,7 @@ router.post(
   "/import/excel",
   auth.verifyToken,
   auth.requireAdmin,
-  upload.single("file"),
+  uploadExcelMiddleware,
   questionsController.importQuestionsFromExcel
 );
 function escapeRegex(str) {

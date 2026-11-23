@@ -4,6 +4,7 @@ const Stats = require("../models/Stats");
 const ExcelJS = require("exceljs");
 const { setCache, getCache, clearCache } = require("../utils/cache");
 const { agenda, waitForJobResult } = require("../jobs/fetchJob");
+const { parseWorkbook } = require("../utils/excelImport");
 const CACHE_KEY = "stats";
 
 // Pobierz wszystkie pytania (z paginacją)
@@ -165,97 +166,44 @@ exports.clearQuestions = async (req, res) => {
   }
 };
 
-// Import pytań z Excela
+// Import pytań z Excela (wiele arkuszy, różne układy kolumn, strumieniowo)
 exports.importQuestionsFromExcel = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "Brak pliku" });
     }
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(req.file.buffer);
-    const worksheet = workbook.worksheets[0];
-    const questions = [];
-    function parseBool(val) {
-      if (typeof val === "string") return val.trim().toLowerCase() === "true";
-      return !!val;
-    }
 
-    // Pobierz największe ID z bazy
-    const last = await Question.findOne({}, null, { sort: { ID: -1 } });
-    let nextID = last && last.ID ? last.ID + 1 : 1;
+    // Używamy bezpośredniego modelu (bez Agendy) do ustalenia kolejnego ID.
+    const last = await QuestionNot.findOne({}, null, { sort: { ID: -1 } });
+    const startId = last && last.ID ? last.ID + 1 : 1;
 
-    worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber === 1) return; // pomiń nagłówek
-      const [
-        ID, // ignoruj ID z pliku
-        question,
-        answer_a,
-        isCorret_a,
-        answer_b,
-        isCorret_b,
-        answer_c,
-        isCorret_c,
-        category,
-        description,
-        flagged,
-        bad,
-        unknown,
-        note,
-      ] = row.values.slice(1);
-
-      questions.push({
-        ID: nextID++, // nadaj kolejne ID
-        question,
-        answer_a: answer_a
-          ? { answer: answer_a, isCorret: parseBool(isCorret_a) }
-          : undefined,
-        answer_b: answer_b
-          ? { answer: answer_b, isCorret: parseBool(isCorret_b) }
-          : undefined,
-        answer_c: answer_c
-          ? { answer: answer_c, isCorret: parseBool(isCorret_c) }
-          : undefined,
-        category,
-        description,
-        flagged: parseBool(flagged),
-        bad: parseBool(bad),
-        unknown: parseBool(unknown),
-        note: note ?? "",
-        __excelRow: rowNumber, // dodaj info o wierszu z excela
-      });
+    let inserted = 0;
+    const summary = await parseWorkbook(req.file.buffer, {
+      startId,
+      onBatch: async (docs) => {
+        await QuestionNot.insertMany(docs, { ordered: true });
+        inserted += docs.length;
+      },
     });
 
-    try {
-      await Question.insertMany(questions);
+    if (inserted > 0) {
       await updateStats();
-      res.json({
-        message: "Zaimportowano pytania z Excela",
-        count: questions.length,
-      });
-    } catch (e) {
-      // Szukaj, które pytanie powoduje błąd walidacji
-      if (e.name === "ValidationError" && Array.isArray(questions)) {
-        for (const q of questions) {
-          try {
-            await new Question(q).validate();
-          } catch (err) {
-            console.error(
-              `Błąd walidacji w pytaniu z Excela (ID: ${q.ID}, wiersz: ${q.__excelRow}):`,
-              err.message
-            );
-          }
-        }
-      }
-      console.error("Błąd importu z Excela:", e);
-      res
-        .status(500)
-        .json({ message: "Błąd importu z Excela", error: e.message });
     }
+
+    res.json({
+      message: "Zaimportowano pytania z Excela",
+      added: inserted,
+      skipped: summary.skipped,
+      sheets: summary.sheets,
+      errors: summary.errors,
+      durationMs: summary.durationMs,
+    });
   } catch (e) {
     console.error("Błąd importu z Excela:", e);
-    res
-      .status(500)
-      .json({ message: "Błąd importu z Excela", error: e.message });
+    res.status(500).json({
+      message: "Błąd importu z Excela",
+      error: e.message,
+    });
   }
 };
 
