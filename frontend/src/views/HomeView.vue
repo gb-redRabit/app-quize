@@ -110,8 +110,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, inject, watch, defineAsyncComponent } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { ref, computed, inject, defineAsyncComponent } from 'vue';
+import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
 
@@ -140,7 +140,6 @@ const IconButton = defineAsyncComponent(() => import('@/components/base/IconButt
 const showAlert = inject('showAlert');
 const router = useRouter();
 const store = useStore(); // Inicjalizuj store na najwyższym poziomie
-const route = useRoute();
 
 // Utworzenie lokalnych obiektów pomocniczych (zamiast composables)
 const questionsHelper = (() => {
@@ -376,40 +375,8 @@ const refreshAllData = async () => {
   }
 };
 
-// ZASTĄP ISTNIEJĄCE onMounted i onUnmounted
-onMounted(() => {
-  document.addEventListener('visibilitychange', handleVisibilityChange);
-  // Nasłuchuj na zdarzenie zakończenia quizu, aby odświeżyć dane
-  window.addEventListener('quiz-completed', refreshAllData);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('visibilitychange', handleVisibilityChange);
-  window.removeEventListener('quiz-completed', refreshAllData);
-});
-
-// ZASTĄP istniejący watcher
-watch(
-  () => route.path,
-  (newPath) => {
-    if (newPath === '/') {
-      refreshAllData();
-    }
-  },
-  { immediate: true } // `immediate: true` uruchomi watcher od razu po załadowaniu komponentu
-);
-
-// USUŃ hook onBeforeMount
-
-// Zmodyfikuj handleVisibilityChange
-const handleVisibilityChange = () => {
-  if (document.visibilityState === 'visible' && route.path === '/') {
-    console.log('Karta aktywowana - odświeżanie danych.');
-    refreshAllData();
-  }
-};
-
-// ... reszta kodu ...
+// Odświeżanie po zakończeniu quizu obsługuje QuizExamView (jeden raz),
+// a widoki korzystają ze store. Nie dublujemy requestów na Home.
 </script>
 
 <style scoped></style>

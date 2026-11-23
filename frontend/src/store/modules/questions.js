@@ -114,13 +114,26 @@ export default {
     },
     async fetchQuestionsByCategory({ commit }, categoryName) {
       try {
-        const res = await apiClient.get(`/questions/category/${categoryName}`);
+        const res = await apiClient.get(
+          `/questions/category/${encodeURIComponent(categoryName)}`
+        );
         const questions = Array.isArray(res.data) ? res.data : [];
         commit('SET_QUESTIONS', questions);
         // Możesz tu dodać SET_CATEGORIES i SET_CATEGORY_COUNTS jeśli chcesz
         return questions;
       } catch (e) {
         console.error('Błąd pobierania pytań z kategorii:', e);
+        return [];
+      }
+    },
+    async fetchQuestionIdsByCategory(_, categoryName) {
+      try {
+        const res = await apiClient.get(
+          `/questions/category/${encodeURIComponent(categoryName)}?idsOnly=1`
+        );
+        return Array.isArray(res.data?.ids) ? res.data.ids : [];
+      } catch (e) {
+        console.error('Błąd pobierania ID pytań z kategorii:', e);
         return [];
       }
     },

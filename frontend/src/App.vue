@@ -211,42 +211,6 @@ function checkTokenExpiration() {
   }
 }
 
-// Token time left logic
-const tokenTimeLeft = ref(0);
-const tokenTimeLeftStr = computed(() => {
-  if (tokenTimeLeft.value <= 0) return 'wygasł';
-  const min = Math.floor(tokenTimeLeft.value / 60);
-  const sec = tokenTimeLeft.value % 60;
-  return `${min} min ${sec < 10 ? '0' : ''}${sec} s`;
-});
-
-function updateTokenTimeLeft() {
-  const token = sessionStorage.getItem('token');
-  if (!token) {
-    tokenTimeLeft.value = 0;
-    return;
-  }
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    const decoded = JSON.parse(jsonPayload);
-    if (!decoded.exp) {
-      tokenTimeLeft.value = 0;
-      return;
-    }
-    const currentTime = Math.floor(Date.now() / 1000);
-    tokenTimeLeft.value = Math.max(0, decoded.exp - currentTime);
-  } catch (e) {
-    tokenTimeLeft.value = 0;
-  }
-}
-
 // Autoryzacja na starcie
 async function checkAuthOnStart() {
   const token = sessionStorage.getItem('token');
@@ -260,6 +224,7 @@ async function checkAuthOnStart() {
   }
   try {
     await store.dispatch('user/verifySession');
+    await refreshData();
     isAuthChecked.value = true;
     $hideLoader();
   } catch (e) {
@@ -287,13 +252,17 @@ async function refreshData() {
   }
 }
 
-// Weryfikacja sesji po focusie
+// Weryfikacja sesji po focusie (maks. raz na minutę)
+let lastSessionCheck = 0;
 async function verifySession() {
+  const now = Date.now();
+  if (now - lastSessionCheck < 60 * 1000) return;
+  lastSessionCheck = now;
+
   try {
     const token = sessionStorage.getItem('token');
     if (!token) return;
     await store.dispatch('user/verifySession');
-    refreshData();
   } catch (error) {
     console.error('Sesja wygasła:', error);
     if (route.name !== 'Login') {
@@ -328,17 +297,6 @@ onMounted(() => {
     document.documentElement.classList.remove('dark');
   }
 
-  router.beforeEach((to, from, next) => {
-    isPageLoading.value = true;
-    next();
-  });
-  router.afterEach(() => {
-    const delay = route.path.includes('/questions') ? 600 : 400;
-    setTimeout(() => {
-      isPageLoading.value = false;
-    }, delay);
-  });
-
   window.addEventListener('online', handleOnline);
   window.addEventListener('offline', handleOffline);
   window.addEventListener('focus', verifySession);
@@ -347,9 +305,6 @@ onMounted(() => {
   window.testSessionModal = () => showSessionExpirationModal(5);
   checkTokenExpiration();
   checkAuthOnStart();
-
-  setInterval(updateTokenTimeLeft, 1000);
-  updateTokenTimeLeft();
 });
 
 onBeforeUnmount(() => {

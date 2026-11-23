@@ -15,7 +15,6 @@ const questionsRoutes = require("./routes/questions");
 const usersRouter = require("./routes/users");
 const statsRoutes = require("./routes/stats");
 const connectDB = require("./config/database");
-const agenda = require("./jobs/agenda");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -47,6 +46,7 @@ app.use((req, res, next) => {
     .map((origin) => origin.trim())
     .filter(Boolean);
   const allowedOrigins = [...new Set([...defaultOrigins, ...extraOrigins])];
+  // Ustaw nagłówki CORS dla każdej odpowiedzi
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.header("Access-Control-Allow-Origin", origin);
@@ -54,6 +54,7 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Credentials", "true");
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  res.header("Access-Control-Max-Age", "86400");
   res.header("Access-Control-Expose-Headers", "Content-Disposition"); // <-- DODAJ TO
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);
@@ -82,15 +83,6 @@ app.use("/api/stats", statsRoutes);
 
 (async () => {
   await connectDB();
-  await agenda.start();
-
-  // Jednorazowo utwórz indeks TTL (możesz potem usunąć ten kod)
-  const db = agenda._mdb;
-  if (db) {
-    await db
-      .collection("agendaJobs")
-      .createIndex({ lastFinishedAt: 1 }, { expireAfterSeconds: 86400 });
-  }
 
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

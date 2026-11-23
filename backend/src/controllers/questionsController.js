@@ -1,9 +1,8 @@
-const Question = require("../models/QuestionQueued");
-const QuestionNot = require("../models/Question");
+const Question = require("../models/Question");
+const QuestionNot = Question;
 const Stats = require("../models/Stats");
 const ExcelJS = require("exceljs");
 const { setCache, getCache, clearCache } = require("../utils/cache");
-const { agenda, waitForJobResult } = require("../jobs/fetchJob");
 const { parseWorkbook } = require("../utils/excelImport");
 const CACHE_KEY = "stats";
 
@@ -28,7 +27,7 @@ exports.getAllQuestions = async (req, res) => {
       sort: { ID: 1 },
       skip,
       limit,
-    });
+    }).lean();
 
     res.json({
       questions,
@@ -253,7 +252,16 @@ exports.getQuestionsByCategory = async (req, res) => {
   try {
     const category = decodeURIComponent(req.params.category);
     const filter = category === "all" ? {} : { category };
-    const questions = await Question.find(filter, null, { sort: { ID: 1 } });
+
+    // Lekki wariant dla quizu: tylko ID, bez treści i odpowiedzi.
+    if (req.query.idsOnly === "1") {
+      const rows = await Question.find(filter, { ID: 1, _id: 0 })
+        .sort({ ID: 1 })
+        .lean();
+      return res.json({ ids: rows.map((row) => row.ID) });
+    }
+
+    const questions = await Question.find(filter, null, { sort: { ID: 1 } }).lean();
     res.json(questions);
   } catch (e) {
     res.status(500).json({ message: "Error fetching questions by category" });

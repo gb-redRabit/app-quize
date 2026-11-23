@@ -15,6 +15,7 @@ const apiClient = axios.create({
 
 // System cachowania z różnymi czasami TTL
 const cache = new Map();
+const inflight = new Map();
 
 // Konfiguracja czasów TTL (w ms) dla różnych endpointów
 const cacheTTLConfig = {
@@ -52,28 +53,43 @@ const originalMethods = {
  * Usprawniony mechanizm GET z cachowaniem
  */
 apiClient.get = function (url, config = {}) {
-  // Nie używaj cache dla oznaczonych zapytań lub w trybie dev
-  if (config.noCache || process.env.NODE_ENV !== 'production') {
-    return originalMethods.get(url, config);
-  }
-
-  // Tworzenie klucza cache z uwzględnieniem parametrów zapytania
   const cacheKey = url + (config.params ? JSON.stringify(config.params) : '');
-  const cachedResponse = cache.get(cacheKey);
-  const ttl = findTTLForUrl(url);
+  const useCache = !config.noCache && process.env.NODE_ENV === 'production';
 
-  // Sprawdź czy cache jest ważny
-  if (cachedResponse && Date.now() - cachedResponse.timestamp < ttl) {
-    return Promise.resolve(cachedResponse.data);
+  // Sprawdź cache (tylko produkcja)
+  if (useCache) {
+    const cachedResponse = cache.get(cacheKey);
+    const ttl = findTTLForUrl(url);
+    if (cachedResponse && Date.now() - cachedResponse.timestamp < ttl) {
+      return Promise.resolve(cachedResponse.data);
+    }
   }
 
-  return originalMethods.get(url, config).then((response) => {
-    cache.set(cacheKey, {
-      data: response,
-      timestamp: Date.now(),
+  // Deduplikacja równoległych identycznych zapytań (np. 3× /users/me na starcie)
+  if (!config.noCache && inflight.has(cacheKey)) {
+    return inflight.get(cacheKey);
+  }
+
+  const request = originalMethods
+    .get(url, config)
+    .then((response) => {
+      if (useCache) {
+        cache.set(cacheKey, {
+          data: response,
+          timestamp: Date.now(),
+        });
+      }
+      return response;
+    })
+    .finally(() => {
+      inflight.delete(cacheKey);
     });
-    return response;
-  });
+
+  if (!config.noCache) {
+    inflight.set(cacheKey, request);
+  }
+
+  return request;
 };
 
 /**
@@ -334,7 +350,8 @@ function setupAutoTokenRefresh() {
         if (!decoded.exp) return;
 
         const currentTime = Math.floor(Date.now() / 1000);
-        // Odśwież token, jeśli do wygaśnięcia zostało mniej niż 10 minut
+        // Odśwież tylko gdy do wygaśnięcia zostało mniej niż 10 minut
+        if (decoded.exp - currentTime > 10 * 60) return;
 
         try {
           const res = await apiClient.silentPost('/auth/refresh', {});

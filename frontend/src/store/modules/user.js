@@ -71,6 +71,7 @@ export default {
         }
 
         await dispatch('fetchUserHistoryAndHQ');
+        await dispatch('questions/fetchStats', null, { root: true });
         return true;
       } catch (error) {
         commit('SET_AUTHENTICATED', false);

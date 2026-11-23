@@ -17,42 +17,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import StatisticCard from '@/components/dashboard/StatisticCard.vue';
 
 // Inicjalizacja store
 const store = useStore();
-const isLoading = ref(true);
+const isLoading = ref(false);
 const forceRefresh = ref(0);
-
-// Funkcja odświeżająca dane statystyk
-const refreshStats = async () => {
-  isLoading.value = true;
-  try {
-    // Pobierz najnowsze dane z serwera
-    await store.dispatch('user/fetchUserHistoryAndHQ');
-    await store.dispatch('questions/fetchStats');
-    // Wymuś przerenderowanie
-    forceRefresh.value++;
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-// Ładowanie danych na starcie
-onMounted(async () => {
-  window.addEventListener('user-data-refreshed', refreshStats);
-  window.addEventListener('quiz-completed', refreshStats);
-
-  // Pobierz dane na początku
-  await refreshStats();
-});
-
-onUnmounted(() => {
-  window.removeEventListener('user-data-refreshed', refreshStats);
-  window.removeEventListener('quiz-completed', refreshStats);
-});
 
 // Bezpośrednio obliczane statystyki na podstawie danych ze store
 const totalQuestions = computed(() => {

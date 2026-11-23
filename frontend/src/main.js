@@ -77,6 +77,11 @@ function setupTokenRefresh() {
     const token = sessionStorage.getItem('token');
     if (!token || isRefreshingToken) return;
 
+    const decoded = parseJwt(token);
+    if (!decoded || !decoded.exp) return;
+    const remaining = decoded.exp - Math.floor(Date.now() / 1000);
+    if (remaining > 10 * 60) return;
+
     try {
       isRefreshingToken = true;
       const res = await apiClient.silentPost('/auth/refresh', {});

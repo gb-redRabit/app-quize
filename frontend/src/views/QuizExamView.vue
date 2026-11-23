@@ -172,26 +172,19 @@
           </button>
         </div>
         <div v-else>
-          <!-- Lista pytań -->
-          <!-- Pytania -->
+          <!-- Renderujemy tylko aktualne pytanie (zamiast całej puli w DOM) -->
           <div class="space-y-6">
-            <div
-              v-for="(q, index) in questions"
-              :key="q.ID || index"
-              v-show="currentQuestionIndex === index"
-              class="transition-opacity duration-300"
-            >
-              <QuestionList
-                ref="questionList"
-                :question="q"
-                :answered="answersStatus[index].answered"
-                :selected="answersStatus[index].selected"
-                :selectedKey="answersStatus[index].selectedKey"
-                :showCorrect="answersStatus[index].answered && mode === 'quiz'"
-                :questionNumber="`${index + 1} `"
-                @select="selectAnswer"
-              />
-            </div>
+            <QuestionList
+              v-if="currentQuestion"
+              ref="questionList"
+              :question="currentQuestion"
+              :answered="answersStatus[currentQuestionIndex].answered"
+              :selected="answersStatus[currentQuestionIndex].selected"
+              :selectedKey="answersStatus[currentQuestionIndex].selectedKey"
+              :showCorrect="answersStatus[currentQuestionIndex].answered && mode === 'quiz'"
+              :questionNumber="`${currentQuestionIndex + 1} `"
+              @select="selectAnswer"
+            />
           </div>
 
           <!-- Nawigacja między pytaniami -->
@@ -265,6 +258,9 @@ const initialQuizLength = parseInt(route.query.length, 10) || 10;
 // Stan komponentu
 const questions = ref([]);
 const currentQuestionIndex = ref(0);
+const currentQuestion = computed(
+  () => questions.value[currentQuestionIndex.value] || null
+);
 const score = ref(0);
 const loading = ref(true);
 const answersStatus = ref([]);
