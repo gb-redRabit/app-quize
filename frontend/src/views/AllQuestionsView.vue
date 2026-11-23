@@ -57,16 +57,21 @@
           }"
           @click="toggleQuestionDetails(q.ID)"
         >
-          <div class="font-mono text-gray-500 dark:text-gray-400 mt-1" style="min-width: 50px">
+          <div class="font-mono text-sm text-gray-500 dark:text-gray-400 mt-1" style="min-width: 36px">
             {{ q.ID }}
           </div>
-          <div class="flex-grow">
-            <div class="font-medium text-gray-800 dark:text-gray-200">{{ q.question }}</div>
+          <div class="flex-grow min-w-0">
+            <div class="font-medium text-gray-800 dark:text-gray-200 text-sm sm:text-base">
+              {{ q.question }}
+            </div>
             <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Kategoria: <span class="font-medium">{{ q.category || 'Bez kategorii' }}</span>
             </div>
+            <div v-if="isAdmin" class="mt-3 sm:hidden">
+              <QuestionActions :question="q" @deleted="handleQuestionDeleted" />
+            </div>
           </div>
-          <div class="ml-4 flex items-center justify-center">
+          <div class="ml-2 flex items-center justify-center shrink-0">
             <div
               class="flex items-center justify-center h-8 w-8 rounded-full transition-colors duration-300 bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900"
             >
@@ -86,7 +91,7 @@
                 />
               </svg>
             </div>
-            <div v-if="isAdmin" class="ml-3">
+            <div v-if="isAdmin" class="ml-3 hidden sm:block">
               <QuestionActions :question="q" @deleted="handleQuestionDeleted" />
             </div>
           </div>
