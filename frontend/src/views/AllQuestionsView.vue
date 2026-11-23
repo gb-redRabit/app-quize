@@ -50,10 +50,10 @@
       >
         <!-- Nagłówek pytania -->
         <div
-          class="flex items-start p-4 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-gray-750"
+          class="flex items-start p-4 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-gray-700"
           :class="{
             'border-b border-gray-200 dark:border-gray-700': expandedQuestions.includes(q.ID),
-            'bg-blue-50 dark:bg-gray-750': expandedQuestions.includes(q.ID),
+            'bg-blue-50 dark:bg-gray-700': expandedQuestions.includes(q.ID),
           }"
           @click="toggleQuestionDetails(q.ID)"
         >
@@ -469,7 +469,7 @@ function handleScroll() {
 </script>
 
 <style scoped>
-:deep(.dark .bg-gray-750) {
+:deep(.dark .bg-gray-700) {
   background-color: rgba(55, 65, 81, 0.5);
 }
 </style>

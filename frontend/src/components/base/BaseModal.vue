@@ -3,9 +3,17 @@
     <div
       v-if="show"
       class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity flex items-center justify-center z-50 p-4"
+      role="presentation"
+      @click.self="$emit('close')"
     >
       <div
-        class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl transform transition-all sm:my-8 w-full flex flex-col"
+        ref="dialogRef"
+        role="dialog"
+        aria-modal="true"
+        :aria-labelledby="$slots.header ? 'modal-title' : undefined"
+        tabindex="-1"
+        @keydown.esc="$emit('close')"
+        class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl transform transition-all sm:my-8 w-full flex flex-col outline-none"
         style="max-height: 90vh; max-width: 64rem"
       >
         <div
@@ -61,6 +69,8 @@
 </template>
 
 <script setup>
+import { ref, watch, nextTick, onBeforeUnmount } from 'vue';
+
 // Definicja props
 const props = defineProps({
   show: {
@@ -71,6 +81,30 @@ const props = defineProps({
 
 // Definicja emitów
 defineEmits(['close']);
+
+const dialogRef = ref(null);
+let previousOverflow = '';
+
+watch(
+  () => props.show,
+  async (visible) => {
+    if (typeof document === 'undefined') return;
+    if (visible) {
+      previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      await nextTick();
+      dialogRef.value?.focus();
+    } else {
+      document.body.style.overflow = previousOverflow;
+    }
+  }
+);
+
+onBeforeUnmount(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = previousOverflow;
+  }
+});
 </script>
 
 <style scoped>

@@ -69,10 +69,10 @@
       >
         <!-- Nagłówek pytania -->
         <div
-          class="flex items-start p-4 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-gray-750"
+          class="flex items-start p-4 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-gray-700"
           :class="{
             'border-b border-gray-200 dark:border-gray-700': expandedQuestions.includes(q.ID),
-            'bg-blue-50 dark:bg-gray-750': expandedQuestions.includes(q.ID),
+            'bg-blue-50 dark:bg-gray-700': expandedQuestions.includes(q.ID),
           }"
           @click="toggleQuestionDetails(q.ID)"
         >

@@ -3,6 +3,8 @@
     <div
       v-if="visible"
       class="alert-toast fixed bottom-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-md"
+      role="alert"
+      aria-live="polite"
       :class="alertTypeClass"
     >
       <div class="flex items-center">
@@ -75,6 +77,7 @@
         <button
           @click="hide"
           class="ml-3 flex-shrink-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          aria-label="Zamknij powiadomienie"
         >
           <svg
             class="h-4 w-4"
