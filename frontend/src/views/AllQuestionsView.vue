@@ -2,7 +2,8 @@
   <div class="container mx-auto p-4">
     <h1 class="text-2xl font-bold mb-6 text-blue-700 dark:text-blue-300">Lista wszystkich pytań</h1>
     <div
-      class="sticky top-20 z-20 -mx-4 px-4 py-2 mb-3 bg-white dark:bg-gray-900 border-b border-transparent flex flex-col md:flex-row md:items-center gap-2"
+      ref="searchBarWrap"
+      class="sticky top-[88px] z-20 -mx-4 px-4 py-2 mb-3 bg-white dark:bg-gray-900 border-b border-transparent flex flex-col md:flex-row md:items-center gap-2"
     >
       <SearchBar
         :model-value="search"
@@ -353,6 +354,7 @@ let desktopMediaChangeHandler = null;
 let searchTimer = null;
 let fetchToken = 0;
 const loadingTrigger = ref(null);
+const searchBarWrap = ref(null);
 let observer = null;
 
 // Computed properties
@@ -618,6 +620,17 @@ function handleQuestionsRealtime(event) {
   fetchQuestions(true);
 }
 
+function handleSearchShortcut(event) {
+  if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
+  const activeTag = document.activeElement?.tagName;
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) return;
+
+  const input = searchBarWrap.value?.querySelector('input');
+  if (!input) return;
+  event.preventDefault();
+  input.focus();
+}
+
 onMounted(() => {
   if (typeof window !== 'undefined') {
     desktopMediaQuery = window.matchMedia('(min-width: 1024px)');
@@ -642,10 +655,12 @@ onMounted(() => {
     window.addEventListener('scroll', handleScroll);
   }, 100);
   window.addEventListener('questions-changed', handleQuestionsRealtime);
+  window.addEventListener('keydown', handleSearchShortcut);
 });
 
 onUnmounted(() => {
   clearTimeout(searchTimer);
+  window.removeEventListener('keydown', handleSearchShortcut);
   if (observer) {
     observer.disconnect();
     observer = null;
