@@ -40,6 +40,27 @@
           </div>
         </div>
       </section>
+
+      <section v-if="lastActivity" class="mb-4">
+        <div
+          class="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-sm"
+        >
+          <div class="flex-1 min-w-0">
+            <p class="text-xs uppercase tracking-wide text-blue-100">Kontynuuj naukę</p>
+            <p class="text-lg font-semibold truncate">{{ lastActivity.category }}</p>
+            <p class="text-sm text-blue-100">
+              {{ lastActivityLabel }} · {{ lastActivityPercent }}%
+            </p>
+          </div>
+          <button
+            class="h-12 px-5 rounded-lg bg-white text-blue-700 font-semibold hover:bg-blue-50 transition-colors shrink-0"
+            @click="continueLastActivity"
+          >
+            Kontynuuj
+          </button>
+        </div>
+      </section>
+
       <!-- Statystyki -->
       <StatisticsSummary class="statistics-summary" />
 
@@ -234,6 +255,27 @@ const categoryStats = computed(() => {
   return stats;
 });
 
+const lastActivity = computed(() => {
+  const history = [...(store.getters['user/getUserHistory'] || [])];
+  return (
+    history
+      .filter((h) => h && h.category && h.category !== 'all' && h.data)
+      .sort((a, b) => new Date(b.data) - new Date(a.data))[0] || null
+  );
+});
+
+const lastActivityLabel = computed(() => {
+  const type = String(lastActivity.value?.type || '').toLowerCase();
+  return type.startsWith('egzamin') ? 'Egzamin' : 'Quiz';
+});
+
+const lastActivityPercent = computed(() => {
+  const item = lastActivity.value;
+  if (!item) return 0;
+  const total = (item.correct || 0) + (item.wrong || 0);
+  return total > 0 ? Math.round(((item.correct || 0) / total) * 100) : 0;
+});
+
 // Obliczone właściwości
 const filteredCategories = computed(() => {
   if (activeFilter.value === 'exam')
@@ -326,6 +368,16 @@ const startExamNotDone = async (cat) => {
     });
   } catch (e) {
     showAlert('error', 'Błąd pobierania pytań z serwera.');
+  }
+};
+
+const continueLastActivity = () => {
+  if (!lastActivity.value) return;
+  const cat = lastActivity.value.category;
+  if (String(lastActivity.value.type).toLowerCase().startsWith('egzamin')) {
+    startExamNotDone(cat);
+  } else {
+    startQuizNotDone(cat);
   }
 };
 

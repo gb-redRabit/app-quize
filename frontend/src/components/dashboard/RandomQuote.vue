@@ -1,22 +1,22 @@
 <template>
   <div
-    class="bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 p-6 rounded-xl shadow-sm relative overflow-hidden"
+    class="bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 p-4 sm:p-5 rounded-xl shadow-sm relative overflow-hidden"
     :key="quoteKey"
   >
     <div class="relative z-10">
-      <div class="h-28 flex flex-col justify-center">
+      <div class="min-h-[4.5rem] flex flex-col justify-center">
         <p
-          class="text-blue-700 dark:text-blue-300 font-medium text-lg"
+          class="text-blue-700 dark:text-blue-300 font-medium text-base sm:text-lg"
           :class="{ 'quote-typing': isTyping }"
         >
           {{ displayedText }}
         </p>
       </div>
       <div
-        class="flex justify-end mt-4 transition-opacity duration-500"
+        class="flex justify-end mt-2 transition-opacity duration-500"
         :class="{ 'opacity-0': !authorVisible, 'opacity-100': authorVisible }"
       >
-        <span class="text-blue-600 dark:text-blue-400 font-medium">— {{ quote.author }}</span>
+        <span class="text-blue-600 dark:text-blue-400 font-medium text-sm">— {{ quote.author }}</span>
       </div>
     </div>
 
