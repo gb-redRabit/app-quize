@@ -800,18 +800,29 @@ onMounted(async () => {
     totalCount.value = Number(first.headers['x-total-count'] || localQuestions.value.length);
     loading.value = false;
 
-    // Reszta w tle — filtry i wyszukiwanie z czasem obejmą całość.
+    // Reszta w tle — równolegle, z tolerancją pojedynczych błędów.
     const pages = Math.ceil(totalCount.value / PAGE_SIZE);
     if (pages > 1) {
       isLoadingMore.value = true;
-      for (let page = 2; page <= pages; page += 1) {
-        const next = await apiClient.get(
-          `/questions/category/${encodedCategory}?page=${page}&limit=${PAGE_SIZE}`,
-          { noCache: true }
+      const pageNumbers = Array.from({ length: pages - 1 }, (_, idx) => idx + 2);
+      const results = await Promise.allSettled(
+        pageNumbers.map((page) =>
+          apiClient.get(
+            `/questions/category/${encodedCategory}?page=${page}&limit=${PAGE_SIZE}`,
+            { noCache: true }
+          )
+        )
+      );
+      const rest = results
+        .filter((result) => result.status === 'fulfilled')
+        .flatMap((result) => (Array.isArray(result.value.data) ? result.value.data : []));
+      if (rest.length) {
+        localQuestions.value = [...localQuestions.value, ...rest].sort(
+          (a, b) => (a.ID || 0) - (b.ID || 0)
         );
-        if (Array.isArray(next.data) && next.data.length) {
-          localQuestions.value = [...localQuestions.value, ...next.data];
-        }
+      }
+      if (results.some((result) => result.status === 'rejected')) {
+        showAlert('warning', 'Nie udało się wczytać części pytań. Odśwież stronę.');
       }
     }
   } catch (error) {
