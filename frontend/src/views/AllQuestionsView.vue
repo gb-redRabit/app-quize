@@ -38,14 +38,19 @@
       </button>
     </div>
 
-    <!-- Nowoczesna lista pytań -->
-    <div v-else class="space-y-3">
+    <!-- Lista pytań + panel szczegółów (desktop) -->
+    <div v-else class="lg:grid lg:grid-cols-5 lg:gap-6">
+      <div
+        class="space-y-3 lg:col-span-2 lg:max-h-[calc(100vh-11rem)] lg:overflow-y-auto lg:pr-2"
+      >
       <div
         v-for="(q, idx) in filteredQuestions"
         :key="q.ID"
         class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
         :class="{
           'shadow-md ring-2 ring-blue-100 dark:ring-blue-900': expandedQuestions.includes(q.ID),
+          'ring-2 ring-blue-300 dark:ring-blue-700':
+            isDesktop && selectedQuestion && selectedQuestion.ID === q.ID,
         }"
       >
         <!-- Nagłówek pytania -->
@@ -55,7 +60,7 @@
             'border-b border-gray-200 dark:border-gray-700': expandedQuestions.includes(q.ID),
             'bg-blue-50 dark:bg-gray-700': expandedQuestions.includes(q.ID),
           }"
-          @click="toggleQuestionDetails(q.ID)"
+          @click="handleRowClick(q)"
         >
           <div class="font-mono text-sm text-gray-500 dark:text-gray-400 mt-1" style="min-width: 36px">
             {{ q.ID }}
@@ -114,7 +119,7 @@
           leave-from-class="opacity-100 max-h-[1000px]"
           leave-to-class="opacity-0 max-h-0"
         >
-          <div v-if="expandedQuestions.includes(q.ID)" class="overflow-hidden">
+          <div v-if="expandedQuestions.includes(q.ID)" class="overflow-hidden lg:hidden">
             <div class="p-4 bg-gray-50 dark:bg-gray-800 space-y-4">
               <div v-if="hasAnswers(q)">
                 <h3 class="font-medium mb-3 text-gray-700 dark:text-gray-300">Odpowiedzi:</h3>
@@ -189,6 +194,105 @@
         <!-- Dodajemy tymczasowy element, który zawsze będzie widoczny -->
         <div v-else class="h-10">&nbsp;</div>
       </div>
+      </div>
+
+      <aside class="hidden lg:block lg:col-span-3">
+        <div
+          class="sticky top-20 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-5 max-h-[calc(100vh-11rem)] overflow-y-auto"
+        >
+          <template v-if="selectedQuestion">
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <div class="min-w-0">
+                <p class="text-xs font-mono text-gray-500 dark:text-gray-400">
+                  ID {{ selectedQuestion.ID }}
+                </p>
+                <p class="text-sm font-medium text-blue-700 dark:text-blue-300 truncate">
+                  {{ selectedQuestion.category || 'Bez kategorii' }}
+                </p>
+              </div>
+              <QuestionActions
+                v-if="isAdmin"
+                :question="selectedQuestion"
+                @deleted="handleQuestionDeleted"
+                @edit="handleQuestionEdited"
+              />
+            </div>
+
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 break-words">
+              {{ selectedQuestion.question }}
+            </h2>
+
+            <div class="mt-4 space-y-2">
+              <div
+                v-for="(answer, key) in getAnswers(selectedQuestion)"
+                :key="key"
+                class="p-3 rounded-lg border flex items-start gap-3"
+                :class="
+                  answer.isCorrect || answer.isCorret
+                    ? 'bg-green-50 border-green-200 dark:bg-green-900 dark:border-green-800'
+                    : 'bg-gray-50 border-gray-200 dark:bg-gray-700 dark:border-gray-600'
+                "
+              >
+                <span
+                  class="inline-flex items-center justify-center h-7 w-7 rounded-full text-sm font-medium shrink-0"
+                  :class="
+                    answer.isCorrect || answer.isCorret
+                      ? 'bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200'
+                      : 'bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200'
+                  "
+                >
+                  {{ key.split('_')[1]?.toUpperCase() || key }}
+                </span>
+                <span class="text-sm text-gray-800 dark:text-gray-200 break-words">
+                  {{ typeof answer === 'object' ? answer.answer : answer }}
+                </span>
+                <span
+                  v-if="answer.isCorrect || answer.isCorret"
+                  class="ml-auto text-xs font-medium text-green-700 dark:text-green-300 shrink-0"
+                >
+                  Poprawna
+                </span>
+              </div>
+            </div>
+
+            <div v-if="selectedQuestion.description" class="mt-4">
+              <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opis:</h3>
+              <p
+                class="text-sm text-gray-600 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 p-3 rounded-lg break-words"
+              >
+                {{ selectedQuestion.description }}
+              </p>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2 text-xs">
+              <span
+                v-if="selectedQuestion.flagged"
+                class="px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                >flagged</span
+              >
+              <span
+                v-if="selectedQuestion.bad"
+                class="px-2 py-1 rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                >bad</span
+              >
+              <span
+                v-if="selectedQuestion.unknown"
+                class="px-2 py-1 rounded-full bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+                >unknown</span
+              >
+              <span
+                v-if="selectedQuestion.note"
+                class="px-2 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-200 break-words"
+              >
+                Notatka: {{ selectedQuestion.note }}
+              </span>
+            </div>
+          </template>
+          <p v-else class="text-sm text-gray-500 dark:text-gray-400">
+            Wybierz pytanie z listy, aby zobaczyć szczegóły.
+          </p>
+        </div>
+      </aside>
     </div>
   </div>
 </template>
@@ -226,6 +330,12 @@ const pages = ref(1);
 const searching = ref(false);
 const isLoading = ref(true);
 const expandedQuestions = ref([]);
+const selectedQuestion = ref(null);
+const isDesktop = ref(
+  typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false
+);
+let desktopMediaQuery = null;
+let desktopMediaChangeHandler = null;
 const loadingTrigger = ref(null);
 let observer = null;
 
@@ -233,6 +343,15 @@ let observer = null;
 const currentUser = computed(() => store.getters['user/getUser']);
 const isAdmin = computed(() => currentUser.value?.rola === 'admin');
 const filteredQuestions = computed(() => questions.value);
+
+watch(filteredQuestions, (list) => {
+  if (!isDesktop.value) return;
+  const stillExists =
+    selectedQuestion.value && list.some((q) => q.ID === selectedQuestion.value.ID);
+  if (!stillExists) {
+    selectedQuestion.value = list[0] || null;
+  }
+});
 
 // Funkcja do czyszczenia znaków specjalnych na końcu pytania
 function normalizeQuestionText(text) {
@@ -354,6 +473,14 @@ function toggleQuestionDetails(id) {
   }
 }
 
+function handleRowClick(question) {
+  if (isDesktop.value) {
+    selectedQuestion.value = question;
+  } else {
+    toggleQuestionDetails(question.ID);
+  }
+}
+
 function getAnswers(question) {
   const answers = {};
   for (const key in question) {
@@ -376,10 +503,12 @@ function hasAnswers(question) {
 }
 
 function handleQuestionDeleted(question) {
-  // Usuń pytanie z lokalnej listy questions
   const idx = questions.value.findIndex((q) => q.ID === question.ID);
   if (idx > -1) {
     questions.value.splice(idx, 1);
+  }
+  if (selectedQuestion.value?.ID === question.ID) {
+    selectedQuestion.value = questions.value[0] || null;
   }
 
   // Zamknij szczegóły, jeśli były otwarte
@@ -425,6 +554,9 @@ function handleQuestionEdited(question) {
   const idx = questions.value.findIndex((q) => q.ID === question.ID);
   if (idx > -1) {
     questions.value.splice(idx, 1, { ...questions.value[idx], ...question });
+    if (selectedQuestion.value?.ID === question.ID) {
+      selectedQuestion.value = questions.value[idx];
+    }
   }
 }
 
@@ -444,6 +576,23 @@ function handleQuestionsRealtime(event) {
 }
 
 onMounted(() => {
+  if (typeof window !== 'undefined') {
+    desktopMediaQuery = window.matchMedia('(min-width: 1024px)');
+    desktopMediaChangeHandler = (event) => {
+      isDesktop.value = event.matches;
+      if (event.matches) {
+        selectedQuestion.value = questions.value[0] || null;
+      } else {
+        selectedQuestion.value = null;
+      }
+    };
+    if (desktopMediaQuery.addEventListener) {
+      desktopMediaQuery.addEventListener('change', desktopMediaChangeHandler);
+    } else {
+      desktopMediaQuery.addListener(desktopMediaChangeHandler);
+    }
+  }
+
   setTimeout(() => {
     fetchQuestions(true);
     setupInfiniteScroll();
@@ -456,6 +605,13 @@ onUnmounted(() => {
   if (observer) {
     observer.disconnect();
     observer = null;
+  }
+  if (desktopMediaQuery && desktopMediaChangeHandler) {
+    if (desktopMediaQuery.removeEventListener) {
+      desktopMediaQuery.removeEventListener('change', desktopMediaChangeHandler);
+    } else {
+      desktopMediaQuery.removeListener(desktopMediaChangeHandler);
+    }
   }
   window.removeEventListener('scroll', handleScroll);
   window.removeEventListener('questions-changed', handleQuestionsRealtime);
