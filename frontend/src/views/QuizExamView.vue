@@ -1,5 +1,8 @@
 <template>
-  <div class="container mx-auto px-4 py-6" :class="mode === 'quiz' ? 'pb-28 lg:pb-6' : ''">
+  <div
+    class="container mx-auto px-4 py-6"
+    :class="!showSummary ? 'pb-28 lg:pb-6' : ''"
+  >
     <div class="mx-auto">
       <!-- Widok pytania (gdy nie pokazujemy podsumowania) -->
       <div v-if="!showSummary" class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6">
@@ -29,7 +32,7 @@
             <div
               v-if="mode === 'exam'"
               :class="[
-                'flex justify-center h-10  w-24 items-center gap-2 px-3 py-1.5 rounded-full font-medium  ',
+                'hidden lg:flex justify-center h-10 w-24 items-center gap-2 px-3 py-1.5 rounded-full font-medium',
                 timeLeft < 300
                   ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 animate-pulse'
                   : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
@@ -97,7 +100,7 @@
           </div>
         </div>
         <!-- Przyciski nawigacji - desktop (na mobile stały dolny pasek) -->
-        <div v-if="mode === 'quiz'" class="hidden lg:grid grid-cols-2 gap-4 mb-6">
+        <div v-if="!showSummary" class="hidden lg:grid grid-cols-2 gap-4 mb-6">
           <button
             class="flex items-center justify-center px-4 py-3 rounded-xl bg-gray-500 text-white font-medium text-base transition-all duration-200 shadow-sm hover:bg-gray-600"
             :class="{ 'opacity-50 cursor-not-allowed': currentQuestionIndex === 0 }"
@@ -136,7 +139,11 @@
             "
           >
             <span>{{
-              currentQuestionIndex === questions.length - 1 ? 'Zakończ quiz' : 'Następne'
+              currentQuestionIndex === questions.length - 1
+                ? mode === 'exam'
+                  ? 'Zakończ egzamin'
+                  : 'Zakończ quiz'
+                : 'Następne'
             }}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -225,7 +232,7 @@
 
     <!-- Stały pasek akcji quizu na mobile -->
     <div
-      v-if="mode === 'quiz' && !showSummary"
+      v-if="!showSummary"
       class="fixed bottom-0 left-0 right-0 z-30 lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]"
       style="padding-bottom: env(safe-area-inset-bottom)"
     >
@@ -239,6 +246,7 @@
           Poprzednie
         </button>
         <button
+          v-if="mode === 'quiz'"
           class="h-12 px-3 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-xs font-medium"
           aria-label="Pokaż listę pytań"
           @click="showQuestionSheet = true"
@@ -248,6 +256,14 @@
             {{ currentQuestionIndex + 1 }}/{{ questions.length }}
           </span>
         </button>
+        <div
+          v-else
+          class="h-12 px-3 rounded-xl bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 flex items-center justify-center font-semibold tabular-nums min-w-[4.5rem]"
+          aria-live="polite"
+          :aria-label="`Pozostało ${formattedTime}`"
+        >
+          {{ formattedTime }}
+        </div>
         <button
           class="flex-1 h-12 rounded-xl text-white font-semibold disabled:opacity-100"
           :class="
@@ -260,12 +276,20 @@
           :disabled="!currentAnswered"
           :aria-label="
             currentQuestionIndex === questions.length - 1
-              ? 'Zakończ quiz'
+              ? mode === 'exam'
+                ? 'Zakończ egzamin'
+                : 'Zakończ quiz'
               : 'Następne pytanie'
           "
           @click="nextOrFinish"
         >
-          {{ currentQuestionIndex === questions.length - 1 ? 'Zakończ' : 'Następne' }}
+          {{
+            currentQuestionIndex === questions.length - 1
+              ? mode === 'exam'
+                ? 'Zakończ egzamin'
+                : 'Zakończ'
+              : 'Następne'
+          }}
         </button>
       </div>
     </div>
@@ -687,11 +711,11 @@ const prevQuestion = () => {
 // Swipe: lewo = następne, prawo = poprzednie (tylko quiz)
 let touchStartX = null;
 const onTouchStart = (event) => {
-  if (mode.value !== 'quiz' || showSummary.value) return;
+  if (showSummary.value) return;
   touchStartX = event.changedTouches[0]?.clientX ?? null;
 };
 const onTouchEnd = (event) => {
-  if (touchStartX === null || mode.value !== 'quiz' || showSummary.value) return;
+  if (touchStartX === null || showSummary.value) return;
   const deltaX = (event.changedTouches[0]?.clientX ?? touchStartX) - touchStartX;
   touchStartX = null;
   if (Math.abs(deltaX) < 60) return;
