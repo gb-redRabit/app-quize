@@ -265,7 +265,35 @@
         <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
           Zarejestrowani użytkownicy
         </h2>
-        <div class="overflow-x-auto">
+
+        <div class="md:hidden space-y-3">
+          <div
+            v-for="user in users"
+            :key="`mobile-${user._id}`"
+            class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+          >
+            <Avatar :avatar-index="user.avatar" :color="user.avatarColors" :size="40" />
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-gray-800 dark:text-gray-100 truncate">
+                {{ user.login }}
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                {{ user.avatarColors }}
+              </p>
+            </div>
+            <select
+              v-model="user.rola"
+              @change="changeRole(user)"
+              class="h-10 rounded-lg px-2 border bg-gray-50 dark:bg-gray-900 dark:text-gray-200 text-sm"
+              :aria-label="`Rola użytkownika ${user.login}`"
+            >
+              <option value="user">user</option>
+              <option value="admin">admin</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hidden md:block overflow-x-auto">
           <table class="min-w-full bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
             <thead>
               <tr class="bg-blue-50 dark:bg-blue-900 text-left">
