@@ -7,6 +7,33 @@ const { parseWorkbook } = require("../utils/excelImport");
 const { validateQuestionPayload } = require("../utils/validateQuestion");
 const CACHE_KEY = "stats";
 
+// Cache pełnych list kategorii (krótki TTL, ograniczona liczba wpisów).
+const categoryCache = new Map();
+const CATEGORY_CACHE_TTL_MS = 60 * 1000;
+const CATEGORY_CACHE_MAX = 10;
+
+function getCategoryCache(key) {
+  const entry = categoryCache.get(key);
+  if (!entry) return null;
+  if (entry.expiresAt <= Date.now()) {
+    categoryCache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+function setCategoryCache(key, data) {
+  if (categoryCache.size >= CATEGORY_CACHE_MAX) {
+    const oldestKey = categoryCache.keys().next().value;
+    categoryCache.delete(oldestKey);
+  }
+  categoryCache.set(key, { data, expiresAt: Date.now() + CATEGORY_CACHE_TTL_MS });
+}
+
+function invalidateCategoryCache() {
+  categoryCache.clear();
+}
+
 // Zabezpieczenie przed równoległym importem (jeden plik na raz).
 let importInProgress = false;
 
@@ -246,6 +273,7 @@ async function updateStats() {
     { upsert: true }
   );
   clearCache(CACHE_KEY);
+  invalidateCategoryCache();
 }
 
 // Endpoint statystyk (cache)
@@ -272,9 +300,15 @@ exports.getQuestionsByCategory = async (req, res) => {
       return res.json({ ids: rows.map((row) => row.ID) });
     }
 
+    const cached = getCategoryCache(category);
+    if (cached) return res.json(cached);
+
     const questions = await Question.find(filter, null, { sort: { ID: 1 } }).lean();
+    setCategoryCache(category, questions);
     res.json(questions);
   } catch (e) {
     res.status(500).json({ message: "Error fetching questions by category" });
   }
 };
+
+exports.invalidateCategoryCache = invalidateCategoryCache;

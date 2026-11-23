@@ -141,6 +141,7 @@ router.delete(
     try {
       const category = decodeURIComponent(req.params.category);
       const result = await Question.deleteMany({ category });
+      questionsController.invalidateCategoryCache();
       res.json({ success: true, deletedCount: result.deletedCount });
     } catch (e) {
       console.error("Błąd podczas usuwania pytań:", e);
