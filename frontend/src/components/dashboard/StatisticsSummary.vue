@@ -5,13 +5,20 @@
       Twoje statystyki
       <span v-if="isLoading" class="text-sm text-gray-500 ml-2">(ładowanie...)</span>
     </h2>
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
       <StatisticCard :value="totalQuestions" label="Wszystkich" color="blue" />
       <StatisticCard :value="correctAnswers" label="Poprawnie" color="green" />
       <StatisticCard :value="wrongAnswers" label="Błędnie" color="red" />
-      <StatisticCard :value="quizCount" label="Quizy" color="indigo" />
-      <StatisticCard :value="examCount" label="Egzaminy" color="purple" />
       <StatisticCard :value="avgScore" label="Średnia" color="yellow" />
+    </div>
+    <div
+      class="mt-3 flex items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400"
+    >
+      <span>Quizy: <strong class="text-gray-700 dark:text-gray-200">{{ quizCount }}</strong></span>
+      <span aria-hidden="true">·</span>
+      <span>
+        Egzaminy: <strong class="text-gray-700 dark:text-gray-200">{{ examCount }}</strong>
+      </span>
     </div>
   </section>
 </template>
