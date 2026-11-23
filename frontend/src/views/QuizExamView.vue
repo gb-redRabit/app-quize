@@ -245,13 +245,15 @@
           {{ currentQuestionIndex + 1 }} / {{ questions.length }}
         </span>
         <button
-          class="flex-1 h-12 rounded-xl text-white font-semibold disabled:opacity-40"
+          class="flex-1 h-12 rounded-xl text-white font-semibold disabled:opacity-100"
           :class="
-            currentQuestionIndex === questions.length - 1
-              ? 'bg-green-700 hover:bg-green-800'
-              : 'bg-blue-600 hover:bg-blue-700'
+            currentAnswered
+              ? currentQuestionIndex === questions.length - 1
+                ? 'bg-green-700 hover:bg-green-800'
+                : 'bg-blue-600 hover:bg-blue-700'
+              : 'bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed'
           "
-          :disabled="!answersStatus[currentQuestionIndex]?.answered"
+          :disabled="!currentAnswered"
           :aria-label="
             currentQuestionIndex === questions.length - 1
               ? 'Zakończ quiz'
@@ -305,6 +307,9 @@ const questions = ref([]);
 const currentQuestionIndex = ref(0);
 const currentQuestion = computed(
   () => questions.value[currentQuestionIndex.value] || null
+);
+const currentAnswered = computed(
+  () => !!answersStatus.value[currentQuestionIndex.value]?.answered
 );
 const score = ref(0);
 const loading = ref(true);
