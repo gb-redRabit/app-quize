@@ -5,14 +5,14 @@
     class="categories-container rounded-lg border-2 shadow-sm p-4 transition-all duration-300 hover:shadow-lg"
     :class="cardClass"
   >
-    <div class="flex justify-between items-start mb-3">
+    <div class="flex flex-wrap justify-between items-start gap-2 mb-3">
       <h3
-        class="font-semibold text-gray-800 dark:text-gray-100 truncate max-w-[70%]"
+        class="font-semibold text-gray-800 dark:text-gray-100 break-words flex-1 min-w-0"
         :title="category"
       >
         {{ category }}
       </h3>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 shrink-0">
         <span
           class="indicator_A text-xs font-medium px-2 py-1 rounded-full"
           :class="percentCompleteClass"

@@ -4,39 +4,42 @@
       <!-- Sekcja powitalna -->
       <section class="mb-4">
         <div class="flex flex-col md:flex-row gap-6 items-center">
-          <div class="flex-1">
-            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">
-              Witaj w systemie nauki!
-            </h1>
-            <p class="mt-2 text-gray-600 dark:text-gray-300">
-              Monitoruj swoje postępy i kontynuuj naukę
-            </p>
+          <div class="flex-1 w-full">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">
+                  Witaj w systemie nauki!
+                </h1>
+                <p class="mt-2 text-gray-600 dark:text-gray-300">
+                  Monitoruj swoje postępy i kontynuuj naukę
+                </p>
+              </div>
+              <IconButton
+                @click="showUserGuide = true"
+                class="shrink-0 w-11 h-11 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+                aria-label="Pokaż instrukcję"
+                title="Instrukcja obsługi"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </IconButton>
+            </div>
           </div>
           <div class="w-full flex-1 relative sm:w-auto">
             <RandomQuote />
-            <!-- Przycisk pomocy -->
           </div>
         </div>
       </section>
-      <IconButton
-        @click="showUserGuide = true"
-        class="info-icon fixed left-3 w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
-        aria-label="Pokaż instrukcję"
-        title="Instrukcja obsługi"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </IconButton>
       <!-- Statystyki -->
       <StatisticsSummary class="statistics-summary" />
 
@@ -377,17 +380,4 @@ const refreshAllData = async () => {
 // a widoki korzystają ze store. Nie dublujemy requestów na Home.
 </script>
 
-<style scoped>
-.info-icon {
-  left: auto;
-  right: 0.75rem;
-  width: 2.75rem;
-  height: 2.75rem;
-  bottom: calc(0.75rem + env(safe-area-inset-bottom));
-}
-@media (max-width: 1023px) {
-  .info-icon {
-    bottom: calc(4.5rem + env(safe-area-inset-bottom));
-  }
-}
-</style>
+<style scoped></style>
