@@ -360,6 +360,11 @@ const score = ref(0);
 const loading = ref(true);
 const answersStatus = ref([]);
 const showSummary = ref(false);
+watch(showSummary, (visible) => {
+  if (visible && typeof window !== 'undefined') {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+});
 const showQuestionSheet = ref(false);
 const isDesktop = ref(
   typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false

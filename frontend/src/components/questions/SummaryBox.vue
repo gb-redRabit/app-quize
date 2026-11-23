@@ -23,7 +23,7 @@
                   cy="50"
                 />
                 <circle
-                  class="text-blue-600 transition-all duration-1000 ease-in-out dark:text-blue-400"
+                  :class="scoreColorClass"
                   stroke-width="10"
                   stroke-linecap="round"
                   stroke="currentColor"
@@ -35,7 +35,8 @@
                 />
               </svg>
               <div
-                class="absolute inset-0 flex items-center justify-center text-lg font-bold text-blue-700 dark:text-blue-300"
+                class="absolute inset-0 flex items-center justify-center text-lg font-bold"
+                :class="scoreColorClass"
               >
                 {{ score }}/{{ total }}
               </div>
@@ -162,7 +163,7 @@
             >
               {{ idx + 1 }}
             </div>
-            <div class="flex-grow font-medium text-gray-800 dark:text-white">{{ q.question }}</div>
+            <div class="flex-grow font-medium text-gray-800 dark:text-white break-words">{{ q.question }}</div>
 
             <!-- Ikona statusu (poprawna/niepoprawna odpowiedź) -->
             <div class="flex-shrink-0 ml-3">
@@ -313,6 +314,12 @@ const emit = defineEmits(['go-home', 'restart', 'retry-wrong']);
 // Computed properties
 const percentage = computed(() => {
   return props.total > 0 ? Math.round((props.score / props.total) * 100) : 0;
+});
+
+const scoreColorClass = computed(() => {
+  if (percentage.value >= 80) return 'text-green-700 dark:text-green-400';
+  if (percentage.value >= 50) return 'text-yellow-700 dark:text-yellow-400';
+  return 'text-red-700 dark:text-red-400';
 });
 
 const hasWrong = computed(() => {
