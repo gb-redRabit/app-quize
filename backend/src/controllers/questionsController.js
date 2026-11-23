@@ -7,6 +7,9 @@ const { agenda, waitForJobResult } = require("../jobs/fetchJob");
 const { parseWorkbook } = require("../utils/excelImport");
 const CACHE_KEY = "stats";
 
+// Zabezpieczenie przed równoległym importem (jeden plik na raz).
+let importInProgress = false;
+
 // Pobierz wszystkie pytania (z paginacją)
 exports.getAllQuestions = async (req, res) => {
   try {
@@ -168,6 +171,13 @@ exports.clearQuestions = async (req, res) => {
 
 // Import pytań z Excela (wiele arkuszy, różne układy kolumn, strumieniowo)
 exports.importQuestionsFromExcel = async (req, res) => {
+  if (importInProgress) {
+    return res.status(409).json({
+      message: "Import już trwa. Poczekaj na zakończenie poprzedniego importu.",
+    });
+  }
+  importInProgress = true;
+
   try {
     if (!req.file) {
       return res.status(400).json({ message: "Brak pliku" });
@@ -204,6 +214,8 @@ exports.importQuestionsFromExcel = async (req, res) => {
       message: "Błąd importu z Excela",
       error: e.message,
     });
+  } finally {
+    importInProgress = false;
   }
 };
 

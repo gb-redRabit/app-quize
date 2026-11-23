@@ -903,6 +903,7 @@ async function importQuestions(event) {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      skipErrorPage: true,
     });
 
     const data = response.data || {};
