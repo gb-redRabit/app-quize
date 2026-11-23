@@ -1,13 +1,18 @@
 <template>
   <div class="container mx-auto p-4">
     <h1 class="text-2xl font-bold mb-6 text-blue-700 dark:text-blue-300">Lista wszystkich pytań</h1>
-    <div class="flex flex-col md:flex-row md:items-center gap-4 mb-6">
+    <div
+      class="sticky top-20 z-20 -mx-4 px-4 py-2 mb-3 bg-white dark:bg-gray-900 border-b border-transparent flex flex-col md:flex-row md:items-center gap-2"
+    >
       <SearchBar
         :model-value="search"
         @update:search="handleSearch"
         placeholder="Szukaj po ID lub treści pytania..."
         class="flex-1"
       />
+      <p class="text-xs text-gray-500 dark:text-gray-400 md:mb-4 md:mr-1 whitespace-nowrap">
+        Wczytano {{ filteredQuestions.length }} z {{ total }}
+      </p>
     </div>
 
     <!-- Brak duplikatów, tylko lista pytań -->
