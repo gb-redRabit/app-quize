@@ -7,7 +7,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 const Question = require("../models/Question");
 
 // Pobierz wszystkie pytania
-router.get("/", async (req, res) => {
+router.get("/", auth.verifyToken, async (req, res) => {
   if (req.query.ids) {
     const ids = req.query.ids.split(",").map((id) => Number(id));
     const questions = await Question.find({ ID: { $in: ids } }).sort({ ID: 1 });
@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
 });
 
 // Pobierz wszystkie pytania BEZ paginacji
-router.get("/all", auth.verifyToken, async (req, res) => {
+router.get("/all", auth.verifyToken, auth.requireAdmin, async (req, res) => {
   try {
     // Pobierz wszystkie pytania z pełnymi danymi
     const questions = await Question.find({}).lean();
@@ -45,19 +45,30 @@ router.get("/all", auth.verifyToken, async (req, res) => {
   }
 });
 
-// Dodaj nowe pytanie
-router.post("/", auth.verifyToken, questionsController.addQuestion);
+// Dodaj nowe pytanie (admin)
+router.post("/", auth.verifyToken, auth.requireAdmin, questionsController.addQuestion);
 
-// Edytuj pytanie
-router.put("/:id", auth.verifyToken, questionsController.updateQuestion);
+// Edytuj pytanie (admin)
+router.put(
+  "/:id",
+  auth.verifyToken,
+  auth.requireAdmin,
+  questionsController.updateQuestion
+);
 
-// Usuń pytanie
-router.delete("/:id", auth.verifyToken, questionsController.deleteQuestion);
+// Usuń pytanie (admin)
+router.delete(
+  "/:id",
+  auth.verifyToken,
+  auth.requireAdmin,
+  questionsController.deleteQuestion
+);
 
-// Eksportuj pytania do Excela
+// Eksportuj pytania do Excela (admin)
 router.get(
   "/export/excel",
   auth.verifyToken,
+  auth.requireAdmin,
   questionsController.exportQuestionsToExcel
 );
 
@@ -69,10 +80,11 @@ router.post(
   questionsController.clearQuestions
 );
 
-// Importuj pytania z Excela
+// Importuj pytania z Excela (admin)
 router.post(
   "/import/excel",
   auth.verifyToken,
+  auth.requireAdmin,
   upload.single("file"),
   questionsController.importQuestionsFromExcel
 );
@@ -82,9 +94,10 @@ function escapeRegex(str) {
 // Pobierz pytania według kategorii
 router.get(
   "/category/:category(*)",
+  auth.verifyToken,
   questionsController.getQuestionsByCategory
 );
-router.get("/search", async (req, res) => {
+router.get("/search", auth.verifyToken, async (req, res) => {
   const query = req.query.query?.trim();
   if (!query) return res.json({ questions: [] });
 

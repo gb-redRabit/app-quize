@@ -10,6 +10,6 @@ export default [
     path: '/duplikaty',
     name: 'DuplicateQuestions',
     component: () => import('@/views/DuplicateQuestionsView.vue'),
-    meta: { requiresAuth: true }, // jeśli potrzebujesz autoryzacji
+    meta: { requiresAuth: true, requiresAdmin: true }, // duplikaty tylko dla admina
   },
 ];

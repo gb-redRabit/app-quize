@@ -4,10 +4,33 @@ const User = require("../models/User");
 
 const SALT_ROUNDS = 10;
 const JWT_SECRET = process.env.JWT_SECRET;
+const LOGIN_PATTERN = /^[a-zA-Z0-9._-]{3,32}$/;
+const MIN_PASSWORD_LENGTH = 8;
 
 // Rejestracja
 exports.register = async (req, res) => {
-  const { login, password } = req.body;
+  const { login, password, inviteCode } = req.body || {};
+
+  const requiredInvite = process.env.REGISTRATION_INVITE_CODE;
+  if (requiredInvite && inviteCode !== requiredInvite) {
+    return res.status(403).json({ message: "Invalid invitation code" });
+  }
+
+  if (typeof login !== "string" || typeof password !== "string") {
+    return res.status(400).json({ message: "Login and password are required" });
+  }
+  if (!LOGIN_PATTERN.test(login)) {
+    return res.status(400).json({
+      message:
+        "Login must be 3-32 characters: letters, digits, dot, underscore or dash",
+    });
+  }
+  if (password.length < MIN_PASSWORD_LENGTH || password.length > 72) {
+    return res
+      .status(400)
+      .json({ message: "Password must be 8-72 characters long" });
+  }
+
   try {
     const existing = await User.findOne({ login });
     if (existing) {
@@ -24,10 +47,13 @@ exports.register = async (req, res) => {
 
 // Logowanie
 exports.login = async (req, res) => {
-  const { login, password } = req.body;
+  const { login, password } = req.body || {};
+  if (typeof login !== "string" || typeof password !== "string") {
+    return res.status(400).json({ message: "Login and password are required" });
+  }
   try {
     const user = await User.findOne({ login });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(401).json({ message: "Invalid credentials" });
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ message: "Invalid credentials" });
 

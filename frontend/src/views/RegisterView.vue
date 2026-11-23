@@ -88,10 +88,10 @@
                 v-model="password"
                 id="password"
                 required
-                minlength="4"
+                minlength="8"
                 autocomplete="new-password"
                 class="w-full p-3 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500"
-                placeholder="Minimum 4 znaki"
+                placeholder="Minimum 8 znaków"
               />
             </div>
             <!-- Wskaźnik siły hasła -->
@@ -138,7 +138,7 @@
                 v-model="password2"
                 id="password2"
                 required
-                minlength="4"
+                minlength="8"
                 autocomplete="new-password"
                 class="w-full p-3 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500"
                 placeholder="Wpisz hasło ponownie"
@@ -180,6 +180,25 @@
                 Hasła nie są identyczne
               </span>
             </div>
+          </div>
+
+          <!-- Kod zaproszenia (opcjonalny, wymagany gdy backend go ustawi) -->
+          <div class="mb-4">
+            <label
+              for="inviteCode"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Kod zaproszenia
+              <span class="text-gray-400 dark:text-gray-500 font-normal">(jeśli wymagany)</span>
+            </label>
+            <input
+              type="text"
+              v-model.trim="inviteCode"
+              id="inviteCode"
+              autocomplete="off"
+              class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent outline-none text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30"
+              placeholder="Kod otrzymany od administratora"
+            />
           </div>
 
           <!-- Przycisk rejestracji -->
@@ -257,6 +276,7 @@ const showAlert = inject('showAlert');
 const loginInput = ref('');
 const password = ref('');
 const password2 = ref('');
+const inviteCode = ref('');
 
 // Obliczanie siły hasła
 const passwordStrength = computed(() => {
@@ -299,7 +319,7 @@ const canRegister = computed(
     loginInput.value &&
     password.value &&
     password2.value &&
-    password.value.length >= 4 &&
+    password.value.length >= 8 &&
     password.value === password2.value
 );
 
@@ -310,8 +330,8 @@ const handleRegister = async () => {
     return;
   }
 
-  if (password.value.length < 4) {
-    showAlert('warning', 'Hasło musi mieć co najmniej 4 znaki.');
+  if (password.value.length < 8) {
+    showAlert('warning', 'Hasło musi mieć co najmniej 8 znaków.');
     return;
   }
 
@@ -324,6 +344,7 @@ const handleRegister = async () => {
     await apiClient.post('/auth/register', {
       login: loginInput.value,
       password: password.value,
+      inviteCode: inviteCode.value || undefined,
     });
 
     showAlert('success', 'Rejestracja zakończona sukcesem! Możesz się zalogować.');
