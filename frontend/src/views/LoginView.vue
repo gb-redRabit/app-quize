@@ -63,13 +63,17 @@
                 <img src="@/assets/icons/lock.svg" alt="Ikona hasła" class="h-5 w-5" />
               </div>
               <input
-                type="password"
+                :type="showPassword ? 'text' : 'password'"
                 v-model="password"
                 id="password"
                 required
                 autocomplete="current-password"
                 class="w-full p-3 bg-transparent border-none outline-none text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500"
                 placeholder="Wprowadź hasło"
+              />
+              <PasswordVisibilityToggle
+                :visible="showPassword"
+                @toggle="showPassword = !showPassword"
               />
             </div>
           </div>
@@ -163,10 +167,14 @@ import { ref, inject, defineAsyncComponent } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 const BaseButton = defineAsyncComponent(() => import('@/components/base/BaseButton.vue'));
+const PasswordVisibilityToggle = defineAsyncComponent(
+  () => import('@/components/base/PasswordVisibilityToggle.vue')
+);
 
 // Zmienne reaktywne
 const loginInput = ref('');
 const password = ref('');
+const showPassword = ref(false);
 const isLoggingIn = ref(false);
 // Store, router i alert
 const store = useStore();

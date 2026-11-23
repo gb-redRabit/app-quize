@@ -84,7 +84,7 @@
                 </svg>
               </div>
               <input
-                type="password"
+                :type="showPassword ? 'text' : 'password'"
                 v-model="password"
                 id="password"
                 required
@@ -92,6 +92,10 @@
                 autocomplete="new-password"
                 class="w-full p-3 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500"
                 placeholder="Minimum 8 znaków"
+              />
+              <PasswordVisibilityToggle
+                :visible="showPassword"
+                @toggle="showPassword = !showPassword"
               />
             </div>
             <!-- Wskaźnik siły hasła -->
@@ -134,7 +138,7 @@
                 </svg>
               </div>
               <input
-                type="password"
+                :type="showPassword2 ? 'text' : 'password'"
                 v-model="password2"
                 id="password2"
                 required
@@ -142,6 +146,10 @@
                 autocomplete="new-password"
                 class="w-full p-3 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500"
                 placeholder="Wpisz hasło ponownie"
+              />
+              <PasswordVisibilityToggle
+                :visible="showPassword2"
+                @toggle="showPassword2 = !showPassword2"
               />
             </div>
             <!-- Wskaźnik zgodności haseł -->
@@ -266,6 +274,9 @@
 import { ref, computed, inject, defineAsyncComponent } from 'vue';
 import { useRouter } from 'vue-router';
 const BaseButton = defineAsyncComponent(() => import('@/components/base/BaseButton.vue'));
+const PasswordVisibilityToggle = defineAsyncComponent(
+  () => import('@/components/base/PasswordVisibilityToggle.vue')
+);
 import apiClient from '@/api';
 
 // Router i alert
@@ -276,6 +287,8 @@ const showAlert = inject('showAlert');
 const loginInput = ref('');
 const password = ref('');
 const password2 = ref('');
+const showPassword = ref(false);
+const showPassword2 = ref(false);
 const inviteCode = ref('');
 
 // Obliczanie siły hasła

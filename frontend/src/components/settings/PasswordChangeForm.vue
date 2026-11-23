@@ -42,10 +42,14 @@
               />
               <input
                 v-model="oldPassword"
-                type="password"
+                :type="showOldPassword ? 'text' : 'password'"
                 autocomplete="current-password"
                 placeholder="Wprowadź aktualne hasło"
                 class="w-full p-3 pl-10 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300"
+              />
+              <PasswordVisibilityToggle
+                :visible="showOldPassword"
+                @toggle="showOldPassword = !showOldPassword"
               />
             </div>
           </div>
@@ -65,10 +69,14 @@
               />
               <input
                 v-model="newPassword"
-                type="password"
+                :type="showNewPassword ? 'text' : 'password'"
                 autocomplete="new-password"
                 placeholder="Wprowadź nowe hasło"
                 class="w-full p-3 pl-10 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300"
+              />
+              <PasswordVisibilityToggle
+                :visible="showNewPassword"
+                @toggle="showNewPassword = !showNewPassword"
               />
             </div>
           </div>
@@ -88,10 +96,14 @@
               />
               <input
                 v-model="newPassword2"
-                type="password"
+                :type="showNewPassword2 ? 'text' : 'password'"
                 autocomplete="new-password"
                 placeholder="Potwierdź nowe hasło"
                 class="w-full p-3 pl-10 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300"
+              />
+              <PasswordVisibilityToggle
+                :visible="showNewPassword2"
+                @toggle="showNewPassword2 = !showNewPassword2"
               />
             </div>
           </div>
@@ -127,6 +139,7 @@
 import { ref, computed } from 'vue';
 import apiClient from '@/api';
 import BaseButton from '@/components/base/BaseButton.vue';
+import PasswordVisibilityToggle from '@/components/base/PasswordVisibilityToggle.vue';
 
 // Props
 const props = defineProps({
@@ -140,6 +153,9 @@ const emit = defineEmits(['password-changed']);
 const oldPassword = ref('');
 const newPassword = ref('');
 const newPassword2 = ref('');
+const showOldPassword = ref(false);
+const showNewPassword = ref(false);
+const showNewPassword2 = ref(false);
 
 // Obliczanie zgodności haseł
 const passwordMatch = computed(() => {
