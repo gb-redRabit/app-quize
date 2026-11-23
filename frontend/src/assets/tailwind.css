@@ -9,6 +9,27 @@
 }
 html {
   overflow-y: scroll;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@supports (padding: env(safe-area-inset-bottom)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 .capitalize-first-letter::first-letter {
   text-transform: uppercase;

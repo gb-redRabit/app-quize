@@ -20,7 +20,8 @@
       </section>
       <IconButton
         @click="showUserGuide = true"
-        class="info-icon fixed bottom-3 left-3 w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+        class="info-icon fixed left-3 w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+        style="bottom: calc(0.75rem + env(safe-area-inset-bottom))"
         aria-label="Pokaż instrukcję"
         title="Instrukcja obsługi"
       >

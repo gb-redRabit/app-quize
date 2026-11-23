@@ -6,6 +6,12 @@
   >
     <BaseLoader v-if="!isAuthChecked" />
     <template v-else>
+      <a
+        href="#main"
+        class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-blue-700 focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg"
+      >
+        Przejdź do treści
+      </a>
       <Navbar v-if="showNavbar" />
       <div
         v-if="!isOnline"
@@ -14,25 +20,27 @@
         Brak połączenia z internetem. Niektóre funkcje mogą być niedostępne.
       </div>
 
-      <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
-          <component :is="isPageLoading ? null : Component" :key="$route.fullPath" />
-        </transition>
-        <!-- Skeleton pojawia się tylko, gdy isPageLoading i nie ma widoku -->
-        <BaseSkeleton
-          v-if="isPageLoading"
-          :variant="skeletonVariant"
-          :cardCount="skeletonCardCount"
-          :showLines="showSkeletonLines"
-          :showCards="showSkeletonCards"
-          :showHeader="showSkeletonHeader"
-          :showSubtitle="showSkeletonSubtitle"
-          :containerClass="skeletonContainerClass"
-          :gridCols="skeletonGridCols"
-          :lineWidths="getLineWidths"
-          class="container my-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
-        />
-      </router-view>
+      <main id="main" tabindex="-1">
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="isPageLoading ? null : Component" :key="$route.fullPath" />
+          </transition>
+          <!-- Skeleton pojawia się tylko, gdy isPageLoading i nie ma widoku -->
+          <BaseSkeleton
+            v-if="isPageLoading"
+            :variant="skeletonVariant"
+            :cardCount="skeletonCardCount"
+            :showLines="showSkeletonLines"
+            :showCards="showSkeletonCards"
+            :showHeader="showSkeletonHeader"
+            :showSubtitle="showSkeletonSubtitle"
+            :containerClass="skeletonContainerClass"
+            :gridCols="skeletonGridCols"
+            :lineWidths="getLineWidths"
+            class="container my-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
+          />
+        </router-view>
+      </main>
 
       <!-- Pasek z czasem ważności tokenu -->
       <!-- <div

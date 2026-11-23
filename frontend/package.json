@@ -11,19 +11,15 @@
     "format": "prettier --write \"src/**/*.{js,vue,css,scss,json,md}\""
   },
   "dependencies": {
-    "@tanstack/vue-virtual": "^3.13.12",
     "autoprefixer": "^9.8.8",
     "axios": "^0.21.1",
     "date-fns": "^4.1.0",
     "idb": "^8.0.3",
     "postcss": "^7.0.39",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17",
-    "three": "^0.134.0",
-    "troisjs": "^0.3.4",
     "vue": "^3.2.0",
     "vue-router": "^4.0.0",
     "vue-virtual-scroller": "^2.0.0-beta.8",
-    "vue3-virtual-scroll-list": "^0.2.1",
     "vuex": "^4.0.0"
   },
   "devDependencies": {

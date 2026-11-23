@@ -76,6 +76,11 @@ app.use((req, res, next) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Publiczny health check (używany m.in. do keep-alive na Render Free)
+app.get("/api/health", (req, res) => {
+  res.json({ ok: true, uptime: Math.round(process.uptime()) });
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/questions", questionsRoutes);
 app.use("/api/users", usersRouter);

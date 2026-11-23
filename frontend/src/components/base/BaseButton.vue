@@ -7,61 +7,63 @@
       'relative overflow-hidden rounded-lg font-medium transition-all duration-200 flex items-center justify-center shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
       'active:translate-y-0.5 active:shadow',
       // Kolory solid
-      color === 'blue' && variant === 'solid' ? 'bg-blue-500 text-white hover:bg-blue-600' : '',
-      color === 'green' && variant === 'solid' ? 'bg-green-500 text-white hover:bg-green-600' : '',
-      color === 'red' && variant === 'solid' ? 'bg-red-500 text-white hover:bg-red-600' : '',
-      color === 'yellow' && variant === 'solid'
-        ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+      color === 'blue' && variant === 'solid' ? 'bg-blue-600 text-white hover:bg-blue-700' : '',
+      color === 'green' && variant === 'solid'
+        ? 'bg-emerald-700 text-white hover:bg-emerald-800'
         : '',
-      color === 'gray' && variant === 'solid' ? 'bg-gray-600 text-white hover:bg-gray-700' : '',
+      color === 'red' && variant === 'solid' ? 'bg-red-600 text-white hover:bg-red-700' : '',
+      color === 'yellow' && variant === 'solid'
+        ? 'bg-amber-700 text-white hover:bg-amber-800'
+        : '',
+      color === 'gray' && variant === 'solid' ? 'bg-gray-700 text-white hover:bg-gray-800' : '',
       color === 'purple' && variant === 'solid'
-        ? 'bg-purple-500 text-white hover:bg-purple-600'
+        ? 'bg-purple-700 text-white hover:bg-purple-800'
         : '',
       // Outline
       variant === 'outline' ? 'border-2 bg-white shadow-sm' : '',
       variant === 'outline' && color === 'blue'
-        ? 'border-blue-500 text-blue-600 hover:bg-blue-50 dark:bg-gray-800'
+        ? 'border-blue-600 text-blue-700 hover:bg-blue-50 dark:bg-gray-800'
         : '',
       variant === 'outline' && color === 'green'
-        ? 'border-green-500 text-green-600 hover:bg-green-50 dark:bg-gray-800'
+        ? 'border-emerald-700 text-emerald-800 hover:bg-emerald-50 dark:bg-gray-800'
         : '',
       variant === 'outline' && color === 'red'
-        ? 'border-red-500 text-red-600 hover:bg-red-50 dark:bg-gray-800'
+        ? 'border-red-600 text-red-700 hover:bg-red-50 dark:bg-gray-800'
         : '',
       variant === 'outline' && color === 'yellow'
-        ? 'border-yellow-500 text-yellow-600 hover:bg-yellow-50 dark:bg-gray-800'
+        ? 'border-amber-700 text-amber-800 hover:bg-amber-50 dark:bg-gray-800'
         : '',
       variant === 'outline' && color === 'gray'
-        ? 'border-gray-500 text-gray-600 hover:bg-gray-50 dark:bg-gray-800'
+        ? 'border-gray-600 text-gray-700 hover:bg-gray-50 dark:bg-gray-800'
         : '',
       variant === 'outline' && color === 'purple'
-        ? 'border-purple-500 text-purple-600 hover:bg-purple-50 dark:bg-gray-800'
+        ? 'border-purple-700 text-purple-800 hover:bg-purple-50 dark:bg-gray-800'
         : '',
       // Ghost
       variant === 'ghost' ? 'bg-transparent shadow-none' : '',
       variant === 'ghost' && color === 'blue'
-        ? 'text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-800'
+        ? 'text-blue-700 hover:bg-blue-50 dark:hover:bg-gray-800'
         : '',
       variant === 'ghost' && color === 'green'
-        ? 'text-green-600 hover:bg-green-50 dark:hover:bg-gray-800'
+        ? 'text-emerald-800 hover:bg-emerald-50 dark:hover:bg-gray-800'
         : '',
       variant === 'ghost' && color === 'red'
-        ? 'text-red-600 hover:bg-red-50 dark:hover:bg-gray-800'
+        ? 'text-red-700 hover:bg-red-50 dark:hover:bg-gray-800'
         : '',
       variant === 'ghost' && color === 'yellow'
-        ? 'text-yellow-600 hover:bg-yellow-50 dark:hover:bg-gray-800'
+        ? 'text-amber-800 hover:bg-amber-50 dark:hover:bg-gray-800'
         : '',
       variant === 'ghost' && color === 'gray'
-        ? 'text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'
+        ? 'text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
         : '',
       variant === 'ghost' && color === 'purple'
-        ? 'text-purple-600 hover:bg-purple-50 dark:hover:bg-gray-800'
+        ? 'text-purple-800 hover:bg-purple-50 dark:hover:bg-gray-800'
         : '',
       // Rozmiary
-      size === 'sm' ? 'px-3 py-1.5 text-xs' : '',
-      size === 'md' ? 'px-4 py-2 text-sm' : '',
-      size === 'lg' ? 'px-6 py-2.5 text-base' : '',
-      size === 'xl' ? 'px-8 py-3 text-lg' : '',
+      size === 'sm' ? 'h-11 px-3 text-sm' : '',
+      size === 'md' ? 'h-11 px-4 text-sm' : '',
+      size === 'lg' ? 'h-12 px-6 text-base' : '',
+      size === 'xl' ? 'h-14 px-8 text-lg' : '',
       // Disabled
       disabled || loading ? 'opacity-60 cursor-not-allowed shadow-none pointer-events-none' : '',
       customClass,

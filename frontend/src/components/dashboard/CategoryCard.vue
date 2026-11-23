@@ -119,7 +119,14 @@
         >
           <span class="truncate">Egzamin</span>
         </BaseButton>
-        <BaseButton color="red" size="sm" class="px-2" @click="$emit('clear-history', category)">
+        <BaseButton
+          color="red"
+          size="sm"
+          class="px-2"
+          ariaLabel="Wyczyść historię kategorii"
+          title="Wyczyść historię kategorii"
+          @click="$emit('clear-history', category)"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="h-4 w-4"

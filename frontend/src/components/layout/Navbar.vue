@@ -7,7 +7,8 @@
     }"
   >
     <nav
-      class="flex justify-between items-center p-3 px-5 bg-gradient-to-r from-white to-gray-50 shadow-md mb-4 dark:from-gray-800 dark:to-gray-900 dark:shadow-lg"
+      aria-label="Nawigacja główna"
+      class="relative z-40 flex justify-between items-center p-3 px-5 bg-gradient-to-r from-white to-gray-50 shadow-md mb-4 dark:from-gray-800 dark:to-gray-900 dark:shadow-lg"
     >
       <!-- Logo/nazwa użytkownika -->
       <div class="flex items-center gap-2">
@@ -65,10 +66,12 @@
       <!-- Przycisk hamburgerowy dla urządzeń mobilnych -->
       <button
         @click="toggleMenu"
-        class="lg:hidden flex items-center justify-center p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 dark:text-gray-300 dark:hover:bg-gray-700"
-        aria-expanded="false"
+        class="lg:hidden flex items-center justify-center p-3 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 dark:text-gray-300 dark:hover:bg-gray-700"
+        :aria-expanded="menuOpen"
+        aria-controls="mobile-menu"
+        :aria-label="menuOpen ? 'Zamknij menu' : 'Otwórz menu'"
       >
-        <span class="sr-only">Otwórz menu</span>
+        <span class="sr-only">Menu</span>
         <!-- Ikona hamburgera gdy menu zamknięte -->
         <svg
           v-if="!menuOpen"
@@ -104,11 +107,23 @@
       </button>
     </nav>
 
+    <div
+      v-if="menuOpen"
+      class="fixed inset-0 bg-black/20 z-20 lg:hidden"
+      aria-hidden="true"
+      @click="closeMenu"
+    ></div>
+
     <transition name="mobile-menu">
-      <div
+      <nav
         v-if="menuOpen"
-        class="fixed top-16 left-0 w-full h-auto bg-white shadow-md z-40 overflow-y-auto border-t border-gray-300 dark:bg-gray-800 dark:shadow-lg dark:border-gray-700"
-        style="max-height: calc(100vh - 4rem)"
+        id="mobile-menu"
+        aria-label="Nawigacja mobilna"
+        class="fixed left-0 w-full h-auto bg-white shadow-md z-40 overflow-y-auto border-t border-gray-300 dark:bg-gray-800 dark:shadow-lg dark:border-gray-700"
+        style="
+          top: calc(4rem + env(safe-area-inset-top));
+          max-height: calc(100vh - 4rem - env(safe-area-inset-top));
+        "
       >
         <div class="p-6 flex flex-col gap-3">
           <router-link
@@ -162,7 +177,7 @@
             <span>Wyloguj</span>
           </button>
         </div>
-      </div>
+      </nav>
     </transition>
   </div>
 
@@ -313,8 +328,13 @@ function closeMenu() {
   document.body.classList.remove('no-scroll');
 }
 
-function handleScroll() {
-  scrollY.value = window.scrollY;
+function handleKeydown(event) {
+  if (event.key === 'Escape' && menuOpen.value) {
+    closeMenu();
+  }
+}
+
+function handleScroll() {  scrollY.value = window.scrollY;
 
   if (!ticking.value) {
     window.requestAnimationFrame(() => {
@@ -329,12 +349,14 @@ function handleScroll() {
 // Lifecycle hooks
 onMounted(() => {
   window.addEventListener('scroll', handleScroll);
+  window.addEventListener('keydown', handleKeydown);
   handleScroll();
 });
 
 onBeforeUnmount(() => {
   document.body.classList.remove('no-scroll');
   window.removeEventListener('scroll', handleScroll);
+  window.removeEventListener('keydown', handleKeydown);
 });
 </script>
 
