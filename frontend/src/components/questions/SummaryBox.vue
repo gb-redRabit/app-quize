@@ -126,27 +126,49 @@
 
     <!-- Lista pytań -->
     <div class="p-6">
-      <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center dark:text-gray-200">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-          <path
-            fill-rule="evenodd"
-            d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
-            clip-rule="evenodd"
-          />
-        </svg>
-        Przegląd pytań
-      </h3>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <h3 class="text-lg font-semibold text-gray-700 flex items-center dark:text-gray-200">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+            <path
+              fill-rule="evenodd"
+              d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          Przegląd pytań
+        </h3>
+        <div class="flex flex-wrap gap-2">
+          <button
+            class="h-10 px-3 rounded-lg text-sm font-medium transition-colors"
+            :class="
+              showOnlyWrong
+                ? 'bg-red-600 text-white'
+                : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200'
+            "
+            :aria-pressed="showOnlyWrong"
+            @click="showOnlyWrong = !showOnlyWrong"
+          >
+            Tylko błędne ({{ wrongCount }})
+          </button>
+          <button
+            class="h-10 px-3 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            @click="exportResults"
+          >
+            Eksport CSV
+          </button>
+        </div>
+      </div>
 
       <!-- Lista pytań -->
       <div class="space-y-5">
         <div
-          v-for="(q, idx) in questions"
+          v-for="{ q, idx } in filteredReview"
           :key="idx"
           class="border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-700 dark:hover:shadow-lg"
         >
@@ -285,12 +307,18 @@
           </div>
         </div>
       </div>
+      <p
+        v-if="filteredReview.length === 0"
+        class="text-center text-sm text-gray-500 dark:text-gray-400 py-6"
+      >
+        {{ showOnlyWrong ? 'Brak błędnych odpowiedzi — świetny wynik!' : 'Brak pytań do wyświetlenia.' }}
+      </p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import BaseButton from '@/components/base/BaseButton.vue';
 
 // Definicja propsów
@@ -321,6 +349,47 @@ const scoreColorClass = computed(() => {
   if (percentage.value >= 50) return 'text-yellow-700 dark:text-yellow-400';
   return 'text-red-700 dark:text-red-400';
 });
+
+const showOnlyWrong = ref(false);
+const wrongCount = computed(
+  () => (props.questions || []).filter((_, idx) => !isCorrect(idx)).length
+);
+const filteredReview = computed(() =>
+  (props.questions || [])
+    .map((q, idx) => ({ q, idx }))
+    .filter(({ idx }) => !showOnlyWrong.value || !isCorrect(idx))
+);
+
+function escapeCsv(value) {
+  return `"${String(value ?? '').replace(/"/g, '""')}"`;
+}
+
+function exportResults() {
+  if (typeof window === 'undefined') return;
+  const rows = [
+    ['Nr', 'Pytanie', 'Odpowiedź użytkownika', 'Poprawna odpowiedź', 'Wynik'],
+  ];
+  (props.questions || []).forEach((q, idx) => {
+    const selectedKey = props.answersStatus?.[idx]?.selectedKey;
+    rows.push([
+      idx + 1,
+      q.question || '',
+      props.userAnswerText ? props.userAnswerText(q, selectedKey) : '',
+      props.correctAnswerText ? props.correctAnswerText(q) : '',
+      isCorrect(idx) ? 'Poprawna' : 'Błędna',
+    ]);
+  });
+  const csv = '\uFEFF' + rows.map((row) => row.map(escapeCsv).join(';')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `wyniki-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
 
 const hasWrong = computed(() => {
   return props.answersStatus.some((a, idx) => {
