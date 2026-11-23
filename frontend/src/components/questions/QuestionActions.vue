@@ -388,7 +388,12 @@ async function saveEdit() {
       console.error('Błąd podczas edycji pytania:', error);
       showAlert('error', 'Wystąpił błąd podczas zapisywania pytania. Odśwież stronę.');
 
-      // Możesz tu dodać kod do przywrócenia starego stanu jeśli potrzeba
+      // Przywróć dane z serwera — widoki nasłuchują tego zdarzenia.
+      window.dispatchEvent(
+        new CustomEvent('questions-changed', {
+          detail: { type: 'bulk', action: 'reload' },
+        })
+      );
     });
 }
 
