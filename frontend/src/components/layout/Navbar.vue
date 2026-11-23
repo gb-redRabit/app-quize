@@ -1,9 +1,11 @@
 <template>
   <div
-    class="nav w-full z-30 transition-all duration-300"
+    class="nav w-full transition-all duration-300"
     :class="{
       relative: !isFixed,
       'fixed top-0 left-0 right-0 animate-slide-down': isFixed,
+      'z-50': menuOpen,
+      'z-30': !menuOpen,
     }"
   >
     <nav

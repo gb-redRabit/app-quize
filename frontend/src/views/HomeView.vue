@@ -379,6 +379,10 @@ const refreshAllData = async () => {
 
 <style scoped>
 .info-icon {
+  left: auto;
+  right: 0.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
   bottom: calc(0.75rem + env(safe-area-inset-bottom));
 }
 @media (max-width: 1023px) {
