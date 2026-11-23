@@ -359,7 +359,25 @@ const startTimer = () => {
 const fetchQuestions = async () => {
   try {
     const category = route.query.categories || 'all';
-    const fetchedQuestions = await store.dispatch('questions/fetchQuestionsByCategory', category);
+    let fetchedQuestions;
+
+    // Jeśli znamy konkretne ID (quiz/egzamin), pobierz tylko je (bez całej kategorii)
+    if (route.query.ids) {
+      const ids = route.query.ids
+        .split(',')
+        .map((id) => id.trim())
+        .filter(Boolean);
+      const response = await apiClient.get('/questions', {
+        params: { ids: ids.join(',') },
+        noCache: true,
+      });
+      fetchedQuestions = response.data?.questions || [];
+    } else {
+      fetchedQuestions = await store.dispatch(
+        'questions/fetchQuestionsByCategory',
+        category
+      );
+    }
 
     if (!fetchedQuestions || fetchedQuestions.length === 0) {
       showAlert?.('warning', 'Brak pytań w wybranej kategorii.');
@@ -369,36 +387,6 @@ const fetchQuestions = async () => {
       return;
     }
 
-    // Sprawdź czy mamy konkretne IDs do pobrania
-    if (route.query.ids) {
-      const ids = route.query.ids.split(',').map((id) => id.trim());
-
-      const filteredQuestions = fetchedQuestions.filter((q) => {
-        const qId = String(q.ID || q.id || q.Id || q.id_question);
-        return ids.includes(qId);
-      });
-
-      if (filteredQuestions.length > 0) {
-        questions.value = getRandomUniqueQuestions(
-          filteredQuestions,
-          Math.min(quizLength.value, filteredQuestions.length)
-        );
-        answersStatus.value = Array(questions.value.length)
-          .fill()
-          .map(() => ({
-            answered: false,
-            selected: null,
-            selectedKey: null,
-          }));
-        loading.value = false;
-        return;
-      } else {
-        // Nie znaleziono pytań z podanymi ID - używamy wszystkich dostępnych
-        showAlert?.('warning', 'Nie znaleziono pytań z podanymi ID. Używamy pytań z kategorii.');
-      }
-    }
-
-    // Jeśli nie mamy konkretnych IDs lub filtracja nie zwróciła wyników
     questions.value = getRandomUniqueQuestions(fetchedQuestions, quizLength.value);
     answersStatus.value = Array(questions.value.length)
       .fill()
@@ -546,8 +534,7 @@ const updateWrongOrNotDoneCache = async () => {
 
   try {
     const cat = route.query.categories;
-    const allQuestions = await store.dispatch('questions/fetchQuestionsByCategory', cat);
-    const allIds = allQuestions.map((q) => q.ID || q.id || q.Id || q.id_question);
+    const allIds = await store.dispatch('questions/fetchQuestionIdsByCategory', cat);
 
     const historyRes = await apiClient.get('/users/hquestion');
     const hq = historyRes.data.filter((q) => q.category === cat);

@@ -163,10 +163,8 @@ const questionsHelper = (() => {
 
   const getQuestionIdsForQuiz = async (cat) => {
     try {
-      // Pobierz wszystkie pytania z kategorii
-      const res = await store.dispatch('questions/fetchQuestionsByCategory', cat);
-      const questions = res;
-      const allIds = questions.map((q) => q.ID || q.id || q.Id || q.id_question);
+      // Pobierz tylko ID pytań z kategorii (bez pełnych treści)
+      const allIds = await store.dispatch('questions/fetchQuestionIdsByCategory', cat);
 
       // Pobierz historię użytkownika dla danej kategorii
       const hquestion = store.getters['user/getHquestion'] || [];
