@@ -191,8 +191,8 @@
             />
           </div>
 
-          <!-- Nawigacja między pytaniami -->
-          <div class="mt-16" v-if="questions.length > 0 && mode !== 'exam'">
+          <!-- Nawigacja między pytaniami (desktop) -->
+          <div class="mt-16" v-if="isDesktop && questions.length > 0 && mode !== 'exam'">
             <QuestionNavigation
               :questions="questions"
               :answersStatus="answersStatus"
@@ -238,12 +238,16 @@
         >
           Poprzednie
         </button>
-        <span
-          class="text-xs font-medium text-gray-500 dark:text-gray-400 min-w-[3.5rem] text-center"
-          aria-live="polite"
+        <button
+          class="h-12 px-3 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-xs font-medium"
+          aria-label="Pokaż listę pytań"
+          @click="showQuestionSheet = true"
         >
-          {{ currentQuestionIndex + 1 }} / {{ questions.length }}
-        </span>
+          Pytania
+          <span class="block text-[10px] text-gray-500 dark:text-gray-400">
+            {{ currentQuestionIndex + 1 }}/{{ questions.length }}
+          </span>
+        </button>
         <button
           class="flex-1 h-12 rounded-xl text-white font-semibold disabled:opacity-100"
           :class="
@@ -263,6 +267,47 @@
         >
           {{ currentQuestionIndex === questions.length - 1 ? 'Zakończ' : 'Następne' }}
         </button>
+      </div>
+    </div>
+
+    <!-- Arkusz nawigacji pytaniami (mobile) -->
+    <div v-if="showQuestionSheet" class="fixed inset-0 z-40 lg:hidden">
+      <div
+        class="absolute inset-0 bg-gray-900 bg-opacity-50"
+        @click="showQuestionSheet = false"
+      ></div>
+      <div
+        class="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-2xl p-4 max-h-[70vh] overflow-y-auto"
+        style="padding-bottom: calc(1rem + env(safe-area-inset-bottom))"
+      >
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100">Pytania</h3>
+          <button
+            class="h-10 px-4 rounded-lg bg-gray-100 dark:bg-gray-800 text-sm font-medium"
+            @click="showQuestionSheet = false"
+          >
+            Zamknij
+          </button>
+        </div>
+        <div class="grid grid-cols-6 gap-2">
+          <button
+            v-for="(question, idx) in questions"
+            :key="question.ID || idx"
+            class="h-10 rounded-full text-sm font-semibold transition-colors"
+            :class="
+              idx === currentQuestionIndex
+                ? 'bg-blue-600 text-white'
+                : answersStatus[idx]?.answered
+                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+            "
+            :aria-current="idx === currentQuestionIndex ? 'true' : undefined"
+            :aria-label="`Pytanie ${idx + 1}`"
+            @click="jumpToQuestion(idx)"
+          >
+            {{ idx + 1 }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -315,6 +360,12 @@ const score = ref(0);
 const loading = ref(true);
 const answersStatus = ref([]);
 const showSummary = ref(false);
+const showQuestionSheet = ref(false);
+const isDesktop = ref(
+  typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false
+);
+let desktopMediaQuery = null;
+let desktopMediaChangeHandler = null;
 const questionTimes = ref([]);
 const isCorrection = ref(false);
 const shuffledAnswers = ref([]);
@@ -652,6 +703,11 @@ const goToQuestion = (idx) => {
   if (!showSummary.value) currentQuestionIndex.value = idx;
 };
 
+const jumpToQuestion = (idx) => {
+  goToQuestion(idx);
+  showQuestionSheet.value = false;
+};
+
 // Zapis historii
 const saveUserHistory = async () => {
   try {
@@ -981,6 +1037,18 @@ watch(
 onMounted(async () => {
   window.addEventListener('keydown', handleKeydown);
 
+  if (typeof window !== 'undefined') {
+    desktopMediaQuery = window.matchMedia('(min-width: 1024px)');
+    desktopMediaChangeHandler = (event) => {
+      isDesktop.value = event.matches;
+    };
+    if (desktopMediaQuery.addEventListener) {
+      desktopMediaQuery.addEventListener('change', desktopMediaChangeHandler);
+    } else {
+      desktopMediaQuery.addListener(desktopMediaChangeHandler);
+    }
+  }
+
   // Przypisz do zewnętrznej zmiennej ref
   quizActivityInterval.value = setInterval(
     () => {
@@ -1018,6 +1086,13 @@ onMounted(async () => {
 // Dodaj tę funkcję POZA onMounted, na tym samym poziomie co onMounted
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleKeydown);
+  if (desktopMediaQuery && desktopMediaChangeHandler) {
+    if (desktopMediaQuery.removeEventListener) {
+      desktopMediaQuery.removeEventListener('change', desktopMediaChangeHandler);
+    } else {
+      desktopMediaQuery.removeListener(desktopMediaChangeHandler);
+    }
+  }
 
   // Użyj wartości z ref
   if (quizActivityInterval.value) {
