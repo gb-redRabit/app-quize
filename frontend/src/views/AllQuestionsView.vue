@@ -62,11 +62,14 @@
           }"
           role="button"
           tabindex="0"
+          :data-question-id="q.ID"
           :aria-expanded="isDesktop ? undefined : expandedQuestions.includes(q.ID)"
           :aria-current="isDesktop && selectedQuestion?.ID === q.ID ? 'true' : undefined"
           @click="handleRowClick(q)"
           @keydown.enter.prevent="handleRowClick(q)"
           @keydown.space.prevent="handleRowClick(q)"
+          @keydown.down.prevent="moveSelection(idx, 1)"
+          @keydown.up.prevent="moveSelection(idx, -1)"
         >
           <div class="font-mono text-sm text-gray-500 dark:text-gray-400 mt-1" style="min-width: 36px">
             {{ q.ID }}
@@ -486,6 +489,26 @@ function toggleQuestionDetails(id) {
   } else {
     expandedQuestions.value.push(id);
   }
+}
+
+function moveSelection(index, delta) {
+  const list = filteredQuestions.value;
+  const next = list[index + delta];
+  if (!next) return;
+
+  if (isDesktop.value) {
+    selectedQuestion.value = next;
+  } else {
+    expandedQuestions.value = [next.ID];
+  }
+
+  nextTick(() => {
+    const el = document.querySelector(`[data-question-id="${next.ID}"]`);
+    if (el) {
+      el.focus();
+      el.scrollIntoView({ block: 'nearest' });
+    }
+  });
 }
 
 function handleRowClick(question) {
