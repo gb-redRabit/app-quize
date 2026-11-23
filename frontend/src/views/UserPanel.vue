@@ -25,13 +25,17 @@
     </div>
 
     <!-- Zakładki panelu -->
-    <div class="flex gap-2 overflow-x-auto hide-scrollbar mb-6 pb-1" role="tablist" aria-label="Ustawienia profilu">
+    <div
+      class="grid grid-cols-2 sm:flex gap-2 sm:overflow-x-auto hide-scrollbar mb-6 pb-1"
+      role="tablist"
+      aria-label="Ustawienia profilu"
+    >
       <button
         v-for="tab in profileTabs"
         :key="tab.id"
         role="tab"
         :aria-selected="activeTab === tab.id"
-        class="h-11 px-4 rounded-full text-sm font-medium whitespace-nowrap transition-colors"
+        class="h-11 w-full sm:w-auto px-4 rounded-full text-sm font-medium whitespace-nowrap transition-colors"
         :class="
           activeTab === tab.id
             ? 'bg-blue-600 text-white shadow-sm'
