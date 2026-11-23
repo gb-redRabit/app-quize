@@ -109,7 +109,7 @@
 
     <div
       v-if="menuOpen"
-      class="fixed inset-0 bg-black/20 z-20 lg:hidden"
+      class="fixed inset-0 z-20 lg:hidden bg-gray-900 bg-opacity-50"
       aria-hidden="true"
       @click="closeMenu"
     ></div>
@@ -119,10 +119,10 @@
         v-if="menuOpen"
         id="mobile-menu"
         aria-label="Nawigacja mobilna"
-        class="fixed left-0 w-full h-auto bg-white shadow-md z-40 overflow-y-auto border-t border-gray-300 dark:bg-gray-800 dark:shadow-lg dark:border-gray-700"
+        class="fixed left-0 right-0 bottom-0 w-full bg-white shadow-md z-40 overflow-y-auto border-t border-gray-300 dark:bg-gray-900 dark:shadow-lg dark:border-gray-700"
         style="
           top: calc(4rem + env(safe-area-inset-top));
-          max-height: calc(100vh - 4rem - env(safe-area-inset-top));
+          padding-bottom: env(safe-area-inset-bottom);
         "
       >
         <div class="p-6 flex flex-col gap-3">

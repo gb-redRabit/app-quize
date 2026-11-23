@@ -23,6 +23,7 @@
       <main
         id="main"
         tabindex="-1"
+        class="w-full"
         :class="showBottomNav ? 'pb-20 lg:pb-0' : ''"
       >
         <router-view v-slot="{ Component }">
