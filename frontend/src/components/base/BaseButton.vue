@@ -204,7 +204,11 @@ function handleClick(event) {
 }
 
 function createRipple(event) {
-  const button = btnRef.value;
+  const button = btnRef.value || event.currentTarget;
+  if (!button || typeof button.getBoundingClientRect !== 'function') {
+    showRipple.value = false;
+    return;
+  }
   const rect = button.getBoundingClientRect();
 
   rippleX.value = event.clientX - rect.left;
