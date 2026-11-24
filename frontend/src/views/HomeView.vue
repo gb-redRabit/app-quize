@@ -51,7 +51,11 @@
               {{ savedQuiz.label }} · pytanie {{ savedQuiz.index + 1 }} z {{ savedQuiz.total }}
             </p>
             <p class="text-sm text-yellow-800">
-              Odpowiedzi: {{ savedQuiz.answered }} · postęp zapisany lokalnie
+              Odpowiedzi: {{ savedQuiz.answered }} ·
+              <template v-if="savedQuiz.remainingMinutes">
+                pozostało {{ savedQuiz.remainingMinutes }} min ·
+              </template>
+              postęp zapisany lokalnie
             </p>
           </div>
           <button
@@ -77,8 +81,9 @@
           <button
             class="h-12 px-5 rounded-lg bg-white text-blue-700 font-semibold hover:bg-blue-50 transition-colors shrink-0"
             @click="continueLastActivity"
+            :aria-label="`Rozpocznij nową sesję: ${lastActivity.category}`"
           >
-            Kontynuuj
+            Rozpocznij
           </button>
         </div>
       </section>
@@ -441,12 +446,30 @@ function readSavedQuiz() {
     const index = Number(data.currentIndex) || 0;
     // Pusty quiz nie ma czego wznawiać; egzamin ma też upływający czas.
     if (answered === 0 && index === 0 && routeName !== 'ExamView') return null;
+
+    // Ile czasu zostało w egzaminie — liczone tak samo jak w widoku egzaminu.
+    let remainingMinutes = null;
+    if (routeName === 'ExamView') {
+      const startedAt = Number(data.examStartedAt);
+      const timeLimit = Number(data.examTimeLimit);
+      if (Number.isFinite(startedAt) && startedAt > 0 && Number.isFinite(timeLimit) && timeLimit > 0) {
+        const left = timeLimit - Math.floor((Date.now() - startedAt) / 1000);
+        if (left <= 0) return null;
+        remainingMinutes = Math.ceil(left / 60);
+      } else if (typeof data.timeLeft === 'number') {
+        const left = data.timeLeft - Math.floor((Date.now() - Number(data.savedAt || Date.now())) / 1000);
+        if (left <= 0) return null;
+        remainingMinutes = Math.ceil(left / 60);
+      }
+    }
+
     return {
       url,
       answered,
       index,
       total: (data.ids || []).length || (data.answersStatus || []).length,
       label: routeName === 'ExamView' ? 'Egzamin' : 'Quiz',
+      remainingMinutes,
     };
   } catch (e) {
     return null;

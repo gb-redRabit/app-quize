@@ -1304,6 +1304,9 @@ onMounted(async () => {
     } else if (restoreResult === 'expired') {
       clearSavedProgress();
       showAlert?.('warning', 'Poprzedni egzamin wygasł — zaczynamy od nowa.');
+    } else if (restoreResult === 'failed') {
+      // Zapis zostawiamy — może uda się wznowić następnym razem.
+      showAlert?.('warning', 'Nie udało się wznowić poprzedniej sesji.');
     } else {
       clearSavedProgress();
     }
