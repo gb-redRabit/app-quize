@@ -122,8 +122,10 @@
             <div v-if="isAdmin" class="ml-3 hidden sm:block">
               <QuestionActions
                 :question="q"
+                :inline-edit="isDesktop"
                 @deleted="handleQuestionDeleted"
                 @edit="handleQuestionEdited"
+                @request-edit="startInlineEdit"
               />
             </div>
           </div>
@@ -219,7 +221,14 @@
         <div
           class="sticky top-20 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-5 max-h-[calc(100vh-11rem)] overflow-y-auto"
         >
-          <template v-if="selectedQuestion">
+          <QuestionEditor
+            v-if="isAdmin && isEditing && selectedQuestion"
+            :question="selectedQuestion"
+            @saved="handleInlineSaved"
+            @cancel="isEditing = false"
+          />
+
+          <template v-else-if="selectedQuestion">
             <div class="flex items-start justify-between gap-3 mb-3">
               <div class="min-w-0">
                 <p class="text-xs font-mono text-gray-500 dark:text-gray-400">
@@ -232,8 +241,10 @@
               <QuestionActions
                 v-if="isAdmin"
                 :question="selectedQuestion"
+                inline-edit
                 @deleted="handleQuestionDeleted"
                 @edit="handleQuestionEdited"
+                @request-edit="startInlineEdit"
               />
             </div>
 
@@ -332,6 +343,9 @@ const SearchBar = defineAsyncComponent(() => import('@/components/base/SearchBar
 const QuestionActions = defineAsyncComponent(
   () => import('@/components/questions/QuestionActions.vue')
 );
+const QuestionEditor = defineAsyncComponent(
+  () => import('@/components/questions/QuestionEditor.vue')
+);
 const BaseSkeleton = defineAsyncComponent(() => import('@/components/base/BaseSkeleton.vue'));
 import apiClient from '@/api';
 import { useStore } from 'vuex';
@@ -350,6 +364,7 @@ const searching = ref(false);
 const isLoading = ref(true);
 const expandedQuestions = ref([]);
 const selectedQuestion = ref(null);
+const isEditing = ref(false);
 const isDesktop = ref(
   typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false
 );
@@ -371,6 +386,7 @@ watch(filteredQuestions, (list) => {
   const stillExists =
     selectedQuestion.value && list.some((q) => q.ID === selectedQuestion.value.ID);
   if (!stillExists) {
+    isEditing.value = false;
     selectedQuestion.value = list[0] || null;
   }
 });
@@ -502,10 +518,28 @@ function toggleQuestionDetails(id) {
   }
 }
 
+function startInlineEdit(question) {
+  if (!isDesktop.value) return;
+  if (question && question.ID && selectedQuestion.value?.ID !== question.ID) {
+    selectedQuestion.value = question;
+  }
+  isEditing.value = true;
+}
+
+function handleInlineSaved(updated) {
+  isEditing.value = false;
+  if (updated && updated.ID) {
+    handleQuestionEdited(updated);
+    showAlert?.('success', 'Pytanie zostało zaktualizowane.');
+  }
+}
+
 function moveSelection(index, delta) {
   const list = filteredQuestions.value;
   const next = list[index + delta];
   if (!next) return;
+
+  isEditing.value = false;
 
   if (isDesktop.value) {
     selectedQuestion.value = next;
@@ -524,6 +558,7 @@ function moveSelection(index, delta) {
 
 function handleRowClick(question) {
   if (isDesktop.value) {
+    if (selectedQuestion.value?.ID !== question.ID) isEditing.value = false;
     selectedQuestion.value = question;
   } else {
     toggleQuestionDetails(question.ID);
@@ -557,6 +592,7 @@ function handleQuestionDeleted(question) {
     questions.value.splice(idx, 1);
   }
   if (selectedQuestion.value?.ID === question.ID) {
+    isEditing.value = false;
     selectedQuestion.value = questions.value[0] || null;
   }
 

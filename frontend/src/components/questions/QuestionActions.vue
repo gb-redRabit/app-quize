@@ -295,10 +295,14 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  inlineEdit: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // Emits
-const emit = defineEmits(['deleted', 'edit']);
+const emit = defineEmits(['deleted', 'edit', 'request-edit']);
 
 // Store
 const store = useStore();
@@ -320,6 +324,12 @@ const categoriesFromStats = computed(() => {
 
 // Methods
 function openEditModal() {
+  // W widoku master-detail edycja odbywa się w panelu po prawej.
+  if (props.inlineEdit) {
+    emit('request-edit', props.question);
+    return;
+  }
+
   // Głębokie klonowanie obiektu pytania
   editData.value = JSON.parse(JSON.stringify(props.question));
 
