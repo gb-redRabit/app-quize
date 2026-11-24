@@ -235,44 +235,71 @@
     </div>
 
     <!-- Questions list -->
-    <div v-else>
-      <DynamicScroller
-        :items="sortedQuestions"
-        key-field="ID"
-        :buffer="10"
-        :page-mode="true"
-        :min-item-size="405.5"
-        v-slot="{ item: q, index }"
-      >
-        <DynamicScrollerItem
-          :item="q"
-          :active="true"
-          :index="index"
-          :size-dependencies="[q.question, q.description]"
+    <div v-else class="lg:grid lg:grid-cols-5 lg:gap-6">
+      <div class="lg:col-span-2">
+        <DynamicScroller
+          :items="sortedQuestions"
+          key-field="ID"
+          :buffer="10"
+          :page-mode="true"
+          :min-item-size="isDesktop ? 92 : 405.5"
+          v-slot="{ item: q, index }"
         >
-          <div class="py-2">
-            <!-- Odstęp między kartami -->
-            <QuestionCard
-              :question="q"
-              :last-attempt-map="lastAttemptMap"
-              @toggle-flagged="toggleFlagged"
-              @toggle-bad="toggleBad"
-              @toggle-unknown="toggleUnknown"
-              @deleted="onQuestionDeleted"
-              @edited="onQuestionEdited"
-            />
-          </div>
-        </DynamicScrollerItem>
-      </DynamicScroller>
+          <DynamicScrollerItem
+            :item="q"
+            :active="true"
+            :index="index"
+            :size-dependencies="[q.question, q.description, isDesktop]"
+          >
+            <div class="py-2">
+              <!-- Odstęp między kartami -->
+              <QuestionCard
+                :question="q"
+                :last-attempt-map="lastAttemptMap"
+                :compact="isDesktop"
+                :selected="isDesktop && selectedQuestion && selectedQuestion.ID === q.ID"
+                @select="selectQuestion"
+                @toggle-flagged="toggleFlagged"
+                @toggle-bad="toggleBad"
+                @toggle-unknown="toggleUnknown"
+                @deleted="onQuestionDeleted"
+                @edited="onQuestionEdited"
+              />
+            </div>
+          </DynamicScrollerItem>
+        </DynamicScroller>
 
-      <!-- Load more indicator -->
-      <div
-        v-if="isLoadingMore"
-        class="text-center text-sm text-gray-500 dark:text-gray-400 py-4"
-        aria-live="polite"
-      >
-        Wczytywanie pozostałych pytań… {{ localQuestions.length }}/{{ totalCount }}
+        <!-- Load more indicator -->
+        <div
+          v-if="isLoadingMore"
+          class="text-center text-sm text-gray-500 dark:text-gray-400 py-4"
+          aria-live="polite"
+        >
+          Wczytywanie pozostałych pytań… {{ localQuestions.length }}/{{ totalCount }}
+        </div>
       </div>
+
+      <!-- Szczegóły zaznaczonego pytania (desktop) -->
+      <aside v-if="isDesktop" class="hidden lg:block lg:col-span-3">
+        <div class="sticky top-20">
+          <QuestionCard
+            v-if="selectedQuestion"
+            :question="selectedQuestion"
+            :last-attempt-map="lastAttemptMap"
+            @toggle-flagged="toggleFlagged"
+            @toggle-bad="toggleBad"
+            @toggle-unknown="toggleUnknown"
+            @deleted="onQuestionDeleted"
+            @edited="onQuestionEdited"
+          />
+          <div
+            v-else
+            class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 text-sm text-gray-500 dark:text-gray-400"
+          >
+            Wybierz pytanie z listy, aby zobaczyć odpowiedzi i opis.
+          </div>
+        </div>
+      </aside>
     </div>
   </div>
 </template>
@@ -306,6 +333,16 @@ const showOnlyUnflagged = ref(false);
 const forceUpdate = ref(0);
 const sortByDescriptionField = ref(false);
 const sortByQuestion = ref(false);
+const selectedQuestion = ref(null);
+const isDesktop = ref(
+  typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false
+);
+let desktopMediaQuery = null;
+let desktopMediaChangeHandler = null;
+
+function selectQuestion(question) {
+  selectedQuestion.value = question;
+}
 
 // Store i router
 const store = useStore();
@@ -617,6 +654,9 @@ function downloadQuestionsTxt() {
 
 function onQuestionDeleted(deletedQuestion, silent = false) {
   localQuestions.value = localQuestions.value.filter((q) => q.ID !== deletedQuestion.ID);
+  if (selectedQuestion.value && selectedQuestion.value.ID === deletedQuestion.ID) {
+    selectedQuestion.value = localQuestions.value[0] || null;
+  }
   if (!silent) showAlert('success', 'Pytanie zostało usunięte.');
 }
 
@@ -625,6 +665,9 @@ function onQuestionEdited(editedQuestion, silent = false) {
 
   if (idx !== -1) {
     localQuestions.value.splice(idx, 1, editedQuestion);
+    if (selectedQuestion.value && selectedQuestion.value.ID === editedQuestion.ID) {
+      selectedQuestion.value = editedQuestion;
+    }
     if (!silent) showAlert('success', 'Pytanie zostało zaktualizowane.');
   } else if (!silent) {
     showAlert('warning', 'Nie znaleziono pytania do edycji.');
@@ -851,11 +894,49 @@ function handleQuestionsRealtime(event) {
 onMounted(() => {
   loadQuestions();
   window.addEventListener('questions-changed', handleQuestionsRealtime);
+
+  if (typeof window !== 'undefined') {
+    desktopMediaQuery = window.matchMedia('(min-width: 1024px)');
+    desktopMediaChangeHandler = (event) => {
+      isDesktop.value = event.matches;
+      if (event.matches) {
+        selectedQuestion.value = sortedQuestions.value[0] || null;
+      } else {
+        selectedQuestion.value = null;
+      }
+    };
+    if (desktopMediaQuery.addEventListener) {
+      desktopMediaQuery.addEventListener('change', desktopMediaChangeHandler);
+    } else {
+      desktopMediaQuery.addListener(desktopMediaChangeHandler);
+    }
+  }
 });
 
 onUnmounted(() => {
   window.removeEventListener('questions-changed', handleQuestionsRealtime);
+  if (desktopMediaQuery && desktopMediaChangeHandler) {
+    if (desktopMediaQuery.removeEventListener) {
+      desktopMediaQuery.removeEventListener('change', desktopMediaChangeHandler);
+    } else {
+      desktopMediaQuery.removeListener(desktopMediaChangeHandler);
+    }
+  }
 });
+
+// Zaznaczenie domyślne / po zmianie listy (desktop).
+watch(
+  () => sortedQuestions.value,
+  (list) => {
+    if (!isDesktop.value) return;
+    const stillExists =
+      selectedQuestion.value && list.some((q) => q.ID === selectedQuestion.value.ID);
+    if (!stillExists) {
+      selectedQuestion.value = list[0] || null;
+    }
+  },
+  { immediate: true }
+);
 
 // Obserwuj zmiany w lastAttempt i aktualizuj localQuestions
 watch(lastAttempt, (newAttempt) => {

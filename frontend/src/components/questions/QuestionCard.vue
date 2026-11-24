@@ -6,10 +6,50 @@
         lastAttemptMap[question.ID] === true,
       'border-l-4 border-red-400 dark:border-red-500 bg-gradient-to-r from-red-50 to-white dark:from-red-900/20 dark:to-gray-800':
         lastAttemptMap[question.ID] === false,
+      'ring-2 ring-blue-400 dark:ring-blue-600': compact && selected,
+      'cursor-pointer p-3': compact,
     }"
+    :role="compact ? 'button' : undefined"
+    :tabindex="compact ? 0 : undefined"
+    :aria-current="compact && selected ? 'true' : undefined"
+    @click="compact ? $emit('select', question) : null"
+    @keydown.enter="compact ? $emit('select', question) : null"
+    @keydown.space.prevent="compact ? $emit('select', question) : null"
   >
+    <!-- Widok kompaktowy (lista w master-detail) -->
+    <template v-if="compact">
+      <div class="flex items-start gap-3">
+        <span class="font-mono text-xs text-gray-500 dark:text-gray-400 mt-0.5 shrink-0">
+          {{ question.ID }}
+        </span>
+        <p class="flex-1 min-w-0 text-sm font-medium text-gray-800 dark:text-gray-200">
+          {{ question.question }}
+        </p>
+        <span class="flex items-center gap-1 shrink-0">
+          <span
+            v-if="question.flagged"
+            class="h-2.5 w-2.5 rounded-full bg-green-500"
+            title="Sprawdzone"
+          ></span>
+          <span
+            v-if="question.bad"
+            class="h-2.5 w-2.5 rounded-full bg-red-500"
+            title="Złe"
+          ></span>
+          <span
+            v-if="question.unknown"
+            class="h-2.5 w-2.5 rounded-full bg-yellow-500"
+            title="Nie wiem"
+          ></span>
+        </span>
+      </div>
+      <p class="mt-1 ml-8 text-xs text-gray-500 dark:text-gray-400 truncate">
+        {{ question.category || 'Bez kategorii' }}
+      </p>
+    </template>
+
     <!-- Question header -->
-    <div class="flex justify-between items-start mb-3">
+    <div v-else class="flex justify-between items-start mb-3">
       <div
         class="text-sm font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded"
       >
@@ -195,10 +235,12 @@
       </div>
     </div>
 
-    <!-- Question content -->
-    <div class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-5">
-      {{ question.question }}
-    </div>
+    <!-- Treść, odpowiedzi i opis tylko w pełnym widoku -->
+    <template v-if="!compact">
+      <!-- Question content -->
+      <div class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-5">
+        {{ question.question }}
+      </div>
 
     <!-- Answers -->
     <div class="space-y-2 mb-4">
@@ -232,6 +274,7 @@
     <span v-if="question.note" class="text-gray-500 dark:text-gray-400 ml-2"
       >📝 {{ question.note }}</span
     >
+    </template>
   </div>
 </template>
 
@@ -261,10 +304,18 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  compact: {
+    type: Boolean,
+    default: false,
+  },
+  selected: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // Emits
-defineEmits(['toggle-flagged', 'toggle-bad', 'toggle-unknown', 'deleted', 'edited']);
+defineEmits(['toggle-flagged', 'toggle-bad', 'toggle-unknown', 'deleted', 'edited', 'select']);
 </script>
 
 <style scoped>
