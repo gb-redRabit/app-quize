@@ -15,9 +15,18 @@
       <Navbar v-if="showNavbar" />
       <div
         v-if="!isOnline"
-        class="w-full bg-red-600 text-white text-center py-2 fixed top-0 left-0 z-50"
+        class="w-full bg-red-600 text-white text-center py-2 fixed top-0 left-0 z-50 text-sm"
+        role="status"
+        aria-live="polite"
       >
         Brak połączenia z internetem. Niektóre funkcje mogą być niedostępne.
+        <template v-if="pendingChanges > 0">
+          <span class="font-semibold">
+            {{ pendingChanges }}
+            {{ pendingChanges === 1 ? 'zmiana czeka' : 'zmiany czekają' }}
+            na wysłanie.
+          </span>
+        </template>
       </div>
 
       <main
@@ -117,6 +126,7 @@ const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal
 import apiClient from '@/api';
 import { ensureQuestionsCache, handleQuestionsEvent } from '@/services/questionsSync';
 import { initOfflineSync, flushOfflineQueue } from '@/services/offlineSync';
+import { queueSize } from '@/utils/offlineQueue';
 import { startRealtime, stopRealtime } from '@/utils/realtime';
 import { useSkeletonConfig } from '@/composables/useSkeletonConfig.js';
 import { useGlobalLoader } from '@/composables/useGlobalLoader.js';
@@ -133,6 +143,7 @@ const sessionSecondsLeft = ref(0);
 const sessionModalLoading = ref(false);
 const isAuthChecked = ref(false);
 const isOnline = ref(navigator.onLine);
+const pendingChanges = ref(queueSize());
 
 const globalAlert = ref();
 const globalLoader = ref();
@@ -266,11 +277,17 @@ async function checkAuthOnStart() {
 }
 
 // Obsługa online/offline
+function refreshPendingChanges() {
+  pendingChanges.value = queueSize();
+}
+
 function handleOnline() {
   isOnline.value = true;
+  refreshPendingChanges();
 }
 function handleOffline() {
   isOnline.value = false;
+  refreshPendingChanges();
 }
 async function refreshData() {
   try {
@@ -361,6 +378,7 @@ watch(
 onMounted(() => {
   window.addEventListener('questions-changed', handleQuestionsChanged);
   window.addEventListener('user-updated', handleUserUpdated);
+  window.addEventListener('offline-queue-changed', refreshPendingChanges);
   // Motyw na starcie
   const savedTheme = localStorage.getItem('theme') || currentTheme.value;
   if (savedTheme === 'dark') {
@@ -396,6 +414,7 @@ onBeforeUnmount(() => {
   stopRealtime();
   window.removeEventListener('questions-changed', handleQuestionsChanged);
   window.removeEventListener('user-updated', handleUserUpdated);
+  window.removeEventListener('offline-queue-changed', refreshPendingChanges);
   window.removeEventListener('online', handleOnline);
   window.removeEventListener('offline', handleOffline);
   window.removeEventListener('focus', verifySession);
