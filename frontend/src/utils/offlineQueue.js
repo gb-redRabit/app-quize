@@ -32,16 +32,28 @@ export function queueSize() {
   return read().length;
 }
 
+function notifyQueueChanged() {
+  try {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('offline-queue-changed'));
+    }
+  } catch (e) {
+    // ignoruj
+  }
+}
+
 export function enqueue(op) {
   const entries = read();
   entries.push({ ...op, queuedAt: Date.now() });
   write(entries);
+  notifyQueueChanged();
 }
 
 export function shiftQueue() {
   const entries = read();
   entries.shift();
   write(entries);
+  notifyQueueChanged();
 }
 
 export function clearQueue() {
@@ -50,6 +62,7 @@ export function clearQueue() {
   } catch (e) {
     // ignoruj
   }
+  notifyQueueChanged();
 }
 
 export function newClientId() {

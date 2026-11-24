@@ -14,12 +14,37 @@
       <span class="mx-1.5">·</span>
       <span>aktualizacja {{ dbUpdatedLabel }}</span>
     </template>
+
+    <span v-if="pendingCount > 0" class="mx-1.5">·</span>
+    <span
+      v-if="pendingCount > 0"
+      class="inline-flex items-center gap-1.5 text-yellow-700 dark:text-yellow-400"
+      role="status"
+      aria-live="polite"
+    >
+      <span
+        class="inline-block h-2 w-2 rounded-full bg-yellow-500"
+        aria-hidden="true"
+      ></span>
+      {{ pendingCount }} {{ pendingCount === 1 ? 'zmiana czeka' : 'zmiany czekają' }} na wysłanie
+      <button
+        v-if="isOnline"
+        type="button"
+        class="ml-1 underline underline-offset-2 hover:no-underline disabled:opacity-50"
+        :disabled="sending"
+        @click="sendNow"
+      >
+        {{ sending ? 'wysyłanie…' : 'wyślij teraz' }}
+      </button>
+    </span>
   </footer>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { fetchDbVersion, getKnownDbVersion } from '@/services/questionsSync';
+import { flushOfflineQueue } from '@/services/offlineSync';
+import { queueSize } from '@/utils/offlineQueue';
 
 const appVersion = process.env.VUE_APP_VERSION || 'dev';
 const commit = process.env.VUE_APP_COMMIT || '';
@@ -32,6 +57,9 @@ const buildTitle = computed(() =>
 );
 
 const dbInfo = ref(getKnownDbVersion());
+const pendingCount = ref(queueSize());
+const sending = ref(false);
+const isOnline = ref(typeof navigator === 'undefined' ? true : navigator.onLine);
 
 const dbVersionLabel = computed(() =>
   dbInfo.value && dbInfo.value.version != null ? String(dbInfo.value.version) : '—'
@@ -53,8 +81,31 @@ const dbUpdatedLabel = computed(() => {
 
 const dbTitle = computed(() => 'Numer wersji bazy pytań na serwerze');
 
+function refreshPending() {
+  pendingCount.value = queueSize();
+}
+
+function updateOnlineState() {
+  isOnline.value = navigator.onLine;
+}
+
+async function sendNow() {
+  if (sending.value) return;
+  sending.value = true;
+  try {
+    await flushOfflineQueue();
+  } finally {
+    sending.value = false;
+    refreshPending();
+  }
+}
+
 onMounted(async () => {
-  // Świeżość: odświeżaj co najwyżej raz na 5 minut.
+  window.addEventListener('offline-queue-changed', refreshPending);
+  window.addEventListener('online', updateOnlineState);
+  window.addEventListener('offline', updateOnlineState);
+
+  // Świeżość wersji bazy: odświeżaj co najwyżej raz na 5 minut.
   const fetchedAt = dbInfo.value && dbInfo.value.fetchedAt;
   if (!fetchedAt || Date.now() - fetchedAt > 5 * 60 * 1000) {
     try {
@@ -63,5 +114,11 @@ onMounted(async () => {
       // Brak sieci — zostaje ostatnia znana wersja.
     }
   }
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('offline-queue-changed', refreshPending);
+  window.removeEventListener('online', updateOnlineState);
+  window.removeEventListener('offline', updateOnlineState);
 });
 </script>

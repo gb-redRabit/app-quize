@@ -1,43 +1,4 @@
 import apiClient from '@/api';
-import { openDB } from 'idb';
-
-const DB_NAME = 'quizAppDB';
-const STORE_NAME = 'questions';
-
-// Flaga do sterowania użyciem IndexedDB
-let useIndexedDB = false; // ustaw na false, aby pobierać tylko z serwera
-
-export function setIndexedDBUsage(flag) {
-  useIndexedDB = flag;
-}
-
-async function getDb() {
-  return openDB(DB_NAME, 1, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME);
-      }
-    },
-  });
-}
-
-async function saveQuestionsToIndexedDB(questions) {
-  if (!useIndexedDB) return;
-  const db = await getDb();
-  await db.put(STORE_NAME, questions, 'all');
-}
-
-async function loadQuestionsFromIndexedDB() {
-  if (!useIndexedDB) return [];
-  const db = await getDb();
-  return (await db.get(STORE_NAME, 'all')) || [];
-}
-
-async function clearQuestionsFromIndexedDB() {
-  if (!useIndexedDB) return;
-  const db = await getDb();
-  await db.delete(STORE_NAME, 'all');
-}
 
 export default {
   namespaced: true,
@@ -107,11 +68,6 @@ export default {
       }
     },
 
-    async clearQuestionsCache({ commit, dispatch }) {
-      commit('CLEAR_CACHE');
-      await clearQuestionsFromIndexedDB();
-      await dispatch('fetchStats'); // Aktualizuj statystyki po usunięciu
-    },
     async fetchQuestionsByCategory({ commit }, categoryName) {
       try {
         const res = await apiClient.get(
@@ -189,6 +145,3 @@ export default {
     }),
   },
 };
-
-// Użycie: import { setIndexedDBUsage } from '@/store/questions';
-// setIndexedDBUsage(false); // wyłącza IndexedDB, zawsze pobiera z serwera
