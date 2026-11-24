@@ -348,7 +348,7 @@ import {
   inject,
   defineAsyncComponent,
 } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
 const QuestionList = defineAsyncComponent(() => import('@/components/questions/QuestionList.vue'));
@@ -451,6 +451,27 @@ const formattedTime = computed(() => {
 
 const answeredCount = computed(() => {
   return (answersStatus.value || []).filter((a) => a.answered).length;
+});
+
+// Ostrzeżenie przed utratą niezakończonego quizu/egzaminu.
+const quizInProgress = computed(
+  () =>
+    questions.value.length > 0 &&
+    !showSummary.value &&
+    (answeredCount.value > 0 || currentQuestionIndex.value > 0)
+);
+
+function handleBeforeUnload(event) {
+  if (!quizInProgress.value) return;
+  event.preventDefault();
+  event.returnValue = '';
+}
+
+onBeforeRouteLeave(() => {
+  if (!quizInProgress.value) return true;
+  return window.confirm(
+    'Masz niezakończony quiz. Wyjście spowoduje utratę odpowiedzi. Czy na pewno chcesz wyjść?'
+  );
 });
 
 const allQuestionsCompleted = computed(() => {
@@ -1065,6 +1086,7 @@ watch(
 // Inicjalizacja
 onMounted(async () => {
   window.addEventListener('keydown', handleKeydown);
+  window.addEventListener('beforeunload', handleBeforeUnload);
 
   if (typeof window !== 'undefined') {
     desktopMediaQuery = window.matchMedia('(min-width: 1024px)');
@@ -1115,6 +1137,7 @@ onMounted(async () => {
 // Dodaj tę funkcję POZA onMounted, na tym samym poziomie co onMounted
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleKeydown);
+  window.removeEventListener('beforeunload', handleBeforeUnload);
   if (desktopMediaQuery && desktopMediaChangeHandler) {
     if (desktopMediaQuery.removeEventListener) {
       desktopMediaQuery.removeEventListener('change', desktopMediaChangeHandler);
