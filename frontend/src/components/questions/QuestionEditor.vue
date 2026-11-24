@@ -156,7 +156,8 @@ const newCategory = ref('');
 const categoryChoice = ref('');
 const form = ref(buildForm(props.question));
 
-const answerKeys = computed(() => (form.value.answer_d ? ['a', 'b', 'c', 'd'] : ['a', 'b', 'c']));
+// Baza i backend obsługują wyłącznie odpowiedzi A–C.
+const answerKeys = ['a', 'b', 'c'];
 
 const categoryOptions = computed(() => {
   const list = store.getters['questions/getCategories'] || [];
@@ -171,10 +172,11 @@ function buildForm(question) {
   clone.answer_a = clone.answer_a || { answer: '', isCorret: false };
   clone.answer_b = clone.answer_b || { answer: '', isCorret: false };
   clone.answer_c = clone.answer_c || { answer: '', isCorret: false };
-  if (clone.answer_d && !clone.answer_d.answer) delete clone.answer_d;
+  // Edytor obsługuje tylko A–C — ewentualne D z danych nie jest wysyłane.
+  delete clone.answer_d;
 
   // Ujednolicenie literówek w polu z bazy (`isCorret` w danych).
-  for (const key of ['answer_a', 'answer_b', 'answer_c', 'answer_d']) {
+  for (const key of ['answer_a', 'answer_b', 'answer_c']) {
     if (clone[key] && clone[key].isCorrect) clone[key].isCorret = true;
   }
 
@@ -210,7 +212,7 @@ watch(categoryChoice, (choice) => {
 });
 
 function setCorrect(key) {
-  for (const k of ['a', 'b', 'c', 'd']) {
+  for (const k of ['a', 'b', 'c']) {
     const entry = form.value[`answer_${k}`];
     if (entry) entry.isCorret = k === key;
   }
@@ -228,7 +230,7 @@ async function save() {
   const payload = { ...form.value };
   delete payload._id;
   delete payload.__v;
-  if (!payload.answer_d || !payload.answer_d.answer) delete payload.answer_d;
+  delete payload.answer_d;
 
   saving.value = true;
   try {

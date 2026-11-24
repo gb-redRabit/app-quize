@@ -2,6 +2,36 @@ const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const events = require("../utils/events");
 
+const MIN_PASSWORD_LENGTH = 8;
+const MAX_PASSWORD_LENGTH = 72;
+const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
+const AVATAR_STYLES = 17;
+const OPTIONS = new Set(["light", "dark", "system"]);
+const MAX_HIDDEN_CATEGORIES = 200;
+const MAX_HISTORY_ENTRY_BYTES = 200 * 1000;
+const MAX_HISTORY_ITEMS = 2000;
+
+function isValidHistoryEntry(entry) {
+  if (!entry || typeof entry !== "object" || Array.isArray(entry)) return false;
+  if (entry.list && !Array.isArray(entry.list)) return false;
+  if (Array.isArray(entry.list) && entry.list.length > MAX_HISTORY_ITEMS) return false;
+  try {
+    return JSON.stringify(entry).length <= MAX_HISTORY_ENTRY_BYTES;
+  } catch {
+    return false;
+  }
+}
+
+function normalizeHiddenCategories(value) {
+  if (!Array.isArray(value)) return null;
+  const list = value
+    .filter((item) => typeof item === "string")
+    .map((item) => item.trim().slice(0, 200))
+    .filter(Boolean);
+  if (list.length > MAX_HIDDEN_CATEGORIES) return null;
+  return Array.from(new Set(list));
+}
+
 function emitUserUpdate(user) {
   const obj = user.toObject();
   delete obj.password;
@@ -35,9 +65,14 @@ exports.getUserHistory = async (req, res) => {
 // Zaktualizuj historię użytkownika
 exports.updateUserHistory = async (req, res) => {
   try {
+    const history = req.body.history;
+    if (!Array.isArray(history) || !history.every(isValidHistoryEntry)) {
+      return res.status(400).json({ message: "Invalid history payload" });
+    }
+
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });
-    user.history = req.body.history;
+    user.history = history;
     await user.save();
     res.status(200).json({ message: "History updated" });
   } catch (err) {
@@ -63,20 +98,52 @@ exports.updateProfile = async (req, res) => {
 
     // Zmiana hasła
     if (req.body.changePassword) {
-      const match = await bcrypt.compare(req.body.oldPassword, user.password);
+      const { oldPassword, newPassword } = req.body;
+      if (typeof oldPassword !== "string" || typeof newPassword !== "string") {
+        return res.status(400).json({ message: "Hasło jest wymagane" });
+      }
+      if (
+        newPassword.length < MIN_PASSWORD_LENGTH ||
+        newPassword.length > MAX_PASSWORD_LENGTH
+      ) {
+        return res.status(400).json({
+          message: `Nowe hasło musi mieć ${MIN_PASSWORD_LENGTH}-${MAX_PASSWORD_LENGTH} znaków`,
+        });
+      }
+
+      const match = await bcrypt.compare(oldPassword, user.password);
       if (!match)
         return res.status(400).json({ message: "Stare hasło nieprawidłowe" });
-      user.password = await bcrypt.hash(req.body.newPassword, 10);
+      user.password = await bcrypt.hash(newPassword, 10);
     }
 
     // Aktualizacja avatara, kolorów, opcji
-    if (req.body.avatar !== undefined) user.avatar = req.body.avatar;
-    if (req.body.avatarColors !== undefined)
-      user.avatarColors = req.body.avatarColors;
-    if (req.body.option !== undefined) user.option = req.body.option;
+    if (req.body.avatar !== undefined) {
+      const avatar = req.body.avatar;
+      if (!Number.isInteger(avatar) || avatar < 0 || avatar >= AVATAR_STYLES) {
+        return res.status(400).json({ message: "Nieprawidłowy awatar" });
+      }
+      user.avatar = avatar;
+    }
+    if (req.body.avatarColors !== undefined) {
+      const color = req.body.avatarColors;
+      if (typeof color !== "string" || !HEX_COLOR.test(color)) {
+        return res.status(400).json({ message: "Nieprawidłowy kolor awatara" });
+      }
+      user.avatarColors = color;
+    }
+    if (req.body.option !== undefined) {
+      if (!OPTIONS.has(req.body.option)) {
+        return res.status(400).json({ message: "Nieprawidłowy motyw" });
+      }
+      user.option = req.body.option;
+    }
 
     // Dodanie wpisu do historii
     if (req.body.addHistory) {
+      if (!isValidHistoryEntry(req.body.addHistory)) {
+        return res.status(400).json({ message: "Invalid history entry" });
+      }
       if (!Array.isArray(user.history)) user.history = [];
       const incoming = req.body.addHistory;
       const alreadyStored =
@@ -91,7 +158,11 @@ exports.updateProfile = async (req, res) => {
     }
     // Dodanie ukrycia Kategori
     if (req.body.hiddenCategory) {
-      user.hiddenCategory = req.body.hiddenCategory;
+      const hidden = normalizeHiddenCategories(req.body.hiddenCategory);
+      if (!hidden) {
+        return res.status(400).json({ message: "Nieprawidłowe ukryte kategorie" });
+      }
+      user.hiddenCategory = hidden;
     }
     await user.save();
     emitUserUpdate(user);

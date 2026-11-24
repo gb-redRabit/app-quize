@@ -227,7 +227,15 @@ apiClient.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+    const requestUrl = String(originalRequest?.url || '');
+    const isAuthEndpoint = /\/auth\/(login|register|refresh)$/.test(requestUrl);
+
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthEndpoint
+    ) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });
@@ -269,8 +277,14 @@ apiClient.interceptors.response.use(
     if (error.response) {
       switch (error.response.status) {
         case 401:
-        case 403:
           if (!isRefreshing) tokenManager.handleSessionExpired();
+          break;
+
+        case 403:
+          // Brak uprawnień nie oznacza wygaśnięcia sesji.
+          if (!error.config?.silent) {
+            showAlert('error', 'Brak uprawnień do tej operacji.', 5000);
+          }
           break;
 
         case 404:

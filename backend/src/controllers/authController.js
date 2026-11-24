@@ -13,7 +13,7 @@ exports.register = async (req, res) => {
 
   const requiredInvite = process.env.REGISTRATION_INVITE_CODE;
   if (requiredInvite && inviteCode !== requiredInvite) {
-    return res.status(403).json({ message: "Invalid invitation code" });
+    return res.status(400).json({ message: "Invalid invitation code" });
   }
 
   if (typeof login !== "string" || typeof password !== "string") {

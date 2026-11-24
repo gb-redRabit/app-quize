@@ -371,9 +371,6 @@ exports.getQuestionsByCategory = async (req, res) => {
       return res.json({ ids: rows.map((row) => row.ID) });
     }
 
-    const cached = getCategoryCache(category);
-    if (cached) return res.json(cached);
-
     const limit = Math.min(
       500,
       Math.max(0, parseInt(req.query.limit, 10) || 0)
@@ -398,6 +395,11 @@ exports.getQuestionsByCategory = async (req, res) => {
       res.set("X-Total-Count", String(total));
       return res.json(questions);
     }
+
+    // Pełna lista kategorii ma osobny klucz cache — dopiero po obsłużeniu
+    // paginacji, żeby żądanie z `limit` nie dostało całej tablicy.
+    const cached = getCategoryCache(category);
+    if (cached) return res.json(cached);
 
     const questions = await Question.find(filter, null, { sort: { ID: 1 } }).lean();
     setCategoryCache(category, questions);

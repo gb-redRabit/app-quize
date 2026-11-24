@@ -33,9 +33,27 @@ const { bumpQuestionsVersion } = require("../utils/questionsVersion");
 // Pobierz wszystkie pytania
 router.get("/", auth.verifyToken, async (req, res) => {
   if (req.query.ids) {
-    const ids = req.query.ids.split(",").map((id) => Number(id));
-    const questions = await Question.find({ ID: { $in: ids } }).sort({ ID: 1 });
-    return res.json({ questions });
+    try {
+      const rawIds = String(req.query.ids)
+        .split(",")
+        .map((id) => id.trim())
+        .filter(Boolean);
+
+      if (rawIds.length === 0 || rawIds.length > 1000) {
+        return res.status(400).json({ message: "Nieprawidłowa lista ID" });
+      }
+
+      const ids = rawIds.map((id) => Number(id));
+      if (ids.some((id) => !Number.isSafeInteger(id) || id < 0)) {
+        return res.status(400).json({ message: "Nieprawidłowa lista ID" });
+      }
+
+      const questions = await Question.find({ ID: { $in: ids } }).sort({ ID: 1 });
+      return res.json({ questions });
+    } catch (err) {
+      console.error("Błąd pobierania pytań po ID:", err);
+      return res.status(500).json({ message: "Błąd pobierania pytań" });
+    }
   } else {
     // Przekieruj do kontrolera getAllQuestions dla standardowej paginacji
     return questionsController.getAllQuestions(req, res);
@@ -139,21 +157,26 @@ router.get(
   questionsController.getQuestionsByCategory
 );
 router.get("/search", auth.verifyToken, async (req, res) => {
-  const query = req.query.query?.trim();
-  if (!query) return res.json({ questions: [] });
+  try {
+    const query = req.query.query?.trim();
+    if (!query) return res.json({ questions: [] });
 
-  let filter = {};
-  if (/^\d+$/.test(query)) {
-    filter = { ID: Number(query) };
-  } else {
-    filter = { question: { $regex: escapeRegex(query), $options: "i" } };
+    let filter = {};
+    if (/^\d+$/.test(query)) {
+      filter = { ID: Number(query) };
+    } else {
+      filter = { question: { $regex: escapeRegex(query), $options: "i" } };
+    }
+    const questions = await Question.find(filter).sort({ ID: 1 }).limit(100); // limit dla bezpieczeństwa
+    res.json({ questions });
+  } catch (err) {
+    console.error("Błąd wyszukiwania pytań:", err);
+    res.status(500).json({ message: "Błąd wyszukiwania pytań" });
   }
-  const questions = await Question.find(filter).sort({ ID: 1 }).limit(100); // limit dla bezpieczeństwa
-  res.json({ questions });
 });
 // Usuń pytania według kategorii (admin)
 router.delete(
-  "/category/:category",
+  "/category/:category(*)",
   auth.verifyToken,
   auth.requireAdmin,
   async (req, res) => {

@@ -14,7 +14,9 @@ exports.verifyToken = (req, res, next) => {
   if (!token) return res.status(401).json({ message: "Unauthorized" });
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid token" });
+    // 401 = nieprawidłowy/wygasły token (frontend próbuje wtedy refreshu),
+    // 403 jest zarezerwowane dla braku uprawnień.
+    if (err) return res.status(401).json({ message: "Unauthorized" });
     req.user = user;
     next();
   });

@@ -118,7 +118,7 @@ describe('QuestionEditor', () => {
     expect(putMock).toHaveBeenCalledTimes(1);
   });
 
-  it('pomija puste odpowiedzi D', async () => {
+  it('obsługuje tylko odpowiedzi A–C i usuwa D z payloadu', async () => {
     const wrapper = mountEditor({
       ...baseQuestion,
       answer_d: { answer: '', isCorret: false },

@@ -1,21 +1,22 @@
-const buckets = new Map();
-
-// Sprzątanie wygasłych wpisów, nie blokuje zamknięcia procesu.
-const cleanup = setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of buckets) {
-    if (entry.resetAt <= now) buckets.delete(key);
-  }
-}, 10 * 60 * 1000);
-if (typeof cleanup.unref === "function") cleanup.unref();
-
 /**
  * Prosty limiter in-memory (jedna instancja backendu).
+ * Każdy limiter ma własną mapę — logowanie i rejestracja nie dzielą liczników.
  * @param {{ windowMs?: number, max?: number, message?: string }} options
  */
 function rateLimit({ windowMs = 15 * 60 * 1000, max = 10, message } = {}) {
+  const buckets = new Map();
+
+  // Sprzątanie wygasłych wpisów tego limitera; nie blokuje zamknięcia procesu.
+  const cleanup = setInterval(() => {
+    const now = Date.now();
+    for (const [key, entry] of buckets) {
+      if (entry.resetAt <= now) buckets.delete(key);
+    }
+  }, Math.min(windowMs, 10 * 60 * 1000));
+  if (typeof cleanup.unref === "function") cleanup.unref();
+
   return (req, res, next) => {
-    const key = `${req.ip || req.socket?.remoteAddress || "unknown"}`;
+    const key = req.ip || req.socket?.remoteAddress || "unknown";
     const now = Date.now();
     const existing = buckets.get(key);
 
