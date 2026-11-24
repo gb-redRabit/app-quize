@@ -381,6 +381,8 @@ import {
   shouldSaveProgress,
 } from '@/utils/quizProgress';
 import { getCachedQuestionsByIds } from '@/services/questionsSync';
+import { queueHquestion, queueHistory } from '@/services/offlineSync';
+import { newClientId } from '@/utils/offlineQueue';
 
 // Zależności
 const router = useRouter();
@@ -658,7 +660,10 @@ const selectAnswer = async (index, selectedKey) => {
       })
       .catch((err) => {
         console.error('Błąd zapisu hquestion:', err);
-        // opcjonalnie rollback lub alert
+        // Offline: zapisz w kolejce i doślij, gdy wróci sieć.
+        if (!err?.response) {
+          queueHquestion({ id, correct: isCorrect, category: q.category });
+        }
       });
 
     // aktualizacja cache asynchronicznie, bez await
@@ -825,6 +830,7 @@ const saveUserHistory = async () => {
     };
 
     const historyItem = {
+      clientId: newClientId(),
       type: isCorrection.value
         ? mode.value === 'exam'
           ? 'Egzamin - poprawa błędów'
@@ -869,7 +875,13 @@ const saveUserHistory = async () => {
       .put('/users/update-profile', { addHistory: historyItem })
       .then(() => forceDataRefresh())
       .catch((error) => {
-        showAlert?.('error', 'Błąd podczas zapisywania wyników.');
+        if (!error?.response) {
+          // Offline: wynik zostaje w kolejce i dotrze po powrocie sieci.
+          queueHistory(historyItem);
+          showAlert?.('info', 'Brak sieci — wynik zapisany lokalnie i wysłany później.');
+        } else {
+          showAlert?.('error', 'Błąd podczas zapisywania wyników.');
+        }
         console.error('Błąd zapisu historii:', error);
       });
   } catch (error) {

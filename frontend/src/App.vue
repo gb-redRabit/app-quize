@@ -116,6 +116,7 @@ const BaseSkeleton = defineAsyncComponent(() => import('@/components/base/BaseSk
 const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal.vue'));
 import apiClient from '@/api';
 import { ensureQuestionsCache, handleQuestionsEvent } from '@/services/questionsSync';
+import { initOfflineSync, flushOfflineQueue } from '@/services/offlineSync';
 import { startRealtime, stopRealtime } from '@/utils/realtime';
 import { useSkeletonConfig } from '@/composables/useSkeletonConfig.js';
 import { useGlobalLoader } from '@/composables/useGlobalLoader.js';
@@ -349,6 +350,7 @@ watch(
     if (authenticated) {
       startRealtime();
       ensureQuestionsCache();
+      flushOfflineQueue();
     } else {
       stopRealtime();
     }
@@ -378,6 +380,8 @@ onMounted(() => {
 
   // Lokalna kopia pytań (PWA): uruchamiana po zalogowaniu (watch poniżej),
   // a przy powrocie do karty sprawdzamy tylko wersję (max raz na 5 minut).
+  initOfflineSync();
+
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && store.state.user.isAuthenticated) {
       ensureQuestionsCache();

@@ -78,7 +78,16 @@ exports.updateProfile = async (req, res) => {
     // Dodanie wpisu do historii
     if (req.body.addHistory) {
       if (!Array.isArray(user.history)) user.history = [];
-      user.history.push(req.body.addHistory);
+      const incoming = req.body.addHistory;
+      const alreadyStored =
+        incoming &&
+        incoming.clientId &&
+        user.history.some((entry) => entry && entry.clientId === incoming.clientId);
+
+      // Offline-queue może wysłać ten sam wpis drugi raz — pomijamy duplikat.
+      if (!alreadyStored) {
+        user.history.push(incoming);
+      }
     }
     // Dodanie ukrycia Kategori
     if (req.body.hiddenCategory) {
