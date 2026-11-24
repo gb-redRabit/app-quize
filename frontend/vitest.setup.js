@@ -22,3 +22,14 @@ if (!globalThis.localStorage) {
 if (!globalThis.sessionStorage) {
   globalThis.sessionStorage = makeMemoryStorage();
 }
+
+// jsdom nie liczy layoutu — `offsetParent` jest zawsze `null`, przez co
+// filtry widoczności (np. focus trap w BaseModal) widzą zero elementów.
+if (typeof HTMLElement !== 'undefined') {
+  Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
+    configurable: true,
+    get() {
+      return this.parentElement || null;
+    },
+  });
+}
