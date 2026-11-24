@@ -1061,6 +1061,12 @@ const goToHome = () => {
 };
 
 const handleKeydown = (e) => {
+  // Esc zamyka arkusz pytań (mobile) — bez ruszania reszty skrótów.
+  if (e.key === 'Escape' && showQuestionSheet.value) {
+    showQuestionSheet.value = false;
+    return;
+  }
+
   if (['1', '2', '3', '4'].includes(e.key) && currentQuestionIndex.value < questions.value.length) {
     const idx = parseInt(e.key, 10) - 1;
 
