@@ -408,6 +408,9 @@ const allQuestionIdsInCategory = ref([]);
 const examTimeMinutes = ref(parseInt(route.query.time, 10) || 60);
 const timeLeft = ref(examTimeMinutes.value * 60);
 const timer = ref(null);
+// Moment startu egzaminu — pozwala wyliczyć pozostały czas niezależnie od tego,
+// kiedy ostatnio zapisano stan.
+const examStartedAt = ref(null);
 
 // Auto-Next
 const autoNextEnabled = ref(true); // domyślnie włączone
@@ -871,6 +874,7 @@ const restartQuiz = async (onlyFailedOrNotAnswered = false) => {
   if (mode.value === 'exam') {
     // Logika restartu dla egzaminu
     timeLeft.value = examTimeMinutes.value * 60;
+    examStartedAt.value = Date.now();
     startTime.value = Date.now();
 
     if (route.query.categories) {
@@ -1150,6 +1154,8 @@ function saveProgress() {
     score: score.value,
     autoNextEnabled: autoNextEnabled.value,
     timeLeft: mode.value === 'exam' ? timeLeft.value : null,
+    examStartedAt: mode.value === 'exam' ? examStartedAt.value : null,
+    examTimeLimit: mode.value === 'exam' ? examTimeMinutes.value * 60 : null,
   };
 
   try {
@@ -1200,17 +1206,24 @@ async function restoreProgress(data) {
   }
 
   const restoredQuestions = data.ids.map((id) => byId.get(String(id)));
-  if (restoredQuestions.some((q) => !q)) return false;
+  if (restoredQuestions.some((q) => !q)) return 'failed';
 
-  // Wygasły egzamin zaczynamy od nowa.
-  if (mode.value === 'exam' && typeof data.timeLeft === 'number') {
-    const elapsed = Math.max(
-      0,
-      Math.floor((Date.now() - (Number(data.savedAt) || Date.now())) / 1000)
-    );
-    const remaining = Math.max(0, data.timeLeft - elapsed);
-    if (remaining <= 0) return false;
-    timeLeft.value = remaining;
+  // Pozostały czas egzaminu liczony od momentu startu (nie od ostatniego zapisu).
+  let remaining = null;
+  if (mode.value === 'exam') {
+    const startedAt = Number(data.examStartedAt);
+    const timeLimit = Number(data.examTimeLimit);
+    if (Number.isFinite(startedAt) && startedAt > 0 && Number.isFinite(timeLimit) && timeLimit > 0) {
+      const elapsedTotal = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
+      remaining = timeLimit - elapsedTotal;
+    } else if (typeof data.timeLeft === 'number') {
+      const sinceSave = Math.max(
+        0,
+        Math.floor((Date.now() - (Number(data.savedAt) || Date.now())) / 1000)
+      );
+      remaining = data.timeLeft - sinceSave;
+    }
+    if (remaining !== null && remaining <= 0) return 'expired';
   }
 
   questions.value = restoredQuestions;
@@ -1222,8 +1235,18 @@ async function restoreProgress(data) {
     Math.max(0, Number(data.currentIndex) || 0),
     restoredQuestions.length - 1
   );
+
+  if (remaining !== null) {
+    timeLeft.value = remaining;
+    const startedAt = Number(data.examStartedAt);
+    examStartedAt.value =
+      Number.isFinite(startedAt) && startedAt > 0
+        ? startedAt
+        : Date.now() - (examTimeMinutes.value * 60 - remaining) * 1000;
+  }
+
   startTime.value = Date.now();
-  return true;
+  return 'ok';
 }
 
 watch(
@@ -1269,10 +1292,18 @@ onMounted(async () => {
     const saved = readSavedProgress();
     let restoreResult = 'none';
     if (saved) {
-      restoreResult = (await restoreProgress(saved)) ? 'ok' : 'failed';
+      restoreResult = await restoreProgress(saved);
     }
     if (restoreResult === 'ok') {
-      showAlert?.('info', 'Wznowiono niezakończony quiz.');
+      showAlert?.(
+        'info',
+        mode.value === 'exam'
+          ? `Wznowiono egzamin — pozostało ${Math.ceil(timeLeft.value / 60)} min.`
+          : 'Wznowiono niezakończony quiz.'
+      );
+    } else if (restoreResult === 'expired') {
+      clearSavedProgress();
+      showAlert?.('warning', 'Poprzedni egzamin wygasł — zaczynamy od nowa.');
     } else {
       clearSavedProgress();
     }
@@ -1280,6 +1311,7 @@ onMounted(async () => {
     await updateWrongOrNotDoneCache();
 
     if (mode.value === 'exam') {
+      if (!examStartedAt.value) examStartedAt.value = Date.now();
       startTimer();
     }
 
