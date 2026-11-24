@@ -49,6 +49,11 @@ export function useQuestions() {
       ) {
         const cached = await getCachedQuestionsByCategory(cat);
         allIds = cached.map((q) => q.ID);
+        if (typeof window !== 'undefined') {
+          window.__idsDebug = { cat, onLine: navigator.onLine, cachedLen: cached.length };
+        }
+      } else if (typeof window !== 'undefined') {
+        window.__idsDebug = { cat, onLine: navigator.onLine, apiLen: allIds?.length };
       }
 
       // Pobierz historię użytkownika dla danej kategorii
