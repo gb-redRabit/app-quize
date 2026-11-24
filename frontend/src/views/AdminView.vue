@@ -4,6 +4,13 @@
       <h1 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-200">
         Panel Administratora
       </h1>
+      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        Skróty:
+        <kbd class="px-1.5 py-0.5 rounded border border-gray-300 dark:border-gray-600 font-mono text-xs">N</kbd>
+        nowe pytanie ·
+        <kbd class="px-1.5 py-0.5 rounded border border-gray-300 dark:border-gray-600 font-mono text-xs">?</kbd>
+        pomoc
+      </p>
     </div>
 
     <div class="lg:flex lg:items-start lg:gap-8">
@@ -676,11 +683,48 @@
         </div>
       </div>
     </BaseModal>
+
+    <BaseModal :show="showShortcuts" @close="showShortcuts = false">
+      <template #header>Skróty klawiszowe</template>
+      <div class="p-4">
+        <dl class="space-y-3 text-sm">
+          <div class="flex items-start gap-3">
+            <dt class="shrink-0">
+              <kbd class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-mono text-xs">N</kbd>
+            </dt>
+            <dd class="text-gray-700 dark:text-gray-300">Nowe pytanie</dd>
+          </div>
+          <div class="flex items-start gap-3">
+            <dt class="shrink-0">
+              <kbd class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-mono text-xs">?</kbd>
+            </dt>
+            <dd class="text-gray-700 dark:text-gray-300">Ta pomoc</dd>
+          </div>
+          <div class="flex items-start gap-3">
+            <dt class="shrink-0">
+              <kbd class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-mono text-xs">Esc</kbd>
+            </dt>
+            <dd class="text-gray-700 dark:text-gray-300">Zamknij okno</dd>
+          </div>
+          <div class="flex items-start gap-3">
+            <dt class="shrink-0">
+              <kbd class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-mono text-xs">/</kbd>
+            </dt>
+            <dd class="text-gray-700 dark:text-gray-300">
+              Wyszukiwarka pytań (na liście pytań)
+            </dd>
+          </div>
+        </dl>
+        <div class="mt-5 flex justify-end">
+          <BaseButton color="gray" @click="showShortcuts = false">Zamknij</BaseButton>
+        </div>
+      </div>
+    </BaseModal>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, inject, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, inject, watch } from 'vue';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
 import Avatar from '@/components/base/Avatar.vue';
@@ -711,6 +755,7 @@ const deleting = ref(false);
 const isFetchingBatch = ref(false);
 const isSavingBatch = ref(false);
 const showAddPopup = ref(false);
+const showShortcuts = ref(false);
 const newCategoryInput = ref('');
 const showExcelInfo = ref(false);
 const showClearQuestionsModal = ref(false);
@@ -758,6 +803,8 @@ watch(batchQuestions, (val) => {
 
 // Inicjalizacja komponentu
 onMounted(async () => {
+  window.addEventListener('keydown', handleAdminKeydown);
+
   if (!isAdmin.value) {
     showAlert?.('error', 'Brak uprawnień do panelu administratora.');
     return;
@@ -784,6 +831,10 @@ onMounted(async () => {
     categories.value = [];
     showAlert?.('error', 'Błąd podczas pobierania kategorii.');
   }
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleAdminKeydown);
 });
 
 // Zmiana roli użytkownika
@@ -855,11 +906,48 @@ function openAddPopup() {
     description: '',
   };
   showAddPopup.value = true;
+
+  // Po otwarciu ustaw fokus na treści pytania.
+  setTimeout(() => {
+    const field = document.getElementById('question-text');
+    if (field) field.focus();
+  }, 50);
 }
 
 // Zamykanie popupu dodawania pytania
 function closeAddPopup() {
   showAddPopup.value = false;
+}
+
+// Skróty klawiszowe panelu administracyjnego.
+function isTypingTarget(target) {
+  if (!target) return false;
+  const tag = target.tagName;
+  return (
+    tag === 'INPUT' ||
+    tag === 'TEXTAREA' ||
+    tag === 'SELECT' ||
+    target.isContentEditable === true
+  );
+}
+
+function handleAdminKeydown(event) {
+  if (!isAdmin.value) return;
+  if (event.ctrlKey || event.metaKey || event.altKey) return;
+  if (isTypingTarget(event.target)) return;
+
+  if (event.key === '?') {
+    event.preventDefault();
+    showShortcuts.value = !showShortcuts.value;
+    return;
+  }
+
+  if (event.key === 'n' || event.key === 'N') {
+    if (showAddPopup.value || showConfirmDelete.value) return;
+    event.preventDefault();
+    activeTab.value = 'questions';
+    openAddPopup();
+  }
 }
 
 // Zapisywanie nowego pytania
