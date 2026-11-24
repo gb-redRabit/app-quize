@@ -132,3 +132,12 @@ if (sessionStorage.getItem('token')) {
 const app = createApp(App);
 app.config.performance = process.env.NODE_ENV !== 'production';
 app.use(router).use(store).mount('#app');
+
+// Service worker: cache tylko statycznych zasobów (bez HTML/API).
+if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register(`${process.env.BASE_URL}sw.js`)
+      .catch((error) => console.warn('Nie udało się zarejestrować service workera:', error));
+  });
+}
