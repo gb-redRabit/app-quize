@@ -1090,7 +1090,12 @@ let saveProgressTimer = null;
 
 // Podpis sesji zapamiętany przy wejściu w widok. `route` zmienia się przed
 // odmontowaniem komponentu, więc nie można go czytać w onBeforeUnmount.
-const progressSignature = `${route.name}|${route.fullPath}`;
+// Losowy parametr `r` (generowany przy starcie) jest stabilnym ID sesji,
+// niezależnym od kodowania zapytania (`+` vs `%20`).
+const progressSignature = route.query.r
+  ? `${route.name}|${route.query.r}`
+  : `${route.name}|${route.fullPath}`;
+const progressUrl = route.fullPath;
 
 function sessionSignature() {
   return progressSignature;
@@ -1115,6 +1120,7 @@ function saveProgress() {
 
   const payload = {
     signature: sessionSignature(),
+    url: progressUrl,
     savedAt: Date.now(),
     ids: questions.value.map((q) => q.ID ?? q.id),
     answersStatus: answersStatus.value,

@@ -427,7 +427,8 @@ function readSavedQuiz() {
     const raw = localStorage.getItem('quiz-progress');
     if (!raw) return null;
     const data = JSON.parse(raw);
-    const [routeName, url] = String(data.signature || '').split('|');
+    const [routeName] = String(data.signature || '').split('|');
+    const url = data.url || String(data.signature || '').split('|')[1] || '';
     if (!url || (routeName !== 'QuizView' && routeName !== 'ExamView')) return null;
     const answered = (data.answersStatus || []).filter((a) => a.answered).length;
     const index = Number(data.currentIndex) || 0;
