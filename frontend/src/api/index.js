@@ -204,6 +204,7 @@ apiClient.interceptors.request.use(
 // Interceptor dla odpowiedzi - ukrywa loader i obsługuje błędy
 let isRefreshing = false;
 let failedQueue = [];
+let lastNetworkErrorAt = 0;
 
 function processQueue(error, token = null) {
   failedQueue.forEach((prom) => {
@@ -292,8 +293,14 @@ apiClient.interceptors.response.use(
           break;
       }
     } else if (error.request) {
-      // Brak odpowiedzi od serwera
-      showAlert('error', 'Brak odpowiedzi z serwera. Sprawdź połączenie internetowe.', 5000);
+      // Brak odpowiedzi od serwera — jeden komunikat, nie lawina przy starcie offline.
+      if (!error.config?.silent) {
+        const now = Date.now();
+        if (now - lastNetworkErrorAt > 10000) {
+          lastNetworkErrorAt = now;
+          showAlert('error', 'Brak odpowiedzi z serwera. Sprawdź połączenie internetowe.', 5000);
+        }
+      }
     }
 
     return Promise.reject(error);

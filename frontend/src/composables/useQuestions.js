@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
+import { getCachedQuestionsByCategory } from '@/services/questionsSync';
 
 export function useQuestions() {
   const store = useStore();
@@ -38,7 +39,17 @@ export function useQuestions() {
   const getQuestionIdsForQuiz = async (cat) => {
     try {
       // Pobierz tylko ID pytań z kategorii (bez pełnych treści i odpowiedzi)
-      const allIds = await store.dispatch('questions/fetchQuestionIdsByCategory', cat);
+      let allIds = await store.dispatch('questions/fetchQuestionIdsByCategory', cat);
+
+      // Offline: API zwróciło pustkę, ale mamy lokalną kopię pytań.
+      if (
+        (!Array.isArray(allIds) || allIds.length === 0) &&
+        typeof navigator !== 'undefined' &&
+        navigator.onLine === false
+      ) {
+        const cached = await getCachedQuestionsByCategory(cat);
+        allIds = cached.map((q) => q.ID);
+      }
 
       // Pobierz historię użytkownika dla danej kategorii
       const hquestion = store.getters['user/getHquestion'] || [];
