@@ -449,7 +449,9 @@ const savedQuiz = ref(readSavedQuiz());
 
 function resumeSavedQuiz() {
   if (!savedQuiz.value) return;
-  router.push(savedQuiz.value.url);
+  // Pełne przeładowanie (a nie SPA push) gwarantuje, że stan zostanie
+  // odtworzony w świeżo zamontowanym widoku quizu.
+  window.location.assign(savedQuiz.value.url);
 }
 
 function scrollToCategories() {
