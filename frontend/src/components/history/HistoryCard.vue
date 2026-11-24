@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 group hover:-translate-y-1 hover:shadow-md dark:bg-gray-800 dark:border-gray-700"
+    class="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden transition-all duration-200 group hover:-translate-y-1 hover:shadow-md dark:bg-gray-800 dark:border-gray-700"
   >
     <!-- Nagłówek wpisu -->
     <div

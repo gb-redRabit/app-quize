@@ -12,7 +12,7 @@
         <div
           v-for="category in categories"
           :key="category"
-          class="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition-all p-4"
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all p-4"
         >
           <!-- Nazwa kategorii i pasek postępu -->
           <div class="mb-3">

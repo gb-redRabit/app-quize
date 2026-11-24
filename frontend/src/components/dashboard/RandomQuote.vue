@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 p-4 sm:p-5 rounded-xl shadow-sm relative overflow-hidden"
+    class="bg-linear-to-br from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 p-4 sm:p-5 rounded-xl shadow-xs relative overflow-hidden"
     :key="quoteKey"
   >
     <div class="relative z-10">

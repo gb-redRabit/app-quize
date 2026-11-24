@@ -43,7 +43,7 @@
 
       <section v-if="savedQuiz" class="mb-4">
         <div
-          class="rounded-xl bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-sm"
+          class="rounded-xl bg-linear-to-r from-yellow-400 to-yellow-500 text-gray-900 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-xs"
         >
           <div class="flex-1 min-w-0">
             <p class="text-xs uppercase tracking-wide text-yellow-800">Niezakończona sesja</p>
@@ -69,7 +69,7 @@
 
       <section v-if="lastActivity" class="mb-4">
         <div
-          class="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-sm"
+          class="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 text-white p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-xs"
         >
           <div class="flex-1 min-w-0">
             <p class="text-xs uppercase tracking-wide text-blue-100">Kontynuuj naukę</p>
@@ -90,7 +90,7 @@
 
       <section v-else class="mb-4">
         <div
-          class="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-sm"
+          class="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 text-white p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-xs"
         >
           <div class="flex-1 min-w-0">
             <p class="text-xs uppercase tracking-wide text-blue-100">Zacznij naukę</p>

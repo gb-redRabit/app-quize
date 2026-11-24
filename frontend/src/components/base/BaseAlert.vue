@@ -8,7 +8,7 @@
       :class="alertTypeClass"
     >
       <div class="flex items-center">
-        <div class="flex-shrink-0 mr-3">
+        <div class="shrink-0 mr-3">
           <!-- Success Icon -->
           <svg
             v-if="type === 'success'"
@@ -76,7 +76,7 @@
 
         <button
           @click="hide"
-          class="ml-3 flex-shrink-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          class="ml-3 shrink-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
           aria-label="Zamknij powiadomienie"
         >
           <svg
@@ -98,7 +98,7 @@
 
       <div
         v-if="duration > 0"
-        class="absolute bottom-0 left-0 h-1 bg-white bg-opacity-30 dark:bg-gray-900 dark:bg-opacity-30"
+        class="absolute bottom-0 left-0 h-1 bg-white/30 dark:bg-gray-900/30"
         :style="{ width: `${progressWidth}%` }"
       ></div>
     </div>
@@ -106,7 +106,7 @@
 
   <transition name="modal-fade">
     <div v-if="isConfirmVisible" class="fixed inset-0 z-50 flex items-center justify-center">
-      <div class="absolute inset-0 bg-black bg-opacity-50" @click="cancelConfirm"></div>
+      <div class="absolute inset-0 bg-black/50" @click="cancelConfirm"></div>
       <div
         class="relative z-10 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full mx-4"
       >

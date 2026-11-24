@@ -2,7 +2,7 @@
   <div class="container mx-auto p-4 overflow-hidden">
     <!-- Nagłówek panelu użytkownika -->
     <div
-      class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl shadow-lg mb-8 p-6 flex flex-wrap items-center justify-between"
+      class="bg-linear-to-r from-blue-600 to-indigo-700 rounded-xl shadow-lg mb-8 p-6 flex flex-wrap items-center justify-between"
     >
       <div class="flex items-center">
         <div
@@ -38,7 +38,7 @@
         class="h-11 w-full sm:w-auto px-4 rounded-full text-sm font-medium whitespace-nowrap transition-colors"
         :class="
           activeTab === tab.id
-            ? 'bg-blue-600 text-white shadow-sm'
+            ? 'bg-blue-600 text-white shadow-xs'
             : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
         "
         @click="activeTab = tab.id"
@@ -83,7 +83,7 @@
               <div class="relative w-64 h-64 mb-4">
                 <canvas
                   ref="colorWheelCanvas"
-                  class="rounded-full cursor-pointer shadow-inner"
+                  class="rounded-full cursor-pointer inset-shadow-sm"
                   width="256"
                   height="256"
                   role="img"
@@ -120,7 +120,7 @@
                   v-for="preset in colorPresets"
                   :key="preset"
                   type="button"
-                  class="h-9 w-9 rounded-full border-2 transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                  class="h-9 w-9 rounded-full border-2 transition-transform hover:scale-110 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
                   :class="
                     selectedColor.toUpperCase() === preset.toUpperCase()
                       ? 'border-gray-900 dark:border-white'
@@ -156,7 +156,7 @@
                   v-for="i in 17"
                   :key="`avatar-select-${i - 1}`"
                   @click="selectAvatar(i - 1)"
-                  class="rounded-full p-1 transition-all duration-200 focus:outline-none relative hover:bg-gray-200 dark:hover:bg-gray-600"
+                  class="rounded-full p-1 transition-all duration-200 focus:outline-hidden relative hover:bg-gray-200 dark:hover:bg-gray-600"
                   :class="{
                     'ring-2 ring-blue-500 scale-110': currentAvatarIndex === i - 1,
                     'bg-gray-300 dark:bg-gray-500': user?.avatar === i - 1,
@@ -185,7 +185,7 @@
           class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden h-fit"
         >
           <div
-            class="border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900"
+            class="border-b border-gray-200 dark:border-gray-700 bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900"
           >
             <div class="px-6 py-4 flex items-center">
               <div
@@ -265,7 +265,7 @@
             v-for="category in allCategories"
             :key="category"
             @click="toggleCategory(getCategoryNameForDisplay(category))"
-            class="px-3 py-2 text-sm font-medium rounded-full border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500"
+            class="px-3 py-2 text-sm font-medium rounded-full border transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500"
             :class="
               selectedHiddenCategories.includes(getCategoryNameForDisplay(category))
                 ? 'bg-blue-500 border-blue-500 text-white line-through hover:bg-blue-600'

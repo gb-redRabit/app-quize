@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="flex items-center justify-center h-full px-3 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 rounded"
+    class="flex items-center justify-center h-full px-3 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-400 rounded-sm"
     :aria-label="visible ? 'Ukryj hasło' : 'Pokaż hasło'"
     :aria-pressed="visible ? 'true' : 'false'"
     @click="$emit('toggle')"

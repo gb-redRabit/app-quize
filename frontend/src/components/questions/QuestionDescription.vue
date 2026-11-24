@@ -1,15 +1,15 @@
 <template>
   <div
-    class="flex items-center p-4 rounded-xl shadow-sm transition-all duration-300 mt-4 overflow-hidden border hover:shadow-md"
+    class="flex items-center p-4 rounded-xl shadow-xs transition-all duration-300 mt-4 overflow-hidden border hover:shadow-md"
     style="min-height: 5rem"
     :class="[
       answered
-        ? 'bg-blue-50 border-blue-200 bg-gradient-to-r from-blue-200 to-blue-200 dark:from-blue-500 dark:to-blue-500 dark:border-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900'
-        : 'bg-gray-50 border-gray-200 bg-gradient-to-r from-gray-100 to-gray-100 dark:from-gray-700 dark:to-gray-700 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800',
+        ? 'bg-blue-50 border-blue-200 bg-linear-to-r from-blue-200 to-blue-200 dark:from-blue-500 dark:to-blue-500 dark:border-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900'
+        : 'bg-gray-50 border-gray-200 bg-linear-to-r from-gray-100 to-gray-100 dark:from-gray-700 dark:to-gray-700 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800',
     ]"
   >
     <div
-      class="flex-shrink-0 mr-4"
+      class="shrink-0 mr-4"
       :class="answered ? 'text-blue-500 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'"
     >
       <!-- Ikona dla odpowiedzi -->

@@ -1,7 +1,7 @@
 <template>
   <div class="w-full sm:w-2/5 mb-4 sm:mb-4">
     <div
-      class="flex items-center relative w-full bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:border-blue-300 hover:shadow-md focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 focus-within:shadow-md"
+      class="flex items-center relative w-full bg-white dark:bg-gray-800 rounded-lg shadow-xs border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:border-blue-300 hover:shadow-md focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 focus-within:shadow-md"
       :class="{ 'border-blue-400': search }"
     >
       <div class="flex items-center justify-center text-gray-400 pl-3 pr-0">
@@ -28,13 +28,13 @@
         type="text"
         :placeholder="placeholder"
         :aria-label="placeholder || 'Szukaj'"
-        class="w-full p-3 text-gray-700 dark:text-gray-200 bg-transparent border-none outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-500 py-2.5 sm:text-base text-sm"
+        class="w-full p-3 text-gray-700 dark:text-gray-200 bg-transparent border-none outline-hidden focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500 py-2.5 sm:text-base text-sm"
       />
 
       <button
         v-if="search"
         @click="clear"
-        class="flex items-center justify-center p-2 mr-1 text-gray-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
+        class="flex items-center justify-center p-2 mr-1 text-gray-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-hidden focus:ring-2 focus:ring-blue-300"
         title="Wyczyść"
         aria-label="Wyczyść wyszukiwanie"
       >

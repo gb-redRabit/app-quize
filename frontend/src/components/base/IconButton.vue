@@ -2,7 +2,7 @@
   <button
     @click="handleClick"
     :type="type"
-    class="z-10 bg-transparent cursor-pointer active:scale-95 rounded-full flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300"
+    class="z-10 bg-transparent cursor-pointer active:scale-95 rounded-full flex items-center justify-center transition focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-300"
     :class="[colorClass, sizeClass, { 'opacity-50 cursor-not-allowed': disabled }]"
     :disabled="disabled"
     :title="title || ''"

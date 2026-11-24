@@ -209,8 +209,8 @@ function scrollToAnswer(idx) {
       target.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       // Dodanie animacji podświetlenia
-      target.classList.add('ring', 'ring-blue-400');
-      setTimeout(() => target.classList.remove('ring', 'ring-blue-400'), 1200);
+      target.classList.add('ring-2', 'ring-blue-400');
+      setTimeout(() => target.classList.remove('ring-2', 'ring-blue-400'), 1200);
     } else {
       console.warn(`Nie można znaleźć elementu DOM dla indeksu ${idx}`);
     }

@@ -46,9 +46,9 @@ import { fetchDbVersion, getKnownDbVersion } from '@/services/questionsSync';
 import { flushOfflineQueue } from '@/services/offlineSync';
 import { queueSize } from '@/utils/offlineQueue';
 
-const appVersion = process.env.VUE_APP_VERSION || 'dev';
-const commit = process.env.VUE_APP_COMMIT || '';
-const buildTime = process.env.VUE_APP_BUILD_TIME || '';
+const appVersion = __APP_VERSION__ || 'dev';
+const commit = __APP_COMMIT__ || '';
+const buildTime = __APP_BUILD_TIME__ || '';
 
 const appVersionLabel = computed(() => (commit ? `v${appVersion} (${commit})` : `v${appVersion}`));
 

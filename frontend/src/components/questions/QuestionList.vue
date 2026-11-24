@@ -13,7 +13,7 @@
     <div class="flex flex-wrap items-start mb-6 relative">
       <div
         v-if="questionNumber"
-        class="flex items-center justify-center bg-blue-600 text-white rounded-full w-8 h-8 mr-3 flex-shrink-0 font-bold text-sm"
+        class="flex items-center justify-center bg-blue-600 text-white rounded-full w-8 h-8 mr-3 shrink-0 font-bold text-sm"
         style="box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3)"
       >
         <span>{{ questionNumber }}</span>
@@ -36,14 +36,14 @@
         style="min-height: 3.5rem"
       >
         <div
-          class="flex items-center justify-center rounded-full w-8 h-8 bg-white border mr-3 font-bold text-sm flex-shrink-0 dark:bg-gray-700 dark:text-white"
+          class="flex items-center justify-center rounded-full w-8 h-8 bg-white border mr-3 font-bold text-sm shrink-0 dark:bg-gray-700 dark:text-white"
         >
           {{ answerLetter(idx) }}
         </div>
         <div class="flex-1 text-sm sm:text-base dark:text-gray-200">
           {{ answer.answer }}
         </div>
-        <div v-if="answered" class="ml-2 flex-shrink-0">
+        <div v-if="answered" class="ml-2 shrink-0">
           <svg
             v-if="isCorrectAnswer(answer)"
             xmlns="http://www.w3.org/2000/svg"
@@ -144,7 +144,7 @@ function buttonClass(answer, index) {
 
   if (!props.answered) {
     classes =
-      'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-gray-800 hover:bg-blue-100 dark:from-gray-700 dark:to-gray-600 dark:border-gray-500 dark:text-white hover:dark:bg-gray-600 shadow-sm hover:shadow-md';
+      'bg-linear-to-r from-blue-50 to-indigo-50 border-blue-200 text-gray-800 hover:bg-blue-100 dark:from-gray-700 dark:to-gray-600 dark:border-gray-500 dark:text-white hover:dark:bg-gray-600 shadow-xs hover:shadow-md';
     // Usunięto translate-y-[-1px] i zastąpiono normalnym stylem
   } else {
     // Dodanie klasy 'selected' do wybranej odpowiedzi
@@ -157,10 +157,10 @@ function buttonClass(answer, index) {
       const isCorrect = answer.isCorret || answer.isCorrect;
       if (isCorrect) {
         classes +=
-          ' bg-gradient-to-r from-green-50 to-green-100 border-green-300 text-green-800 shadow-sm dark:from-green-700 dark:to-green-600 dark:border-green-500 dark:text-green-200';
+          ' bg-linear-to-r from-green-50 to-green-100 border-green-300 text-green-800 shadow-xs dark:from-green-700 dark:to-green-600 dark:border-green-500 dark:text-green-200';
       } else if (selectedIndex.value === index) {
         classes +=
-          ' bg-gradient-to-r from-red-50 to-red-100 border-red-300 text-red-800 dark:from-red-700 dark:to-red-600 dark:border-red-500 dark:text-red-200';
+          ' bg-linear-to-r from-red-50 to-red-100 border-red-300 text-red-800 dark:from-red-700 dark:to-red-600 dark:border-red-500 dark:text-red-200';
       } else {
         classes +=
           ' bg-gray-50 border-gray-200 text-gray-500 cursor-default dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400';
@@ -169,7 +169,7 @@ function buttonClass(answer, index) {
       // Tryb egzaminu
       classes +=
         selectedIndex.value === index
-          ? ' bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-300 text-yellow-800 dark:from-yellow-700 dark:to-yellow-600 dark:border-yellow-500 dark:text-yellow-200'
+          ? ' bg-linear-to-r from-yellow-50 to-yellow-100 border-yellow-300 text-yellow-800 dark:from-yellow-700 dark:to-yellow-600 dark:border-yellow-500 dark:text-yellow-200'
           : ' bg-gray-50 border-gray-200 text-gray-500 cursor-default dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400';
     }
   }

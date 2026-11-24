@@ -12,7 +12,7 @@
             aria-label="Widok kafelków"
             :class="
               viewType === 'grid'
-                ? 'bg-white dark:bg-gray-700 shadow-sm'
+                ? 'bg-white dark:bg-gray-700 shadow-xs'
                 : 'text-gray-500 dark:text-gray-400'
             "
             title="Widok kafelków"
@@ -39,7 +39,7 @@
             aria-label="Widok listy"
             :class="
               viewType === 'list'
-                ? 'bg-white dark:bg-gray-700 shadow-sm'
+                ? 'bg-white dark:bg-gray-700 shadow-xs'
                 : 'text-gray-500 dark:text-gray-400'
             "
             title="Widok listy"
@@ -70,7 +70,7 @@
             :aria-label="`Siatka ${cols} kolumn`"
             :class="
               gridColumns === cols
-                ? 'bg-white dark:bg-gray-700 shadow-sm'
+                ? 'bg-white dark:bg-gray-700 shadow-xs'
                 : 'text-gray-500 dark:text-gray-400'
             "
           >

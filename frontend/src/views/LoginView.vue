@@ -9,7 +9,7 @@
         <!-- Nagłówek -->
         <div class="mb-6 text-center">
           <h2
-            class="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-blue-500 to-blue-400 text-transparent bg-clip-text"
+            class="text-2xl sm:text-3xl font-bold mb-2 bg-linear-to-r from-blue-500 to-blue-400 text-transparent bg-clip-text"
           >
             Logowanie
           </h2>
@@ -41,7 +41,7 @@
                 id="login"
                 required
                 autocomplete="username"
-                class="w-full p-3 bg-transparent border-none outline-none text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500"
+                class="w-full p-3 bg-transparent border-none outline-hidden text-gray-700 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="Wprowadź nazwę użytkownika"
               />
             </div>
@@ -68,7 +68,7 @@
                 id="password"
                 required
                 autocomplete="current-password"
-                class="w-full p-3 bg-transparent border-none outline-none text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500"
+                class="w-full p-3 bg-transparent border-none outline-hidden text-gray-700 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="Wprowadź hasło"
               />
               <PasswordVisibilityToggle

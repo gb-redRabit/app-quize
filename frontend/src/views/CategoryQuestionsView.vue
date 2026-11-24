@@ -7,7 +7,7 @@
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div class="flex items-center gap-3">
           <!-- Kółko postępu -->
-          <div v-if="isAdmin" class="relative h-14 w-14 flex-shrink-0">
+          <div v-if="isAdmin" class="relative h-14 w-14 shrink-0">
             <svg class="h-full w-full" viewBox="0 0 36 36">
               <!-- Tło kółka -->
               <circle
@@ -67,7 +67,7 @@
           <h1 class="ml-5 text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
             Pytania z kategorii:
             <span
-              class="text-blue-600 dark:text-blue-400 bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent"
+              class="text-blue-600 dark:text-blue-400 bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent"
             >
               {{ categoryLabel }}
             </span>
@@ -221,7 +221,7 @@
     <!-- Empty state -->
     <div
       v-else-if="filteredQuestions.length === 0"
-      class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 p-12 bg-white dark:bg-gray-800 rounded-xl shadow-sm"
+      class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 p-12 bg-white dark:bg-gray-800 rounded-xl shadow-xs"
     >
       <img
         src="@/assets/icons/question-mark-circle.svg"

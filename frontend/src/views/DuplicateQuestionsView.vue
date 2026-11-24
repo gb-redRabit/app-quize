@@ -9,7 +9,7 @@
         </div>
         <button
           @click="toggleSortByCategory"
-          class="px-4 py-2 rounded-lg font-semibold shadow transition-colors duration-200"
+          class="px-4 py-2 rounded-lg font-semibold shadow-sm transition-colors duration-200"
           :class="sortByCategory ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
         >
           Sortuj według kategorii
@@ -44,7 +44,7 @@
     <!-- Empty state -->
     <div
       v-else-if="filteredQuestions.length === 0"
-      class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 p-12 bg-white dark:bg-gray-800 rounded-xl shadow-sm"
+      class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 p-12 bg-white dark:bg-gray-800 rounded-xl shadow-xs"
     >
       <img
         src="@/assets/icons/question-mark-circle.svg"
@@ -62,7 +62,7 @@
       <div
         v-for="q in visibleQuestions"
         :key="q.ID"
-        class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
+        class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-xs border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
         :class="{
           'shadow-md ring-2 ring-blue-100 dark:ring-blue-900': expandedQuestions.includes(q.ID),
         }"
@@ -151,7 +151,7 @@
                       </span>
                       <span
                         v-if="answer.isCorrect || answer.isCorret"
-                        class="ml-3 text-green-600 dark:text-green-400 font-medium text-sm bg-green-100 dark:bg-green-600 py-1 px-2 rounded"
+                        class="ml-3 text-green-600 dark:text-green-400 font-medium text-sm bg-green-100 dark:bg-green-600 py-1 px-2 rounded-sm"
                       >
                         Poprawna
                       </span>

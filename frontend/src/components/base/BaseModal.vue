@@ -2,7 +2,7 @@
   <Transition name="modal-fade">
     <div
       v-if="show"
-      class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity flex items-center justify-center z-50 p-4"
+      class="fixed inset-0 bg-gray-500/75 transition-opacity flex items-center justify-center z-50 p-4"
       role="presentation"
       @click.self="$emit('close')"
     >
@@ -12,7 +12,7 @@
         aria-modal="true"
         :aria-labelledby="$slots.header ? 'modal-title' : undefined"
         tabindex="-1"
-        class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl transform transition-all sm:my-8 w-full flex flex-col outline-none"
+        class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl transform transition-all sm:my-8 w-full flex flex-col outline-hidden"
         style="max-height: 90vh; max-width: 64rem"
       >
         <div
@@ -46,7 +46,7 @@
           <div class="sm:flex sm:items-start">
             <div
               v-if="$slots.icon"
-              class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"
+              class="mx-auto shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"
             >
               <slot name="icon"></slot>
             </div>

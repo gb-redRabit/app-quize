@@ -13,7 +13,7 @@
           <div class="flex justify-center items-center space-x-3">
             <div
               v-if="mode !== 'exam'"
-              class="flex items-center justify-center h-10 w-10 rounded-full bg-blue-100 text-blue-600 shadow-2xl flex-shrink-0 dark:bg-blue-800 dark:text-blue-200"
+              class="flex items-center justify-center h-10 w-10 rounded-full bg-blue-100 text-blue-600 shadow-2xl shrink-0 dark:bg-blue-800 dark:text-blue-200"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -78,7 +78,7 @@
         <div v-if="mode === 'quiz'" class="flex items-center gap-4 mb-2">
           <button
             @click="toggleAutoNext"
-            class="px-4 py-2 rounded-lg font-semibold shadow transition-colors duration-200"
+            class="px-4 py-2 rounded-lg font-semibold shadow-sm transition-colors duration-200"
             :class="autoNextEnabled ? 'bg-green-700 text-white hover:bg-green-800' : 'bg-gray-300 text-gray-700'"
             style="min-width: 120px"
           >
@@ -102,7 +102,7 @@
         <!-- Przyciski nawigacji - desktop (na mobile stały dolny pasek) -->
         <div v-if="!showSummary" class="hidden lg:grid grid-cols-2 gap-4 mb-6">
           <button
-            class="flex items-center justify-center px-4 py-3 rounded-xl bg-gray-500 text-white font-medium text-base transition-all duration-200 shadow-sm hover:bg-gray-600"
+            class="flex items-center justify-center px-4 py-3 rounded-xl bg-gray-500 text-white font-medium text-base transition-all duration-200 shadow-xs hover:bg-gray-600"
             :class="{ 'opacity-50 cursor-not-allowed': currentQuestionIndex === 0 }"
             @click="prevQuestion"
             :disabled="currentQuestionIndex === 0"
@@ -123,7 +123,7 @@
           </button>
 
           <button
-            class="flex items-center justify-center px-4 py-3 rounded-xl text-white font-medium text-base transition-all duration-200 shadow-sm"
+            class="flex items-center justify-center px-4 py-3 rounded-xl text-white font-medium text-base transition-all duration-200 shadow-xs"
             :class="{
               'opacity-50 cursor-not-allowed': !(
                 answersStatus[currentQuestionIndex] && answersStatus[currentQuestionIndex].answered
@@ -297,7 +297,7 @@
     <!-- Arkusz nawigacji pytaniami (mobile) -->
     <div v-if="showQuestionSheet" class="fixed inset-0 z-40 lg:hidden">
       <div
-        class="absolute inset-0 bg-gray-900 bg-opacity-50"
+        class="absolute inset-0 bg-gray-900/50"
         @click="showQuestionSheet = false"
       ></div>
       <div

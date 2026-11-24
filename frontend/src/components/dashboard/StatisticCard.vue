@@ -1,7 +1,7 @@
 <!-- filepath: d:\git nowe\app-quize\frontend\src\components\dashboard\StatisticCard.vue -->
 <template>
   <div
-    class="p-4 rounded-xl shadow-sm border flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow"
+    class="p-4 rounded-xl shadow-xs border flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-sm"
     :class="colorClasses"
   >
     <span class="text-2xl font-bold mb-1">{{ value }}</span>

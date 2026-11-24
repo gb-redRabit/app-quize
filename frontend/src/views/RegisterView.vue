@@ -8,7 +8,7 @@
         <!-- Nagłówek -->
         <div class="mb-6 text-center">
           <h2
-            class="text-2xl sm:text-3xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400"
+            class="text-2xl sm:text-3xl font-bold mb-2 text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-blue-400"
           >
             Rejestracja
           </h2>
@@ -50,7 +50,7 @@
                 id="login"
                 required
                 autocomplete="username"
-                class="w-full p-3 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500"
+                class="w-full p-3 bg-transparent border-none outline-hidden text-gray-700 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="Wybierz nazwę użytkownika"
               />
             </div>
@@ -90,7 +90,7 @@
                 required
                 minlength="8"
                 autocomplete="new-password"
-                class="w-full p-3 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500"
+                class="w-full p-3 bg-transparent border-none outline-hidden text-gray-700 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="Minimum 8 znaków"
               />
               <PasswordVisibilityToggle
@@ -144,7 +144,7 @@
                 required
                 minlength="8"
                 autocomplete="new-password"
-                class="w-full p-3 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500"
+                class="w-full p-3 bg-transparent border-none outline-hidden text-gray-700 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="Wpisz hasło ponownie"
               />
               <PasswordVisibilityToggle
@@ -204,7 +204,7 @@
               v-model.trim="inviteCode"
               id="inviteCode"
               autocomplete="off"
-              class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent outline-none text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30"
+              class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent outline-hidden text-gray-700 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all duration-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30"
               placeholder="Kod otrzymany od administratora"
             />
           </div>

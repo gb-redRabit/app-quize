@@ -73,7 +73,7 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      # Build produkcyjny uruchamia image-webpack-loader (mozjpeg/pngquant).
+      # Build produkcyjny (Vite + Tailwind 4).
       - name: Build
         run: npm run build
         env:

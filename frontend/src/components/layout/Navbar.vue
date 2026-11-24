@@ -10,7 +10,7 @@
   >
     <nav
       aria-label="Nawigacja główna"
-      class="relative z-40 flex justify-between items-center p-3 px-5 bg-gradient-to-r from-white to-gray-50 shadow-md mb-4 dark:from-gray-800 dark:to-gray-900 dark:shadow-lg"
+      class="relative z-40 flex justify-between items-center p-3 px-5 bg-linear-to-r from-white to-gray-50 shadow-md mb-4 dark:from-gray-800 dark:to-gray-900 dark:shadow-lg"
     >
       <!-- Logo/nazwa użytkownika -->
       <div class="flex items-center gap-2">
@@ -60,7 +60,7 @@
       <!-- Logout button dla desktopu -->
       <button
         @click="logout"
-        class="hidden lg:flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-400 text-white font-semibold rounded-md transition-all duration-300 shadow-sm hover:from-red-600 hover:to-red-500 hover:shadow-md"
+        class="hidden lg:flex items-center px-4 py-2 bg-linear-to-r from-red-500 to-red-400 text-white font-semibold rounded-md transition-all duration-300 shadow-xs hover:from-red-600 hover:to-red-500 hover:shadow-md"
       >
         <span>Wyloguj</span>
       </button>
@@ -68,7 +68,7 @@
       <!-- Przycisk hamburgerowy dla urządzeń mobilnych -->
       <button
         @click="toggleMenu"
-        class="lg:hidden flex items-center justify-center p-3 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 dark:text-gray-300 dark:hover:bg-gray-700"
+        class="lg:hidden flex items-center justify-center p-3 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 dark:text-gray-300 dark:hover:bg-gray-700"
         :aria-expanded="menuOpen"
         aria-controls="mobile-menu"
         :aria-label="menuOpen ? 'Zamknij menu' : 'Otwórz menu'"
@@ -111,7 +111,7 @@
 
     <div
       v-if="menuOpen"
-      class="fixed inset-0 z-20 lg:hidden bg-gray-900 bg-opacity-50"
+      class="fixed inset-0 z-20 lg:hidden bg-gray-900/50"
       aria-hidden="true"
       @click="closeMenu"
     ></div>
@@ -160,7 +160,7 @@
 
           <button
             @click="logout"
-            class="mt-4 flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-red-500 to-red-400 text-white font-semibold rounded-md transition-all duration-300 shadow-sm hover:from-red-600 hover:to-red-500"
+            class="mt-4 flex items-center gap-2 px-4 py-3 bg-linear-to-r from-red-500 to-red-400 text-white font-semibold rounded-md transition-all duration-300 shadow-xs hover:from-red-600 hover:to-red-500"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

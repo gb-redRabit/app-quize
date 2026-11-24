@@ -18,6 +18,9 @@ module.exports = [
       globals: {
         ...globals.browser,
         ...globals.node,
+        __APP_VERSION__: 'readonly',
+        __APP_COMMIT__: 'readonly',
+        __APP_BUILD_TIME__: 'readonly',
       },
     },
     rules: {

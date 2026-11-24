@@ -53,7 +53,7 @@
             :containerClass="skeletonContainerClass"
             :gridCols="skeletonGridCols"
             :lineWidths="getLineWidths"
-            class="container my-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
+            class="container my-6 rounded-xl shadow-xs border border-gray-100 dark:border-gray-700"
           />
         </router-view>
       </main>
@@ -65,7 +65,7 @@
       <!-- Pasek z czasem ważności tokenu -->
       <!-- <div
         v-if="tokenTimeLeft > 0 && isAuthChecked"
-        class="fixed bottom-2 right-2 bg-gray-800 text-white px-4 py-2 rounded shadow-lg text-sm z-50 opacity-90"
+        class="fixed bottom-2 right-2 bg-gray-800 text-white px-4 py-2 rounded-sm shadow-lg text-sm z-50 opacity-90"
       >
         Token ważny jeszcze: <b>{{ tokenTimeLeftStr }}</b>
       </div> -->
@@ -84,7 +84,7 @@
         </div>
         <template #footer>
           <button
-            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-60"
+            class="bg-blue-600 text-white px-4 py-2 rounded-sm hover:bg-blue-700 transition disabled:opacity-60"
             :disabled="sessionModalLoading"
             @click="refreshSessionToken"
           >
@@ -92,7 +92,7 @@
             <span v-else>Odśwież sesję</span>
           </button>
           <button
-            class="ml-2 px-4 py-2 rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            class="ml-2 px-4 py-2 rounded-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
             @click="showSessionModal = false"
             :disabled="sessionModalLoading"
           >

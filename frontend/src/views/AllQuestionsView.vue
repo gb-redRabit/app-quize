@@ -59,7 +59,7 @@
       <div
         v-for="(q, idx) in filteredQuestions"
         :key="q.ID"
-        class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
+        class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-xs border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
         :class="{
           'shadow-md ring-2 ring-blue-100 dark:ring-blue-900': expandedQuestions.includes(q.ID),
           'ring-2 ring-blue-300 dark:ring-blue-700':
@@ -68,7 +68,7 @@
       >
         <!-- Nagłówek pytania -->
         <div
-          class="flex items-start p-4 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
+          class="flex items-start p-4 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-gray-700 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
           :class="{
             'border-b border-gray-200 dark:border-gray-700': expandedQuestions.includes(q.ID),
             'bg-blue-50 dark:bg-gray-700': expandedQuestions.includes(q.ID),
@@ -174,7 +174,7 @@
                       </span>
                       <span
                         v-if="answer.isCorrect || answer.isCorret"
-                        class="ml-3 text-green-600 dark:text-green-400 font-medium text-sm bg-green-100 dark:bg-green-600 py-1 px-2 rounded"
+                        class="ml-3 text-green-600 dark:text-green-400 font-medium text-sm bg-green-100 dark:bg-green-600 py-1 px-2 rounded-sm"
                       >
                         Poprawna
                       </span>
@@ -222,7 +222,7 @@
 
       <aside class="hidden lg:block lg:col-span-3">
         <div
-          class="sticky top-20 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-5 max-h-[calc(100vh-11rem)] overflow-y-auto"
+          class="sticky top-20 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xs p-5 max-h-[calc(100vh-11rem)] overflow-y-auto"
         >
           <QuestionEditor
             v-if="isAdmin && isEditing && selectedQuestion"
@@ -448,7 +448,7 @@ async function fetchQuestions(forceRefresh = false, append = false) {
       pages.value = 1;
 
       // Dodajemy testowe dane jeśli API zwróci błąd - to pozwoli sprawdzić czy widok działa
-      if (process.env.NODE_ENV !== 'production') {
+      if (import.meta.env.DEV) {
         questions.value = [
           {
             ID: 1,

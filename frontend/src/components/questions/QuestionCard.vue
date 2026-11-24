@@ -1,10 +1,10 @@
 <template>
   <div
-    class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 transition-all border border-gray-100 dark:border-gray-700 hover:shadow-md transform duration-300"
+    class="bg-white dark:bg-gray-800 rounded-xl shadow-xs p-5 transition-all border border-gray-100 dark:border-gray-700 hover:shadow-md transform duration-300"
     :class="{
-      'border-l-4 border-green-400 dark:border-green-500 bg-gradient-to-r from-green-50 to-white dark:from-green-900/20 dark:to-gray-800':
+      'border-l-4 border-green-400 dark:border-green-500 bg-linear-to-r from-green-50 to-white dark:from-green-900/20 dark:to-gray-800':
         lastAttemptMap[question.ID] === true,
-      'border-l-4 border-red-400 dark:border-red-500 bg-gradient-to-r from-red-50 to-white dark:from-red-900/20 dark:to-gray-800':
+      'border-l-4 border-red-400 dark:border-red-500 bg-linear-to-r from-red-50 to-white dark:from-red-900/20 dark:to-gray-800':
         lastAttemptMap[question.ID] === false,
       'ring-2 ring-blue-400 dark:ring-blue-600': compact && selected,
       'cursor-pointer p-3': compact,
@@ -51,7 +51,7 @@
     <!-- Question header -->
     <div v-else class="flex justify-between items-start mb-3">
       <div
-        class="text-sm font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded"
+        class="text-sm font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-sm"
       >
         ID: {{ question.ID }}
       </div>
@@ -71,7 +71,7 @@
             :for="'flagged-' + question.ID"
             :class="[
               question.flagged
-                ? 'bg-green-100 dark:bg-green-900 border-green-400 dark:border-green-600 text-green-700 dark:text-green-300 font-semibold shadow'
+                ? 'bg-green-100 dark:bg-green-900 border-green-400 dark:border-green-600 text-green-700 dark:text-green-300 font-semibold shadow-sm'
                 : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-blue-400 dark:hover:border-blue-600 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer',
               'px-2 sm:px-3 py-1 sm:py-1.5 rounded-full flex items-center gap-1 sm:gap-2 border transition justify-center text-sm',
             ]"
@@ -127,7 +127,7 @@
             :for="'bad-' + question.ID"
             :class="[
               question.bad
-                ? 'bg-red-100 dark:bg-red-900 border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 font-semibold shadow'
+                ? 'bg-red-100 dark:bg-red-900 border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 font-semibold shadow-sm'
                 : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-red-400 dark:hover:border-red-600 hover:text-red-600 dark:hover:text-red-400 cursor-pointer',
               'px-2 sm:px-3 py-1 sm:py-1.5 rounded-full flex items-center gap-1 sm:gap-2 border transition justify-center text-sm',
             ]"
@@ -183,7 +183,7 @@
             :for="'unknown-' + question.ID"
             :class="[
               question.unknown
-                ? 'bg-yellow-100 dark:bg-yellow-900 border-yellow-400 dark:border-yellow-600 text-yellow-700 dark:text-yellow-300 font-semibold shadow'
+                ? 'bg-yellow-100 dark:bg-yellow-900 border-yellow-400 dark:border-yellow-600 text-yellow-700 dark:text-yellow-300 font-semibold shadow-sm'
                 : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-yellow-400 dark:hover:border-yellow-600 hover:text-yellow-600 dark:hover:text-yellow-400 cursor-pointer',
               'px-2 sm:px-3 py-1 sm:py-1.5 rounded-full flex items-center gap-1 sm:gap-2 border transition justify-center text-sm',
             ]"
@@ -259,7 +259,7 @@
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        class="w-5 h-5 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5"
+        class="w-5 h-5 text-blue-500 dark:text-blue-400 shrink-0 mt-0.5"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"

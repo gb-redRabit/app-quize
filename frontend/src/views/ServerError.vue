@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full min-h-screen -mt-20 flex items-center justify-center p-4 bg-gradient-to-br">
+  <div class="w-full min-h-screen -mt-20 flex items-center justify-center p-4 bg-linear-to-br">
     <div
       class="w-full max-w-md text-center bg-white dark:bg-gray-900 rounded-xl shadow-lg p-8 relative overflow-hidden animate-fadeIn"
     >
@@ -29,13 +29,13 @@
         <!-- Dekoracyjne elementy tła -->
         <div class="absolute inset-0 pointer-events-none -z-10">
           <div
-            class="absolute rounded-full opacity-60 w-20 h-20 top-0 right-5 bg-gradient-to-br from-red-200 to-red-50 dark:from-red-800 dark:to-red-950 animate-float"
+            class="absolute rounded-full opacity-60 w-20 h-20 top-0 right-5 bg-linear-to-br from-red-200 to-red-50 dark:from-red-800 dark:to-red-950 animate-float"
           ></div>
           <div
-            class="absolute rounded-full opacity-60 w-16 h-16 bottom-10 left-8 bg-gradient-to-br from-red-200 to-red-50 dark:from-red-800 dark:to-red-950 animate-float-reverse delay-1000"
+            class="absolute rounded-full opacity-60 w-16 h-16 bottom-10 left-8 bg-linear-to-br from-red-200 to-red-50 dark:from-red-800 dark:to-red-950 animate-float-reverse delay-1000"
           ></div>
           <div
-            class="absolute rounded-full opacity-60 w-10 h-10 bottom-5 right-10 bg-gradient-to-br from-yellow-200 to-yellow-50 dark:from-yellow-800 dark:to-yellow-950 animate-float delay-2000"
+            class="absolute rounded-full opacity-60 w-10 h-10 bottom-5 right-10 bg-linear-to-br from-yellow-200 to-yellow-50 dark:from-yellow-800 dark:to-yellow-950 animate-float delay-2000"
           ></div>
         </div>
       </div>

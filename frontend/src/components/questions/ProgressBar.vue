@@ -35,7 +35,7 @@
         <div
           v-for="i in total - 1"
           :key="i"
-          class="absolute top-0 h-full bg-white bg-opacity-50"
+          class="absolute top-0 h-full bg-white/50"
           :style="{
             left: `${(i / total) * 100}%`,
             width: '1px',

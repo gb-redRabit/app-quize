@@ -16,7 +16,7 @@
         ref="questionField"
         v-model="form.question"
         rows="3"
-        class="mt-1 w-full p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        class="mt-1 w-full p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
       ></textarea>
     </div>
 
@@ -55,7 +55,7 @@
               :id="fieldId('answer-' + key)"
               v-model="form[`answer_${key}`].answer"
               rows="2"
-              class="mt-0.5 w-full p-1.5 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              class="mt-0.5 w-full p-1.5 text-sm rounded-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
             ></textarea>
           </div>
         </div>
@@ -107,21 +107,21 @@
         :id="fieldId('description')"
         v-model="form.description"
         rows="2"
-        class="mt-1 w-full p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        class="mt-1 w-full p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
       ></textarea>
     </div>
 
     <div class="flex flex-wrap items-center gap-4">
       <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-        <input v-model="form.flagged" type="checkbox" class="h-4 w-4 rounded" />
+        <input v-model="form.flagged" type="checkbox" class="h-4 w-4 rounded-sm" />
         Sprawdzone
       </label>
       <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-        <input v-model="form.bad" type="checkbox" class="h-4 w-4 rounded" />
+        <input v-model="form.bad" type="checkbox" class="h-4 w-4 rounded-sm" />
         Złe
       </label>
       <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-        <input v-model="form.unknown" type="checkbox" class="h-4 w-4 rounded" />
+        <input v-model="form.unknown" type="checkbox" class="h-4 w-4 rounded-sm" />
         Nie wiem
       </label>
     </div>

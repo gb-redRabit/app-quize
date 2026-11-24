@@ -6,9 +6,9 @@
       </h1>
       <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
         Skróty:
-        <kbd class="px-1.5 py-0.5 rounded border border-gray-300 dark:border-gray-600 font-mono text-xs">N</kbd>
+        <kbd class="px-1.5 py-0.5 rounded-sm border border-gray-300 dark:border-gray-600 font-mono text-xs">N</kbd>
         nowe pytanie ·
-        <kbd class="px-1.5 py-0.5 rounded border border-gray-300 dark:border-gray-600 font-mono text-xs">?</kbd>
+        <kbd class="px-1.5 py-0.5 rounded-sm border border-gray-300 dark:border-gray-600 font-mono text-xs">?</kbd>
         pomoc
       </p>
     </div>
@@ -38,7 +38,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div
           @click="openAddPopup"
-          class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow"
+          class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-xs border border-gray-200 dark:border-gray-600 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow"
         >
           <div class="bg-blue-500 p-3 rounded-full">
             <img
@@ -53,7 +53,7 @@
           </div>
         </div>
         <div
-          class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 flex items-center gap-4"
+          class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-xs border border-gray-200 dark:border-gray-600 flex items-center gap-4"
         >
           <div class="bg-green-100 dark:bg-green-700 p-3 rounded-full">
             <img
@@ -70,7 +70,7 @@
           </div>
         </div>
         <div
-          class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 flex items-center gap-4"
+          class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-xs border border-gray-200 dark:border-gray-600 flex items-center gap-4"
         >
           <div class="bg-blue-100 dark:bg-blue-700 p-3 rounded-full">
             <img
@@ -93,7 +93,7 @@
           </div>
         </div>
         <div
-          class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 flex items-center gap-4"
+          class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-xs border border-gray-200 dark:border-gray-600 flex items-center gap-4"
         >
           <div class="bg-red-100 dark:bg-red-700 p-3 rounded-full">
             <img
@@ -131,7 +131,7 @@
               type="text"
               id="batch-ids"
               v-model="batchIdsInput"
-              class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+              class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
               placeholder="Np. 123, 456, 789 lub 123 - 125 albo 123-130, 131, 132-134"
             />
           </div>
@@ -144,7 +144,7 @@
             <select
               id="batch-category"
               v-model="batchEditCategory"
-              class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             >
               <option value="">-- Bez zmiany --</option>
               <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
@@ -158,14 +158,14 @@
               <input
                 type="text"
                 v-model="batchEditDescPart1"
-                class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="Część 1 opisu (np. dowolny tekst)"
               />
               <input
                 type="text"
                 v-model="batchEditDescPart2"
                 style="width: 12rem"
-                class="p-2 block rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                class="p-2 block rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder='Część "art..."'
               />
             </div>
@@ -203,7 +203,7 @@
             Znalezione pytania ({{ batchQuestions.length }})
           </h3>
           <div class="overflow-x-auto">
-            <table class="min-w-full text-xs bg-white dark:bg-gray-800 rounded shadow">
+            <table class="min-w-full text-xs bg-white dark:bg-gray-800 rounded-sm shadow-sm">
               <thead>
                 <tr>
                   <th class="p-2 text-left">ID</th>
@@ -301,7 +301,7 @@
         </div>
 
         <div class="hidden md:block overflow-x-auto">
-          <table class="min-w-full bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+          <table class="min-w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
             <thead>
               <tr class="bg-blue-50 dark:bg-blue-900 text-left">
                 <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Login</th>
@@ -338,7 +338,7 @@
                   <select
                     v-model="user.rola"
                     @change="changeRole(user)"
-                    class="rounded px-2 py-1 border bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
+                    class="rounded-sm px-2 py-1 border bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
                   >
                     <option value="user">user</option>
                     <option value="admin">admin</option>
@@ -367,7 +367,7 @@
         <div class="flex gap-2 items-center w-full">
           <select
             v-model="selectedCategory"
-            class="rounded px-2 py-1 border bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
+            class="rounded-sm px-2 py-1 border bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
           >
             <option disabled value="">Wybierz kategorię</option>
             <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
@@ -439,7 +439,7 @@
     <BaseModal :show="showClearQuestionsModal" @close="showClearQuestionsModal = false">
       <template #icon>
         <div
-          class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-700 sm:mx-0 sm:h-10 sm:w-10"
+          class="mx-auto shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-700 sm:mx-0 sm:h-10 sm:w-10"
         >
           <img
             src="@/assets/icons/warning.svg"
@@ -466,7 +466,7 @@
           autocomplete="off"
           autocapitalize="characters"
           spellcheck="false"
-          class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-400"
+          class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-red-400"
           :placeholder="clearConfirmPhrase"
         />
       </div>
@@ -493,7 +493,7 @@
                 v-model="formModel.question"
                 id="question-text"
                 rows="4"
-                class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="Wpisz treść pytania..."
                 required
               ></textarea>
@@ -509,7 +509,7 @@
                   type="text"
                   :id="`answer-${key}`"
                   v-model="formModel[`answer_${key}`].answer"
-                  class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                  class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                   :placeholder="`Treść odpowiedzi ${key.toUpperCase()}`"
                   required
                 />
@@ -533,7 +533,7 @@
                   :class="[
                     'p-2 rounded-md text-sm font-semibold border-2 transition-all',
                     formModel[`answer_${key}`].isCorret
-                      ? 'bg-green-600 text-white border-green-600 shadow dark:bg-green-500 dark:border-green-500'
+                      ? 'bg-green-600 text-white border-green-600 shadow-sm dark:bg-green-500 dark:border-green-500'
                       : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-900',
                   ]"
                 >
@@ -551,7 +551,7 @@
               <select
                 v-model="formModel.category"
                 id="category"
-                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 required
               >
                 <option value="" disabled>Wybierz kategorię</option>
@@ -564,7 +564,7 @@
                 <input
                   v-model="newCategoryInput"
                   @keyup.enter.prevent="confirmNewCategory()"
-                  class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                  class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                   placeholder="Nowa kategoria"
                 />
                 <BaseButton size="sm" color="green" type="button" @click="confirmNewCategory()"
@@ -583,7 +583,7 @@
                 type="text"
                 v-model="formModel.description"
                 id="description"
-                class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="Np. podstawa prawna"
               />
             </div>
@@ -599,7 +599,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <!-- Flagged -->
             <div
-              class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-sm"
+              class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-xs"
               :class="{ 'ring-2 ring-green-300 dark:ring-green-500': formModel.flagged }"
             >
               <label class="flex items-center justify-between gap-2 cursor-pointer">
@@ -615,14 +615,14 @@
                   />
                   <div
                     :class="{ 'bg-green-300 dark:bg-green-500': formModel.flagged }"
-                    class="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"
+                    class="w-10 h-5 bg-gray-200 peer-focus:outline-hidden rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"
                   ></div>
                 </div>
               </label>
             </div>
             <!-- Bad -->
             <div
-              class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-sm"
+              class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-xs"
               :class="{ 'ring-2 ring-red-300 dark:ring-red-500': formModel.bad }"
             >
               <label class="flex items-center justify-between gap-2 cursor-pointer">
@@ -638,14 +638,14 @@
                   />
                   <div
                     :class="{ 'bg-red-300 dark:bg-red-500': formModel.bad }"
-                    class="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-red-500"
+                    class="w-10 h-5 bg-gray-200 peer-focus:outline-hidden rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-red-500"
                   ></div>
                 </div>
               </label>
             </div>
             <!-- Unknown -->
             <div
-              class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-sm"
+              class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-xs"
               :class="{ 'ring-2 ring-yellow-300 dark:ring-yellow-500': formModel.unknown }"
             >
               <label class="flex items-center justify-between gap-2 cursor-pointer">
@@ -659,7 +659,7 @@
                   />
                   <div
                     :class="{ 'bg-yellow-300 dark:bg-yellow-500': formModel.unknown }"
-                    class="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-500"
+                    class="w-10 h-5 bg-gray-200 peer-focus:outline-hidden rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-500"
                   ></div>
                 </div>
               </label>
@@ -673,7 +673,7 @@
             <input
               type="text"
               v-model="formModel.note"
-              class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
+              class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
               placeholder="Dodaj notatkę..."
             />
           </div>
@@ -710,25 +710,25 @@
         <dl class="space-y-3 text-sm">
           <div class="flex items-start gap-3">
             <dt class="shrink-0">
-              <kbd class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-mono text-xs">N</kbd>
+              <kbd class="px-2 py-1 rounded-sm border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-mono text-xs">N</kbd>
             </dt>
             <dd class="text-gray-700 dark:text-gray-300">Nowe pytanie</dd>
           </div>
           <div class="flex items-start gap-3">
             <dt class="shrink-0">
-              <kbd class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-mono text-xs">?</kbd>
+              <kbd class="px-2 py-1 rounded-sm border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-mono text-xs">?</kbd>
             </dt>
             <dd class="text-gray-700 dark:text-gray-300">Ta pomoc</dd>
           </div>
           <div class="flex items-start gap-3">
             <dt class="shrink-0">
-              <kbd class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-mono text-xs">Esc</kbd>
+              <kbd class="px-2 py-1 rounded-sm border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-mono text-xs">Esc</kbd>
             </dt>
             <dd class="text-gray-700 dark:text-gray-300">Zamknij okno</dd>
           </div>
           <div class="flex items-start gap-3">
             <dt class="shrink-0">
-              <kbd class="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-mono text-xs">/</kbd>
+              <kbd class="px-2 py-1 rounded-sm border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-mono text-xs">/</kbd>
             </dt>
             <dd class="text-gray-700 dark:text-gray-300">
               Wyszukiwarka pytań (na liście pytań)

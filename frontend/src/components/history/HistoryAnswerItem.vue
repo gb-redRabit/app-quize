@@ -20,7 +20,7 @@
 
     <div
       v-if="getQuestionDescription(item.id_questions)"
-      class="text-gray-600 text-sm mb-3 p-2 bg-gray-50 rounded dark:bg-gray-700 dark:text-gray-300"
+      class="text-gray-600 text-sm mb-3 p-2 bg-gray-50 rounded-sm dark:bg-gray-700 dark:text-gray-300"
     >
       {{ getQuestionDescription(item.id_questions) }}
     </div>

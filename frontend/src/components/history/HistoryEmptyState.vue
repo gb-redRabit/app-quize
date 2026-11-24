@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col items-center justify-center bg-white rounded-xl shadow-sm p-12 border border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+    class="flex flex-col items-center justify-center bg-white rounded-xl shadow-xs p-12 border border-gray-200 dark:bg-gray-800 dark:border-gray-700"
   >
     <img
       src="@/assets/icons/plus.svg"

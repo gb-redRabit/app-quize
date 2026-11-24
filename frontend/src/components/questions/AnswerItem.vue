@@ -7,7 +7,7 @@
     }"
   >
     <div
-      class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium"
+      class="shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium"
       :class="{
         'bg-green-500 dark:bg-green-600 text-white': isCorrect,
       }"

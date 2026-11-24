@@ -1,6 +1,27 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+/* Dark mode sterowany klasą `.dark` na <html> (zgodnie z store/UI). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Cień dolnej nawigacji mobilnej. */
+  --shadow-nav: 0 -4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/*
+ * Tailwind 4 domyślnie używa `currentColor` jako koloru obramowania.
+ * Przywracamy zachowanie v3 (szary), żeby istniejące `border` bez koloru
+ * nie zmieniło wyglądu.
+ */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
 
 * {
   margin: 0;

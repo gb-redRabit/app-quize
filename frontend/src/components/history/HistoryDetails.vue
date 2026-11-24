@@ -90,8 +90,8 @@ function handleBarClick(idx) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       // Dodanie animacji podświetlenia
-      element.classList.add('ring', 'ring-blue-400');
-      setTimeout(() => element.classList.remove('ring', 'ring-blue-400'), 1200);
+      element.classList.add('ring-2', 'ring-blue-400');
+      setTimeout(() => element.classList.remove('ring-2', 'ring-blue-400'), 1200);
     }
   });
 }

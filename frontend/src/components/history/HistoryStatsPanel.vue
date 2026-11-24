@@ -1,6 +1,6 @@
 <template>
   <div
-    class="mb-8 bg-white rounded-xl shadow-sm p-4 border border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+    class="mb-8 bg-white rounded-xl shadow-xs p-4 border border-gray-200 dark:bg-gray-800 dark:border-gray-700"
   >
     <div class="flex flex-wrap gap-4 justify-between items-center">
       <!-- Statystyki -->

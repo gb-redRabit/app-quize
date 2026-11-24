@@ -3,14 +3,14 @@
     <!-- Header skeleton -->
     <div
       v-if="showHeader"
-      :class="[titleWidth, 'h-8 mb-4 bg-gray-200 dark:bg-gray-700 rounded']"
+      :class="[titleWidth, 'h-8 mb-4 bg-gray-200 dark:bg-gray-700 rounded-sm']"
       style="animation: fastPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite"
     ></div>
 
     <!-- Subtitle skeleton -->
     <div
       v-if="showSubtitle"
-      :class="[subtitleWidth, 'h-6 mb-6 bg-gray-200 dark:bg-gray-700 rounded']"
+      :class="[subtitleWidth, 'h-6 mb-6 bg-gray-200 dark:bg-gray-700 rounded-sm']"
       style="animation: fastPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite"
     ></div>
 
@@ -19,7 +19,7 @@
       <div
         v-for="(width, i) in computedLineWidths"
         :key="i"
-        class="h-4 bg-gray-200 dark:bg-gray-700 rounded"
+        class="h-4 bg-gray-200 dark:bg-gray-700 rounded-sm"
         :style="{
           width,
           animation: 'fastPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -32,7 +32,7 @@
       <div
         v-for="i in cardCount"
         :key="i"
-        class="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm h-40"
+        class="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-xs h-40"
         style="animation: fastPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite"
       ></div>
     </div>

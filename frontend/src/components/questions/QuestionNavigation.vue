@@ -6,7 +6,7 @@
           v-for="(q, idx) in questions"
           :key="idx"
           @click="goTo(idx)"
-          class="relative flex items-center justify-center rounded-full border-2 focus:outline-none transition-all duration-300 font-semibold"
+          class="relative flex items-center justify-center rounded-full border-2 focus:outline-hidden transition-all duration-300 font-semibold"
           :class="navClass(idx)"
           :style="{
             width: idx === currentIdx ? '3rem' : '2.5rem',
@@ -59,7 +59,7 @@
         @click="scrollLeft"
         aria-label="Przewiń pytania w lewo"
         title="Przewiń pytania w lewo"
-        class="flex items-center justify-center bg-white dark:bg-gray-800 rounded-full shadow-md border border-gray-200 dark:border-gray-700 h-8 w-8 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 pointer-events-auto mt-4"
+        class="flex items-center justify-center bg-white dark:bg-gray-800 rounded-full shadow-md border border-gray-200 dark:border-gray-700 h-8 w-8 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-hidden transition-all duration-200 pointer-events-auto mt-4"
         :style="{ marginLeft: '-2rem' }"
         :disabled="isAtStart"
       >
@@ -75,7 +75,7 @@
         @click="scrollRight"
         aria-label="Przewiń pytania w prawo"
         title="Przewiń pytania w prawo"
-        class="flex items-center justify-center bg-white dark:bg-gray-800 rounded-full shadow-md border border-gray-200 dark:border-gray-700 h-8 w-8 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 pointer-events-auto mt-4"
+        class="flex items-center justify-center bg-white dark:bg-gray-800 rounded-full shadow-md border border-gray-200 dark:border-gray-700 h-8 w-8 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-hidden transition-all duration-200 pointer-events-auto mt-4"
         :style="{ marginRight: '-2rem' }"
         :disabled="isAtEnd"
       >

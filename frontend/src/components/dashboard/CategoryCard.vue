@@ -2,7 +2,7 @@
 <template>
   <div
     :data-category="category"
-    class="categories-container rounded-lg border-2 shadow-sm p-4 transition-all duration-300 hover:shadow-lg"
+    class="categories-container rounded-lg border-2 shadow-xs p-4 transition-all duration-300 hover:shadow-lg"
     :class="cardClass"
   >
     <div class="flex flex-wrap justify-between items-start gap-2 mb-3">
@@ -107,7 +107,7 @@
               :key="option.value"
               type="button"
               role="menuitem"
-              class="block w-full text-left px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 focus:outline-none"
+              class="block w-full text-left px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 focus:outline-hidden"
               @click="startQuizWithLimit(option.value)"
             >
               {{ option.label }}

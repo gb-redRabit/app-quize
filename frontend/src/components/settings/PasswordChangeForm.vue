@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden h-fit">
     <div
-      class="border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900"
+      class="border-b border-gray-200 dark:border-gray-700 bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900"
     >
       <div class="px-6 py-4 flex items-center">
         <div
@@ -45,7 +45,7 @@
                 :type="showOldPassword ? 'text' : 'password'"
                 autocomplete="current-password"
                 placeholder="Wprowadź aktualne hasło"
-                class="w-full p-3 pl-10 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300"
+                class="w-full p-3 pl-10 bg-transparent border-none outline-hidden text-gray-700 dark:text-gray-300"
               />
               <PasswordVisibilityToggle
                 :visible="showOldPassword"
@@ -72,7 +72,7 @@
                 :type="showNewPassword ? 'text' : 'password'"
                 autocomplete="new-password"
                 placeholder="Wprowadź nowe hasło"
-                class="w-full p-3 pl-10 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300"
+                class="w-full p-3 pl-10 bg-transparent border-none outline-hidden text-gray-700 dark:text-gray-300"
               />
               <PasswordVisibilityToggle
                 :visible="showNewPassword"
@@ -99,7 +99,7 @@
                 :type="showNewPassword2 ? 'text' : 'password'"
                 autocomplete="new-password"
                 placeholder="Potwierdź nowe hasło"
-                class="w-full p-3 pl-10 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300"
+                class="w-full p-3 pl-10 bg-transparent border-none outline-hidden text-gray-700 dark:text-gray-300"
               />
               <PasswordVisibilityToggle
                 :visible="showNewPassword2"

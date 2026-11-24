@@ -1,5 +1,5 @@
 const API_BASE =
-  process.env.VUE_APP_API_URL || 'https://app-quize.onrender.com/api';
+  import.meta.env.VITE_API_URL || 'https://app-quize.onrender.com/api';
 
 let controller = null;
 let retryTimer = null;

@@ -26,7 +26,7 @@
         'bg-white border border-gray-200': themeName === 'light',
         'bg-gray-900 border border-gray-700': themeName === 'dark',
       }"
-      class="shadow-sm transform group-hover:scale-105 transition-transform duration-300"
+      class="shadow-xs transform group-hover:scale-105 transition-transform duration-300"
     >
       <div
         :class="{
@@ -40,13 +40,13 @@
         <div class="w-3 h-3 bg-green-500 rounded-full"></div>
       </div>
       <div class="p-4 space-y-2">
-        <div class="h-2 w-16 bg-blue-500 rounded"></div>
+        <div class="h-2 w-16 bg-blue-500 rounded-sm"></div>
         <div
-          class="h-2 w-full rounded"
+          class="h-2 w-full rounded-sm"
           :class="{ 'bg-gray-300': themeName === 'light', 'bg-gray-700': themeName === 'dark' }"
         ></div>
         <div
-          class="h-2 w-2/3 rounded"
+          class="h-2 w-2/3 rounded-sm"
           :class="{ 'bg-gray-300': themeName === 'light', 'bg-gray-700': themeName === 'dark' }"
         ></div>
       </div>

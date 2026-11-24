@@ -11,7 +11,7 @@
       </div>
 
       <div
-        class="flex items-end gap-3 h-72 w-full bg-gray-50 dark:bg-gray-900 rounded-lg shadow-inner px-4 overflow-x-auto border border-gray-200 dark:border-gray-700 relative"
+        class="flex items-end gap-3 h-72 w-full bg-gray-50 dark:bg-gray-900 rounded-lg inset-shadow-sm px-4 overflow-x-auto border border-gray-200 dark:border-gray-700 relative"
         style="min-width: 900px; max-width: 100%"
       >
         <div
@@ -44,16 +44,16 @@
 
       <div class="w-full text-xs text-gray-400 mt-2 text-right">
         <span class="inline-block mr-4">
-          <span class="inline-block w-3 h-3 bg-green-500 rounded mr-1"></span> Poprawna
+          <span class="inline-block w-3 h-3 bg-green-500 rounded-sm mr-1"></span> Poprawna
         </span>
         <span class="inline-block mr-4">
-          <span class="inline-block w-3 h-3 bg-red-500 rounded mr-1"></span> Błędna
+          <span class="inline-block w-3 h-3 bg-red-500 rounded-sm mr-1"></span> Błędna
         </span>
         <span class="inline-block mr-4">
-          <span class="inline-block w-3 h-3 bg-blue-500 rounded mr-1"></span> &le;20s
+          <span class="inline-block w-3 h-3 bg-blue-500 rounded-sm mr-1"></span> &le;20s
         </span>
         <span class="inline-block mr-4">
-          <span class="inline-block w-3 h-3 bg-yellow-400 rounded mr-1"></span> 21-40s
+          <span class="inline-block w-3 h-3 bg-yellow-400 rounded-sm mr-1"></span> 21-40s
         </span>
       </div>
     </div>

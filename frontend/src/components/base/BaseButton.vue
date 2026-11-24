@@ -4,8 +4,8 @@
     v-bind="buttonProps"
     :class="[
       // Podstawowe style Tailwind
-      'relative overflow-hidden rounded-lg font-medium transition-all duration-200 flex items-center justify-center shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-      'active:translate-y-0.5 active:shadow',
+      'relative overflow-hidden rounded-lg font-medium transition-all duration-200 flex items-center justify-center shadow-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2',
+      'active:translate-y-0.5 active:shadow-sm',
       // Kolory solid
       color === 'blue' && variant === 'solid' ? 'bg-blue-600 text-white hover:bg-blue-700' : '',
       color === 'green' && variant === 'solid'
@@ -20,7 +20,7 @@
         ? 'bg-purple-700 text-white hover:bg-purple-800'
         : '',
       // Outline
-      variant === 'outline' ? 'border-2 bg-white shadow-sm' : '',
+      variant === 'outline' ? 'border-2 bg-white shadow-xs' : '',
       variant === 'outline' && color === 'blue'
         ? 'border-blue-600 text-blue-700 hover:bg-blue-50 dark:bg-gray-800'
         : '',
@@ -85,7 +85,7 @@
       </span>
       <span
         v-if="showRipple"
-        class="absolute rounded-full bg-white bg-opacity-30 pointer-events-none animate-ripple"
+        class="absolute rounded-full bg-white/30 pointer-events-none animate-ripple"
         :style="{
           width: '100px',
           height: '100px',

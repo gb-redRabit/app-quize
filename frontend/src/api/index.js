@@ -4,7 +4,7 @@ import axios from 'axios';
  * Konfigurowalna instancja klienta API z zaawansowanym cachowaniem i obsługą błędów
  */
 const apiClient = axios.create({
-  baseURL: process.env.VUE_APP_API_URL || 'https://app-quize.onrender.com/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://app-quize.onrender.com/api',
   // baseURL: 'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ const originalMethods = {
  */
 apiClient.get = function (url, config = {}) {
   const cacheKey = url + (config.params ? JSON.stringify(config.params) : '');
-  const useCache = !config.noCache && process.env.NODE_ENV === 'production';
+  const useCache = !config.noCache && import.meta.env.PROD;
 
   // Sprawdź cache (tylko produkcja)
   if (useCache) {

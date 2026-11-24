@@ -28,7 +28,7 @@
       <BaseModal :show="showDelete" @close="showDelete = false">
         <template #icon>
           <div
-            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10 dark:bg-red-800"
+            class="mx-auto shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10 dark:bg-red-800"
           >
             <svg
               class="h-6 w-6 text-red-600 dark:text-red-300"
@@ -77,7 +77,7 @@
                   v-model="editData.question"
                   id="edit-question-text"
                   rows="4"
-                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
+                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
                   required
                 ></textarea>
               </div>
@@ -94,7 +94,7 @@
                     type="text"
                     :id="`edit-answer-${key}`"
                     v-model="editData[`answer_${key}`].answer"
-                    class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
+                    class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
                     required
                   />
                 </div>
@@ -111,7 +111,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <!-- Flagged -->
                   <div
-                    class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-sm"
+                    class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-xs"
                     :class="{
                       'ring-2 ring-green-300 dark:ring-green-500': editData && editData.flagged,
                     }"
@@ -131,7 +131,7 @@
                           :class="{
                             ' bg-green-300 dark:bg-green-500': editData && editData.flagged,
                           }"
-                          class="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"
+                          class="w-10 h-5 bg-gray-200 peer-focus:outline-hidden rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"
                         ></div>
                       </div>
                     </label>
@@ -139,7 +139,7 @@
 
                   <!-- Bad -->
                   <div
-                    class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-sm"
+                    class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-xs"
                     :class="{ 'ring-2 ring-red-300 dark:ring-red-500': editData && editData.bad }"
                   >
                     <label class="flex items-center justify-between gap-2 cursor-pointer">
@@ -157,7 +157,7 @@
                           :class="{
                             ' bg-red-300 dark:bg-red-500': editData && editData.bad,
                           }"
-                          class="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-red-500"
+                          class="w-10 h-5 bg-gray-200 peer-focus:outline-hidden rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-red-500"
                         ></div>
                       </div>
                     </label>
@@ -165,7 +165,7 @@
 
                   <!-- Unknown -->
                   <div
-                    class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-sm"
+                    class="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 shadow-xs"
                     :class="{
                       'ring-2 ring-yellow-300 dark:ring-yellow-500': editData && editData.unknown,
                     }"
@@ -185,7 +185,7 @@
                           :class="{
                             ' bg-yellow-300 dark:bg-yellow-500': editData && editData.unknown,
                           }"
-                          class="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-500"
+                          class="w-10 h-5 bg-gray-200 peer-focus:outline-hidden rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-500"
                         ></div>
                       </div>
                     </label>
@@ -200,7 +200,7 @@
                   <input
                     type="text"
                     v-model="editData.note"
-                    class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
+                    class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
                     placeholder="Dodaj notatkę..."
                   />
                 </div>
@@ -224,7 +224,7 @@
                     :class="[
                       'p-2 rounded-md text-sm font-semibold border-2 transition-all',
                       editData[`answer_${key}`].isCorret
-                        ? 'bg-green-600 text-white border-green-600 shadow'
+                        ? 'bg-green-600 text-white border-green-600 shadow-sm'
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600',
                     ]"
                   >
@@ -241,7 +241,7 @@
                 <select
                   v-model="editData.category"
                   id="edit-category"
-                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
+                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
                 >
                   <option disabled value="">-- wybierz kategorię --</option>
                   <option v-for="cat in categoriesFromStats" :key="cat" :value="cat">
@@ -253,7 +253,7 @@
                   v-if="editData.category === '__new__'"
                   v-model="editData.newCategory"
                   placeholder="Nowa kategoria"
-                  class="mt-2 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
+                  class="mt-2 p-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
                 />
               </div>
               <div>
@@ -266,7 +266,7 @@
                   type="text"
                   v-model="editData.description"
                   id="edit-description"
-                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
+                  class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
                 />
               </div>
             </div>

@@ -2,7 +2,7 @@
   <div class="bg-white rounded-xl shadow-md overflow-hidden dark:bg-gray-800 dark:shadow-lg">
     <!-- Nagłówek z wynikiem -->
     <div
-      class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b dark:from-gray-700 dark:to-gray-900 dark:border-gray-700"
+      class="bg-linear-to-r from-blue-50 to-indigo-50 p-6 border-b dark:from-gray-700 dark:to-gray-900 dark:border-gray-700"
     >
       <div
         class="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0"
@@ -112,7 +112,7 @@
       <div class="mt-6">
         <div class="h-2 w-full bg-gray-200 rounded-full overflow-hidden dark:bg-gray-700">
           <div
-            class="h-2 bg-gradient-to-r from-green-400 to-green-500 transition-all duration-1000 dark:from-green-500 dark:to-green-600"
+            class="h-2 bg-linear-to-r from-green-400 to-green-500 transition-all duration-1000 dark:from-green-500 dark:to-green-600"
             :style="`width: ${percentage}%`"
           ></div>
         </div>
@@ -176,7 +176,7 @@
             class="flex items-center p-4 border-b border-gray-100 bg-gray-50 dark:border-gray-600 dark:bg-gray-800"
           >
             <div
-              class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm font-bold"
+              class="shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm font-bold"
               :class="
                 isCorrect(idx)
                   ? 'bg-green-100 text-green-700 dark:bg-green-700 dark:text-white'
@@ -188,7 +188,7 @@
             <div class="flex-grow font-medium text-gray-800 dark:text-white break-words">{{ q.question }}</div>
 
             <!-- Ikona statusu (poprawna/niepoprawna odpowiedź) -->
-            <div class="flex-shrink-0 ml-3">
+            <div class="shrink-0 ml-3">
               <div
                 class="rounded-full p-1"
                 :class="

@@ -1,6 +1,6 @@
 <template>
   <div v-if="show" class="fixed inset-0" style="z-index: 1000">
-    <div class="absolute inset-0 bg-black bg-opacity-60 transition-opacity duration-300"></div>
+    <div class="absolute inset-0 bg-black/60 transition-opacity duration-300"></div>
 
     <div
       v-if="currentStepEl && currentStepEl.rect"
@@ -43,21 +43,21 @@
           <button
             v-if="currentStep > 0"
             @click="prevStep"
-            class="px-4 py-1.5 text-sm text-blue-600 dark:text-blue-400 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400"
+            class="px-4 py-1.5 text-sm text-blue-600 dark:text-blue-400 hover:underline focus:outline-hidden focus:ring-2 focus:ring-blue-400"
           >
             Wstecz
           </button>
           <button
             v-if="currentStep < steps.length - 1"
             @click="nextStep"
-            class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-sm dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
           >
             Dalej
           </button>
           <button
             v-else
             @click="closeGuide"
-            class="px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded dark:bg-green-500 dark:hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+            class="px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded-sm dark:bg-green-500 dark:hover:bg-green-600 focus:outline-hidden focus:ring-2 focus:ring-green-400"
           >
             Zakończ
           </button>
@@ -68,7 +68,7 @@
     <!-- Przycisk do pominięcia -->
     <button
       @click="closeGuide"
-      class="fixed top-4 right-4 text-white bg-gray-700 bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-white"
+      class="fixed top-4 right-4 text-white bg-gray-700/80 hover:bg-gray-700 rounded-full p-2 transition-colors focus:outline-hidden focus:ring-2 focus:ring-white"
       style="z-index: 1010"
       aria-label="Pomiń instrukcję"
     >
