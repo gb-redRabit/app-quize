@@ -951,9 +951,33 @@ function handleQuestionsRealtime(event) {
   loadQuestions({ preferCache: false });
 }
 
+function handlePageShortcut(event) {
+  const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+
+  if (event.key === 'Escape' && isEditingQuestion.value) {
+    isEditingQuestion.value = false;
+    return;
+  }
+
+  if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+  if (
+    (event.key === 'e' || event.key === 'E') &&
+    !typing &&
+    isDesktop.value &&
+    isAdmin.value &&
+    !isEditingQuestion.value &&
+    selectedQuestion.value
+  ) {
+    event.preventDefault();
+    startInlineEdit(selectedQuestion.value);
+  }
+}
+
 onMounted(() => {
   loadQuestions();
   window.addEventListener('questions-changed', handleQuestionsRealtime);
+  window.addEventListener('keydown', handlePageShortcut);
 
   if (typeof window !== 'undefined') {
     desktopMediaQuery = window.matchMedia('(min-width: 1024px)');
@@ -975,6 +999,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('questions-changed', handleQuestionsRealtime);
+  window.removeEventListener('keydown', handlePageShortcut);
   if (desktopMediaQuery && desktopMediaChangeHandler) {
     if (desktopMediaQuery.removeEventListener) {
       desktopMediaQuery.removeEventListener('change', desktopMediaChangeHandler);

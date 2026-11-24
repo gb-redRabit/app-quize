@@ -1,5 +1,5 @@
 <template>
-  <form class="space-y-4" @submit.prevent="save">
+  <form class="space-y-4" @submit.prevent="save" @keydown.ctrl.enter.prevent="save" @keydown.meta.enter.prevent="save">
     <div class="flex items-center justify-between gap-3">
       <h2 class="text-base font-semibold text-gray-800 dark:text-gray-100">
         Edycja pytania <span class="font-mono text-xs text-gray-500">ID {{ form.ID }}</span>
@@ -127,6 +127,7 @@
     </div>
 
     <div class="flex items-center justify-end gap-2 pt-2">
+      <span class="mr-auto text-xs text-gray-400 dark:text-gray-500">Ctrl+Enter zapisuje</span>
       <BaseButton color="gray" type="button" @click="$emit('cancel')">Anuluj</BaseButton>
       <BaseButton color="blue" type="submit" :loading="saving">Zapisz zmiany</BaseButton>
     </div>

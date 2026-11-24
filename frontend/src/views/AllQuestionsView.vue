@@ -18,6 +18,9 @@
       >
         Wczytano {{ filteredQuestions.length }} z {{ total }}
       </p>
+      <p class="hidden lg:block text-[11px] text-gray-400 dark:text-gray-500 whitespace-nowrap">
+        / szukaj · ↑↓ wybór · Enter otwórz · E edycja · Esc anuluj
+      </p>
     </div>
 
     <!-- Brak duplikatów, tylko lista pytań -->
@@ -660,15 +663,31 @@ function handleQuestionsRealtime(event) {
   fetchQuestions(true);
 }
 
-function handleSearchShortcut(event) {
-  if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
-  const activeTag = document.activeElement?.tagName;
-  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) return;
+function handlePageShortcut(event) {
+  const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
 
-  const input = searchBarWrap.value?.querySelector('input');
-  if (!input) return;
-  event.preventDefault();
-  input.focus();
+  // Esc zawsze anuluje edycję (także gdy kursor jest w polu formularza).
+  if (event.key === 'Escape' && isEditing.value) {
+    isEditing.value = false;
+    return;
+  }
+
+  if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+  if (event.key === '/' && !typing) {
+    const input = searchBarWrap.value?.querySelector('input');
+    if (!input) return;
+    event.preventDefault();
+    input.focus();
+    return;
+  }
+
+  if ((event.key === 'e' || event.key === 'E') && !typing && isDesktop.value && isAdmin.value) {
+    if (!isEditing.value && selectedQuestion.value) {
+      event.preventDefault();
+      startInlineEdit(selectedQuestion.value);
+    }
+  }
 }
 
 onMounted(() => {
@@ -695,12 +714,12 @@ onMounted(() => {
     window.addEventListener('scroll', handleScroll);
   }, 100);
   window.addEventListener('questions-changed', handleQuestionsRealtime);
-  window.addEventListener('keydown', handleSearchShortcut);
+  window.addEventListener('keydown', handlePageShortcut);
 });
 
 onUnmounted(() => {
   clearTimeout(searchTimer);
-  window.removeEventListener('keydown', handleSearchShortcut);
+  window.removeEventListener('keydown', handlePageShortcut);
   if (observer) {
     observer.disconnect();
     observer = null;
