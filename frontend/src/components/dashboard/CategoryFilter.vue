@@ -108,7 +108,7 @@
     </div>
 
     <div
-      class="filter-options flex flex-wrap sm:flex-nowrap overflow-x-auto hide-scrollbar bg-gray-50 dark:bg-gray-900 rounded-lg"
+      class="filter-options grid grid-cols-2 sm:flex sm:flex-nowrap overflow-x-auto hide-scrollbar bg-gray-50 dark:bg-gray-900 rounded-lg"
       role="group"
       aria-label="Filtry kategorii"
     >
@@ -116,7 +116,7 @@
         v-for="filter in filters"
         :key="filter.value"
         @click="$emit('update:active-filter', filter.value)"
-        class="px-4 py-3 text-sm font-medium whitespace-nowrap text-center flex-1 sm:flex-none"
+        class="px-4 py-3 text-sm font-medium whitespace-nowrap text-center"
         :aria-pressed="activeFilter === filter.value ? 'true' : 'false'"
         :class="
           activeFilter === filter.value
