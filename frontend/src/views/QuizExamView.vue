@@ -1096,10 +1096,6 @@ const progressSignature = route.query.r
   ? `${route.name}|${route.query.r}`
   : `${route.name}|${route.fullPath}`;
 const progressUrl = route.fullPath;
-if (typeof window !== 'undefined') {
-  window.__quizSetup = (window.__quizSetup || 0) + 1;
-  window.__quizSetupSig = progressSignature;
-}
 
 function sessionSignature() {
   return progressSignature;
@@ -1222,7 +1218,6 @@ watch(showSummary, (visible) => {
 
 // Inicjalizacja
 onMounted(async () => {
-  if (typeof window !== 'undefined') window.__quizMounted = (window.__quizMounted || 0) + 1;
   window.addEventListener('keydown', handleKeydown);
   window.addEventListener('beforeunload', handleBeforeUnload);
 
@@ -1254,17 +1249,6 @@ onMounted(async () => {
     let restoreResult = 'none';
     if (saved) {
       restoreResult = (await restoreProgress(saved)) ? 'ok' : 'failed';
-    }
-    if (typeof window !== 'undefined') {
-      window.__restoreDebug = {
-        saved: !!saved,
-        result: restoreResult,
-        sig: sessionSignature(),
-        r: route.query.r,
-        questionsLen: questions.value.length,
-        savedIds: saved ? saved.ids.length : 0,
-        savedSig: saved ? saved.signature : null,
-      };
     }
     if (restoreResult === 'ok') {
       showAlert?.('info', 'Wznowiono niezakończony quiz.');
