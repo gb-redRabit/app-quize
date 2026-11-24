@@ -404,7 +404,14 @@ const startExamNotDone = async (cat) => {
     const length = Math.min(150, idsToUse.length);
     router.push({
       name: 'ExamView',
-      query: { length, categories: cat, time: 60, onlyNotDone: true, ids: idsToUse.join(',') },
+      query: {
+        length,
+        categories: cat,
+        time: 60,
+        onlyNotDone: true,
+        ids: idsToUse.join(','),
+        r: Math.random().toString(36).substring(2, 8),
+      },
     });
   } catch (e) {
     showAlert('error', 'Błąd pobierania pytań z serwera.');
@@ -432,7 +439,8 @@ function readSavedQuiz() {
     if (!url || (routeName !== 'QuizView' && routeName !== 'ExamView')) return null;
     const answered = (data.answersStatus || []).filter((a) => a.answered).length;
     const index = Number(data.currentIndex) || 0;
-    if (answered === 0 && index === 0) return null;
+    // Pusty quiz nie ma czego wznawiać; egzamin ma też upływający czas.
+    if (answered === 0 && index === 0 && routeName !== 'ExamView') return null;
     return {
       url,
       answered,

@@ -1092,9 +1092,26 @@ let saveProgressTimer = null;
 // odmontowaniem komponentu, więc nie można go czytać w onBeforeUnmount.
 // Losowy parametr `r` (generowany przy starcie) jest stabilnym ID sesji,
 // niezależnym od kodowania zapytania (`+` vs `%20`).
+function querySignature() {
+  const q = route.query;
+  const ids = typeof q.ids === 'string' ? q.ids : '';
+  let hash = 0;
+  for (let i = 0; i < ids.length; i += 1) {
+    hash = (hash * 31 + ids.charCodeAt(i)) | 0;
+  }
+  return [
+    route.name,
+    q.categories || '',
+    q.length || '',
+    q.time || '',
+    q.onlyNotDone || '',
+    ids ? `${ids.split(',').length}:${hash}` : '',
+  ].join('|');
+}
+
 const progressSignature = route.query.r
   ? `${route.name}|${route.query.r}`
-  : `${route.name}|${route.fullPath}`;
+  : querySignature();
 const progressUrl = route.fullPath;
 
 function sessionSignature() {
@@ -1114,8 +1131,12 @@ function saveProgress() {
   if (typeof window === 'undefined') return;
   if (!questions.value.length || showSummary.value) return;
 
-  // Nie zapisuj stanu, w którym użytkownik nic jeszcze nie zrobił.
-  const hasProgress = answeredCount.value > 0 || currentQuestionIndex.value > 0;
+  // Nie zapisuj stanu, w którym użytkownik nic jeszcze nie zrobił —
+  // wyjątkiem jest egzamin, w którym liczy się także upływający czas.
+  const hasProgress =
+    answeredCount.value > 0 ||
+    currentQuestionIndex.value > 0 ||
+    (mode.value === 'exam' && timeLeft.value < examTimeMinutes.value * 60);
   if (!hasProgress) return;
 
   const payload = {
