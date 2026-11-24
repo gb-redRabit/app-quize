@@ -235,30 +235,71 @@
     </div>
 
     <!-- Questions list -->
-    <div v-else class="lg:grid lg:grid-cols-5 lg:gap-6">
-      <div class="lg:col-span-2 lg:max-h-[calc(100vh-11rem)] lg:overflow-y-auto lg:pr-2">
+    <div v-else>
+      <!-- Desktop: lista + szczegóły obok siebie -->
+      <div v-if="isDesktop" class="lg:grid lg:grid-cols-5 lg:gap-6">
+        <div class="lg:col-span-2 lg:max-h-[calc(100vh-11rem)] lg:overflow-y-auto lg:pr-2">
+          <div v-for="q in sortedQuestions" :key="q.ID" class="py-1">
+            <QuestionCard
+              :question="q"
+              :last-attempt-map="lastAttemptMap"
+              compact
+              :selected="selectedQuestion && selectedQuestion.ID === q.ID"
+              @select="selectQuestion"
+            />
+          </div>
+
+          <div
+            v-if="isLoadingMore"
+            class="text-center text-sm text-gray-500 dark:text-gray-400 py-4"
+            aria-live="polite"
+          >
+            Wczytywanie pozostałych pytań… {{ localQuestions.length }}/{{ totalCount }}
+          </div>
+        </div>
+
+        <aside class="hidden lg:block lg:col-span-3">
+          <div class="sticky top-20">
+            <QuestionCard
+              v-if="selectedQuestion"
+              :question="selectedQuestion"
+              :last-attempt-map="lastAttemptMap"
+              @toggle-flagged="toggleFlagged"
+              @toggle-bad="toggleBad"
+              @toggle-unknown="toggleUnknown"
+              @deleted="onQuestionDeleted"
+              @edited="onQuestionEdited"
+            />
+            <div
+              v-else
+              class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 text-sm text-gray-500 dark:text-gray-400"
+            >
+              Wybierz pytanie z listy, aby zobaczyć odpowiedzi i opis.
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Mobile: wirtualizowana lista kart -->
+      <div v-else>
         <DynamicScroller
           :items="sortedQuestions"
           key-field="ID"
           :buffer="10"
-          :page-mode="!isDesktop"
-          :min-item-size="isDesktop ? 92 : 405.5"
+          :page-mode="true"
+          :min-item-size="405.5"
           v-slot="{ item: q, index }"
         >
           <DynamicScrollerItem
             :item="q"
             :active="true"
             :index="index"
-            :size-dependencies="[q.question, q.description, isDesktop]"
+            :size-dependencies="[q.question, q.description]"
           >
             <div class="py-2">
-              <!-- Odstęp między kartami -->
               <QuestionCard
                 :question="q"
                 :last-attempt-map="lastAttemptMap"
-                :compact="isDesktop"
-                :selected="isDesktop && selectedQuestion && selectedQuestion.ID === q.ID"
-                @select="selectQuestion"
                 @toggle-flagged="toggleFlagged"
                 @toggle-bad="toggleBad"
                 @toggle-unknown="toggleUnknown"
@@ -269,7 +310,6 @@
           </DynamicScrollerItem>
         </DynamicScroller>
 
-        <!-- Load more indicator -->
         <div
           v-if="isLoadingMore"
           class="text-center text-sm text-gray-500 dark:text-gray-400 py-4"
@@ -278,28 +318,6 @@
           Wczytywanie pozostałych pytań… {{ localQuestions.length }}/{{ totalCount }}
         </div>
       </div>
-
-      <!-- Szczegóły zaznaczonego pytania (desktop) -->
-      <aside v-if="isDesktop" class="hidden lg:block lg:col-span-3">
-        <div class="sticky top-20">
-          <QuestionCard
-            v-if="selectedQuestion"
-            :question="selectedQuestion"
-            :last-attempt-map="lastAttemptMap"
-            @toggle-flagged="toggleFlagged"
-            @toggle-bad="toggleBad"
-            @toggle-unknown="toggleUnknown"
-            @deleted="onQuestionDeleted"
-            @edited="onQuestionEdited"
-          />
-          <div
-            v-else
-            class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 text-sm text-gray-500 dark:text-gray-400"
-          >
-            Wybierz pytanie z listy, aby zobaczyć odpowiedzi i opis.
-          </div>
-        </div>
-      </aside>
     </div>
   </div>
 </template>
