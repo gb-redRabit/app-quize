@@ -455,11 +455,11 @@ function readSavedQuiz() {
       if (Number.isFinite(startedAt) && startedAt > 0 && Number.isFinite(timeLimit) && timeLimit > 0) {
         const left = timeLimit - Math.floor((Date.now() - startedAt) / 1000);
         if (left <= 0) return null;
-        remainingMinutes = Math.ceil(left / 60);
+        remainingMinutes = Math.floor(left / 60);
       } else if (typeof data.timeLeft === 'number') {
         const left = data.timeLeft - Math.floor((Date.now() - Number(data.savedAt || Date.now())) / 1000);
         if (left <= 0) return null;
-        remainingMinutes = Math.ceil(left / 60);
+        remainingMinutes = Math.floor(left / 60);
       }
     }
 

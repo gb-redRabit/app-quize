@@ -1117,6 +1117,9 @@ const progressSignature = route.query.r
   ? `${route.name}|${route.query.r}`
   : querySignature();
 const progressUrl = route.fullPath;
+// Tryb sesji też trzeba zapamiętać przy wejściu: przy odmontowaniu `route`
+// wskazuje już nowy widok i `mode` stałoby się `quiz`, psując zapis egzaminu.
+const progressMode = route.name === 'ExamView' ? 'exam' : 'quiz';
 
 function sessionSignature() {
   return progressSignature;
@@ -1140,7 +1143,7 @@ function saveProgress() {
   const hasProgress =
     answeredCount.value > 0 ||
     currentQuestionIndex.value > 0 ||
-    (mode.value === 'exam' && timeLeft.value < examTimeMinutes.value * 60);
+    (progressMode === 'exam' && timeLeft.value < examTimeMinutes.value * 60);
   if (!hasProgress) return;
 
   const payload = {
@@ -1153,9 +1156,9 @@ function saveProgress() {
     currentIndex: currentQuestionIndex.value,
     score: score.value,
     autoNextEnabled: autoNextEnabled.value,
-    timeLeft: mode.value === 'exam' ? timeLeft.value : null,
-    examStartedAt: mode.value === 'exam' ? examStartedAt.value : null,
-    examTimeLimit: mode.value === 'exam' ? examTimeMinutes.value * 60 : null,
+    timeLeft: progressMode === 'exam' ? timeLeft.value : null,
+    examStartedAt: progressMode === 'exam' ? examStartedAt.value : null,
+    examTimeLimit: progressMode === 'exam' ? examTimeMinutes.value * 60 : null,
   };
 
   try {
@@ -1210,7 +1213,7 @@ async function restoreProgress(data) {
 
   // Pozostały czas egzaminu liczony od momentu startu (nie od ostatniego zapisu).
   let remaining = null;
-  if (mode.value === 'exam') {
+  if (progressMode === 'exam') {
     const startedAt = Number(data.examStartedAt);
     const timeLimit = Number(data.examTimeLimit);
     if (Number.isFinite(startedAt) && startedAt > 0 && Number.isFinite(timeLimit) && timeLimit > 0) {
@@ -1297,8 +1300,8 @@ onMounted(async () => {
     if (restoreResult === 'ok') {
       showAlert?.(
         'info',
-        mode.value === 'exam'
-          ? `Wznowiono egzamin — pozostało ${Math.ceil(timeLeft.value / 60)} min.`
+        progressMode === 'exam'
+          ? `Wznowiono egzamin — pozostało ${Math.floor(timeLeft.value / 60)} min.`
           : 'Wznowiono niezakończony quiz.'
       );
     } else if (restoreResult === 'expired') {
@@ -1313,7 +1316,7 @@ onMounted(async () => {
 
     await updateWrongOrNotDoneCache();
 
-    if (mode.value === 'exam') {
+    if (progressMode === 'exam') {
       if (!examStartedAt.value) examStartedAt.value = Date.now();
       startTimer();
     }
