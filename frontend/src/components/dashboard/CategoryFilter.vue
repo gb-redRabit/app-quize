@@ -8,6 +8,8 @@
           <button
             @click="$emit('update:view-type', 'grid')"
             class="p-1.5 rounded-md"
+            :aria-pressed="viewType === 'grid' ? 'true' : 'false'"
+            aria-label="Widok kafelków"
             :class="
               viewType === 'grid'
                 ? 'bg-white dark:bg-gray-700 shadow-sm'
@@ -33,6 +35,8 @@
           <button
             @click="$emit('update:view-type', 'list')"
             class="p-1.5 rounded-md"
+            :aria-pressed="viewType === 'list' ? 'true' : 'false'"
+            aria-label="Widok listy"
             :class="
               viewType === 'list'
                 ? 'bg-white dark:bg-gray-700 shadow-sm'
@@ -62,6 +66,8 @@
             :key="cols"
             @click="$emit('update:grid-columns', cols)"
             class="px-2.5 py-1.5 rounded-md text-xs font-medium"
+            :aria-pressed="gridColumns === cols ? 'true' : 'false'"
+            :aria-label="`Siatka ${cols} kolumn`"
             :class="
               gridColumns === cols
                 ? 'bg-white dark:bg-gray-700 shadow-sm'
@@ -102,13 +108,16 @@
     </div>
 
     <div
-      class="filter-options flex overflow-x-auto hide-scrollbar bg-gray-50 dark:bg-gray-900 rounded-lg"
+      class="filter-options flex flex-wrap sm:flex-nowrap overflow-x-auto hide-scrollbar bg-gray-50 dark:bg-gray-900 rounded-lg"
+      role="group"
+      aria-label="Filtry kategorii"
     >
       <button
         v-for="filter in filters"
         :key="filter.value"
         @click="$emit('update:active-filter', filter.value)"
-        class="px-4 py-3 text-sm font-medium whitespace-nowrap"
+        class="px-4 py-3 text-sm font-medium whitespace-nowrap text-center flex-1 sm:flex-none"
+        :aria-pressed="activeFilter === filter.value ? 'true' : 'false'"
         :class="
           activeFilter === filter.value
             ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'

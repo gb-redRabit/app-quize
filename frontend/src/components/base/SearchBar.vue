@@ -24,8 +24,10 @@
       <input
         v-model="search"
         @input="$emit('update:search', search)"
+        @keydown.esc="handleEscape"
         type="text"
-        placeholder="Szukaj po ID lub treści pytania..."
+        :placeholder="placeholder"
+        :aria-label="placeholder || 'Szukaj'"
         class="w-full p-3 text-gray-700 dark:text-gray-200 bg-transparent border-none outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-500 py-2.5 sm:text-base text-sm"
       />
 
@@ -59,6 +61,10 @@ import { ref, watch } from 'vue';
 // Props
 const props = defineProps({
   modelValue: String,
+  placeholder: {
+    type: String,
+    default: 'Szukaj po ID lub treści pytania...',
+  },
 });
 
 // Emits
@@ -80,6 +86,14 @@ function clear() {
   search.value = '';
   emit('update:search', '');
   emit('update:modelValue', '');
+}
+
+function handleEscape(event) {
+  if (search.value) {
+    clear();
+  } else {
+    event.target.blur();
+  }
 }
 
 // Watch for internal updates to maintain v-model functionality
