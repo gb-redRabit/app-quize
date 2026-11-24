@@ -1225,8 +1225,8 @@ onMounted(async () => {
 
   try {
     await fetchQuestions();
-    await updateWrongOrNotDoneCache();
 
+    // Wznawianie zaraz po pobraniu pytań — niezależne od odświeżania cache.
     const saved = readSavedProgress();
     let restoreResult = 'none';
     if (saved) {
@@ -1248,6 +1248,8 @@ onMounted(async () => {
     } else {
       clearSavedProgress();
     }
+
+    await updateWrongOrNotDoneCache();
 
     if (mode.value === 'exam') {
       startTimer();
