@@ -183,6 +183,7 @@ import { ref, computed, inject, defineAsyncComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
+import { computeRemainingSeconds } from '@/utils/quizProgress';
 
 // Komponenty
 const StatisticsSummary = defineAsyncComponent(
@@ -457,14 +458,13 @@ function readSavedQuiz() {
     // Ile czasu zostało w egzaminie — liczone tak samo jak w widoku egzaminu.
     let remainingMinutes = null;
     if (routeName === 'ExamView') {
-      const startedAt = Number(data.examStartedAt);
-      const timeLimit = Number(data.examTimeLimit);
-      if (Number.isFinite(startedAt) && startedAt > 0 && Number.isFinite(timeLimit) && timeLimit > 0) {
-        const left = timeLimit - Math.floor((Date.now() - startedAt) / 1000);
-        if (left <= 0) return null;
-        remainingMinutes = Math.floor(left / 60);
-      } else if (typeof data.timeLeft === 'number') {
-        const left = data.timeLeft - Math.floor((Date.now() - Number(data.savedAt || Date.now())) / 1000);
+      const left = computeRemainingSeconds({
+        savedAt: data.savedAt,
+        timeLeft: data.timeLeft,
+        examStartedAt: data.examStartedAt,
+        examTimeLimit: data.examTimeLimit,
+      });
+      if (left !== null) {
         if (left <= 0) return null;
         remainingMinutes = Math.floor(left / 60);
       }

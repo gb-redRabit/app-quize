@@ -375,6 +375,11 @@ const SummaryBox = defineAsyncComponent(() => import('@/components/questions/Sum
 const ProgressBar = defineAsyncComponent(() => import('@/components/questions/ProgressBar.vue'));
 import { getRandomUniqueQuestions } from '@/utils/randomQuestions';
 import { shuffleArray } from '@/utils/shuffleArray';
+import {
+  buildProgressSignature,
+  computeRemainingSeconds,
+  shouldSaveProgress,
+} from '@/utils/quizProgress';
 
 // Zależności
 const router = useRouter();
@@ -1135,26 +1140,7 @@ let saveProgressTimer = null;
 // odmontowaniem komponentu, więc nie można go czytać w onBeforeUnmount.
 // Losowy parametr `r` (generowany przy starcie) jest stabilnym ID sesji,
 // niezależnym od kodowania zapytania (`+` vs `%20`).
-function querySignature() {
-  const q = route.query;
-  const ids = typeof q.ids === 'string' ? q.ids : '';
-  let hash = 0;
-  for (let i = 0; i < ids.length; i += 1) {
-    hash = (hash * 31 + ids.charCodeAt(i)) | 0;
-  }
-  return [
-    route.name,
-    q.categories || '',
-    q.length || '',
-    q.time || '',
-    q.onlyNotDone || '',
-    ids ? `${ids.split(',').length}:${hash}` : '',
-  ].join('|');
-}
-
-const progressSignature = route.query.r
-  ? `${route.name}|${route.query.r}`
-  : querySignature();
+const progressSignature = buildProgressSignature(route.name, route.query);
 const progressUrl = route.fullPath;
 // Tryb sesji też trzeba zapamiętać przy wejściu: przy odmontowaniu `route`
 // wskazuje już nowy widok i `mode` stałoby się `quiz`, psując zapis egzaminu.
@@ -1179,10 +1165,13 @@ function saveProgress() {
 
   // Nie zapisuj stanu, w którym użytkownik nic jeszcze nie zrobił —
   // wyjątkiem jest egzamin, w którym liczy się także upływający czas.
-  const hasProgress =
-    answeredCount.value > 0 ||
-    currentQuestionIndex.value > 0 ||
-    (progressMode === 'exam' && timeLeft.value < examTimeMinutes.value * 60);
+  const hasProgress = shouldSaveProgress({
+    answeredCount: answeredCount.value,
+    currentIndex: currentQuestionIndex.value,
+    mode: progressMode,
+    timeLeft: timeLeft.value,
+    timeLimit: examTimeMinutes.value * 60,
+  });
   if (!hasProgress) return;
 
   const payload = {
@@ -1253,18 +1242,12 @@ async function restoreProgress(data) {
   // Pozostały czas egzaminu liczony od momentu startu (nie od ostatniego zapisu).
   let remaining = null;
   if (progressMode === 'exam') {
-    const startedAt = Number(data.examStartedAt);
-    const timeLimit = Number(data.examTimeLimit);
-    if (Number.isFinite(startedAt) && startedAt > 0 && Number.isFinite(timeLimit) && timeLimit > 0) {
-      const elapsedTotal = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
-      remaining = timeLimit - elapsedTotal;
-    } else if (typeof data.timeLeft === 'number') {
-      const sinceSave = Math.max(
-        0,
-        Math.floor((Date.now() - (Number(data.savedAt) || Date.now())) / 1000)
-      );
-      remaining = data.timeLeft - sinceSave;
-    }
+    remaining = computeRemainingSeconds({
+      savedAt: data.savedAt,
+      timeLeft: data.timeLeft,
+      examStartedAt: data.examStartedAt,
+      examTimeLimit: data.examTimeLimit,
+    });
     if (remaining !== null && remaining <= 0) return 'expired';
   }
 
