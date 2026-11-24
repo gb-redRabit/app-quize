@@ -407,6 +407,12 @@ const startQuizNotDone = async (cat, limit = 150) => {
 const startExamNotDone = async (cat) => {
   try {
     const idsToUse = await questionsHelper.getQuestionIdsForQuiz(cat);
+
+    if (!idsToUse.length) {
+      showAlert('warning', 'Brak pytań do egzaminu w tej kategorii — wszystko już zaliczone.');
+      return;
+    }
+
     const length = Math.min(150, idsToUse.length);
     router.push({
       name: 'ExamView',
