@@ -236,12 +236,12 @@
 
     <!-- Questions list -->
     <div v-else class="lg:grid lg:grid-cols-5 lg:gap-6">
-      <div class="lg:col-span-2">
+      <div class="lg:col-span-2 lg:max-h-[calc(100vh-11rem)] lg:overflow-y-auto lg:pr-2">
         <DynamicScroller
           :items="sortedQuestions"
           key-field="ID"
           :buffer="10"
-          :page-mode="true"
+          :page-mode="!isDesktop"
           :min-item-size="isDesktop ? 92 : 405.5"
           v-slot="{ item: q, index }"
         >
