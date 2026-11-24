@@ -1149,6 +1149,21 @@ function readSavedProgress() {
     const raw = localStorage.getItem(PROGRESS_KEY);
     if (!raw) return null;
     const data = JSON.parse(raw);
+    try {
+      sessionStorage.setItem(
+        'quiz-progress-debug',
+        JSON.stringify({
+          savedSig: data.signature,
+          currentSig: sessionSignature(),
+          idsLen: data.ids && data.ids.length,
+          ansLen: data.answersStatus && data.answersStatus.length,
+          routeName: route.name,
+          r: route.query.r,
+        })
+      );
+    } catch (e) {
+      // ignoruj
+    }
     if (!data || data.signature !== sessionSignature()) return null;
     if (!Array.isArray(data.ids) || !Array.isArray(data.answersStatus)) return null;
     if (data.ids.length !== data.answersStatus.length) return null;
