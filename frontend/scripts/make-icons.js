@@ -1,3 +1,5 @@
+// Generator ikon PWA (192/512/maskowalna/Apple) z public/icons/brand.svg.
+// Wymaga jednorazowo: npm install --no-save sharp
 const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
