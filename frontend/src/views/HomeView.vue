@@ -363,8 +363,9 @@ const openOtherQuizPopup = () => {
 
 const startExamFromCategory = (cat) => {
   showExamPopup.value = false;
-  const max = questionsHelper.categoryCounts.value[cat] || 10;
-  router.push({ name: 'QuizView', query: { length: max, categories: cat } });
+  // Modal „Wybierz egzamin” ma startować egzamin (timer, tylko niezrobione),
+  // a nie quiz — wcześniej trafiał do QuizView bez trybu egzaminu.
+  startExamNotDone(cat);
 };
 
 const goToCategoryQuestions = async (cat) => {
