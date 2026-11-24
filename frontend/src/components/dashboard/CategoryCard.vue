@@ -62,11 +62,16 @@
       </BaseButton>
       <div class="relative">
         <BaseButton
+          ref="quizToggleRef"
           color="green"
           size="sm"
           class="w-full text-xs"
           :disabled="isDisabled"
+          aria-haspopup="menu"
+          :aria-expanded="showQuizOptions ? 'true' : 'false'"
+          :aria-controls="menuId"
           @click="$emit('toggle-quiz-options')"
+          @keydown.down.prevent="openMenuAndFocusFirst"
         >
           <span class="truncate">Quiz</span>
           <svg
@@ -84,28 +89,29 @@
             />
           </svg>
         </BaseButton>
-        <div v-if="showQuizOptions" class="absolute z-10 w-full mt-1">
+        <div
+          v-if="showQuizOptions"
+          :id="menuId"
+          role="menu"
+          :aria-label="`Opcje quizu: ${category}`"
+          class="absolute z-10 w-full mt-1"
+          @keydown.esc.stop.prevent="closeMenuAndFocus"
+          @keydown.down.prevent="focusMenuItem(1)"
+          @keydown.up.prevent="focusMenuItem(-1)"
+        >
           <div
             class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg py-1"
           >
-            <a
-              class="block px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-              @click="startQuizWithLimit(50)"
+            <button
+              v-for="option in quizOptions"
+              :key="option.value"
+              type="button"
+              role="menuitem"
+              class="block w-full text-left px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 focus:outline-none"
+              @click="startQuizWithLimit(option.value)"
             >
-              Max 50 pytań
-            </a>
-            <a
-              class="block px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-              @click="startQuizWithLimit(150)"
-            >
-              Max 150 pytań
-            </a>
-            <a
-              class="block px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-              @click="startQuizWithLimit(0)"
-            >
-              Cała pula
-            </a>
+              {{ option.label }}
+            </button>
           </div>
         </div>
       </div>
@@ -148,7 +154,7 @@
 </template>
 
 <script setup>
-import { computed, defineProps, defineEmits } from 'vue';
+import { computed, ref, defineProps, defineEmits } from 'vue';
 import BaseButton from '@/components/base/BaseButton.vue';
 
 const props = defineProps({
@@ -168,6 +174,40 @@ const emit = defineEmits([
   'go-to-questions',
   'clear-history',
 ]);
+
+// --- Menu opcji quizu (dostępne z klawiatury) ---
+const quizOptions = [
+  { value: 50, label: 'Max 50 pytań' },
+  { value: 150, label: 'Max 150 pytań' },
+  { value: 0, label: 'Cała pula' },
+];
+
+const menuId = computed(
+  () => `quiz-menu-${String(props.category).toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
+);
+
+const quizToggleRef = ref(null);
+
+function focusMenuItem(delta) {
+  const menu = document.getElementById(menuId.value);
+  if (!menu) return;
+  const items = [...menu.querySelectorAll('[role="menuitem"]')];
+  if (!items.length) return;
+  const current = items.indexOf(document.activeElement);
+  const next = current === -1 ? 0 : (current + delta + items.length) % items.length;
+  items[next].focus();
+}
+
+function openMenuAndFocusFirst() {
+  if (!props.showQuizOptions) emit('toggle-quiz-options');
+  setTimeout(() => focusMenuItem(1), 0);
+}
+
+function closeMenuAndFocus() {
+  emit('toggle-quiz-options');
+  const el = quizToggleRef.value?.$el;
+  if (el && typeof el.focus === 'function') el.focus();
+}
 
 // --- Obliczone właściwości dla statystyk ---
 

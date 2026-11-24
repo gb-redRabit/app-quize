@@ -57,7 +57,7 @@
         >
           <div class="bg-green-100 dark:bg-green-700 p-3 rounded-full">
             <img
-              src="@/assets/icons/import.svg"
+              src="@/assets/icons/download.svg"
               alt="Eksport"
               class="w-6 h-6 text-green-600 dark:text-green-200"
             />
@@ -74,9 +74,9 @@
         >
           <div class="bg-blue-100 dark:bg-blue-700 p-3 rounded-full">
             <img
-              src="@/assets/icons/import.svg"
+              src="@/assets/icons/upload.svg"
               alt="Import"
-              class="w-6 h-6 text-gray-600 dark:text-gray-200"
+              class="w-6 h-6 text-blue-600 dark:text-blue-200"
             />
           </div>
           <div>
@@ -452,8 +452,28 @@
       <p class="text-sm text-gray-500 dark:text-gray-400">
         Czy na pewno chcesz usunąć <b>wszystkie</b> pytania? Tej operacji nie można cofnąć.
       </p>
+      <div class="mt-4">
+        <label
+          for="clear-confirm"
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+        >
+          Wpisz <b>{{ clearConfirmPhrase }}</b>, aby potwierdzić
+        </label>
+        <input
+          id="clear-confirm"
+          v-model="clearConfirmText"
+          type="text"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+          class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-400"
+          :placeholder="clearConfirmPhrase"
+        />
+      </div>
       <template #footer>
-        <BaseButton color="red" @click="clearQuestions">Tak, usuń wszystko</BaseButton>
+        <BaseButton color="red" :disabled="!clearConfirmValid" @click="clearQuestions"
+          >Tak, usuń wszystko</BaseButton
+        >
         <BaseButton color="gray" @click="showClearQuestionsModal = false">Anuluj</BaseButton>
       </template>
     </BaseModal>
@@ -759,6 +779,27 @@ const showShortcuts = ref(false);
 const newCategoryInput = ref('');
 const showExcelInfo = ref(false);
 const showClearQuestionsModal = ref(false);
+const clearConfirmText = ref('');
+const clearConfirmPhrase = 'USUŃ';
+
+function normalizePhrase(value) {
+  return String(value || '')
+    .trim()
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+const clearConfirmValid = computed(
+  () => normalizePhrase(clearConfirmText.value) === normalizePhrase(clearConfirmPhrase)
+);
+
+watch(showClearQuestionsModal, (visible) => {
+  clearConfirmText.value = '';
+  if (visible) {
+    setTimeout(() => document.getElementById('clear-confirm')?.focus(), 50);
+  }
+});
 const formModel = ref({
   question: '',
   answer_a: { answer: '', isCorret: false },
