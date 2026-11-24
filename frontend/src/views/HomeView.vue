@@ -1,6 +1,6 @@
 <template>
-  <div class="container mx-auto">
-    <div class="relative mx-auto px-4 py-8 sm:px-6 lg:px-8">
+  <div class="app-shell">
+    <div class="relative">
       <!-- Sekcja powitalna -->
       <section class="mb-4">
         <div class="flex flex-col md:flex-row gap-6 items-center">
@@ -43,14 +43,16 @@
 
       <section v-if="savedQuiz" class="mb-4">
         <div
-          class="rounded-xl bg-linear-to-r from-yellow-400 to-yellow-500 text-gray-900 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-xs"
+          class="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 text-amber-900 dark:text-amber-100 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-xs"
         >
           <div class="flex-1 min-w-0">
-            <p class="text-xs uppercase tracking-wide text-yellow-800">Niezakończona sesja</p>
+            <p class="text-xs uppercase tracking-wide text-amber-700 dark:text-amber-300">
+              Niezakończona sesja
+            </p>
             <p class="text-lg font-semibold truncate">
               {{ savedQuiz.label }} · pytanie {{ savedQuiz.index + 1 }} z {{ savedQuiz.total }}
             </p>
-            <p class="text-sm text-yellow-800">
+            <p class="text-sm text-amber-700 dark:text-amber-300">
               Odpowiedzi: {{ savedQuiz.answered }} ·
               <template v-if="savedQuiz.remainingMinutes">
                 pozostało {{ savedQuiz.remainingMinutes }} min ·
@@ -59,7 +61,7 @@
             </p>
           </div>
           <button
-            class="h-12 px-5 rounded-lg bg-white text-yellow-800 font-semibold hover:bg-yellow-50 transition-colors shrink-0"
+            class="h-11 px-5 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700 transition-colors shrink-0"
             @click="resumeSavedQuiz"
           >
             Wznów
@@ -69,17 +71,21 @@
 
       <section v-if="lastActivity" class="mb-4">
         <div
-          class="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 text-white p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-xs"
+          class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 shadow-xs"
         >
           <div class="flex-1 min-w-0">
-            <p class="text-xs uppercase tracking-wide text-blue-100">Kontynuuj naukę</p>
-            <p class="text-lg font-semibold truncate">{{ lastActivity.category }}</p>
-            <p class="text-sm text-blue-100">
+            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              Kontynuuj naukę
+            </p>
+            <p class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
+              {{ lastActivity.category }}
+            </p>
+            <p class="text-sm text-gray-600 dark:text-gray-300">
               {{ lastActivityLabel }} · {{ lastActivityPercent }}%
             </p>
           </div>
           <button
-            class="h-12 px-5 rounded-lg bg-white text-blue-700 font-semibold hover:bg-blue-50 transition-colors shrink-0"
+            class="h-11 px-5 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shrink-0"
             @click="continueLastActivity"
             :aria-label="`Rozpocznij nową sesję: ${lastActivity.category}`"
           >
@@ -90,15 +96,21 @@
 
       <section v-else class="mb-4">
         <div
-          class="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 text-white p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-xs"
+          class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 shadow-xs"
         >
           <div class="flex-1 min-w-0">
-            <p class="text-xs uppercase tracking-wide text-blue-100">Zacznij naukę</p>
-            <p class="text-lg font-semibold">Wybierz kategorię i rozpocznij quiz</p>
-            <p class="text-sm text-blue-100">Twoje postępy będą zapisywane automatycznie.</p>
+            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              Zacznij naukę
+            </p>
+            <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Wybierz kategorię i rozpocznij quiz
+            </p>
+            <p class="text-sm text-gray-600 dark:text-gray-300">
+              Twoje postępy będą zapisywane automatycznie.
+            </p>
           </div>
           <button
-            class="h-12 px-5 rounded-lg bg-white text-blue-700 font-semibold hover:bg-blue-50 transition-colors shrink-0"
+            class="h-11 px-5 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shrink-0"
             @click="scrollToCategories"
           >
             Wybierz kategorię

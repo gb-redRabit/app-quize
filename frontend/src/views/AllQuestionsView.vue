@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto p-4">
+  <div class="app-shell">
     <h1 class="text-2xl font-bold mb-6 text-blue-700 dark:text-blue-300">Lista wszystkich pytań</h1>
     <div
       ref="searchBarWrap"
@@ -25,13 +25,8 @@
 
     <!-- Brak duplikatów, tylko lista pytań -->
     <!-- Stan ładowania -->
-    <div
-      v-if="isLoading && page === 1"
-      class="mt-8 text-center text-gray-600 dark:text-gray-300 font-medium text-lg"
-    >
-      Wczytywanie danych...
-    </div>
-    <div v-if="isLoading && page === 1">
+    <div v-if="isLoading && page === 1" class="mt-8">
+      <p class="sr-only" aria-live="polite">Wczytywanie danych…</p>
       <BaseSkeleton
         variant="table"
         :card-count="7"

@@ -1,6 +1,6 @@
 <template>
-  <div class="container py-8">
-    <div class="mx-auto px-4">
+  <div class="app-shell">
+    <div>
       <!-- Nagłówek -->
       <HistoryHeader
         :hasHistory="history.length > 0"

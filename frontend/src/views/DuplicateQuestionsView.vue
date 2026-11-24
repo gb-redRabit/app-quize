@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto p-4 md:p-6">
+  <div class="app-shell">
     <!-- Nagłówek strony -->
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
       <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Duplikaty pytań</h1>

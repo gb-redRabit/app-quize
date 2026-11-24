@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto p-4 md:p-6">
+  <div class="app-shell">
     <!-- Header section -->
     <div
       class="mb-6 bg-white dark:bg-gray-800 rounded-xl p-4 md:p-5 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"

@@ -4,7 +4,8 @@
     <div class="flex flex-col sm:flex-row gap-4">
       <BaseButton
         color="purple"
-        class="flex-1 py-4 rounded-xl shadow-md hover:shadow-lg transition-all text-center font-semibold"
+        variant="outline"
+        class="flex-1 py-4 rounded-xl transition-colors text-center font-semibold"
         @click="$emit('show-exam-popup')"
       >
         <div class="flex items-center justify-center gap-2">
@@ -27,7 +28,7 @@
       </BaseButton>
       <BaseButton
         color="blue"
-        class="flex-1 py-4 rounded-xl shadow-md hover:shadow-lg transition-all text-center font-semibold"
+        class="flex-1 py-4 rounded-xl transition-colors text-center font-semibold"
         @click="$emit('show-other-quiz-popup')"
       >
         <div class="flex items-center justify-center gap-2">

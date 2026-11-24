@@ -3,7 +3,7 @@
     <div class="relative w-full max-w-md">
       <!-- Karta rejestracji -->
       <div
-        class="rounded-xl shadow-lg p-6 sm:p-8 w-full relative z-10 overflow-hidden border border-gray-200 dark:border-gray-700 animate-slide-up"
+        class="rounded-xl shadow-lg p-6 sm:p-8 w-full relative z-10 overflow-hidden border border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm animate-slide-up"
       >
         <!-- Nagłówek -->
         <div class="mb-6 text-center">
@@ -227,7 +227,7 @@
             to="/login"
             class="text-gray-600 dark:text-gray-400 text-sm hover:text-gray-800 dark:hover:text-gray-200 transition"
           >
-            Masz już konto?{" "}
+            Masz już konto?
             <span class="text-blue-600 dark:text-blue-400 font-medium hover:underline">
               Zaloguj się
             </span>
@@ -236,7 +236,7 @@
       </div>
 
       <!-- Dekoracyjne elementy tła -->
-      <div class="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+      <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div
           class="absolute rounded-full opacity-70"
           style="

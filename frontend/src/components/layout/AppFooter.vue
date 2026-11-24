@@ -1,21 +1,21 @@
 <template>
   <footer
-    class="w-full px-4 pb-4 pt-6 text-center text-xs text-gray-400 dark:text-gray-500"
+    class="w-full px-4 pb-4 pt-6 text-center text-xs text-gray-400 dark:text-gray-500 flex flex-wrap items-center justify-center gap-x-2 gap-y-1"
     aria-label="Informacje o wersji"
   >
     <span :title="buildTitle">Aplikacja {{ appVersionLabel }}</span>
-    <span class="mx-1.5">·</span>
+    <span aria-hidden="true">·</span>
     <span :title="dbTitle">baza pytań: {{ dbVersionLabel }}</span>
     <template v-if="dbCountLabel">
-      <span class="mx-1.5">·</span>
+      <span aria-hidden="true">·</span>
       <span>{{ dbCountLabel }}</span>
     </template>
     <template v-if="dbUpdatedLabel">
-      <span class="mx-1.5">·</span>
+      <span aria-hidden="true">·</span>
       <span>aktualizacja {{ dbUpdatedLabel }}</span>
     </template>
 
-    <span v-if="pendingCount > 0" class="mx-1.5">·</span>
+    <span v-if="pendingCount > 0" aria-hidden="true">·</span>
     <span
       v-if="pendingCount > 0"
       class="inline-flex items-center gap-1.5 text-yellow-700 dark:text-yellow-400"

@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto p-4 overflow-hidden">
+  <div class="app-shell overflow-hidden">
     <!-- Nagłówek panelu użytkownika -->
     <div
       class="bg-linear-to-r from-blue-600 to-indigo-700 rounded-xl shadow-lg mb-8 p-6 flex flex-wrap items-center justify-between"

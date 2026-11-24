@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+  <div class="app-shell">
     <div class="mb-8">
       <h1 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-200">
         Panel Administratora
@@ -36,22 +36,23 @@
     <div v-if="activeTab === 'questions'">
       <!-- Szybkie akcje -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div
+        <button
+          type="button"
           @click="openAddPopup"
-          class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-xs border border-gray-200 dark:border-gray-600 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow"
+          class="text-left w-full bg-white dark:bg-gray-700 p-4 rounded-lg shadow-xs border border-gray-200 dark:border-gray-600 flex items-center gap-4 hover:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-blue-500"
         >
-          <div class="bg-blue-500 p-3 rounded-full">
+          <span class="bg-blue-500 p-3 rounded-full shrink-0">
             <img
               src="@/assets/icons/add.svg"
-              alt="Dodaj"
+              alt=""
               class="w-6 h-6 text-gray-600 dark:text-gray-200"
             />
-          </div>
-          <div>
-            <h3 class="font-semibold text-gray-800 dark:text-gray-100">Dodaj pytanie</h3>
-            <p class="text-sm text-blue-600 dark:text-blue-400">Otwórz formularz</p>
-          </div>
-        </div>
+          </span>
+          <span class="min-w-0">
+            <span class="block font-semibold text-gray-800 dark:text-gray-100">Dodaj pytanie</span>
+            <span class="block text-sm text-blue-600 dark:text-blue-400">Otwórz formularz</span>
+          </span>
+        </button>
         <div
           class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-xs border border-gray-200 dark:border-gray-600 flex items-center gap-4"
         >

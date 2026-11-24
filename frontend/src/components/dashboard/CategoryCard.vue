@@ -2,7 +2,7 @@
 <template>
   <div
     :data-category="category"
-    class="categories-container rounded-lg border-2 shadow-xs p-4 transition-all duration-300 hover:shadow-lg"
+    class="categories-container rounded-xl border bg-white dark:bg-gray-800 shadow-xs p-4 transition-all duration-300 hover:shadow-sm"
     :class="cardClass"
   >
     <div class="flex flex-wrap justify-between items-start gap-2 mb-3">
@@ -53,7 +53,8 @@
     </div>
     <div class="category-card grid grid-cols-3 gap-2">
       <BaseButton
-        color="blue"
+        color="gray"
+        variant="outline"
         size="sm"
         class="text-xs"
         @click="$emit('go-to-questions', category)"
@@ -63,7 +64,7 @@
       <div class="relative">
         <BaseButton
           ref="quizToggleRef"
-          color="green"
+          color="blue"
           size="sm"
           class="w-full text-xs"
           :disabled="isDisabled"
@@ -118,6 +119,7 @@
       <div class="flex gap-1">
         <BaseButton
           color="purple"
+          variant="outline"
           size="sm"
           class="flex-1 text-xs"
           :disabled="isDisabled"
@@ -127,6 +129,7 @@
         </BaseButton>
         <BaseButton
           color="red"
+          variant="ghost"
           size="sm"
           class="px-2"
           ariaLabel="Wyczyść historię kategorii"
@@ -278,31 +281,26 @@ const statusClass = computed(() => {
   return classes[categoryStatus.value] || classes['Nowa'];
 });
 
+// Kolor karty ograniczamy do delikatnego obramowania — tło zostaje neutralne,
+// a stan i tak komunikują chip statusu oraz pasek postępu.
 const cardClass = computed(() => {
-  if (!props.stats || total.value === 0)
-    return 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700';
+  if (!props.stats || total.value === 0) return 'border-gray-200 dark:border-gray-700';
 
   const percentDone = (doneCount.value / total.value) * 100;
   const percentCorrectOfDone =
     doneCount.value > 0 ? (props.stats.correct / doneCount.value) * 100 : 0;
 
-  if (percentDone === 0) return 'bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600';
-  if (props.stats.correct === total.value)
-    return 'bg-green-200 border-green-500 shadow-lg text-green-900 dark:bg-green-800 dark:border-green-600 dark:text-green-100';
-  if (props.stats.wrong === total.value)
-    return 'bg-red-200 border-red-500 shadow-lg text-red-900 dark:bg-red-800 dark:border-red-600 dark:text-red-100';
-  if (percentDone > 50 && percentCorrectOfDone > 70)
-    return 'bg-green-100 border-green-400 shadow-md text-green-800 dark:bg-green-900 dark:border-green-500 dark:text-green-200';
+  if (percentDone === 0) return 'border-gray-300 dark:border-gray-600';
+  if (props.stats.correct === total.value) return 'border-green-400 dark:border-green-600';
+  if (props.stats.wrong === total.value) return 'border-red-400 dark:border-red-600';
+  if (percentDone > 50 && percentCorrectOfDone > 70) return 'border-green-300 dark:border-green-700';
   if (percentDone > 50 && percentCorrectOfDone >= 40)
-    return 'bg-yellow-100 border-yellow-400 shadow-md text-yellow-800 dark:bg-yellow-900 dark:border-yellow-500 dark:text-yellow-200';
-  if (percentDone > 50)
-    return 'bg-red-100 border-red-400 shadow-md text-red-800 dark:bg-red-900 dark:border-red-500 dark:text-red-200';
-  if (percentCorrectOfDone > 70)
-    return 'bg-green-100 border-green-300 text-green-800 dark:bg-green-900 dark:border-green-500 dark:text-green-200';
-  if (percentCorrectOfDone >= 40)
-    return 'bg-yellow-100 border-yellow-300 text-yellow-800 dark:bg-yellow-900 dark:border-yellow-500 dark:text-yellow-200';
+    return 'border-yellow-300 dark:border-yellow-700';
+  if (percentDone > 50) return 'border-red-300 dark:border-red-700';
+  if (percentCorrectOfDone > 70) return 'border-green-200 dark:border-green-800';
+  if (percentCorrectOfDone >= 40) return 'border-yellow-200 dark:border-yellow-800';
 
-  return 'bg-orange-100 border-orange-300 text-orange-800 dark:bg-orange-900 dark:border-orange-500 dark:text-orange-200';
+  return 'border-orange-200 dark:border-orange-800';
 });
 
 const percentCompleteClass = computed(() => {

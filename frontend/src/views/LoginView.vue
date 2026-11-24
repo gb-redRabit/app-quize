@@ -3,7 +3,7 @@
     <div class="relative w-full max-w-md">
       <!-- Karta logowania -->
       <div
-        class="rounded-xl shadow-lg p-6 sm:p-8 w-full relative z-10 overflow-hidden border border-gray-200 dark:border-gray-700"
+        class="rounded-xl shadow-lg p-6 sm:p-8 w-full relative z-10 overflow-hidden border border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm"
         style="animation: fadeIn 0.5s ease-out forwards"
       >
         <!-- Nagłówek -->
@@ -128,7 +128,7 @@
       </div>
 
       <!-- Dekoracyjne elementy tła -->
-      <div class="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+      <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div
           class="absolute rounded-full opacity-70"
           style="

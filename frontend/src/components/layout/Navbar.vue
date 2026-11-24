@@ -10,17 +10,14 @@
   >
     <nav
       aria-label="Nawigacja główna"
-      class="relative z-40 flex justify-between items-center p-3 px-5 bg-linear-to-r from-white to-gray-50 shadow-md mb-4 dark:from-gray-800 dark:to-gray-900 dark:shadow-lg"
+      class="relative z-40 flex justify-between items-center p-3 px-5 bg-white/95 dark:bg-gray-900/95 backdrop-blur border-b border-gray-200 dark:border-gray-800 shadow-xs mb-4"
     >
       <!-- Logo/nazwa użytkownika -->
       <div class="flex items-center gap-2">
         <div class="flex items-center justify-center mr-0.5">
           <Avatar :avatar-index="user?.avatar || 0" :color="user?.avatarColors || ''" :size="40" />
         </div>
-        <h1
-          class="font-semibold text-lg tracking-wide capitalize"
-          :style="{ color: user?.avatarColors || '#3b82f6' }"
-        >
+        <h1 class="font-semibold text-lg tracking-wide capitalize text-gray-800 dark:text-gray-100">
           {{ userName }}
         </h1>
       </div>
@@ -28,32 +25,20 @@
       <!-- Desktop menu -->
       <div class="hidden lg:flex items-center gap-6">
         <router-link
-          v-for="(item, idx) in visibleNavItems"
+          v-for="item in visibleNavItems"
           :key="item.path"
           :to="item.path"
-          class="flex items-center gap-2 px-3 py-2 rounded-md text-gray-600 font-medium transition-all duration-200 relative dark:text-gray-300"
-          :class="{
-            'font-semibold': route.path === item.path,
-          }"
-          :style="
-            route.path === item.path || hoveredIndex === idx
-              ? { color: user?.avatarColors || '#3b82f6' }
-              : {}
+          class="flex items-center gap-2 px-3 py-2 rounded-full font-medium transition-all duration-200"
+          :class="
+            route.path === item.path
+              ? 'font-semibold bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
+              : 'text-gray-600 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-blue-300'
           "
-          @mouseover="hoveredIndex = idx"
-          @mouseleave="hoveredIndex = null"
         >
           <span class="flex items-center">
             <component :is="item.icon" class="h-5 w-5" />
           </span>
           <span>{{ item.label }}</span>
-          <span
-            v-if="route.path === item.path"
-            class="absolute left-2 right-2 -bottom-1 h-1 rounded-full"
-            :style="{
-              background: user?.avatarColors || '#3b82f6',
-            }"
-          ></span>
         </router-link>
       </div>
 
@@ -129,33 +114,21 @@
       >
         <div class="p-6 flex flex-col gap-3">
           <router-link
-            v-for="(item, idx) in visibleNavItems"
+            v-for="item in visibleNavItems"
             :key="item.path"
             :to="item.path"
-            class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 relative"
-            :class="{
-              'font-semibold': route.path === item.path,
-            }"
-            :style="
-              route.path === item.path || hoveredIndex === idx
-                ? { color: user?.avatarColors || '#3b82f6' }
-                : {}
+            class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200"
+            :class="
+              route.path === item.path
+                ? 'font-semibold bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-blue-300'
             "
-            @mouseover="hoveredIndex = idx"
-            @mouseleave="hoveredIndex = null"
             @click="closeMenu"
           >
             <span class="flex items-center">
               <component :is="item.icon" class="h-5 w-5" />
             </span>
             <span>{{ item.label }}</span>
-            <span
-              v-if="route.path === item.path"
-              class="absolute left-2 right-2 -bottom-1 h-1 rounded-full"
-              :style="{
-                background: user?.avatarColors || '#3b82f6',
-              }"
-            ></span>
           </router-link>
 
           <button
@@ -203,7 +176,6 @@ const route = useRoute();
 
 // Reaktywne zmienne
 const menuOpen = ref(false);
-const hoveredIndex = ref(null);
 const isFixed = ref(false);
 const scrollThreshold = 300;
 const scrollY = ref(0);
