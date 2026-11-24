@@ -260,15 +260,23 @@
 
         <aside class="hidden lg:block lg:col-span-3">
           <div class="sticky top-20">
+            <QuestionEditor
+              v-if="isEditingQuestion && selectedQuestion"
+              :question="selectedQuestion"
+              @saved="handleInlineSaved"
+              @cancel="isEditingQuestion = false"
+            />
             <QuestionCard
-              v-if="selectedQuestion"
+              v-else-if="selectedQuestion"
               :question="selectedQuestion"
               :last-attempt-map="lastAttemptMap"
+              inline-edit
               @toggle-flagged="toggleFlagged"
               @toggle-bad="toggleBad"
               @toggle-unknown="toggleUnknown"
               @deleted="onQuestionDeleted"
               @edited="onQuestionEdited"
+              @request-edit="startInlineEdit"
             />
             <div
               v-else
@@ -329,6 +337,9 @@ import { useRoute } from 'vue-router';
 const SearchBar = defineAsyncComponent(() => import('@/components/base/SearchBar.vue'));
 const BaseButton = defineAsyncComponent(() => import('@/components/base/BaseButton.vue'));
 const QuestionCard = defineAsyncComponent(() => import('@/components/questions/QuestionCard.vue'));
+const QuestionEditor = defineAsyncComponent(
+  () => import('@/components/questions/QuestionEditor.vue')
+);
 import apiClient from '@/api';
 import { getCachedQuestionsByCategory } from '@/services/questionsSync';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
@@ -353,6 +364,7 @@ const forceUpdate = ref(0);
 const sortByDescriptionField = ref(false);
 const sortByQuestion = ref(false);
 const selectedQuestion = ref(null);
+const isEditingQuestion = ref(false);
 const isDesktop = ref(
   typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false
 );
@@ -360,7 +372,18 @@ let desktopMediaQuery = null;
 let desktopMediaChangeHandler = null;
 
 function selectQuestion(question) {
+  if (selectedQuestion.value?.ID !== question.ID) isEditingQuestion.value = false;
   selectedQuestion.value = question;
+}
+
+function startInlineEdit(question) {
+  if (question && question.ID) selectedQuestion.value = question;
+  isEditingQuestion.value = true;
+}
+
+function handleInlineSaved(updated) {
+  isEditingQuestion.value = false;
+  if (updated && updated.ID) onQuestionEdited(updated);
 }
 
 // Store i router
@@ -674,6 +697,7 @@ function downloadQuestionsTxt() {
 function onQuestionDeleted(deletedQuestion, silent = false) {
   localQuestions.value = localQuestions.value.filter((q) => q.ID !== deletedQuestion.ID);
   if (selectedQuestion.value && selectedQuestion.value.ID === deletedQuestion.ID) {
+    isEditingQuestion.value = false;
     selectedQuestion.value = localQuestions.value[0] || null;
   }
   if (!silent) showAlert('success', 'Pytanie zostało usunięte.');
@@ -968,6 +992,7 @@ watch(
     const stillExists =
       selectedQuestion.value && list.some((q) => q.ID === selectedQuestion.value.ID);
     if (!stillExists) {
+      isEditingQuestion.value = false;
       selectedQuestion.value = list[0] || null;
     }
   },

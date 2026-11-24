@@ -228,8 +228,10 @@
 
         <QuestionActions
           :question="question"
+          :inline-edit="inlineEdit"
           @deleted="$emit('deleted', $event)"
           @edit="$emit('edited', $event)"
+          @request-edit="$emit('request-edit', $event)"
           class="ml-0 sm:ml-2 mt-2 sm:mt-0"
         />
       </div>
@@ -312,10 +314,22 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  inlineEdit: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // Emits
-defineEmits(['toggle-flagged', 'toggle-bad', 'toggle-unknown', 'deleted', 'edited', 'select']);
+defineEmits([
+  'toggle-flagged',
+  'toggle-bad',
+  'toggle-unknown',
+  'deleted',
+  'edited',
+  'select',
+  'request-edit',
+]);
 </script>
 
 <style scoped>
