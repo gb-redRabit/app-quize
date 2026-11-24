@@ -1096,6 +1096,10 @@ const progressSignature = route.query.r
   ? `${route.name}|${route.query.r}`
   : `${route.name}|${route.fullPath}`;
 const progressUrl = route.fullPath;
+if (typeof window !== 'undefined') {
+  window.__quizSetup = (window.__quizSetup || 0) + 1;
+  window.__quizSetupSig = progressSignature;
+}
 
 function sessionSignature() {
   return progressSignature;
@@ -1200,6 +1204,7 @@ watch(showSummary, (visible) => {
 
 // Inicjalizacja
 onMounted(async () => {
+  if (typeof window !== 'undefined') window.__quizMounted = (window.__quizMounted || 0) + 1;
   window.addEventListener('keydown', handleKeydown);
   window.addEventListener('beforeunload', handleBeforeUnload);
 
