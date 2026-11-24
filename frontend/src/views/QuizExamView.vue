@@ -318,19 +318,35 @@
             v-for="(question, idx) in questions"
             :key="question.ID || idx"
             class="h-10 rounded-full text-sm font-semibold transition-colors"
-            :class="
-              idx === currentQuestionIndex
-                ? 'bg-blue-600 text-white'
-                : answersStatus[idx]?.answered
-                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
-            "
+            :class="sheetButtonClass(idx)"
             :aria-current="idx === currentQuestionIndex ? 'true' : undefined"
-            :aria-label="`Pytanie ${idx + 1}`"
+            :aria-label="sheetButtonLabel(idx)"
             @click="jumpToQuestion(idx)"
           >
             {{ idx + 1 }}
           </button>
+        </div>
+
+        <!-- Legenda kolorów -->
+        <div
+          class="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-gray-600 dark:text-gray-400"
+        >
+          <span class="flex items-center gap-1.5">
+            <span class="h-2.5 w-2.5 rounded-full ring-2 ring-blue-500"></span>
+            Aktualne
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="h-2.5 w-2.5 rounded-full bg-green-500"></span>
+            Poprawne
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="h-2.5 w-2.5 rounded-full bg-red-500"></span>
+            Błędne
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="h-2.5 w-2.5 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+            Bez odpowiedzi
+          </span>
         </div>
       </div>
     </div>
@@ -761,6 +777,29 @@ const jumpToQuestion = (idx) => {
   goToQuestion(idx);
   showQuestionSheet.value = false;
 };
+
+// Kolory przycisków w arkuszu pytań (mobile): poprawność + zaznaczenie.
+function sheetButtonClass(idx) {
+  const status = answersStatus.value[idx];
+  let base = 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+  if (status?.answered) {
+    base = status.correct
+      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+  }
+  return idx === currentQuestionIndex.value ? `${base} ring-2 ring-blue-500` : base;
+}
+
+function sheetButtonLabel(idx) {
+  const status = answersStatus.value[idx];
+  const state = status?.answered
+    ? status.correct
+      ? 'poprawne'
+      : 'błędne'
+    : 'bez odpowiedzi';
+  const current = idx === currentQuestionIndex.value ? ', aktualne' : '';
+  return `Pytanie ${idx + 1}, ${state}${current}`;
+}
 
 // Zapis historii
 const saveUserHistory = async () => {
