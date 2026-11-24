@@ -330,6 +330,7 @@ const SearchBar = defineAsyncComponent(() => import('@/components/base/SearchBar
 const BaseButton = defineAsyncComponent(() => import('@/components/base/BaseButton.vue'));
 const QuestionCard = defineAsyncComponent(() => import('@/components/questions/QuestionCard.vue'));
 import apiClient from '@/api';
+import { getCachedQuestionsByCategory } from '@/services/questionsSync';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
@@ -849,8 +850,24 @@ async function toggleAllFlagged() {
 }
 
 // Inicjalizacja
-async function loadQuestions() {
+async function loadQuestions({ preferCache = true } = {}) {
   const encodedCategory = encodeURIComponent(category.value);
+
+  // 1. Lokalny cache PWA — natychmiastowy render bez czekania na sieć.
+  if (preferCache && category.value && category.value !== 'all') {
+    try {
+      const cached = await getCachedQuestionsByCategory(category.value);
+      if (Array.isArray(cached) && cached.length > 0) {
+        localQuestions.value = [...cached].sort((a, b) => Number(a.ID) - Number(b.ID));
+        totalCount.value = cached.length;
+        loading.value = false;
+        return;
+      }
+    } catch (e) {
+      // Brak cache — lecimy do API.
+    }
+  }
+
   try {
     // Pierwsza porcja: szybki pierwszy render.
     const first = await apiClient.get(
@@ -906,7 +923,8 @@ function handleQuestionsRealtime(event) {
     return;
   }
   localQuestions.value = [];
-  loadQuestions();
+  // Po importie/czyszczeniu cache może być jeszcze nieodświeżony — bierzemy API.
+  loadQuestions({ preferCache: false });
 }
 
 onMounted(() => {

@@ -49,6 +49,8 @@
         </router-view>
       </main>
 
+      <AppFooter v-if="showFooter" />
+
       <BottomNav v-if="showBottomNav" />
 
       <!-- Pasek z czasem ważności tokenu -->
@@ -107,11 +109,13 @@ import { useStore, mapGetters } from 'vuex';
 import { useRouter, useRoute } from 'vue-router';
 const Navbar = defineAsyncComponent(() => import('@/components/layout/Navbar.vue'));
 const BottomNav = defineAsyncComponent(() => import('@/components/layout/BottomNav.vue'));
+const AppFooter = defineAsyncComponent(() => import('@/components/layout/AppFooter.vue'));
 const BaseAlert = defineAsyncComponent(() => import('@/components/base/BaseAlert.vue'));
 const BaseLoader = defineAsyncComponent(() => import('@/components/base/BaseLoader.vue'));
 const BaseSkeleton = defineAsyncComponent(() => import('@/components/base/BaseSkeleton.vue'));
 const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal.vue'));
 import apiClient from '@/api';
+import { ensureQuestionsCache, handleQuestionsEvent } from '@/services/questionsSync';
 import { startRealtime, stopRealtime } from '@/utils/realtime';
 import { useSkeletonConfig } from '@/composables/useSkeletonConfig.js';
 import { useGlobalLoader } from '@/composables/useGlobalLoader.js';
@@ -137,6 +141,8 @@ const showNavbar = computed(() => route.name !== 'Login' && route.name !== 'Regi
 const showBottomNav = computed(
   () => showNavbar.value && !['QuizView', 'ExamView'].includes(route.name)
 );
+// Stopka wersji: wszędzie poza trybem skupienia (quiz/egzamin).
+const showFooter = computed(() => !['QuizView', 'ExamView'].includes(route.name));
 
 // Skeleton logic
 const {
@@ -311,9 +317,12 @@ watch(
 let sessionCheckInterval;
 let statsRefreshTimer = null;
 
-function handleQuestionsChanged() {
+function handleQuestionsChanged(event) {
   // Zmiana danych unieważnia cache GET-ów, żeby inne widoki pobrały świeże dane.
   apiClient.clearCache();
+  if (event && event.detail) {
+    handleQuestionsEvent(event.detail);
+  }
   clearTimeout(statsRefreshTimer);
   statsRefreshTimer = setTimeout(() => {
     store.dispatch('questions/fetchStats');
@@ -362,6 +371,15 @@ onMounted(() => {
   window.testSessionModal = () => showSessionExpirationModal(5);
   checkTokenExpiration();
   checkAuthOnStart();
+
+  // Lokalna kopia pytań (PWA): po zalogowaniu dociągnij w tle, potem sprawdzaj
+  // wersję przy powrocie do karty (max raz na 5 minut — pilnuje serwis).
+  ensureQuestionsCache();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && store.state.user.isAuthenticated) {
+      ensureQuestionsCache();
+    }
+  });
 });
 
 onBeforeUnmount(() => {

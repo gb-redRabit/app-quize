@@ -28,6 +28,7 @@ function uploadExcelMiddleware(req, res, next) {
 }
 const Question = require("../models/Question");
 const events = require("../utils/events");
+const { bumpQuestionsVersion } = require("../utils/questionsVersion");
 
 // Pobierz wszystkie pytania
 router.get("/", auth.verifyToken, async (req, res) => {
@@ -125,6 +126,12 @@ router.post(
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+// Wersja bazy pytań (publiczna) — używana przez PWA i stopkę wersji.
+router.get("/version", questionsController.getQuestionsVersionInfo);
+
+// Pełny snapshot do lokalnego cache (wymaga zalogowania).
+router.get("/snapshot", auth.verifyToken, questionsController.getQuestionsSnapshot);
+
 // Pobierz pytania według kategorii
 router.get(
   "/category/:category(*)",
@@ -155,10 +162,12 @@ router.delete(
       const result = await Question.deleteMany({ category });
       questionsController.invalidateCategoryCache();
       await questionsController.refreshStats();
+      const { version } = await bumpQuestionsVersion();
       events.emit("questions-changed", {
         type: "bulk",
         action: "delete-category",
         category,
+        version,
       });
       res.json({ success: true, deletedCount: result.deletedCount });
     } catch (e) {

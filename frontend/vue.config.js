@@ -1,4 +1,9 @@
 const path = require('path');
+const pkg = require('./package.json');
+
+// Wersja aplikacji i commit trafiają do UI (stopka wersji).
+const buildCommit = (process.env.VERCEL_GIT_COMMIT_SHA || '').slice(0, 7);
+const buildTime = new Date().toISOString();
 
 module.exports = {
   runtimeCompiler: true,
@@ -11,6 +16,9 @@ module.exports = {
         __VUE_OPTIONS_API__: true,
         __VUE_PROD_DEVTOOLS__: false,
         __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
+        'process.env.VUE_APP_VERSION': JSON.stringify(pkg.version),
+        'process.env.VUE_APP_COMMIT': JSON.stringify(buildCommit),
+        'process.env.VUE_APP_BUILD_TIME': JSON.stringify(buildTime),
       });
       return definitions;
     });
@@ -95,31 +103,6 @@ module.exports = {
     },
   },
 
-  // Dodajemy konfigurację dla Service Workera do cachowania zasobów
-  pwa: {
-    workboxOptions: {
-      skipWaiting: true,
-      clientsClaim: true,
-      runtimeCaching: [
-        {
-          urlPattern: new RegExp('^https://app-quize.onrender.com/api'),
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'api-cache',
-            expiration: {
-              maxEntries: 100,
-              maxAgeSeconds: 0,
-            },
-          },
-        },
-        {
-          urlPattern: /\.(?:js|css)$/,
-          handler: 'StaleWhileRevalidate',
-          options: {
-            cacheName: 'static-resources',
-          },
-        },
-      ],
-    },
-  },
+  // Snapshot pytań jest cache'owany przez własny Service Worker i IndexedDB
+  // (public/sw.js + src/services/questionsSync.js) — bez Workboxa.
 };

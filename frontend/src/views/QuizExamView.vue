@@ -380,6 +380,7 @@ import {
   computeRemainingSeconds,
   shouldSaveProgress,
 } from '@/utils/quizProgress';
+import { getCachedQuestionsByIds } from '@/services/questionsSync';
 
 // Zależności
 const router = useRouter();
@@ -543,11 +544,18 @@ const fetchQuestions = async () => {
         .split(',')
         .map((id) => id.trim())
         .filter(Boolean);
-      const response = await apiClient.get('/questions', {
-        params: { ids: ids.join(',') },
-        noCache: true,
-      });
-      fetchedQuestions = response.data?.questions || [];
+
+      // Najpierw lokalny cache PWA — start quizu bez czekania na sieć.
+      const cached = await getCachedQuestionsByIds(ids);
+      if (cached.length === ids.length) {
+        fetchedQuestions = cached;
+      } else {
+        const response = await apiClient.get('/questions', {
+          params: { ids: ids.join(',') },
+          noCache: true,
+        });
+        fetchedQuestions = response.data?.questions || [];
+      }
     } else {
       fetchedQuestions = await store.dispatch(
         'questions/fetchQuestionsByCategory',

@@ -6,6 +6,10 @@ const { setCache, getCache, clearCache } = require("../utils/cache");
 const { parseWorkbook } = require("../utils/excelImport");
 const { validateQuestionPayload } = require("../utils/validateQuestion");
 const events = require("../utils/events");
+const {
+  bumpQuestionsVersion,
+  getQuestionsVersion,
+} = require("../utils/questionsVersion");
 const CACHE_KEY = "stats";
 
 // Cache pełnych list kategorii (krótki TTL, ograniczona liczba wpisów).
@@ -37,6 +41,40 @@ function invalidateCategoryCache() {
 
 // Zabezpieczenie przed równoległym importem (jeden plik na raz).
 let importInProgress = false;
+
+// Wersja bazy pytań (publiczna — pokazywana też na ekranie logowania).
+exports.getQuestionsVersionInfo = async (req, res) => {
+  try {
+    const { version, updatedAt } = await getQuestionsVersion();
+    const count = await Question.estimatedDocumentCount();
+    res.json({ version, updatedAt, count });
+  } catch (e) {
+    res.status(500).json({ message: "Błąd pobierania wersji pytań" });
+  }
+};
+
+// Pełny snapshot pytań dla lokalnego cache PWA.
+exports.getQuestionsSnapshot = async (req, res) => {
+  try {
+    const { version, updatedAt } = await getQuestionsVersion();
+    const etag = `W/"questions-${version}"`;
+
+    if (req.headers["if-none-match"] === etag) {
+      return res.status(304).end();
+    }
+
+    const questions = await Question.find({}, { _id: 0, __v: 0 })
+      .sort({ ID: 1 })
+      .lean();
+
+    res.setHeader("ETag", etag);
+    res.setHeader("Cache-Control", "private, max-age=300");
+    res.json({ version, updatedAt, count: questions.length, questions });
+  } catch (e) {
+    console.error("Błąd snapshotu pytań:", e);
+    res.status(500).json({ message: "Błąd pobierania snapshotu pytań" });
+  }
+};
 
 // Pobierz wszystkie pytania (z paginacją)
 exports.getAllQuestions = async (req, res) => {
@@ -85,7 +123,13 @@ exports.addQuestion = async (req, res) => {
     await question.save();
 
     await updateStats();
-    events.emit("questions-changed", { type: "create", ID: nextID });
+    const { version } = await bumpQuestionsVersion();
+    events.emit("questions-changed", {
+      type: "create",
+      ID: nextID,
+      question,
+      version,
+    });
 
     res.status(201).json({ message: "Question added", ID: nextID });
   } catch (e) {
@@ -113,10 +157,12 @@ exports.updateQuestion = async (req, res) => {
     if (!updatedQuestion) {
       return res.status(404).json({ message: "Question not found" });
     }
+    const { version } = await bumpQuestionsVersion();
     events.emit("questions-changed", {
       type: "update",
       ID: updatedQuestion.ID,
       question: updatedQuestion,
+      version,
     });
     res.json(updatedQuestion);
   } catch (e) {
@@ -142,6 +188,7 @@ exports.deleteQuestion = async (req, res) => {
     events.emit("questions-changed", {
       type: "delete",
       ID: Number(req.params.id),
+      version: (await bumpQuestionsVersion()).version,
     });
     res.json({ success: true });
   } catch (e) {
@@ -211,7 +258,12 @@ exports.clearQuestions = async (req, res) => {
   try {
     await Question.deleteMany({});
     await updateStats();
-    events.emit("questions-changed", { type: "bulk", action: "clear" });
+    const { version } = await bumpQuestionsVersion();
+    events.emit("questions-changed", {
+      type: "bulk",
+      action: "clear",
+      version,
+    });
     res.json({ message: "Wyczyszczono wszystkie pytania" });
   } catch (e) {
     res.status(500).json({ message: "Błąd czyszczenia pytań" });
@@ -247,10 +299,12 @@ exports.importQuestionsFromExcel = async (req, res) => {
 
     if (inserted > 0) {
       await updateStats();
+      const { version } = await bumpQuestionsVersion();
       events.emit("questions-changed", {
         type: "bulk",
         action: "import",
         count: inserted,
+        version,
       });
     }
 
