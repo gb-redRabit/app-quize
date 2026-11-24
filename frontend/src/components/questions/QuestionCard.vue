@@ -281,13 +281,10 @@
 </template>
 
 <script setup>
-import { computed, inject } from 'vue';
+import { computed } from 'vue';
 import { useStore } from 'vuex';
 import QuestionActions from '@/components/questions/QuestionActions.vue';
 import AnswerItem from '@/components/questions/AnswerItem.vue';
-
-// Dostęp do globalnego systemu alertów
-const showAlert = inject('showAlert', (type, msg) => console.warn(`Alert: ${type} - ${msg}`));
 
 // Dostęp do store
 const store = useStore();
@@ -297,7 +294,7 @@ const user = computed(() => store.getters['user/getUser']);
 const isAdmin = computed(() => user.value?.rola === 'admin');
 
 // Props
-const props = defineProps({
+defineProps({
   question: {
     type: Object,
     required: true,

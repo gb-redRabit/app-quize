@@ -775,16 +775,6 @@ async function toggleUnknown(q) {
   }
 }
 
-function toggleSortByDescription() {
-  sortByDescription.value = !sortByDescription.value;
-
-  // Opcjonalnie dodaj powiadomienie, aby użytkownik wiedział, że sortowanie zostało zmienione
-  showAlert(
-    'info',
-    sortByDescription.value ? 'Sortowanie według opisu (A-Z)' : 'Przywrócono domyślne sortowanie'
-  );
-}
-
 function toggleSortByDescriptionField() {
   sortByDescriptionField.value = !sortByDescriptionField.value;
   showAlert(

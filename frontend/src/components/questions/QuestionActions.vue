@@ -444,35 +444,4 @@ function flagChanged(flagType) {
     editData.value.flagged = false;
   }
 }
-
-// Dodajmy metodę do szybkiego przełączania flag (można wykorzystać do przycisków poza modalem)
-function toggleFlag(question, flagType) {
-  const payload = {
-    ID: question.ID,
-    [flagType]: !question[flagType],
-  };
-
-  // Logika wykluczająca dla niektórych flag
-  if (flagType === 'flagged' && payload.flagged) {
-    payload.bad = false;
-  } else if (flagType === 'bad' && payload.bad) {
-    payload.flagged = false;
-  }
-
-  apiClient
-    .patch(`/questions/${question.ID}/flags`, payload)
-    .then(() => {
-      // Zaktualizuj lokalne dane pytania
-      question[flagType] = payload[flagType];
-      if (flagType === 'flagged' && payload.flagged) question.bad = false;
-      if (flagType === 'bad' && payload.bad) question.flagged = false;
-
-      showAlert('success', `Flaga "${flagType}" zmieniona`);
-      store.dispatch('questions/fetchStats');
-    })
-    .catch((e) => {
-      showAlert('error', 'Nie udało się zmienić flagi');
-      console.error('Błąd zmiany flagi:', e);
-    });
-}
 </script>

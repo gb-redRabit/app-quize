@@ -137,7 +137,7 @@ const route = useRoute();
 
 const isPageLoading = ref(false);
 const showSessionModal = ref(false);
-const { globalLoaderVisible, showLoader, hideLoader } = useGlobalLoader();
+const { globalLoaderVisible, hideLoader } = useGlobalLoader();
 const sessionMinutesLeft = ref(5);
 const sessionSecondsLeft = ref(0);
 const sessionModalLoading = ref(false);
@@ -180,10 +180,6 @@ provide('showAlert', showAlert);
 provide('hideAlert', hideAlert);
 
 // Loader helpers
-function $showLoader() {
-  showLoader();
-  globalLoader.value?.show();
-}
 function $hideLoader() {
   hideLoader();
   globalLoader.value?.hide();

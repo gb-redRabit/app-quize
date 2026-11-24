@@ -131,7 +131,7 @@
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   activeFilter: {
     type: String,
     required: true,
@@ -150,7 +150,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits([
+defineEmits([
   'update:active-filter',
   'update:view-type',
   'update:grid-columns',

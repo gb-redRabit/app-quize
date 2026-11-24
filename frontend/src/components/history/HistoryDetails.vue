@@ -40,7 +40,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['close', 'scroll-to-answer']);
+defineEmits(['close', 'scroll-to-answer']);
 
 // Lista odpowiedzi z wybranej historii
 const entryList = computed(() => {

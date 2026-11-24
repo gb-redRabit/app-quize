@@ -60,7 +60,7 @@
     <!-- Questions list z infinite scroll -->
     <div v-else class="space-y-3">
       <div
-        v-for="(q, idx) in visibleQuestions"
+        v-for="q in visibleQuestions"
         :key="q.ID"
         class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
         :class="{

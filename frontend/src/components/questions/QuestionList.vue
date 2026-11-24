@@ -116,10 +116,6 @@ const shuffledAnswers = ref([]);
 // Obliczenia
 const answers = computed(() => shuffledAnswers.value);
 
-const correctIndex = computed(() => {
-  return answers.value.findIndex((a) => a.isCorret || a.isCorrect);
-});
-
 const selectedIndex = computed(() => {
   if (!props.selectedKey) return null;
   return answers.value.findIndex((a) => a.key === props.selectedKey);

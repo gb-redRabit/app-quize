@@ -148,7 +148,7 @@ import { useUserStats } from '@/composables/useUserStats';
 import BaseButton from '@/components/base/BaseButton.vue';
 import { onMounted, onUnmounted, nextTick } from 'vue';
 
-const props = defineProps({
+defineProps({
   categories: {
     type: Array,
     required: true,

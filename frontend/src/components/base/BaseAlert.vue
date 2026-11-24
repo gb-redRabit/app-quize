@@ -133,8 +133,8 @@
 <script setup>
 import { ref, computed, onBeforeUnmount } from 'vue';
 
-// Emits
-const emit = defineEmits(['close']);
+// Emits (deklaracja; komponent używa `$emit` w szablonie)
+defineEmits(['close']);
 
 // Reactive state
 const visible = ref(false);

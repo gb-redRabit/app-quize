@@ -32,25 +32,15 @@ function setupTokenRefresh() {
   // Odświeżaj token co 10 minut
   const refreshInterval = 10 * 60 * 1000;
 
-  // Sprawdzaj czas wygaśnięcia tokenu co minutę
-  const checkExpirationInterval = 60 * 1000;
-
-  // Pokazuj ostrzeżenie jeśli do wygaśnięcia zostało mniej niż 5 minut
-  const warningThreshold = 5 * 60; // 5 minut w sekundach
-
-  // Flagi do śledzenia stanu
-  let isWarningModalShown = false;
+  // Flaga do śledzenia stanu
   let isRefreshingToken = false;
 
   // Główne interwały
   const intervalId = setInterval(refreshToken, refreshInterval);
-  const expirationCheckId = setInterval(checkTokenExpiration, checkExpirationInterval);
 
   // Nasłuchuj zdarzeń aktywności użytkownika (szczególnie podczas quizu/egzaminu)
   window.addEventListener('focus', refreshToken);
   window.addEventListener('online', refreshToken);
-  window.addEventListener('mousemove', debounce(checkTokenExpiration, 10000));
-  window.addEventListener('keydown', debounce(checkTokenExpiration, 10000));
 
   // Specjalny nasłuchiwacz dla quiz/exam widoku
   window.addEventListener('quiz-activity', debounce(checkTokenActivity, 5000));
@@ -96,18 +86,6 @@ function setupTokenRefresh() {
     }
   }
 
-  // Sprawdzanie czasu wygaśnięcia tokenu
-  function checkTokenExpiration() {
-    const token = sessionStorage.getItem('token');
-    if (!token) return;
-
-    const decoded = parseJwt(token);
-    if (!decoded || !decoded.exp) return;
-
-    const currentTime = Math.floor(Date.now() / 1000);
-    const timeRemaining = decoded.exp - currentTime;
-  }
-
   // Helper do ograniczenia liczby wywołań funkcji
   function debounce(func, wait) {
     let timeout;
@@ -120,7 +98,6 @@ function setupTokenRefresh() {
   // Wyczyść interwały przy zamknięciu aplikacji
   window.addEventListener('beforeunload', () => {
     clearInterval(intervalId);
-    clearInterval(expirationCheckId);
   });
 }
 

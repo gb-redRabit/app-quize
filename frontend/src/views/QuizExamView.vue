@@ -941,7 +941,6 @@ const restartQuiz = async (onlyFailedOrNotAnswered = false) => {
     startTime.value = Date.now();
 
     if (route.query.categories) {
-      const cat = route.query.categories;
       try {
         const wrongOrNotDoneIds = wrongOrNotDoneIdsCache.value;
 
@@ -973,7 +972,6 @@ const restartQuiz = async (onlyFailedOrNotAnswered = false) => {
   } else {
     // Logika restartu dla quizu
     if (onlyFailedOrNotAnswered && route.query.categories) {
-      const cat = route.query.categories;
       try {
         const wrongOrNotDoneIds = wrongOrNotDoneIdsCache.value;
 

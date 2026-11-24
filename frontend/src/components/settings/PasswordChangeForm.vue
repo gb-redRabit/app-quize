@@ -142,7 +142,7 @@ import BaseButton from '@/components/base/BaseButton.vue';
 import PasswordVisibilityToggle from '@/components/base/PasswordVisibilityToggle.vue';
 
 // Props
-const props = defineProps({
+defineProps({
   user: Object,
 });
 

@@ -88,7 +88,7 @@
 <script setup>
 import BaseButton from '@/components/base/BaseButton.vue';
 
-const props = defineProps({
+defineProps({
   entry: {
     type: Object,
     required: true,
