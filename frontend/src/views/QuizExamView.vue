@@ -462,6 +462,7 @@ const quizInProgress = computed(
 );
 
 function handleBeforeUnload(event) {
+  saveProgress();
   if (!quizInProgress.value) return;
   event.preventDefault();
   event.returnValue = '';
@@ -1083,6 +1084,106 @@ watch(
   }
 );
 
+// --- Wznawianie niezakończonego quizu/egzaminu po reloadzie ---
+const PROGRESS_KEY = 'quiz-progress';
+let saveProgressTimer = null;
+
+function sessionSignature() {
+  return `${route.name}|${route.fullPath}`;
+}
+
+function clearSavedProgress() {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(PROGRESS_KEY);
+  } catch (e) {
+    // Brak dostępu do localStorage — ignorujemy.
+  }
+}
+
+function saveProgress() {
+  if (typeof window === 'undefined') return;
+  if (!questions.value.length || showSummary.value) return;
+
+  const payload = {
+    signature: sessionSignature(),
+    savedAt: Date.now(),
+    ids: questions.value.map((q) => q.ID ?? q.id),
+    answersStatus: answersStatus.value,
+    questionTimes: questionTimes.value,
+    currentIndex: currentQuestionIndex.value,
+    score: score.value,
+    autoNextEnabled: autoNextEnabled.value,
+    timeLeft: mode.value === 'exam' ? timeLeft.value : null,
+  };
+
+  try {
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(payload));
+  } catch (e) {
+    // Przekroczone quota lub tryb prywatny — pomijamy zapis.
+  }
+}
+
+function scheduleProgressSave() {
+  clearTimeout(saveProgressTimer);
+  saveProgressTimer = setTimeout(saveProgress, 400);
+}
+
+function readSavedProgress() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(PROGRESS_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data || data.signature !== sessionSignature()) return null;
+    if (!Array.isArray(data.ids) || !Array.isArray(data.answersStatus)) return null;
+    if (data.ids.length !== data.answersStatus.length) return null;
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+function restoreProgress(data) {
+  const byId = new Map(questions.value.map((q) => [String(q.ID ?? q.id), q]));
+  const restoredQuestions = data.ids.map((id) => byId.get(String(id)));
+  if (restoredQuestions.some((q) => !q)) return false;
+
+  // Wygasły egzamin zaczynamy od nowa.
+  if (mode.value === 'exam' && typeof data.timeLeft === 'number') {
+    const elapsed = Math.max(
+      0,
+      Math.floor((Date.now() - (Number(data.savedAt) || Date.now())) / 1000)
+    );
+    const remaining = Math.max(0, data.timeLeft - elapsed);
+    if (remaining <= 0) return false;
+    timeLeft.value = remaining;
+  }
+
+  questions.value = restoredQuestions;
+  answersStatus.value = data.answersStatus.map((a) => ({ ...a }));
+  questionTimes.value = Array.isArray(data.questionTimes) ? [...data.questionTimes] : [];
+  score.value = Number(data.score) || 0;
+  autoNextEnabled.value = data.autoNextEnabled !== false;
+  currentQuestionIndex.value = Math.min(
+    Math.max(0, Number(data.currentIndex) || 0),
+    restoredQuestions.length - 1
+  );
+  startTime.value = Date.now();
+  return true;
+}
+
+watch(
+  [answersStatus, currentQuestionIndex, score, autoNextEnabled],
+  scheduleProgressSave,
+  { deep: true }
+);
+
+// Zakończony quiz nie powinien być wznawiany.
+watch(showSummary, (visible) => {
+  if (visible) clearSavedProgress();
+});
+
 // Inicjalizacja
 onMounted(async () => {
   window.addEventListener('keydown', handleKeydown);
@@ -1111,6 +1212,13 @@ onMounted(async () => {
   try {
     await fetchQuestions();
     await updateWrongOrNotDoneCache();
+
+    const saved = readSavedProgress();
+    if (saved && restoreProgress(saved)) {
+      showAlert?.('info', 'Wznowiono niezakończony quiz.');
+    } else {
+      clearSavedProgress();
+    }
 
     if (mode.value === 'exam') {
       startTimer();
@@ -1156,6 +1264,8 @@ onBeforeUnmount(() => {
   }
 
   clearAutoNextTimers();
+  clearTimeout(saveProgressTimer);
+  saveProgress();
 });
 </script>
 
