@@ -19,7 +19,25 @@ const connectDB = require("./config/database");
 
 const app = express();
 app.set("trust proxy", 1);
+app.disable("x-powered-by");
 const PORT = process.env.PORT || 3000;
+
+// Podstawowe nagłówki bezpieczeństwa (bez dodatkowej zależności).
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("X-DNS-Prefetch-Control", "off");
+  const isHttps =
+    req.secure || req.headers["x-forwarded-proto"] === "https";
+  if (isHttps) {
+    res.setHeader(
+      "Strict-Transport-Security",
+      "max-age=15552000; includeSubDomains"
+    );
+  }
+  next();
+});
 
 app.use(
   compression({
@@ -91,6 +109,18 @@ app.use("/api/questions", questionsRoutes);
 app.use("/api/users", usersRouter);
 app.use("/api/stats", statsRoutes);
 app.use("/api/events", eventsRoutes);
+
+// Nieznane trasy API zwracają JSON, nie HTML.
+app.use("/api", (req, res) => {
+  res.status(404).json({ message: "Nie znaleziono zasobu" });
+});
+
+// Spójne odpowiedzi błędów.
+app.use((err, req, res, next) => {
+  console.error("Nieobsłużony błąd:", err.message);
+  if (res.headersSent) return next(err);
+  res.status(err.status || 500).json({ message: "Błąd serwera" });
+});
 
 (async () => {
   await connectDB();
