@@ -341,7 +341,6 @@ import {
   onUnmounted,
   defineAsyncComponent,
 } from 'vue';
-import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 const SearchBar = defineAsyncComponent(() => import('@/components/base/SearchBar.vue'));
 const QuestionActions = defineAsyncComponent(
   () => import('@/components/questions/QuestionActions.vue')
@@ -363,7 +362,6 @@ const page = ref(1);
 const limit = ref(20);
 const total = ref(0);
 const pages = ref(1);
-const searching = ref(false);
 const isLoading = ref(true);
 const expandedQuestions = ref([]);
 const selectedQuestion = ref(null);
@@ -447,7 +445,6 @@ async function fetchQuestions(forceRefresh = false, append = false) {
 
     total.value = totalCount;
     pages.value = pagesCount;
-    searching.value = search.value.trim() !== '';
   } catch (e) {
     if (token !== fetchToken) return;
     console.error('Błąd podczas pobierania pytań:', e);

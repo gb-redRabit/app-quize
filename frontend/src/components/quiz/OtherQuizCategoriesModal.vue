@@ -78,7 +78,6 @@
 
 <script setup>
 import BaseModal from '@/components/base/BaseModal.vue';
-import { computed } from 'vue';
 
 const props = defineProps({
   show: {

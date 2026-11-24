@@ -270,7 +270,6 @@ import {
   onMounted,
   nextTick,
   inject,
-  onBeforeUnmount,
   defineAsyncComponent,
   watch,
 } from 'vue';

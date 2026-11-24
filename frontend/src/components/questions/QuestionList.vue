@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, inject } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { shuffleArray } from '@/utils/shuffleArray';
 import QuestionActions from '@/components/questions/QuestionActions.vue';

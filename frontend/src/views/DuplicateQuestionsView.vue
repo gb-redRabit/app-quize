@@ -199,7 +199,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, inject, watch, nextTick, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, inject, nextTick, onBeforeUnmount } from 'vue';
 import QuestionActions from '@/components/questions/QuestionActions.vue';
 import apiClient from '@/api';
 

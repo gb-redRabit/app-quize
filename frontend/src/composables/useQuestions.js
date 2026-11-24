@@ -1,7 +1,6 @@
 // useQuestions.js
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { useStore } from 'vuex';
-import apiClient from '@/api';
 import { getCachedQuestionsByCategory } from '@/services/questionsSync';
 
 export function useQuestions() {

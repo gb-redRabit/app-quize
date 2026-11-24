@@ -114,7 +114,7 @@ import {
   provide,
   defineAsyncComponent,
 } from 'vue';
-import { useStore, mapGetters } from 'vuex';
+import { useStore } from 'vuex';
 import { useRouter, useRoute } from 'vue-router';
 const Navbar = defineAsyncComponent(() => import('@/components/layout/Navbar.vue'));
 const BottomNav = defineAsyncComponent(() => import('@/components/layout/BottomNav.vue'));
