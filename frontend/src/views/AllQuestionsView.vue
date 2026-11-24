@@ -11,7 +11,11 @@
         placeholder="Szukaj po ID lub treści pytania..."
         class="flex-1"
       />
-      <p class="text-xs text-gray-500 dark:text-gray-400 md:mb-4 md:mr-1 whitespace-nowrap">
+      <p
+        class="text-xs text-gray-500 dark:text-gray-400 md:mb-4 md:mr-1 whitespace-nowrap"
+        role="status"
+        aria-live="polite"
+      >
         Wczytano {{ filteredQuestions.length }} z {{ total }}
       </p>
     </div>
