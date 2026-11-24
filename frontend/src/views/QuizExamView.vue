@@ -1228,7 +1228,22 @@ onMounted(async () => {
     await updateWrongOrNotDoneCache();
 
     const saved = readSavedProgress();
-    if (saved && restoreProgress(saved)) {
+    let restoreResult = 'none';
+    if (saved) {
+      restoreResult = restoreProgress(saved) ? 'ok' : 'failed';
+    }
+    if (typeof window !== 'undefined') {
+      window.__restoreDebug = {
+        saved: !!saved,
+        result: restoreResult,
+        sig: sessionSignature(),
+        r: route.query.r,
+        questionsLen: questions.value.length,
+        savedIds: saved ? saved.ids.length : 0,
+        savedSig: saved ? saved.signature : null,
+      };
+    }
+    if (restoreResult === 'ok') {
       showAlert?.('info', 'Wznowiono niezakończony quiz.');
     } else {
       clearSavedProgress();
