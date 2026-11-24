@@ -19,13 +19,3 @@ const userSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("User", userSchema);
-
-exports.getStats = async (req, res) => {
-  try {
-    const totalQuestions = await Question.countDocuments();
-    const categories = await Question.distinct("category");
-    res.json({ totalQuestions, categories });
-  } catch (e) {
-    res.status(500).json({ message: "Error fetching stats" });
-  }
-};

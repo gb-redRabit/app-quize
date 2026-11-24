@@ -39,6 +39,7 @@ function rateLimit({ windowMs = 15 * 60 * 1000, max = 10, message } = {}) {
 }
 
 module.exports = {
+  createRateLimit: rateLimit,
   loginLimiter: rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 10,

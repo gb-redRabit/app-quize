@@ -263,20 +263,4 @@ exports.clearCategoryHQuestion = async (req, res) => {
   }
 };
 
-// Zapisz odpowiedź na pytanie
-exports.saveAnswer = async (req, res) => {
-  const { questionId, correct, category } = req.body;
-  const user = await User.findById(req.user.id);
 
-  // Znajdź wpis w hquestion
-  const idx = user.hquestion.findIndex((q) => q.id === questionId);
-  if (idx !== -1) {
-    // Nadpisz status odpowiedzi
-    user.hquestion[idx].correct = correct;
-    user.hquestion[idx].category = category;
-  } else {
-    // Dodaj nową odpowiedź
-    user.hquestion.push({ id: questionId, correct, category });
-  }
-  await user.save();
-};
