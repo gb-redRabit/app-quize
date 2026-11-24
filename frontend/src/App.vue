@@ -312,6 +312,8 @@ let sessionCheckInterval;
 let statsRefreshTimer = null;
 
 function handleQuestionsChanged() {
+  // Zmiana danych unieważnia cache GET-ów, żeby inne widoki pobrały świeże dane.
+  apiClient.clearCache();
   clearTimeout(statsRefreshTimer);
   statsRefreshTimer = setTimeout(() => {
     store.dispatch('questions/fetchStats');

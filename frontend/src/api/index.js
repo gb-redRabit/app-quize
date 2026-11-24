@@ -217,7 +217,14 @@ function processQueue(error, token = null) {
 }
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Mutacje unieważniają pamięć podręczną GET-ów (np. edycja pytania).
+    const method = String(response.config?.method || 'get').toLowerCase();
+    if (method !== 'get') {
+      cache.clear();
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
@@ -278,7 +285,8 @@ apiClient.interceptors.response.use(
         case 502:
         case 503:
           showAlert('error', 'Wystąpił błąd serwera. Spróbuj ponownie później.', 5000);
-          if (!error.config?.skipErrorPage) {
+          // Nie wyrzucaj użytkownika z aplikacji przy cichych zapytaniach w tle.
+          if (!error.config?.silent && !error.config?.skipErrorPage) {
             window.location.href = '/server-error';
           }
           break;
