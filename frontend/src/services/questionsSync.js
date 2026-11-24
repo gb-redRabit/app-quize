@@ -62,6 +62,11 @@ export async function fetchDbVersion() {
 export async function ensureQuestionsCache({ force = false } = {}) {
   if (inFlightSync) return inFlightSync;
 
+  // Snapshot wymaga tokenu — bez logowania nie ma czego synchronizować.
+  if (typeof sessionStorage !== 'undefined' && !sessionStorage.getItem('token')) {
+    return { skipped: true, reason: 'unauthenticated' };
+  }
+
   inFlightSync = (async () => {
     try {
       if (!force && Date.now() - lastCheckAt < MIN_CHECK_INTERVAL_MS) {

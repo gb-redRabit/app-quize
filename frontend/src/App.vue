@@ -346,8 +346,12 @@ function handleUserUpdated(event) {
 watch(
   () => store.state.user.isAuthenticated,
   (authenticated) => {
-    if (authenticated) startRealtime();
-    else stopRealtime();
+    if (authenticated) {
+      startRealtime();
+      ensureQuestionsCache();
+    } else {
+      stopRealtime();
+    }
   },
   { immediate: true }
 );
@@ -372,9 +376,8 @@ onMounted(() => {
   checkTokenExpiration();
   checkAuthOnStart();
 
-  // Lokalna kopia pytań (PWA): po zalogowaniu dociągnij w tle, potem sprawdzaj
-  // wersję przy powrocie do karty (max raz na 5 minut — pilnuje serwis).
-  ensureQuestionsCache();
+  // Lokalna kopia pytań (PWA): uruchamiana po zalogowaniu (watch poniżej),
+  // a przy powrocie do karty sprawdzamy tylko wersję (max raz na 5 minut).
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && store.state.user.isAuthenticated) {
       ensureQuestionsCache();
