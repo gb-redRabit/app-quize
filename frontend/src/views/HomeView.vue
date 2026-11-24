@@ -184,6 +184,7 @@ import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
 import { computeRemainingSeconds } from '@/utils/quizProgress';
+import { useQuestions } from '@/composables/useQuestions';
 
 // Komponenty
 const StatisticsSummary = defineAsyncComponent(
@@ -211,61 +212,8 @@ const showAlert = inject('showAlert');
 const router = useRouter();
 const store = useStore(); // Inicjalizuj store na najwyższym poziomie
 
-// Utworzenie lokalnych obiektów pomocniczych (zamiast composables)
-const questionsHelper = (() => {
-  const categories = computed(() => store.getters['questions/getCategories'] || []);
-  const categoryCounts = computed(() => store.getters['questions/getCategoryCounts'] || {});
-  const hiddenCategory = computed(() => store.getters['user/getUser'].hiddenCategory || []);
-
-  const examCategories = computed(() =>
-    categories.value.filter((cat) => cat && cat.toLowerCase().includes('egzamin'))
-  );
-
-  const otherCategories = computed(() =>
-    categories.value.filter(
-      (cat) => cat && !examCategories.value.includes(cat) && !cat.startsWith('TP')
-    )
-  );
-
-  const lawTestCategories = computed(() =>
-    categories.value.filter((cat) => cat && cat.startsWith('TP'))
-  );
-
-  const getQuestionIdsForQuiz = async (cat) => {
-    try {
-      // Pobierz tylko ID pytań z kategorii (bez pełnych treści)
-      const allIds = await store.dispatch('questions/fetchQuestionIdsByCategory', cat);
-
-      // Pobierz historię użytkownika dla danej kategorii
-      const hquestion = store.getters['user/getHquestion'] || [];
-      const hq = hquestion.filter((q) => q.category === cat);
-
-      // Filtruj tylko pytania, które nie zostały odpowiedziane lub odpowiedziane błędnie
-      return allIds.filter((id) => {
-        const entry = hq.find(
-          (q) =>
-            String(q.id) === String(id) ||
-            String(q.ID) === String(id) ||
-            String(q.question_id) === String(id)
-        );
-        return !entry || entry.correct === false;
-      });
-    } catch (e) {
-      console.error('Błąd pobierania pytań dla quizu:', e);
-      return [];
-    }
-  };
-
-  return {
-    categories,
-    categoryCounts,
-    examCategories,
-    otherCategories,
-    lawTestCategories,
-    hiddenCategory,
-    getQuestionIdsForQuiz,
-  };
-})();
+// Wspólne helpery kategorii (jedno źródło prawdy — także offline fallback).
+const questionsHelper = useQuestions();
 
 // Stan lokalny
 const showExamPopup = ref(false);
