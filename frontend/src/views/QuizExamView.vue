@@ -1162,8 +1162,26 @@ function readSavedProgress() {
   }
 }
 
-function restoreProgress(data) {
+async function restoreProgress(data) {
   const byId = new Map(questions.value.map((q) => [String(q.ID ?? q.id), q]));
+  const missingIds = data.ids.filter((id) => !byId.has(String(id)));
+
+  // Pytania mogły nie trafić do bieżącej losowej puli — dociągamy je po ID.
+  if (missingIds.length > 0) {
+    try {
+      const res = await apiClient.get('/questions', {
+        params: { ids: missingIds.join(',') },
+        noCache: true,
+      });
+      const fetched = res.data?.questions || [];
+      for (const q of fetched) {
+        byId.set(String(q.ID ?? q.id), q);
+      }
+    } catch (e) {
+      console.error('Nie udało się pobrać pytań do wznowienia:', e);
+    }
+  }
+
   const restoredQuestions = data.ids.map((id) => byId.get(String(id)));
   if (restoredQuestions.some((q) => !q)) return false;
 
@@ -1235,7 +1253,7 @@ onMounted(async () => {
     const saved = readSavedProgress();
     let restoreResult = 'none';
     if (saved) {
-      restoreResult = restoreProgress(saved) ? 'ok' : 'failed';
+      restoreResult = (await restoreProgress(saved)) ? 'ok' : 'failed';
     }
     if (typeof window !== 'undefined') {
       window.__restoreDebug = {
