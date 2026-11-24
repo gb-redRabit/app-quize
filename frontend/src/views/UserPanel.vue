@@ -86,6 +86,8 @@
                   class="rounded-full cursor-pointer shadow-inner"
                   width="256"
                   height="256"
+                  role="img"
+                  aria-label="Koło kolorów — kliknij lub przeciągnij, aby wybrać kolor"
                   @mousedown="startColorSelection"
                   @touchstart="startColorSelection"
                 ></canvas>
@@ -106,6 +108,29 @@
                 <p class="font-mono text-lg text-gray-800 dark:text-gray-200">
                   {{ selectedColor.toUpperCase() }}
                 </p>
+              </div>
+
+              <!-- Gotowe kolory: szybsze i wygodniejsze na telefonie -->
+              <div
+                class="mt-4 flex flex-wrap justify-center gap-2 max-w-xs"
+                role="group"
+                aria-label="Gotowe kolory awatara"
+              >
+                <button
+                  v-for="preset in colorPresets"
+                  :key="preset"
+                  type="button"
+                  class="h-9 w-9 rounded-full border-2 transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                  :class="
+                    selectedColor.toUpperCase() === preset.toUpperCase()
+                      ? 'border-gray-900 dark:border-white'
+                      : 'border-white dark:border-gray-700'
+                  "
+                  :style="{ backgroundColor: preset }"
+                  :aria-label="`Wybierz kolor ${preset}`"
+                  :aria-pressed="selectedColor.toUpperCase() === preset.toUpperCase()"
+                  @click="pickPresetColor(preset)"
+                ></button>
               </div>
               <BaseButton
                 color="blue"
@@ -301,6 +326,25 @@ const currentAvatarIndex = ref(0);
 const selectedHiddenCategories = ref([]);
 const allCategories = ref([]);
 const colorWheelCanvas = ref(null);
+
+// Gotowe kolory — wygodne na telefonie (koło kolorów zostaje do precyzji).
+const colorPresets = [
+  '#2563EB',
+  '#7C3AED',
+  '#DB2777',
+  '#DC2626',
+  '#EA580C',
+  '#CA8A04',
+  '#16A34A',
+  '#0D9488',
+  '#0891B2',
+  '#4B5563',
+];
+
+function pickPresetColor(color) {
+  selectedColor.value = color;
+  updateSelectorPositionFromColor(color);
+}
 
 // Właściwości obliczeniowe
 const user = computed(() => store.getters['user/getUser']);
