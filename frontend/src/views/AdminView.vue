@@ -937,13 +937,14 @@ function handleAdminKeydown(event) {
   if (isTypingTarget(event.target)) return;
 
   if (event.key === '?') {
+    if (showAddPopup.value || showConfirmDelete.value) return;
     event.preventDefault();
     showShortcuts.value = !showShortcuts.value;
     return;
   }
 
   if (event.key === 'n' || event.key === 'N') {
-    if (showAddPopup.value || showConfirmDelete.value) return;
+    if (showAddPopup.value || showConfirmDelete.value || showShortcuts.value) return;
     event.preventDefault();
     activeTab.value = 'questions';
     openAddPopup();
