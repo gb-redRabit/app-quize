@@ -1105,6 +1105,10 @@ function saveProgress() {
   if (typeof window === 'undefined') return;
   if (!questions.value.length || showSummary.value) return;
 
+  // Nie zapisuj stanu, w którym użytkownik nic jeszcze nie zrobił.
+  const hasProgress = answeredCount.value > 0 || currentQuestionIndex.value > 0;
+  if (!hasProgress) return;
+
   const payload = {
     signature: sessionSignature(),
     savedAt: Date.now(),
