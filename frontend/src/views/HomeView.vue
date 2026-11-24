@@ -41,6 +41,28 @@
         </div>
       </section>
 
+      <section v-if="savedQuiz" class="mb-4">
+        <div
+          class="rounded-xl bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-sm"
+        >
+          <div class="flex-1 min-w-0">
+            <p class="text-xs uppercase tracking-wide text-yellow-800">Niezakończona sesja</p>
+            <p class="text-lg font-semibold truncate">
+              {{ savedQuiz.label }} · pytanie {{ savedQuiz.index + 1 }} z {{ savedQuiz.total }}
+            </p>
+            <p class="text-sm text-yellow-800">
+              Odpowiedzi: {{ savedQuiz.answered }} · postęp zapisany lokalnie
+            </p>
+          </div>
+          <button
+            class="h-12 px-5 rounded-lg bg-white text-yellow-800 font-semibold hover:bg-yellow-50 transition-colors shrink-0"
+            @click="resumeSavedQuiz"
+          >
+            Wznów
+          </button>
+        </div>
+      </section>
+
       <section v-if="lastActivity" class="mb-4">
         <div
           class="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-sm"
@@ -398,6 +420,36 @@ const continueLastActivity = () => {
     startQuizNotDone(cat);
   }
 };
+
+// Niezakończona sesja quizu/egzaminu zapisana przez QuizExamView.
+function readSavedQuiz() {
+  try {
+    const raw = localStorage.getItem('quiz-progress');
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    const [routeName, url] = String(data.signature || '').split('|');
+    if (!url || (routeName !== 'QuizView' && routeName !== 'ExamView')) return null;
+    const answered = (data.answersStatus || []).filter((a) => a.answered).length;
+    const index = Number(data.currentIndex) || 0;
+    if (answered === 0 && index === 0) return null;
+    return {
+      url,
+      answered,
+      index,
+      total: (data.ids || []).length || (data.answersStatus || []).length,
+      label: routeName === 'ExamView' ? 'Egzamin' : 'Quiz',
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+const savedQuiz = ref(readSavedQuiz());
+
+function resumeSavedQuiz() {
+  if (!savedQuiz.value) return;
+  router.push(savedQuiz.value.url);
+}
 
 function scrollToCategories() {
   const el = document.getElementById('categories');

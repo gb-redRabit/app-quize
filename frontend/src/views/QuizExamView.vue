@@ -471,7 +471,7 @@ function handleBeforeUnload(event) {
 onBeforeRouteLeave(() => {
   if (!quizInProgress.value) return true;
   return window.confirm(
-    'Masz niezakończony quiz. Wyjście spowoduje utratę odpowiedzi. Czy na pewno chcesz wyjść?'
+    'Masz niezakończony quiz. Postęp zostanie zapisany i wznawiany po powrocie na ten sam adres. Czy na pewno chcesz wyjść?'
   );
 });
 
@@ -1088,8 +1088,12 @@ watch(
 const PROGRESS_KEY = 'quiz-progress';
 let saveProgressTimer = null;
 
+// Podpis sesji zapamiętany przy wejściu w widok. `route` zmienia się przed
+// odmontowaniem komponentu, więc nie można go czytać w onBeforeUnmount.
+const progressSignature = `${route.name}|${route.fullPath}`;
+
 function sessionSignature() {
-  return `${route.name}|${route.fullPath}`;
+  return progressSignature;
 }
 
 function clearSavedProgress() {
