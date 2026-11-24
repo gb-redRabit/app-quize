@@ -392,14 +392,6 @@ watch(filteredQuestions, (list) => {
   }
 });
 
-// Funkcja do czyszczenia znaków specjalnych na końcu pytania
-function normalizeQuestionText(text) {
-  return (text || '')
-    .replace(/[\s\.\,\;\:\!\?\-–—_]+$/g, '') // usuń spacje i znaki specjalne na końcu
-    .trim()
-    .toLowerCase();
-}
-
 async function fetchQuestions(forceRefresh = false, append = false) {
   const token = ++fetchToken;
   isLoading.value = true;

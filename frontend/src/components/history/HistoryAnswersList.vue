@@ -31,6 +31,8 @@ const props = defineProps({
 // Słuchaj zdarzenia answer-mounted, aby aktualizować referencje
 const handleAnswerMounted = (event) => {
   const { index, element } = event.detail;
+  // Celowo: rodzic przekazuje tablicę referencji, którą wypełniają dzieci.
+  // eslint-disable-next-line vue/no-mutating-props
   props.answerRefs[index] = element;
 };
 

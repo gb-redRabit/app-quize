@@ -639,7 +639,7 @@ function normalizeQuestion(text) {
 
   return text
     .trim()
-    .replace(/[\s:.\?!]+$/, '')
+    .replace(/[\s:.?!]+$/, '')
     .toLowerCase();
 }
 

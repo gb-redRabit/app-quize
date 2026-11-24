@@ -6,7 +6,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
+    "lint": "eslint .",
     "deploy": "vue-cli-service build && gh-pages -d dist",
     "test": "vitest run",
     "format": "prettier --write \"src/**/*.{js,vue,css,scss,json,md}\""

@@ -1,12 +1,10 @@
 <template>
   <div v-if="visible" class="fixed top-0 left-0 w-full z-50 pointer-events-none">
-    <transition name="loader-fade">
-      <div class="w-full bg-transparent" style="height: 3px">
-        <div class="w-full h-full relative overflow-hidden">
-          <div class="h-full w-full loading-bar-progress"></div>
-        </div>
+    <div class="w-full bg-transparent" style="height: 3px">
+      <div class="w-full h-full relative overflow-hidden">
+        <div class="h-full w-full loading-bar-progress"></div>
       </div>
-    </transition>
+    </div>
   </div>
 </template>
 

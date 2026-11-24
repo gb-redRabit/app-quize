@@ -208,41 +208,17 @@ onUnmounted(() => {
   window.removeEventListener('category-history-cleared', handleCategoryClearedEvent);
 });
 
-// Dodaj funkcję obsługującą odświeżenie danych
+// Dodaj funkcję obsługującą odświeżenie danych.
+// Statystyki są własnością rodzica (props) — tutaj tylko prosimy o odświeżenie.
 const handleDataRefresh = (event) => {
-  // Wymuś ponowne obliczenie statystyk
-  if (props.categoryStats) {
-    Object.keys(props.categoryStats).forEach((cat) => {
-      if (!event.detail.category || event.detail.category === cat) {
-        // Resetuj statystyki dla kategorii
-        if (props.categoryStats[cat]) {
-          props.categoryStats[cat].correct = 0;
-          props.categoryStats[cat].wrong = 0;
-          props.categoryStats[cat].notDone = 0;
-        }
-      }
-    });
-  }
-
-  // Wymuś przerenderowanie komponentu
   nextTick(() => {
-    // Opcjonalnie wywołaj funkcję przekazaną z rodzica do odświeżenia danych
-    emit('refresh-data');
+    emit('refresh-data', event?.detail || null);
   });
 };
 
 // Dodaj nową funkcję obsługi zdarzenia
 const handleCategoryClearedEvent = (event) => {
   const { category } = event.detail;
-
-  // Natychmiast zresetuj statystyki dla czyszczonej kategorii
-  if (props.categoryStats && props.categoryStats[category]) {
-    props.categoryStats[category] = {
-      correct: 0,
-      wrong: 0,
-      notDone: questionsHelper.categoryCounts.value[category] || 0,
-    };
-  }
 
   // Wymuś przerenderowanie komponentu
   nextTick(() => {
@@ -253,8 +229,8 @@ const handleCategoryClearedEvent = (event) => {
       setTimeout(() => categoryRow.classList.remove('refreshing'), 800);
     }
 
-    // Opcjonalnie wywołaj funkcję przekazaną z rodzica do odświeżenia danych
-    emit('refresh-data');
+    // Rodzic przeliczy statystyki po wyczyszczeniu historii kategorii
+    emit('refresh-data', { category });
   });
 };
 </script>
