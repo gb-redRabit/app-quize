@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema({
   settings: {
     autoNext: { type: Boolean, default: true },
     showDescriptions: { type: Boolean, default: true },
+    examLength: { type: Number, default: 150 },
   },
 });
 

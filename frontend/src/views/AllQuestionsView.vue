@@ -50,7 +50,7 @@
     <!-- Lista pytań + panel szczegółów (desktop) -->
     <div v-else class="lg:grid lg:grid-cols-5 lg:gap-6">
       <div
-        class="space-y-3 lg:col-span-2 xl:max-h-[calc(100vh-20rem)] lg:overflow-y-auto overscroll-contain lg:pr-2"
+        class="space-y-3 lg:col-span-2 xl:max-h-[calc(100vh-20rem)] lg:overflow-y-auto overscroll-contain lg:py-1 lg:pl-1 lg:pr-2"
       >
       <div
         v-for="(q, idx) in filteredQuestions"

@@ -13,6 +13,8 @@ const OPTIONS = new Set(["light", "dark", "system"]);
 const MAX_HIDDEN_CATEGORIES = 200;
 const MAX_HISTORY_ENTRY_BYTES = 200 * 1000;
 const MAX_HISTORY_ITEMS = 2000;
+const MIN_EXAM_LENGTH = 10;
+const MAX_EXAM_LENGTH = 500;
 
 function isValidHistoryEntry(entry) {
   if (!entry || typeof entry !== "object" || Array.isArray(entry)) return false;
@@ -179,6 +181,19 @@ exports.updateProfile = async (req, res) => {
       const next = { ...(user.settings?.toObject?.() || user.settings || {}) };
       for (const key of ["autoNext", "showDescriptions"]) {
         if (typeof settings[key] === "boolean") next[key] = settings[key];
+      }
+      if (settings.examLength !== undefined) {
+        const examLength = Number(settings.examLength);
+        if (
+          !Number.isInteger(examLength) ||
+          examLength < MIN_EXAM_LENGTH ||
+          examLength > MAX_EXAM_LENGTH
+        ) {
+          return res.status(400).json({
+            message: `Liczba pytań w egzaminie musi być liczbą ${MIN_EXAM_LENGTH}-${MAX_EXAM_LENGTH}`,
+          });
+        }
+        next.examLength = examLength;
       }
       user.settings = next;
     }

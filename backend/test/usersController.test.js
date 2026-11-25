@@ -17,7 +17,14 @@ const state = {
 
 const fakeUserModel = {
   findOne: async () => state.existing,
-  findById: () => ({ select: async () => state.target }),
+  // Testy potrzebują zarówno `await User.findById()`, jak i `.select()`.
+  findById: () => {
+    const query = {
+      select: async () => state.target,
+      then: (resolve) => resolve(state.target),
+    };
+    return query;
+  },
   countDocuments: async () => state.admins,
   create: async (data) => {
     state.created = {
@@ -81,7 +88,61 @@ function reset() {
   state.aggregate = [];
   state.created = null;
   state.deleted = false;
+  state.saved = null;
 }
+
+function makeSettingsUser(settings = {}) {
+  return {
+    _id: "u1",
+    login: "admin",
+    rola: "admin",
+    avatar: 0,
+    avatarColors: "#416AFF",
+    option: "light",
+    hiddenCategory: [],
+    settings: { autoNext: true, showDescriptions: true, examLength: 150, ...settings },
+    save: async () => {
+      state.saved = { ...state.target.settings };
+    },
+    toObject() {
+      return {
+        login: this.login,
+        rola: this.rola,
+        avatar: this.avatar,
+        avatarColors: this.avatarColors,
+        option: this.option,
+        hiddenCategory: this.hiddenCategory,
+        settings: this.settings,
+      };
+    },
+  };
+}
+
+test("updateProfile: odrzuca liczbę pytań egzaminu poza zakresem", async () => {
+  reset();
+  state.target = makeSettingsUser();
+  const res = makeRes();
+  await controller.updateProfile(
+    { user: { id: "u1" }, body: { settings: { examLength: 5 } } },
+    res
+  );
+  assert.equal(res.statusCode, 400);
+  assert.match(res.body.message, /Liczba pytań w egzaminie/);
+  assert.equal(state.saved, null);
+});
+
+test("updateProfile: zapisuje poprawną liczbę pytań egzaminu", async () => {
+  reset();
+  state.target = makeSettingsUser();
+  const res = makeRes();
+  await controller.updateProfile(
+    { user: { id: "u1" }, body: { settings: { examLength: 200 } } },
+    res
+  );
+  assert.equal(res.statusCode, 200);
+  assert.equal(state.target.settings.examLength, 200);
+  assert.equal(state.saved.examLength, 200);
+});
 
 test("createUser: odrzuca niepoprawne dane", async () => {
   reset();

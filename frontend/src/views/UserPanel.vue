@@ -409,6 +409,31 @@
           </span>
         </label>
 
+        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+          <label for="exam-length" class="block font-medium text-gray-800 dark:text-gray-100">
+            Liczba pytań w egzaminie
+          </label>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Domyślnie 150. Egzamin wylosuje tyle pytań (lub mniej, jeśli w puli jest ich za
+            mało).
+          </p>
+          <div class="mt-3 flex items-center gap-2">
+            <input
+              id="exam-length"
+              v-model.number="learningSettings.examLength"
+              type="number"
+              inputmode="numeric"
+              :min="MIN_EXAM_LENGTH"
+              :max="MAX_EXAM_LENGTH"
+              step="10"
+              class="h-10 w-28 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 text-sm text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 focus:outline-hidden"
+            />
+            <span class="text-sm text-gray-500 dark:text-gray-400">
+              pytań ({{ MIN_EXAM_LENGTH }}–{{ MAX_EXAM_LENGTH }})
+            </span>
+          </div>
+        </div>
+
         <BaseButton color="blue" :loading="savingSettings" @click="saveLearningSettings">
           Zapisz preferencje
         </BaseButton>
@@ -452,6 +477,11 @@ const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal
 import apiClient from '@/api';
 import { useLogout } from '@/composables/useLogout';
 import { setUser } from '@/utils/authStorage';
+import {
+  DEFAULT_EXAM_LENGTH,
+  MIN_EXAM_LENGTH,
+  MAX_EXAM_LENGTH,
+} from '@/utils/examSettings';
 
 // Globalny system alertów
 const showAlert = inject('showAlert');
@@ -472,7 +502,11 @@ const selectorPosition = ref({ x: 0, y: 0 });
 const selectedColor = ref('#3B82F6');
 const currentAvatarIndex = ref(0);
 const selectedHiddenCategories = ref([]);
-const learningSettings = ref({ autoNext: true, showDescriptions: true });
+const learningSettings = ref({
+  autoNext: true,
+  showDescriptions: true,
+  examLength: DEFAULT_EXAM_LENGTH,
+});
 const savingSettings = ref(false);
 const showLogoutAllModal = ref(false);
 const loggingOutAll = ref(false);
@@ -769,6 +803,21 @@ const getCategoryNameForDisplay = (categoryName) =>
 
 async function saveLearningSettings() {
   if (savingSettings.value) return;
+
+  const examLength = Number(learningSettings.value.examLength);
+  if (
+    !Number.isInteger(examLength) ||
+    examLength < MIN_EXAM_LENGTH ||
+    examLength > MAX_EXAM_LENGTH
+  ) {
+    showAlert(
+      'error',
+      `Liczba pytań w egzaminie musi być liczbą ${MIN_EXAM_LENGTH}–${MAX_EXAM_LENGTH}.`
+    );
+    return;
+  }
+  learningSettings.value.examLength = examLength;
+
   savingSettings.value = true;
   try {
     const res = await apiClient.put('/users/update-profile', {
@@ -822,6 +871,7 @@ onMounted(async () => {
   learningSettings.value = {
     autoNext: user.value?.settings?.autoNext !== false,
     showDescriptions: user.value?.settings?.showDescriptions !== false,
+    examLength: Number(user.value?.settings?.examLength) || DEFAULT_EXAM_LENGTH,
   };
 
   // Inicjalizacja koła kolorów

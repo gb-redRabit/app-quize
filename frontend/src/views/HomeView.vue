@@ -189,6 +189,7 @@ import { useStore } from 'vuex';
 import apiClient from '@/api';
 import { getStoredUser, setUser } from '@/utils/authStorage';
 import { computeRemainingSeconds } from '@/utils/quizProgress';
+import { getExamLength } from '@/utils/examSettings';
 import { useQuestions } from '@/composables/useQuestions';
 
 // Komponenty
@@ -368,7 +369,8 @@ const startExamNotDone = async (cat) => {
       return;
     }
 
-    const length = Math.min(150, idsToUse.length);
+    const configured = store.state.user.user?.settings?.examLength;
+    const length = getExamLength(configured, idsToUse.length);
     router.push({
       name: 'ExamView',
       query: {

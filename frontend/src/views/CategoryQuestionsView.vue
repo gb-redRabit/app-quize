@@ -231,7 +231,7 @@
     <div v-else>
       <!-- Desktop: lista + szczegóły obok siebie -->
       <div v-if="isDesktop" class="lg:grid lg:grid-cols-5 lg:gap-6">
-        <div class="lg:col-span-2 xl:max-h-[calc(100vh-20rem)] lg:overflow-y-auto overscroll-contain lg:pr-2">
+        <div class="lg:col-span-2 xl:max-h-[calc(100vh-20rem)] lg:overflow-y-auto overscroll-contain lg:py-1 lg:pl-1 lg:pr-2">
           <div v-for="q in sortedQuestions" :key="q.ID" class="py-1">
             <QuestionCard
               :question="q"
