@@ -609,6 +609,59 @@ test.describe('Quiz App E2E', () => {
     expect(creates[0].question).toBe('E2E offline: nowe pytanie?');
   });
 
+  test('offline: usunięcie pytania czeka w kolejce i wysyła się po powrocie sieci', async ({
+    page,
+    context,
+  }) => {
+    await login(page);
+    await page.goto('/questions');
+    await page.locator('[data-question-id="1"]').click();
+
+    const details = page.getByTestId('question-details');
+    await details.getByRole('button', { name: 'Usuń' }).click();
+
+    const confirm = page.getByRole('dialog');
+    await expect(confirm).toContainText('Usuń pytanie');
+
+    await page.unroute('**/api/**');
+    await context.setOffline(true);
+    await confirm.getByRole('button', { name: 'Tak, usuń' }).click();
+
+    await expect(page.locator('[data-question-id="1"]')).toHaveCount(0);
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(() =>
+            JSON.parse(localStorage.getItem('offline-queue-v1') || '[]').some(
+              (op) => op.type === 'question-delete' && op.payload.ID === 1
+            )
+          ),
+        { timeout: 10000 }
+      )
+      .toBe(true);
+
+    const deletes = [];
+    page.on('request', (request) => {
+      if (request.method() === 'DELETE' && request.url().includes('/questions/1')) {
+        deletes.push(request.url());
+      }
+    });
+
+    await mockApi(page);
+    await context.setOffline(false);
+
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(
+            () => JSON.parse(localStorage.getItem('offline-queue-v1') || '[]').length
+          ),
+        { timeout: 15000 }
+      )
+      .toBe(0);
+    expect(deletes).toHaveLength(1);
+  });
+
   test('quiz: odpowiedź wybrana klawiaturą odblokowuje „Następne”', async ({ page }) => {
     await login(page);
     await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=kb');

@@ -288,7 +288,7 @@ import apiClient from '@/api';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseModal from '@/components/base/BaseModal.vue';
 import IconButton from '@/components/base/IconButton.vue';
-import { queueQuestionUpdate } from '@/services/offlineSync';
+import { queueQuestionDelete, queueQuestionUpdate } from '@/services/offlineSync';
 
 // Props
 const props = defineProps({
@@ -426,6 +426,16 @@ async function deleteQuestion() {
 
   try {
     const id = props.question.ID;
+
+    if (navigator.onLine === false) {
+      // Offline: usuwamy lokalnie i wysyłamy po powrocie sieci.
+      queueQuestionDelete(id);
+      emit('deleted', props.question);
+      showDelete.value = false;
+      showAlert('info', 'Brak sieci — pytanie usunięte lokalnie i zsynchronizuje się później.');
+      return;
+    }
+
     await apiClient.delete(`/questions/${id}`);
 
     // Odśwież statystyki
@@ -435,6 +445,13 @@ async function deleteQuestion() {
     showDelete.value = false;
     showAlert('success', 'Pytanie zostało usunięte');
   } catch (e) {
+    if (!e?.response) {
+      queueQuestionDelete(props.question.ID);
+      emit('deleted', props.question);
+      showDelete.value = false;
+      showAlert('info', 'Brak sieci — pytanie usunięte lokalnie i zsynchronizuje się później.');
+      return;
+    }
     console.error('Błąd usuwania pytania:', e);
     showAlert('error', 'Błąd podczas usuwania pytania.');
   } finally {

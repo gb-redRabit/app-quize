@@ -26,6 +26,11 @@ export function queueQuestionUpdate(payload) {
   enqueue({ type: 'question-update', payload });
 }
 
+/** Usunięcie pytania wykonane offline (po ID). */
+export function queueQuestionDelete(id) {
+  enqueue({ type: 'question-delete', payload: { ID: id } });
+}
+
 /** Wpis historii z quizu/egzaminu. `clientId` chroni przed duplikatem. */
 export function queueHistory(historyItem) {
   const payload = { ...historyItem, clientId: historyItem.clientId || newClientId() };
@@ -70,6 +75,9 @@ export async function flushOfflineQueue() {
           questionsChanged = true;
         } else if (op.type === 'question-update') {
           await apiClient.silentPut(`/questions/${op.payload.ID}`, op.payload);
+          questionsChanged = true;
+        } else if (op.type === 'question-delete') {
+          await apiClient.silentDelete(`/questions/${op.payload.ID}`);
           questionsChanged = true;
         }
         shiftQueue();
