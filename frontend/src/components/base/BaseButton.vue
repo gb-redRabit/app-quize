@@ -60,6 +60,7 @@
         ? 'text-purple-800 hover:bg-purple-50 dark:hover:bg-gray-800'
         : '',
       // Rozmiary
+      size === 'xs' ? 'h-9 px-3 text-xs' : '',
       size === 'sm' ? 'h-11 px-3 text-sm' : '',
       size === 'md' ? 'h-11 px-4 text-sm' : '',
       size === 'lg' ? 'h-12 px-6 text-base' : '',

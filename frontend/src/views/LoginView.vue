@@ -1,38 +1,69 @@
 <template>
-  <div class="min-h-screen w-full flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
-    <div class="relative w-full max-w-md">
-      <!-- Karta logowania -->
-      <div
-        class="rounded-xl shadow-lg p-6 sm:p-8 w-full relative z-10 overflow-hidden border border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm"
-        style="animation: fadeIn 0.5s ease-out forwards"
-      >
-        <!-- Nagłówek -->
-        <div class="mb-6 text-center">
-          <h2
-            class="text-2xl sm:text-3xl font-bold mb-2 bg-linear-to-r from-blue-500 to-blue-400 text-transparent bg-clip-text"
+  <div
+    class="min-h-screen w-full flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-950"
+  >
+    <div
+      class="w-full max-w-4xl overflow-hidden rounded-2xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl grid lg:grid-cols-2"
+      style="animation: fadeIn 0.4s ease-out forwards"
+    >
+      <!-- Panel marki (desktop) -->
+      <aside class="hidden lg:flex flex-col justify-between bg-gray-900 text-white p-10">
+        <div class="flex items-center gap-3">
+          <div
+            class="h-10 w-10 rounded-xl bg-blue-600 grid place-items-center text-sm font-bold"
+            aria-hidden="true"
           >
-            Logowanie
+            Q
+          </div>
+          <span class="font-semibold tracking-tight">Quiz App</span>
+        </div>
+
+        <div>
+          <h2 class="text-3xl font-semibold tracking-tight leading-tight">
+            Ucz się mądrze,<br />nie tylko długo.
           </h2>
-          <p class="text-gray-500 dark:text-gray-400 text-sm sm:text-base">
-            Witaj z powrotem! Zaloguj się do swojego konta
+          <p class="mt-3 text-sm text-gray-300">
+            Pytania, egzaminy i statystyki w jednym miejscu.
+          </p>
+          <ul class="mt-7 space-y-3 text-sm text-gray-300">
+            <li class="flex items-center gap-2"><span class="text-blue-400">✓</span> Losowe pytania i odpowiedzi</li>
+            <li class="flex items-center gap-2"><span class="text-blue-400">✓</span> Tryb egzaminu z czasem</li>
+            <li class="flex items-center gap-2"><span class="text-blue-400">✓</span> Postępy i historia nauki</li>
+            <li class="flex items-center gap-2"><span class="text-blue-400">✓</span> Działa offline (PWA)</li>
+          </ul>
+        </div>
+
+        <p class="text-xs text-gray-400">Twoje dane pozostają na koncie.</p>
+      </aside>
+
+      <!-- Formularz -->
+      <div class="p-6 sm:p-10">
+        <div class="mb-7">
+          <div class="lg:hidden mb-5 flex items-center gap-2.5">
+            <div class="h-9 w-9 rounded-xl bg-blue-600 grid place-items-center text-xs font-bold text-white">
+              Q
+            </div>
+            <span class="font-semibold tracking-tight text-gray-900 dark:text-gray-100">Quiz App</span>
+          </div>
+          <h1 class="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
+            Zaloguj się
+          </h1>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Witaj z powrotem — kontynuuj naukę tam, gdzie skończyłeś.
           </p>
         </div>
 
-        <!-- Formularz logowania -->
         <form @submit.prevent="handleLogin" class="space-y-5">
-          <!-- Login -->
-          <div class="mb-4">
+          <div>
             <label
               for="login"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >Login</label
             >
             <div
-              class="relative flex items-center overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600 transition-all duration-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 dark:focus-within:border-blue-500 dark:focus-within:ring-blue-900"
+              class="relative flex items-center overflow-hidden rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 dark:focus-within:ring-blue-900"
             >
-              <div
-                class="flex items-center justify-center h-full px-3 text-gray-400 dark:text-gray-500"
-              >
+              <div class="flex items-center justify-center h-full px-3 text-gray-400 dark:text-gray-500">
                 <img src="@/assets/icons/user.svg" alt="Ikona użytkownika" class="h-5 w-5" />
               </div>
               <input
@@ -47,19 +78,16 @@
             </div>
           </div>
 
-          <!-- Hasło -->
-          <div class="mb-4">
+          <div>
             <label
               for="password"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >Hasło</label
             >
             <div
-              class="relative flex items-center overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600 transition-all duration-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 dark:focus-within:border-blue-500 dark:focus-within:ring-blue-900"
+              class="relative flex items-center overflow-hidden rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 dark:focus-within:ring-blue-900"
             >
-              <div
-                class="flex items-center justify-center h-full px-3 text-gray-400 dark:text-gray-500"
-              >
+              <div class="flex items-center justify-center h-full px-3 text-gray-400 dark:text-gray-500">
                 <img src="@/assets/icons/lock.svg" alt="Ikona hasła" class="h-5 w-5" />
               </div>
               <input
@@ -78,12 +106,11 @@
             </div>
           </div>
 
-          <!-- Przycisk logowania -->
           <BaseButton
             type="submit"
             color="blue"
             size="lg"
-            class="w-full py-3 mt-6 font-semibold flex items-center justify-center gap-2 rounded-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            class="w-full mt-2 font-semibold"
             :disabled="isLoggingIn"
           >
             <span class="flex items-center justify-center">
@@ -94,27 +121,15 @@
                 fill="none"
                 viewBox="0 0 24 24"
               >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                ></circle>
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                ></path>
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
               </svg>
               <span>{{ isLoggingIn ? 'Logowanie...' : 'Zaloguj się' }}</span>
             </span>
           </BaseButton>
         </form>
 
-        <!-- Link do rejestracji -->
-        <div class="mt-6 text-center pt-4 border-t border-gray-100 dark:border-gray-700">
+        <div class="mt-6 text-center pt-4 border-t border-gray-100 dark:border-gray-800">
           <router-link
             to="/register"
             class="text-gray-600 dark:text-gray-400 text-sm hover:text-gray-800 dark:hover:text-gray-200 transition"
@@ -125,38 +140,6 @@
             >
           </router-link>
         </div>
-      </div>
-
-      <!-- Dekoracyjne elementy tła -->
-      <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div
-          class="absolute rounded-full opacity-70"
-          style="
-            width: 300px;
-            height: 300px;
-            top: -80px;
-            right: -100px;
-            background: radial-gradient(
-              circle,
-              rgba(59, 130, 246, 0.2) 0%,
-              rgba(96, 165, 250, 0.05) 100%
-            );
-          "
-        ></div>
-        <div
-          class="absolute rounded-full opacity-70"
-          style="
-            width: 200px;
-            height: 200px;
-            bottom: -70px;
-            left: -80px;
-            background: radial-gradient(
-              circle,
-              rgba(59, 130, 246, 0.1) 0%,
-              rgba(96, 165, 250, 0.02) 100%
-            );
-          "
-        ></div>
       </div>
     </div>
   </div>

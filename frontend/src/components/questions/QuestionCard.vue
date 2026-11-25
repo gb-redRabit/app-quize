@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white dark:bg-gray-800 rounded-xl shadow-xs p-5 transition-all border border-gray-100 dark:border-gray-700 hover:shadow-md transform duration-300"
+    class="surface p-5 transition-all duration-200"
     :class="{
       'border-l-4 border-green-400 dark:border-green-500 bg-linear-to-r from-green-50 to-white dark:from-green-900/20 dark:to-gray-800':
         lastAttemptMap[question.ID] === true,

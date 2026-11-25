@@ -1,24 +1,25 @@
 <!-- filepath: d:\git nowe\app-quize\frontend\src\components\dashboard\StatisticsSummary.vue -->
 <template>
-  <section class="mb-3">
-    <h2 class="text-xl font-bold text-gray-700 dark:text-gray-200 mb-4 px-1">
-      Twoje statystyki
-      <span v-if="isLoading" class="text-sm text-gray-500 ml-2">(ładowanie...)</span>
-    </h2>
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+  <section class="mb-5">
+    <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+      <h2 class="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+        Twoje statystyki
+        <span v-if="isLoading" class="text-sm font-normal text-gray-500">(ładowanie…)</span>
+      </h2>
+      <div class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+        <span class="rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-1">
+          Quizy: <strong class="text-gray-800 dark:text-gray-100">{{ quizCount }}</strong>
+        </span>
+        <span class="rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-1">
+          Egzaminy: <strong class="text-gray-800 dark:text-gray-100">{{ examCount }}</strong>
+        </span>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
       <StatisticCard :value="totalQuestions" label="Wszystkich" color="blue" />
       <StatisticCard :value="correctAnswers" label="Poprawnie" color="green" />
       <StatisticCard :value="wrongAnswers" label="Błędnie" color="red" />
       <StatisticCard :value="avgScore" label="Średnia" color="yellow" />
-    </div>
-    <div
-      class="mt-3 flex items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400"
-    >
-      <span>Quizy: <strong class="text-gray-700 dark:text-gray-200">{{ quizCount }}</strong></span>
-      <span aria-hidden="true">·</span>
-      <span>
-        Egzaminy: <strong class="text-gray-700 dark:text-gray-200">{{ examCount }}</strong>
-      </span>
     </div>
   </section>
 </template>

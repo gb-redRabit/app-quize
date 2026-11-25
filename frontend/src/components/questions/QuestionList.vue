@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white rounded-xl shadow-md p-4 sm:p-6 relative mb-8 transition-all duration-300 border border-gray-50 hover:shadow-lg dark:bg-gray-800 dark:border-gray-700"
+    class="surface p-4 sm:p-6 relative mb-6"
   >
     <QuestionActions
       v-if="isAdmin"
@@ -148,33 +148,29 @@ function buttonClass(answer, index) {
 
   if (!props.answered) {
     classes =
-      'bg-linear-to-r from-blue-50 to-indigo-50 border-blue-200 text-gray-800 hover:bg-blue-100 dark:from-gray-700 dark:to-gray-600 dark:border-gray-500 dark:text-white hover:dark:bg-gray-600 shadow-xs hover:shadow-md';
-    // Usunięto translate-y-[-1px] i zastąpiono normalnym stylem
+      'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 hover:border-blue-300 hover:bg-blue-50/60 dark:hover:border-blue-700 dark:hover:bg-blue-900/20 shadow-xs';
   } else {
-    // Dodanie klasy 'selected' do wybranej odpowiedzi
     if (selectedIndex.value === index) {
       classes += ' border-blue-500 dark:border-blue-400';
     }
 
-    // Obsługa poprawnych/niepoprawnych odpowiedzi
     if (props.showCorrect) {
       const isCorrect = answer.isCorret || answer.isCorrect;
       if (isCorrect) {
         classes +=
-          ' bg-linear-to-r from-green-50 to-green-100 border-green-300 text-green-800 shadow-xs dark:from-green-700 dark:to-green-600 dark:border-green-500 dark:text-green-200';
+          ' bg-green-50 border-green-300 text-green-900 dark:bg-green-900/30 dark:border-green-700 dark:text-green-100';
       } else if (selectedIndex.value === index) {
         classes +=
-          ' bg-linear-to-r from-red-50 to-red-100 border-red-300 text-red-800 dark:from-red-700 dark:to-red-600 dark:border-red-500 dark:text-red-200';
+          ' bg-red-50 border-red-300 text-red-900 dark:bg-red-900/30 dark:border-red-700 dark:text-red-100';
       } else {
         classes +=
-          ' bg-gray-50 border-gray-200 text-gray-500 cursor-default dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400';
+          ' bg-gray-50 border-gray-200 text-gray-500 cursor-default dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400';
       }
     } else {
-      // Tryb egzaminu
       classes +=
         selectedIndex.value === index
-          ? ' bg-linear-to-r from-yellow-50 to-yellow-100 border-yellow-300 text-yellow-800 dark:from-yellow-700 dark:to-yellow-600 dark:border-yellow-500 dark:text-yellow-200'
-          : ' bg-gray-50 border-gray-200 text-gray-500 cursor-default dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400';
+          ? ' bg-amber-50 border-amber-300 text-amber-900 dark:bg-amber-900/30 dark:border-amber-700 dark:text-amber-100'
+          : ' bg-gray-50 border-gray-200 text-gray-500 cursor-default dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400';
     }
   }
 

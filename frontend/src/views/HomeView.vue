@@ -1,55 +1,44 @@
 <template>
   <div class="app-shell">
-    <div class="relative">
-      <!-- Sekcja powitalna -->
-      <section class="mb-4">
-        <div class="flex flex-col md:flex-row gap-6 items-center">
-          <div class="flex-1 w-full">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">
-                  Witaj w systemie nauki!
-                </h1>
-                <p class="mt-2 text-gray-600 dark:text-gray-300">
-                  Monitoruj swoje postępy i kontynuuj naukę
-                </p>
-              </div>
-              <IconButton
-                @click="showUserGuide = true"
-                class="shrink-0 w-11 h-11 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
-                aria-label="Pokaż instrukcję"
-                title="Instrukcja obsługi"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </IconButton>
-            </div>
-          </div>
-          <div class="w-full flex-1 relative sm:w-auto">
-            <RandomQuote />
-          </div>
-        </div>
-      </section>
+    <div class="relative space-y-5">
+      <PageHeader
+        eyebrow="Twój pulpit"
+        :title="`Cześć, ${userName}!`"
+        subtitle="Kontynuuj naukę i sprawdzaj swoje postępy w jednym miejscu."
+      >
+        <template #actions>
+          <button
+            type="button"
+            class="inline-flex h-10 items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            @click="showUserGuide = true"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Instrukcja
+          </button>
+        </template>
+      </PageHeader>
 
-      <section v-if="savedQuiz" class="mb-4">
+      <section v-if="savedQuiz">
         <div
-          class="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 text-amber-900 dark:text-amber-100 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 shadow-xs"
+          class="rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 text-amber-900 dark:text-amber-100 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3"
         >
           <div class="flex-1 min-w-0">
-            <p class="text-xs uppercase tracking-wide text-amber-700 dark:text-amber-300">
+            <p class="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">
               Niezakończona sesja
             </p>
-            <p class="text-lg font-semibold truncate">
+            <p class="mt-1 text-lg font-semibold truncate">
               {{ savedQuiz.label }} · pytanie {{ savedQuiz.index + 1 }} z {{ savedQuiz.total }}
             </p>
             <p class="text-sm text-amber-700 dark:text-amber-300">
@@ -61,7 +50,7 @@
             </p>
           </div>
           <button
-            class="h-11 px-5 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700 transition-colors shrink-0"
+            class="h-11 px-5 rounded-xl bg-amber-600 text-white font-semibold hover:bg-amber-700 transition-colors shrink-0"
             @click="resumeSavedQuiz"
           >
             Wznów
@@ -69,54 +58,57 @@
         </div>
       </section>
 
-      <section v-if="lastActivity" class="mb-4">
-        <div
-          class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 shadow-xs"
-        >
-          <div class="flex-1 min-w-0">
-            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Kontynuuj naukę
-            </p>
-            <p class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
-              {{ lastActivity.category }}
-            </p>
-            <p class="text-sm text-gray-600 dark:text-gray-300">
-              {{ lastActivityLabel }} · {{ lastActivityPercent }}%
-            </p>
+      <div class="grid gap-4 lg:grid-cols-3">
+        <section class="surface p-5 lg:col-span-2 flex flex-col">
+          <div class="flex flex-wrap items-start justify-between gap-2">
+            <div class="min-w-0">
+              <p class="section-title">
+                {{ lastActivity ? 'Kontynuuj naukę' : 'Zacznij naukę' }}
+              </p>
+              <p class="mt-1 text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-50 truncate">
+                {{ lastActivity ? lastActivity.category : 'Wybierz kategorię i rozpocznij quiz' }}
+              </p>
+              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                <template v-if="lastActivity">
+                  {{ lastActivityLabel }} · {{ lastActivityPercent }}% poprawnych
+                </template>
+                <template v-else>Twoje postępy zapisują się automatycznie.</template>
+              </p>
+            </div>
+            <span
+              class="shrink-0 rounded-full bg-blue-50 dark:bg-blue-900/40 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300"
+            >
+              {{ lastActivity ? 'Ostatnia sesja' : 'Start' }}
+            </span>
           </div>
-          <button
-            class="h-11 px-5 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shrink-0"
-            @click="continueLastActivity"
-            :aria-label="`Rozpocznij nową sesję: ${lastActivity.category}`"
-          >
-            Rozpocznij
-          </button>
-        </div>
-      </section>
 
-      <section v-else class="mb-4">
-        <div
-          class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 shadow-xs"
-        >
-          <div class="flex-1 min-w-0">
-            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Zacznij naukę
-            </p>
-            <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Wybierz kategorię i rozpocznij quiz
-            </p>
-            <p class="text-sm text-gray-600 dark:text-gray-300">
-              Twoje postępy będą zapisywane automatycznie.
-            </p>
+          <div class="mt-4 h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+            <div
+              class="h-full rounded-full bg-blue-600 transition-all"
+              :style="{ width: `${lastActivity ? lastActivityPercent : 0}%` }"
+            ></div>
           </div>
-          <button
-            class="h-11 px-5 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shrink-0"
-            @click="scrollToCategories"
-          >
-            Wybierz kategorię
-          </button>
-        </div>
-      </section>
+
+          <div class="mt-5 flex flex-wrap gap-2">
+            <button
+              v-if="lastActivity"
+              class="h-10 px-4 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
+              @click="continueLastActivity"
+              :aria-label="`Rozpocznij nową sesję: ${lastActivity.category}`"
+            >
+              Kontynuuj
+            </button>
+            <button
+              class="h-10 px-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              @click="scrollToCategories"
+            >
+              Wybierz kategorię
+            </button>
+          </div>
+        </section>
+
+        <RandomQuote class="lg:col-span-1" />
+      </div>
 
       <!-- Statystyki -->
       <StatisticsSummary class="statistics-summary" />
@@ -218,12 +210,13 @@ const OtherQuizCategoriesModal = defineAsyncComponent(
   () => import('@/components/quiz/OtherQuizCategoriesModal.vue')
 );
 const UserGuide = defineAsyncComponent(() => import('@/components/UserGuide.vue'));
-const IconButton = defineAsyncComponent(() => import('@/components/base/IconButton.vue'));
+const PageHeader = defineAsyncComponent(() => import('@/components/layout/PageHeader.vue'));
 
 // Hooki
 const showAlert = inject('showAlert');
 const router = useRouter();
 const store = useStore(); // Inicjalizuj store na najwyższym poziomie
+const userName = computed(() => store.getters['user/getUser']?.login || 'uczniu');
 
 // Wspólne helpery kategorii (jedno źródło prawdy — także offline fallback).
 const questionsHelper = useQuestions();

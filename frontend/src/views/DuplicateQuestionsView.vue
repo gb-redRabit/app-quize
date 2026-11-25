@@ -1,37 +1,39 @@
 <template>
   <div class="app-shell">
     <!-- Nagłówek strony -->
-    <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 whitespace-nowrap">
-        Duplikaty pytań
-      </h1>
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="text-gray-600 dark:text-gray-300">
-          Ilość duplikatów: <span class="font-semibold">{{ total }}</span>
-        </div>
+    <PageHeader
+      eyebrow="Baza pytań"
+      title="Duplikaty pytań"
+      subtitle="Porównaj pytania o tej samej treści i usuń nadmiarowe."
+    >
+      <template #actions>
+        <span class="rounded-full bg-gray-100 dark:bg-gray-800 px-3 py-1 text-xs font-semibold text-gray-600 dark:text-gray-300">
+          {{ total }} pytań
+        </span>
         <button
           @click="toggleSortByCategory"
-          class="px-4 py-2 rounded-lg font-semibold shadow-xs transition-colors duration-200 whitespace-nowrap"
-          :class="sortByCategory ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
+          class="h-10 px-3 rounded-xl border text-sm font-medium whitespace-nowrap transition-colors"
+          :class="
+            sortByCategory
+              ? 'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+              : 'border-gray-200 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200'
+          "
         >
-          Sortuj według kategorii
-          <span v-if="sortByCategory">(A-Z)</span>
-          <span v-else>(domyślnie)</span>
+          Sortuj: kategoria
+          <span class="text-xs opacity-70">{{ sortByCategory ? 'A-Z' : 'domyślnie' }}</span>
         </button>
-        <div>
-          <select
-            v-model="selectedCategory"
-            class="h-10 w-full sm:w-72 px-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-            aria-label="Filtruj duplikaty po kategorii"
-          >
-            <option value="">Wszystkie kategorie</option>
-            <option v-for="cat in uniqueCategories" :key="cat" :value="cat">
-              {{ cat || 'Bez kategorii' }}
-            </option>
-          </select>
-        </div>
-      </div>
-    </div>
+        <select
+          v-model="selectedCategory"
+          class="h-10 w-full sm:w-64 px-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 text-sm"
+          aria-label="Filtruj duplikaty po kategorii"
+        >
+          <option value="">Wszystkie kategorie</option>
+          <option v-for="cat in uniqueCategories" :key="cat" :value="cat">
+            {{ cat || 'Bez kategorii' }}
+          </option>
+        </select>
+      </template>
+    </PageHeader>
 
     <!-- Loading state -->
     <div
@@ -80,7 +82,7 @@
           <article
             v-for="q in group"
             :key="q.ID"
-            class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-xs border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
+            class="surface overflow-hidden transition-all duration-200"
             :class="{
               'shadow-md ring-2 ring-blue-100 dark:ring-blue-900': expandedQuestions.includes(q.ID),
             }"
@@ -219,8 +221,17 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, inject, nextTick, onBeforeUnmount } from 'vue';
+import {
+  ref,
+  computed,
+  onMounted,
+  inject,
+  nextTick,
+  onBeforeUnmount,
+  defineAsyncComponent,
+} from 'vue';
 import QuestionActions from '@/components/questions/QuestionActions.vue';
+const PageHeader = defineAsyncComponent(() => import('@/components/layout/PageHeader.vue'));
 import apiClient from '@/api';
 
 const showAlert = inject('showAlert');

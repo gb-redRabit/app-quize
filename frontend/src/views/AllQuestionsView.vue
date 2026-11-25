@@ -1,9 +1,13 @@
 <template>
   <div class="app-shell">
-    <h1 class="text-2xl font-bold mb-6 text-blue-700 dark:text-blue-300">Lista wszystkich pytań</h1>
+    <PageHeader
+      eyebrow="Baza pytań"
+      title="Wszystkie pytania"
+      subtitle="Przeglądaj, wyszukuj i edytuj pytania. Skróty: / szukaj · ↑↓ wybór · Enter otwórz · E edycja."
+    />
     <div
       ref="searchBarWrap"
-      class="sticky top-[88px] xl:top-2 z-20 -mx-4 px-4 py-2 mb-3 bg-white dark:bg-gray-900 border-b border-transparent flex flex-col md:flex-row md:items-center gap-2"
+      class="sticky top-[72px] xl:top-3 z-20 mb-3 flex flex-col md:flex-row md:items-center gap-2 rounded-2xl border border-gray-200/80 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur px-3 py-2"
     >
       <SearchBar
         :model-value="search"
@@ -12,14 +16,11 @@
         class="flex-1"
       />
       <p
-        class="text-xs text-gray-500 dark:text-gray-400 md:mb-4 md:mr-1 whitespace-nowrap"
+        class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap"
         role="status"
         aria-live="polite"
       >
         Wczytano {{ filteredQuestions.length }} z {{ total }}
-      </p>
-      <p class="hidden lg:block text-[11px] text-gray-500 dark:text-gray-400 whitespace-nowrap">
-        / szukaj · ↑↓ wybór · Enter otwórz · E edycja · Esc anuluj
       </p>
     </div>
 
@@ -54,7 +55,7 @@
       <div
         v-for="(q, idx) in filteredQuestions"
         :key="q.ID"
-        class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-xs border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
+        class="surface overflow-hidden transition-all duration-200"
         :class="{
           'ring-2 ring-blue-300 dark:ring-blue-700':
             isDesktop && selectedQuestion && selectedQuestion.ID === q.ID,
@@ -155,7 +156,7 @@
 
       <aside class="hidden lg:block lg:col-span-3" data-testid="question-details">
         <div
-          class="sticky top-20 xl:top-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xs p-5 max-h-[calc(100vh-11rem)] xl:max-h-[calc(100vh-3rem)] overflow-y-auto"
+          class="sticky top-20 xl:top-6 surface p-5 max-h-[calc(100vh-11rem)] xl:max-h-[calc(100vh-3rem)] overflow-y-auto"
         >
           <QuestionEditor
             v-if="isAdmin && isEditing && selectedQuestion"
@@ -352,6 +353,7 @@ const QuestionEditor = defineAsyncComponent(
 );
 const BaseSkeleton = defineAsyncComponent(() => import('@/components/base/BaseSkeleton.vue'));
 const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal.vue'));
+const PageHeader = defineAsyncComponent(() => import('@/components/layout/PageHeader.vue'));
 import apiClient from '@/api';
 import { getAllCachedQuestions } from '@/services/questionsSync';
 import { useStore } from 'vuex';

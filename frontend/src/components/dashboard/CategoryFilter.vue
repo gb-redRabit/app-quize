@@ -1,29 +1,24 @@
-<!-- filepath: d:\git nowe\app-quize\frontend\src\components\dashboard\CategoryFilter.vue -->
 <template>
-  <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="text-xl font-bold text-gray-700 dark:text-gray-200 px-1">Lista kategorii</h2>
-      <div class="hidden md:flex items-center space-x-2 view-options">
-        <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-1 flex">
+  <div class="mb-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 class="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+        Kategorie
+      </h2>
+      <div class="hidden md:flex items-center gap-2 view-options">
+        <div class="bg-gray-100 dark:bg-gray-800 rounded-xl p-1 flex">
           <button
             @click="$emit('update:view-type', 'grid')"
-            class="p-1.5 rounded-md"
+            class="p-1.5 rounded-lg"
             :aria-pressed="viewType === 'grid' ? 'true' : 'false'"
             aria-label="Widok kafelków"
             :class="
               viewType === 'grid'
-                ? 'bg-white dark:bg-gray-700 shadow-xs'
+                ? 'bg-white dark:bg-gray-700 shadow-xs text-gray-900 dark:text-gray-100'
                 : 'text-gray-500 dark:text-gray-400'
             "
             title="Widok kafelków"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -34,43 +29,32 @@
           </button>
           <button
             @click="$emit('update:view-type', 'list')"
-            class="p-1.5 rounded-md"
+            class="p-1.5 rounded-lg"
             :aria-pressed="viewType === 'list' ? 'true' : 'false'"
             aria-label="Widok listy"
             :class="
               viewType === 'list'
-                ? 'bg-white dark:bg-gray-700 shadow-xs'
+                ? 'bg-white dark:bg-gray-700 shadow-xs text-gray-900 dark:text-gray-100'
                 : 'text-gray-500 dark:text-gray-400'
             "
             title="Widok listy"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 10h16M4 14h16M4 18h16"
-              />
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
             </svg>
           </button>
         </div>
-        <div v-if="viewType === 'grid'" class="bg-gray-100 dark:bg-gray-800 rounded-lg p-1 flex">
+        <div v-if="viewType === 'grid'" class="bg-gray-100 dark:bg-gray-800 rounded-xl p-1 flex">
           <button
             v-for="cols in [2, 3, 4]"
             :key="cols"
             @click="$emit('update:grid-columns', cols)"
-            class="px-2.5 py-1.5 rounded-md text-xs font-medium"
+            class="px-2.5 py-1.5 rounded-lg text-xs font-semibold"
             :aria-pressed="gridColumns === cols ? 'true' : 'false'"
             :aria-label="`Siatka ${cols} kolumn`"
             :class="
               gridColumns === cols
-                ? 'bg-white dark:bg-gray-700 shadow-xs'
+                ? 'bg-white dark:bg-gray-700 shadow-xs text-gray-900 dark:text-gray-100'
                 : 'text-gray-500 dark:text-gray-400'
             "
           >
@@ -79,16 +63,11 @@
         </div>
       </div>
     </div>
-    <div class="flex mb-4">
-      <div class="relative w-full">
+
+    <div class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+      <div class="relative flex-1 min-w-0">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -101,31 +80,31 @@
           type="text"
           :value="searchQuery"
           @input="$emit('update:search-query', $event.target.value)"
-          placeholder="Szukaj kategorii..."
-          class="search-input block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200"
+          placeholder="Szukaj kategorii…"
+          class="search-input h-10 block w-full pl-9 pr-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-200 placeholder:text-gray-400"
         />
       </div>
-    </div>
 
-    <div
-      class="filter-options grid grid-cols-2 sm:flex sm:flex-nowrap overflow-x-auto hide-scrollbar bg-gray-50 dark:bg-gray-900 rounded-lg"
-      role="group"
-      aria-label="Filtry kategorii"
-    >
-      <button
-        v-for="filter in filters"
-        :key="filter.value"
-        @click="$emit('update:active-filter', filter.value)"
-        class="px-4 py-3 text-sm font-medium whitespace-nowrap text-center"
-        :aria-pressed="activeFilter === filter.value ? 'true' : 'false'"
-        :class="
-          activeFilter === filter.value
-            ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
-            : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-        "
+      <div
+        class="filter-options flex overflow-x-auto hide-scrollbar rounded-xl bg-gray-100 dark:bg-gray-800 p-1"
+        role="group"
+        aria-label="Filtry kategorii"
       >
-        {{ filter.label }}
-      </button>
+        <button
+          v-for="filter in filters"
+          :key="filter.value"
+          @click="$emit('update:active-filter', filter.value)"
+          class="px-3 py-1.5 text-xs font-semibold whitespace-nowrap rounded-lg transition-colors"
+          :aria-pressed="activeFilter === filter.value ? 'true' : 'false'"
+          :class="
+            activeFilter === filter.value
+              ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-xs'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+          "
+        >
+          {{ filter.label }}
+        </button>
+      </div>
     </div>
   </div>
 </template>

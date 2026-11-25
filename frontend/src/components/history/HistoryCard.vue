@@ -1,15 +1,15 @@
 <template>
   <div
-    class="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden transition-all duration-200 group hover:-translate-y-1 hover:shadow-md dark:bg-gray-800 dark:border-gray-700"
+    class="surface overflow-hidden transition-shadow duration-200 group hover:shadow-sm"
   >
     <!-- Nagłówek wpisu -->
     <div
-      class="flex justify-between items-center p-3 border-b bg-gray-50 dark:bg-gray-700 dark:border-gray-600"
+      class="flex justify-between items-center px-4 py-2.5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-800/50"
     >
-      <div class="text-xs font-medium px-2.5 py-1 rounded-full" :class="getBadgeClass(entry.type)">
+      <div class="text-[11px] font-semibold px-2 py-0.5 rounded-full" :class="getBadgeClass(entry.type)">
         {{ getTypeName(entry.type) }}
       </div>
-      <div class="text-sm text-gray-500 dark:text-gray-400">
+      <div class="text-xs text-gray-500 dark:text-gray-400">
         {{ formatDate(entry.data) }}
       </div>
     </div>
@@ -71,9 +71,9 @@
         <!-- Przycisk do pokazania szczegółów -->
         <BaseButton
           color="blue"
-          size="sm"
+          size="xs"
           @click="$emit('show-details')"
-          class="inline-flex items-center text-sm transition-colors"
+          class="inline-flex items-center text-xs transition-colors"
         >
           <span class="flex items-center">
             Pokaż szczegóły

@@ -2,60 +2,60 @@
 <template>
   <div
     :data-category="category"
-    class="categories-container rounded-xl border bg-white dark:bg-gray-800 shadow-xs p-4 transition-all duration-300 hover:shadow-sm"
+    class="categories-container surface p-4 transition-all duration-200 hover:shadow-sm"
     :class="cardClass"
   >
     <div class="flex flex-wrap justify-between items-start gap-2 mb-3">
       <h3
-        class="font-semibold text-gray-800 dark:text-gray-100 break-words flex-1 min-w-0"
+        class="text-sm font-semibold text-gray-900 dark:text-gray-100 break-words flex-1 min-w-0"
         :title="category"
       >
         {{ category }}
       </h3>
-      <div class="flex items-center gap-2 shrink-0">
+      <div class="flex items-center gap-1.5 shrink-0">
         <span
-          class="indicator_A text-xs font-medium px-2 py-1 rounded-full"
+          class="indicator_A text-[11px] font-semibold px-2 py-0.5 rounded-full"
           :class="percentCompleteClass"
         >
           {{ percentComplete }}%
         </span>
         <span
           v-if="categoryStatus"
-          class="indicator_B text-xs font-medium px-2 py-1 rounded-full"
+          class="indicator_B text-[11px] font-semibold px-2 py-0.5 rounded-full"
           :class="statusClass"
         >
           {{ categoryStatus }}
         </span>
       </div>
     </div>
-    <!-- POPRAWIONY PASEK POSTĘPU -->
-    <div class="w-full h-2 rounded-full bg-gray-300 dark:bg-gray-700 flex overflow-hidden mb-3">
-      <div class="bg-green-400 h-full" :style="{ width: `${percentage.correct}%` }"></div>
-      <div class="bg-red-400 h-full" :style="{ width: `${percentage.wrong}%` }"></div>
-      <div class="bg-gray-400 h-full" :style="{ width: `${percentage.notDone}%` }"></div>
+    <!-- Pasek postępu -->
+    <div class="w-full h-1.5 rounded-full bg-gray-200 dark:bg-gray-800 flex overflow-hidden mb-3">
+      <div class="bg-green-500 h-full" :style="{ width: `${percentage.correct}%` }"></div>
+      <div class="bg-red-500 h-full" :style="{ width: `${percentage.wrong}%` }"></div>
+      <div class="bg-gray-300 dark:bg-gray-700 h-full" :style="{ width: `${percentage.notDone}%` }"></div>
     </div>
-    <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-4">
-      <div class="flex gap-2">
+    <div class="flex justify-between text-[11px] text-gray-500 dark:text-gray-400 mb-3">
+      <div class="flex gap-2.5">
         <span class="flex items-center"
-          ><span class="w-2 h-2 inline-block bg-green-400 rounded-full mr-1"></span>
+          ><span class="w-1.5 h-1.5 inline-block bg-green-500 rounded-full mr-1"></span>
           {{ stats.correct }}</span
         >
         <span class="flex items-center"
-          ><span class="w-2 h-2 inline-block bg-red-400 rounded-full mr-1"></span>
+          ><span class="w-1.5 h-1.5 inline-block bg-red-500 rounded-full mr-1"></span>
           {{ stats.wrong }}</span
         >
         <span class="flex items-center"
-          ><span class="w-2 h-2 inline-block bg-gray-400 rounded-full mr-1"></span>
+          ><span class="w-1.5 h-1.5 inline-block bg-gray-400 rounded-full mr-1"></span>
           {{ stats.notDone }}</span
         >
       </div>
       <span class="font-medium">Łącznie: {{ total }}</span>
     </div>
-    <div class="category-card grid grid-cols-3 gap-2">
+    <div class="category-card grid grid-cols-3 gap-1.5">
       <BaseButton
         color="gray"
         variant="outline"
-        size="sm"
+        size="xs"
         class="text-xs"
         @click="$emit('go-to-questions', category)"
       >
@@ -65,7 +65,7 @@
         <BaseButton
           ref="quizToggleRef"
           color="blue"
-          size="sm"
+          size="xs"
           class="w-full text-xs"
           :disabled="isDisabled"
           aria-haspopup="menu"
@@ -120,7 +120,7 @@
         <BaseButton
           color="purple"
           variant="outline"
-          size="sm"
+          size="xs"
           class="flex-1 text-xs"
           :disabled="isDisabled"
           @click="$emit('start-exam', category)"
@@ -130,7 +130,7 @@
         <BaseButton
           color="red"
           variant="ghost"
-          size="sm"
+          size="xs"
           class="px-2"
           ariaLabel="Wyczyść historię kategorii"
           title="Wyczyść historię kategorii"

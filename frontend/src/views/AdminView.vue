@@ -1,29 +1,23 @@
 <template>
   <div class="app-shell">
-    <div class="mb-8">
-      <h1 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-200">
-        Panel Administratora
-      </h1>
-      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-        Skróty:
-        <kbd class="px-1.5 py-0.5 rounded-sm border border-gray-300 dark:border-gray-600 font-mono text-xs">N</kbd>
-        nowe pytanie ·
-        <kbd class="px-1.5 py-0.5 rounded-sm border border-gray-300 dark:border-gray-600 font-mono text-xs">?</kbd>
-        pomoc
-      </p>
-    </div>
+    <PageHeader
+      eyebrow="Administracja"
+      title="Panel administratora"
+      subtitle="Zarządzaj pytaniami, kategoriami i użytkownikami. Skróty: N — nowe pytanie, ? — pomoc."
+    />
 
-    <div class="lg:flex lg:items-start lg:gap-8">
+    <div class="lg:flex lg:items-start lg:gap-6">
       <!-- Zakładki -->
       <div
-        class="mb-8 border-b border-gray-200 dark:border-gray-700 flex gap-2 overflow-x-auto pb-1 lg:mb-0 lg:w-56 lg:shrink-0 lg:flex-col lg:border-b-0 lg:border-r lg:pr-4 lg:sticky lg:top-20 xl:top-6"
+        class="surface mb-5 flex gap-1 overflow-x-auto p-1 lg:mb-0 lg:w-56 lg:shrink-0 lg:flex-col lg:sticky lg:top-20 xl:top-6"
       >
         <BaseButton
           v-for="tab in tabs"
           :key="tab.key"
           :color="activeTab === tab.key ? 'blue' : 'gray'"
-          :variant="activeTab === tab.key ? 'solid' : 'outline'"
-          class="rounded-t px-4 py-2 font-medium shrink-0 whitespace-nowrap lg:w-full lg:justify-start lg:rounded-lg"
+          :variant="activeTab === tab.key ? 'solid' : 'ghost'"
+          size="sm"
+          class="rounded-xl px-4 shrink-0 whitespace-nowrap lg:w-full lg:justify-start"
           @click="activeTab = tab.key"
         >
           {{ tab.label }}
@@ -35,11 +29,11 @@
     <!-- Zawartość zakładek -->
     <div v-if="activeTab === 'questions'">
       <!-- Szybkie akcje -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
         <button
           type="button"
           @click="openAddPopup"
-          class="text-left w-full bg-white dark:bg-gray-700 p-4 rounded-lg shadow-xs border border-gray-200 dark:border-gray-600 flex items-center gap-4 hover:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-blue-500"
+          class="text-left w-full surface p-4 flex items-center gap-4 hover:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-blue-500"
         >
           <span class="bg-blue-500 p-3 rounded-full shrink-0">
             <img
@@ -54,7 +48,7 @@
           </span>
         </button>
         <div
-          class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-xs border border-gray-200 dark:border-gray-600 flex items-center gap-4"
+          class="surface p-4 flex items-center gap-4"
         >
           <div class="bg-green-100 dark:bg-green-700 p-3 rounded-full">
             <img
@@ -71,7 +65,7 @@
           </div>
         </div>
         <div
-          class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-xs border border-gray-200 dark:border-gray-600 flex items-center gap-4"
+          class="surface p-4 flex items-center gap-4"
         >
           <div class="bg-blue-100 dark:bg-blue-700 p-3 rounded-full">
             <img
@@ -102,7 +96,7 @@
           </div>
         </div>
         <div
-          class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-xs border border-gray-200 dark:border-gray-600 flex items-center gap-4"
+          class="surface p-4 flex items-center gap-4"
         >
           <div class="bg-red-100 dark:bg-red-700 p-3 rounded-full">
             <img
@@ -124,7 +118,7 @@
     <div v-else-if="activeTab === 'batch'">
       <!-- Grupowa edycja pytań -->
       <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 space-y-6"
+        class="surface p-6 space-y-6"
       >
         <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
           Grupowa edycja pytań po ID
@@ -326,7 +320,7 @@
       </div>
 
       <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 space-y-4"
+        class="surface p-6 space-y-4"
       >
         <div class="flex flex-wrap items-center justify-between gap-3">
           <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
@@ -550,7 +544,7 @@
 
     <div v-else-if="activeTab === 'categories'">
       <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 space-y-6"
+        class="surface p-6 space-y-6"
       >
         <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
           Usuń wybraną kategorię
@@ -1041,6 +1035,7 @@ import apiClient from '@/api';
 import Avatar from '@/components/base/Avatar.vue';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseModal from '@/components/base/BaseModal.vue';
+import PageHeader from '@/components/layout/PageHeader.vue';
 
 // Zakładki
 const tabs = [

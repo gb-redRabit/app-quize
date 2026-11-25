@@ -1,47 +1,45 @@
 <template>
-  <div
-    class="bg-linear-to-br from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 p-4 sm:p-5 rounded-xl shadow-xs relative overflow-hidden"
-    :key="quoteKey"
-  >
-    <div class="relative z-10">
-      <div class="min-h-[4.5rem] flex flex-col justify-center">
-        <p
-          class="text-blue-700 dark:text-blue-300 font-medium text-base sm:text-lg"
-          :class="{ 'quote-typing': isTyping }"
-        >
-          {{ displayedText }}
-        </p>
-      </div>
-      <div
-        class="flex justify-end mt-2 transition-opacity duration-500"
-        :class="{ 'opacity-0': !authorVisible, 'opacity-100': authorVisible }"
+  <div class="surface p-5 relative overflow-hidden flex flex-col" :key="quoteKey">
+    <div class="flex items-center justify-between gap-2">
+      <p class="section-title">Cytat dnia</p>
+      <IconButton
+        @click="changeQuote"
+        color="gray"
+        class="shrink-0"
+        aria-label="Zmień cytat"
+        size="sm"
       >
-        <span class="text-blue-600 dark:text-blue-400 font-medium text-sm">— {{ quote.author }}</span>
-      </div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4 pointer-events-none"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+          />
+        </svg>
+      </IconButton>
     </div>
 
-    <IconButton
-      @click="changeQuote"
-      color="blue"
-      class="absolute top-3 right-3"
-      aria-label="Zmień cytat"
-      size="sm"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-5 w-5 pointer-events-none"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
+    <div class="mt-3 flex-1 flex items-center">
+      <p
+        class="text-base font-medium leading-relaxed text-gray-800 dark:text-gray-100"
+        :class="{ 'quote-typing': isTyping }"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-        />
-      </svg>
-    </IconButton>
+        „{{ displayedText }}”
+      </p>
+    </div>
+    <div
+      class="mt-3 transition-opacity duration-500"
+      :class="{ 'opacity-0': !authorVisible, 'opacity-100': authorVisible }"
+    >
+      <span class="text-sm text-gray-500 dark:text-gray-400">— {{ quote.author }}</span>
+    </div>
   </div>
 </template>
 

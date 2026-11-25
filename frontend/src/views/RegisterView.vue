@@ -1,18 +1,24 @@
 <template>
-  <div class="min-h-screen w-full flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen w-full flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-950">
     <div class="relative w-full max-w-md">
       <!-- Karta rejestracji -->
       <div
-        class="rounded-xl shadow-lg p-6 sm:p-8 w-full relative z-10 overflow-hidden border border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm animate-slide-up"
+        class="rounded-2xl p-6 sm:p-8 w-full relative z-10 border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl animate-slide-up"
       >
         <!-- Nagłówek -->
-        <div class="mb-6 text-center">
-          <h2
-            class="text-2xl sm:text-3xl font-bold mb-2 text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-blue-400"
-          >
+        <div class="mb-6">
+          <div class="mb-5 flex items-center gap-2.5">
+            <div class="h-9 w-9 rounded-xl bg-blue-600 grid place-items-center text-xs font-bold text-white">
+              Q
+            </div>
+            <span class="font-semibold tracking-tight text-gray-900 dark:text-gray-100">Quiz App</span>
+          </div>
+          <h1 class="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
             Rejestracja
-          </h2>
-          <p class="text-gray-500 dark:text-gray-400 text-sm sm:text-base">Utwórz nowe konto</p>
+          </h1>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Utwórz konto i zacznij naukę.
+          </p>
         </div>
 
         <!-- Formularz -->
@@ -233,38 +239,6 @@
             </span>
           </router-link>
         </div>
-      </div>
-
-      <!-- Dekoracyjne elementy tła -->
-      <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div
-          class="absolute rounded-full opacity-70"
-          style="
-            width: 300px;
-            height: 300px;
-            top: -80px;
-            right: -100px;
-            background: radial-gradient(
-              circle,
-              rgba(59, 130, 246, 0.2) 0%,
-              rgba(96, 165, 250, 0.05) 100%
-            );
-          "
-        ></div>
-        <div
-          class="absolute rounded-full opacity-70"
-          style="
-            width: 200px;
-            height: 200px;
-            bottom: -70px;
-            left: -80px;
-            background: radial-gradient(
-              circle,
-              rgba(59, 130, 246, 0.1) 0%,
-              rgba(96, 165, 250, 0.02) 100%
-            );
-          "
-        ></div>
       </div>
     </div>
   </div>

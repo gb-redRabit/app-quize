@@ -1,7 +1,7 @@
 <template>
   <div
     id="app"
-    class="flex flex-col items-center justify-start min-h-screen dark:bg-gray-900 dark:text-gray-200"
+    class="flex flex-col items-center justify-start min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100"
     :data-theme="currentTheme"
   >
     <BaseLoader v-if="!isAuthChecked" />

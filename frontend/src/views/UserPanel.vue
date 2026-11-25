@@ -1,32 +1,37 @@
 <template>
   <div class="app-shell overflow-hidden">
     <!-- Nagłówek panelu użytkownika -->
-    <div
-      class="bg-linear-to-r from-blue-600 to-indigo-700 rounded-xl shadow-lg mb-8 p-6 flex flex-wrap items-center justify-between"
-    >
-      <div class="flex items-center">
-        <div
-          class="w-20 h-20 bg-white/20 rounded-full p-1 shadow-xl mr-4 flex items-center justify-center backdrop-blur-sm"
-        >
+    <div class="surface mb-5 p-5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="shrink-0">
           <Avatar
             :avatar-index="user?.avatar || 0"
             :color="user?.avatarColors || '#60A5FA'"
-            :size="72"
+            :size="56"
           />
         </div>
-        <div>
-          <h1 class="text-3xl font-bold text-white">Panel użytkownika</h1>
-          <p class="text-blue-100 text-lg">Cześć, {{ user?.login || 'użytkowniku' }}!</p>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+            Konto
+          </p>
+          <h1 class="mt-0.5 text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
+            {{ user?.login || 'Użytkownik' }}
+          </h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Zarządzaj profilem, wyglądem i preferencjami nauki.
+          </p>
         </div>
       </div>
-      <div class="text-right hidden sm:block">
-        <p class="text-blue-100 text-sm md:text-2xl">Zarządzaj swoim profilem i preferencjami.</p>
-      </div>
+      <span
+        class="rounded-full bg-gray-100 dark:bg-gray-800 px-3 py-1 text-xs font-semibold text-gray-600 dark:text-gray-300"
+      >
+        {{ user?.rola === 'admin' ? 'Administrator' : 'Uczeń' }}
+      </span>
     </div>
 
     <!-- Zakładki panelu -->
     <div
-      class="grid grid-cols-2 sm:flex gap-2 sm:overflow-x-auto hide-scrollbar mb-6 pb-1"
+      class="mb-5 flex flex-wrap gap-1 rounded-2xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 p-1"
       role="tablist"
       aria-label="Ustawienia profilu"
     >
@@ -35,11 +40,11 @@
         :key="tab.id"
         role="tab"
         :aria-selected="activeTab === tab.id"
-        class="h-11 w-full sm:w-auto px-4 rounded-full text-sm font-medium whitespace-nowrap transition-colors"
+        class="h-9 px-3 rounded-xl text-sm font-medium whitespace-nowrap transition-colors"
         :class="
           activeTab === tab.id
             ? 'bg-blue-600 text-white shadow-xs'
-            : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+            : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
         "
         @click="activeTab = tab.id"
       >
@@ -52,7 +57,7 @@
       <!-- Personalizacja awatara -->
       <div
         v-if="activeTab === 'profile'"
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
+        class="surface overflow-hidden"
       >
         <div class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
           <div class="px-6 py-4 flex items-center">
@@ -185,7 +190,7 @@
         <!-- Personalizacja motywu -->
         <div
           v-if="activeTab === 'appearance'"
-          class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden h-fit"
+          class="surface overflow-hidden h-fit"
         >
           <div
             class="border-b border-gray-200 dark:border-gray-700 bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900"
@@ -261,7 +266,7 @@
     <!-- Ukrywanie kategorii -->
     <div
       v-if="activeTab === 'categories'"
-      class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8"
+      class="surface overflow-hidden mb-8"
     >
       <div class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
         <div class="px-6 py-4 flex items-center">
@@ -310,7 +315,7 @@
     <!-- Preferencje nauki -->
     <div
       v-if="activeTab === 'learning'"
-      class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8"
+      class="surface overflow-hidden mb-8"
     >
       <div class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
         <div class="px-6 py-4 flex items-center">

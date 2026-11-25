@@ -1,6 +1,6 @@
 <template>
   <div
-    class="container mx-auto px-4 py-6"
+    class="mx-auto w-full max-w-4xl px-4 py-6"
     :class="!showSummary ? 'pb-28 lg:pb-6' : ''"
   >
     <div class="mx-auto">
@@ -30,10 +30,10 @@
         </button>
       </div>
       <!-- Widok pytania (gdy nie pokazujemy podsumowania) -->
-      <div v-if="!showSummary" class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6">
+      <div v-if="!showSummary" class="surface p-4 sm:p-6">
         <!-- Nagłówek z informacjami -->
         <div
-          class="bg-white p-4 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4 dark:bg-gray-800 dark:text-white mb-6"
+          class="flex flex-col sm:flex-row justify-between items-center gap-4 dark:text-white mb-5"
         >
           <div class="flex justify-center items-center space-x-3">
             <div

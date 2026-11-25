@@ -107,7 +107,7 @@ async function login(page) {
   await page.locator('#login').fill('admin');
   await page.locator('#password').fill('admin');
   await page.getByRole('button', { name: 'Zaloguj się' }).click();
-  await expect(page.getByRole('heading', { name: 'Witaj w systemie nauki!' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Cześć/ })).toBeVisible();
 }
 
 async function answerAllCorrectly(page) {
@@ -136,7 +136,7 @@ test.describe('Quiz App E2E', () => {
     await login(page);
 
     expect(new URL(page.url()).pathname).toBe('/');
-    await expect(page.getByText('Lista kategorii')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Kategorie' })).toBeVisible();
   });
 
   test('quiz: odpowiedzi prowadzą do podsumowania z wynikiem', async ({ page }) => {
@@ -169,7 +169,7 @@ test.describe('Quiz App E2E', () => {
 
   test('klawiatura: skip link i widoczny fokus', async ({ page }) => {
     await page.goto('/login');
-    await expect(page.getByRole('heading', { name: 'Logowanie' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Zaloguj się' })).toBeVisible();
 
     await page.keyboard.press('Tab');
 
@@ -320,7 +320,7 @@ test.describe('Quiz App E2E', () => {
       violations.filter((violation) => ['serious', 'critical'].includes(violation.impact));
 
     await page.goto('/login');
-    await expect(page.getByRole('heading', { name: 'Logowanie' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Zaloguj się' })).toBeVisible();
     await page.waitForTimeout(300);
 
     const loginResults = await new AxeBuilder({ page })

@@ -2,7 +2,7 @@
   <div class="app-shell">
     <!-- Header section -->
     <div
-      class="mb-6 bg-white dark:bg-gray-800 rounded-xl p-4 md:p-5 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+      class="surface mb-5 p-4 md:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
     >
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div class="flex items-center gap-3">
@@ -64,24 +64,17 @@
             </div>
           </div>
 
-          <h1 class="ml-5 text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
+          <h1 class="ml-4 text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
             Pytania z kategorii:
-            <span
-              class="text-blue-600 dark:text-blue-400 bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent"
-            >
-              {{ categoryLabel }}
-            </span>
+            <span class="text-blue-600 dark:text-blue-400"> {{ categoryLabel }} </span>
           </h1>
         </div>
       </div>
       <SearchBar v-model:search="searchQuery" placeholder="Szukaj po treści pytania lub ID..." />
     </div>
     <!-- Progress bar -->
-    <div
-      v-if="lastAttemptStats.total > 0"
-      class="mb-8 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg"
-    >
-      <h2 class="text-lg font-semibold mb-2">Ostatnie podejście:</h2>
+    <div v-if="lastAttemptStats.total > 0" class="surface mb-5 p-4">
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Ostatnie podejście</h2>
       <div class="flex justify-between mb-2 text-sm dark:text-gray-200">
         <span class="flex items-center gap-1.5">
           <span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>

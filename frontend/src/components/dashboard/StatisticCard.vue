@@ -1,11 +1,19 @@
 <!-- filepath: d:\git nowe\app-quize\frontend\src\components\dashboard\StatisticCard.vue -->
 <template>
-  <div
-    class="p-4 rounded-xl shadow-xs border flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-sm"
-    :class="colorClasses"
-  >
-    <span class="text-2xl font-bold mb-1">{{ value }}</span>
-    <span class="text-xs font-medium">{{ label }}</span>
+  <div class="surface p-4 flex items-center gap-3">
+    <span
+      class="h-10 w-10 shrink-0 rounded-xl grid place-items-center text-sm font-bold"
+      :class="accentClasses"
+      aria-hidden="true"
+    >
+      <span class="h-2.5 w-2.5 rounded-full bg-current"></span>
+    </span>
+    <div class="min-w-0">
+      <p class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ label }}</p>
+      <p class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
+        {{ value }}
+      </p>
+    </div>
   </div>
 </template>
 
@@ -28,18 +36,14 @@ const props = defineProps({
   },
 });
 
-const colorClasses = computed(() => {
+const accentClasses = computed(() => {
   const colorMap = {
-    blue: 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900 dark:border-blue-700 dark:text-blue-200',
-    green:
-      'bg-green-50 border-green-200 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-200',
-    red: 'bg-red-50 border-red-200 text-red-700 dark:bg-red-900 dark:border-red-700 dark:text-red-200',
-    indigo:
-      'bg-indigo-50 border-indigo-200 text-indigo-800 dark:bg-indigo-900 dark:border-indigo-700 dark:text-indigo-200',
-    purple:
-      'bg-purple-50 border-purple-200 text-purple-800 dark:bg-purple-900 dark:border-purple-700 dark:text-purple-200',
-    yellow:
-      'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-200',
+    blue: 'bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300',
+    green: 'bg-green-50 text-green-600 dark:bg-green-900/40 dark:text-green-300',
+    red: 'bg-red-50 text-red-600 dark:bg-red-900/40 dark:text-red-300',
+    indigo: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300',
+    purple: 'bg-purple-50 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300',
+    yellow: 'bg-amber-50 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300',
   };
 
   return colorMap[props.color] || colorMap.blue;
