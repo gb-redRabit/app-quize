@@ -56,24 +56,16 @@
         :key="q.ID"
         class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-xs border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
         :class="{
-          'shadow-md ring-2 ring-blue-100 dark:ring-blue-900': expandedQuestions.includes(q.ID),
           'ring-2 ring-blue-300 dark:ring-blue-700':
             isDesktop && selectedQuestion && selectedQuestion.ID === q.ID,
         }"
       >
         <!-- Nagłówek pytania -->
-        <div
-          class="flex items-start gap-2 p-4 transition-colors hover:bg-blue-50 dark:hover:bg-gray-700"
-          :class="{
-            'border-b border-gray-200 dark:border-gray-700': expandedQuestions.includes(q.ID),
-            'bg-blue-50 dark:bg-gray-700': expandedQuestions.includes(q.ID),
-          }"
-        >
+        <div class="flex items-start gap-2 p-4 transition-colors hover:bg-blue-50 dark:hover:bg-gray-700">
           <button
             type="button"
             class="flex items-start flex-1 min-w-0 text-left rounded-lg cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
             :data-question-id="q.ID"
-            :aria-expanded="isDesktop ? undefined : expandedQuestions.includes(q.ID)"
             :aria-current="isDesktop && selectedQuestion?.ID === q.ID ? 'true' : undefined"
             @click="handleRowClick(q)"
             @keydown.down.prevent="moveSelection(idx, 1)"
@@ -100,7 +92,6 @@
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-5 w-5 text-gray-500 dark:text-gray-300 transition-transform duration-300"
-                  :class="{ 'rotate-180': expandedQuestions.includes(q.ID) }"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -136,67 +127,6 @@
             @edit="handleQuestionEdited"
           />
         </div>
-
-        <!-- Szczegóły pytania - animowane rozwijanie -->
-        <transition
-          enter-active-class="transition-all ease-out duration-300"
-          enter-from-class="opacity-0 max-h-0"
-          enter-to-class="opacity-100 max-h-[1000px]"
-          leave-active-class="transition-all ease-in duration-300"
-          leave-from-class="opacity-100 max-h-[1000px]"
-          leave-to-class="opacity-0 max-h-0"
-        >
-          <div v-if="expandedQuestions.includes(q.ID)" class="overflow-hidden lg:hidden">
-            <div class="p-4 bg-gray-50 dark:bg-gray-800 space-y-4">
-              <div v-if="hasAnswers(q)">
-                <h3 class="font-medium mb-3 text-gray-700 dark:text-gray-300">Odpowiedzi:</h3>
-                <div class="space-y-2">
-                  <div
-                    v-for="(answer, key) in getAnswers(q)"
-                    :key="key"
-                    class="p-3 rounded-lg border border-transparent transition-all"
-                    :class="
-                      answer.isCorrect || answer.isCorret
-                        ? 'bg-green-50 border-green-200 dark:bg-green-900 dark:border-green-800'
-                        : 'bg-gray-100 dark:bg-gray-700 dark:border-gray-700'
-                    "
-                  >
-                    <div class="flex items-center">
-                      <span
-                        class="inline-flex items-center justify-center h-7 w-7 rounded-full mr-3 font-medium text-sm"
-                        :class="
-                          answer.isCorrect || answer.isCorret
-                            ? 'bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200'
-                            : 'bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300'
-                        "
-                      >
-                        {{ key.split('_')[1]?.toUpperCase() || key }}
-                      </span>
-                      <span class="text-gray-800 dark:text-gray-200">
-                        {{ typeof answer === 'object' ? answer.answer : answer }}
-                      </span>
-                      <span
-                        v-if="answer.isCorrect || answer.isCorret"
-                        class="ml-3 text-green-600 dark:text-green-400 font-medium text-sm bg-green-100 dark:bg-green-600 py-1 px-2 rounded-sm"
-                      >
-                        Poprawna
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div v-if="q.description" class="mt-4">
-                <h3 class="font-medium mb-2 text-gray-700 dark:text-gray-300">Opis:</h3>
-                <p
-                  class="text-gray-600 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg"
-                >
-                  {{ q.description }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </transition>
       </div>
 
       <!-- Element obserwowany dla nieskończonego przewijania - poprawiony -->
@@ -330,6 +260,75 @@
         </div>
       </aside>
     </div>
+
+    <!-- Mobile: szczegóły pytania w modalu (dostępny focus trap z BaseModal) -->
+    <BaseModal :show="!!mobileQuestion" @close="mobileQuestion = null">
+      <template #header>
+        <span class="text-base sm:text-xl">Pytanie ID {{ mobileQuestion?.ID }}</span>
+      </template>
+
+      <template v-if="mobileQuestion">
+        <p class="text-sm font-medium text-blue-700 dark:text-blue-300 mb-1">
+          {{ mobileQuestion.category || 'Bez kategorii' }}
+        </p>
+        <h2 class="text-base font-semibold text-gray-800 dark:text-gray-100 break-words mb-4">
+          {{ mobileQuestion.question }}
+        </h2>
+
+        <div v-if="hasAnswers(mobileQuestion)" class="space-y-2">
+          <div
+            v-for="(answer, key) in getAnswers(mobileQuestion)"
+            :key="key"
+            class="p-3 rounded-lg border flex items-start gap-3"
+            :class="
+              answer.isCorrect || answer.isCorret
+                ? 'bg-green-50 border-green-200 dark:bg-green-900 dark:border-green-800'
+                : 'bg-gray-50 border-gray-200 dark:bg-gray-700 dark:border-gray-600'
+            "
+          >
+            <span
+              class="inline-flex items-center justify-center h-7 w-7 rounded-full text-sm font-medium shrink-0"
+              :class="
+                answer.isCorrect || answer.isCorret
+                  ? 'bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200'
+                  : 'bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200'
+              "
+            >
+              {{ key.split('_')[1]?.toUpperCase() || key }}
+            </span>
+            <span class="text-sm text-gray-800 dark:text-gray-200 break-words">
+              {{ typeof answer === 'object' ? answer.answer : answer }}
+            </span>
+            <span
+              v-if="answer.isCorrect || answer.isCorret"
+              class="ml-auto text-xs font-medium text-green-700 dark:text-green-300 shrink-0"
+            >
+              Poprawna
+            </span>
+          </div>
+        </div>
+        <p v-else class="text-sm text-gray-500 dark:text-gray-400">Brak odpowiedzi.</p>
+
+        <div v-if="mobileQuestion.description" class="mt-4">
+          <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opis:</h3>
+          <p
+            class="text-sm text-gray-600 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 p-3 rounded-lg break-words"
+          >
+            {{ mobileQuestion.description }}
+          </p>
+        </div>
+      </template>
+
+      <template #footer>
+        <button
+          type="button"
+          class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
+          @click="mobileQuestion = null"
+        >
+          Zamknij
+        </button>
+      </template>
+    </BaseModal>
   </div>
 </template>
 
@@ -352,6 +351,7 @@ const QuestionEditor = defineAsyncComponent(
   () => import('@/components/questions/QuestionEditor.vue')
 );
 const BaseSkeleton = defineAsyncComponent(() => import('@/components/base/BaseSkeleton.vue'));
+const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal.vue'));
 import apiClient from '@/api';
 import { useStore } from 'vuex';
 
@@ -366,7 +366,7 @@ const limit = ref(20);
 const total = ref(0);
 const pages = ref(1);
 const isLoading = ref(true);
-const expandedQuestions = ref([]);
+const mobileQuestion = ref(null);
 const selectedQuestion = ref(null);
 const isEditing = ref(false);
 const isDesktop = ref(
@@ -504,15 +504,6 @@ function loadMore() {
   }
 }
 
-function toggleQuestionDetails(id) {
-  const index = expandedQuestions.value.indexOf(id);
-  if (index > -1) {
-    expandedQuestions.value.splice(index, 1);
-  } else {
-    expandedQuestions.value.push(id);
-  }
-}
-
 function startInlineEdit(question) {
   if (!isDesktop.value) return;
   if (question && question.ID && selectedQuestion.value?.ID !== question.ID) {
@@ -539,7 +530,9 @@ function moveSelection(index, delta) {
   if (isDesktop.value) {
     selectedQuestion.value = next;
   } else {
-    expandedQuestions.value = [next.ID];
+    // Na mobile szczegóły otwierają się w modalu — fokus zostaje na wierszu.
+    mobileQuestion.value = next;
+    return;
   }
 
   nextTick(() => {
@@ -556,7 +549,7 @@ function handleRowClick(question) {
     if (selectedQuestion.value?.ID !== question.ID) isEditing.value = false;
     selectedQuestion.value = question;
   } else {
-    toggleQuestionDetails(question.ID);
+    mobileQuestion.value = question;
   }
 }
 
@@ -591,10 +584,9 @@ function handleQuestionDeleted(question) {
     selectedQuestion.value = questions.value[0] || null;
   }
 
-  // Zamknij szczegóły, jeśli były otwarte
-  const expandedIdx = expandedQuestions.value.indexOf(question.ID);
-  if (expandedIdx > -1) {
-    expandedQuestions.value.splice(expandedIdx, 1);
+  // Zamknij szczegóły, jeśli dotyczyły usuwanego pytania
+  if (mobileQuestion.value?.ID === question.ID) {
+    mobileQuestion.value = null;
   }
   showAlert('success', 'Pytanie zostało usunięte');
 }

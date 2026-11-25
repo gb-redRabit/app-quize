@@ -208,6 +208,24 @@ test.describe('Quiz App E2E', () => {
     await expect(page.locator('aside')).toContainText('ID 2');
   });
 
+  test('mobile: szczegóły pytania otwierają się w modalu', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await login(page);
+    await page.goto('/questions');
+
+    const firstRow = page.locator('[data-question-id]').first();
+    await expect(firstRow).toBeVisible();
+    await firstRow.click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toContainText('ID 1');
+    await expect(dialog).toContainText('E2E: stolica Polski');
+
+    await page.keyboard.press('Escape');
+    await expect(dialog).not.toBeVisible();
+  });
+
   test('logowanie i strona główna bez poważnych naruszeń WCAG', async ({ page }) => {
     // Wyłącz animacje wejścia — axe skanowałby kolory w trakcie przenikania.
     await page.emulateMedia({ reducedMotion: 'reduce' });
