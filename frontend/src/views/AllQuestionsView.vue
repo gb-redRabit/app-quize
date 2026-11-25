@@ -117,7 +117,7 @@
             </span>
           </button>
 
-          <div v-if="isAdmin" class="hidden sm:block shrink-0 self-center">
+          <div v-if="isAdmin" class="hidden sm:block shrink-0 self-start mt-0.5">
             <QuestionActions
               :question="q"
               :inline-edit="isDesktop"
