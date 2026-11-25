@@ -69,7 +69,26 @@ router.beforeEach((to, from, next) => {
   }
 });
 
-router.afterEach(() => {
+const PAGE_TITLES = {
+  Home: 'Strona główna',
+  Login: 'Logowanie',
+  Register: 'Rejestracja',
+  History: 'Historia',
+  AllQuestions: 'Lista pytań',
+  CategoryQuestions: 'Pytania w kategorii',
+  DuplicateQuestions: 'Duplikaty pytań',
+  UserPanel: 'Panel użytkownika',
+  AdminView: 'Panel administracyjny',
+  QuizView: 'Quiz',
+  ExamView: 'Egzamin',
+  NotFound: 'Nie znaleziono',
+  ServerError: 'Błąd serwera',
+};
+
+router.afterEach((to) => {
+  const title = PAGE_TITLES[to.name];
+  document.title = title ? `${title} · Quiz App` : 'Quiz App';
+
   // Bezpieczniejsze ukrywanie loadera
   setTimeout(() => {
     try {

@@ -17,7 +17,13 @@
       <div
         v-if="!isOnline"
         class="w-full bg-red-600 text-white text-center py-2 fixed top-0 left-0 z-50 text-sm"
-        :class="showAppNavigation ? 'xl:left-60 xl:w-[calc(100%-15rem)]' : ''"
+        :class="
+          showAppNavigation
+            ? sidebarCollapsed
+              ? 'xl:left-20 xl:w-[calc(100%-5rem)]'
+              : 'xl:left-60 xl:w-[calc(100%-15rem)]'
+            : ''
+        "
         role="status"
         aria-live="polite"
       >
@@ -33,7 +39,13 @@
 
       <div
         class="w-full flex flex-col flex-1 min-h-screen"
-        :class="showAppNavigation ? 'xl:pl-60' : ''"
+        :class="
+          showAppNavigation
+            ? sidebarCollapsed
+              ? 'xl:pl-20'
+              : 'xl:pl-60'
+            : ''
+        "
       >
         <main
           id="main"
@@ -70,7 +82,14 @@
       <!-- Nowa wersja PWA: Service Worker czeka na aktywację. -->
       <div
         v-if="updateAvailable"
-        class="fixed z-50 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bottom-[calc(6.25rem+env(safe-area-inset-bottom))] lg:bottom-6 xl:left-[calc(50%+7.5rem)] rounded-xl border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 shadow-lg p-3 flex items-center gap-3"
+        class="fixed z-50 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bottom-[calc(6.25rem+env(safe-area-inset-bottom))] lg:bottom-6 rounded-xl border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 shadow-lg p-3 flex items-center gap-3"
+        :class="
+          showAppNavigation
+            ? sidebarCollapsed
+              ? 'xl:left-[calc(50%+2.5rem)]'
+              : 'xl:left-[calc(50%+7.5rem)]'
+            : ''
+        "
         role="status"
         aria-live="polite"
       >
@@ -171,6 +190,7 @@ import { startRealtime, stopRealtime } from '@/utils/realtime';
 import { useSkeletonConfig } from '@/composables/useSkeletonConfig.js';
 import { useGlobalLoader } from '@/composables/useGlobalLoader.js';
 import { updateAvailable, applyUpdate, dismissUpdate } from '@/services/pwa';
+import { useSidebar } from '@/composables/useSidebar';
 
 const store = useStore();
 const router = useRouter();
@@ -189,6 +209,7 @@ const pendingChanges = ref(queueSize());
 const globalAlert = ref();
 const globalLoader = ref();
 
+const { collapsed: sidebarCollapsed } = useSidebar();
 const currentTheme = computed(() => store.getters['ui/currentTheme']);
 const showNavbar = computed(() => route.name !== 'Login' && route.name !== 'Register');
 // Tryb skupienia: quiz i egzamin bez nawigacji (sidebar/navbar/stopka).
