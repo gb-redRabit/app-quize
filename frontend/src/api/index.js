@@ -179,6 +179,15 @@ function setAuthHeader(headers, token) {
 // Interceptor dla zapytań - dodaje token i obsługuje loader
 apiClient.interceptors.request.use(
   (config) => {
+    // Gdy przeglądarka wie, że jest offline, nie ma sensu wysyłać żądań:
+    // kończymy je od razu błędem sieciowym (komponenty mają fallback/kolejkę).
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      const error = new Error('Offline');
+      error.config = config;
+      error.isOffline = true;
+      return Promise.reject(error);
+    }
+
     // Pokaż loader jeśli zapytanie nie jest ciche
     if (!config.silent) {
       const loader = getLoader();

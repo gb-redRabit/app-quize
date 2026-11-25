@@ -7,6 +7,7 @@ let controller = null;
 let retryTimer = null;
 let retryCount = 0;
 let stopped = true;
+let onlineHandler = null;
 
 function scheduleReconnect() {
   if (stopped) return;
@@ -18,6 +19,13 @@ function scheduleReconnect() {
 
 async function connect() {
   if (stopped) return;
+
+  // Offline: nie próbuj łączyć się z SSE (mniej błędów w konsoli).
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    scheduleReconnect();
+    return;
+  }
+
   const token = getToken();
   if (!token) {
     scheduleReconnect();
@@ -74,6 +82,18 @@ export function startRealtime() {
   if (!stopped) return;
   stopped = false;
   retryCount = 0;
+
+  if (typeof window !== 'undefined' && !onlineHandler) {
+    onlineHandler = () => {
+      if (stopped) return;
+      clearTimeout(retryTimer);
+      retryTimer = null;
+      retryCount = 0;
+      connect();
+    };
+    window.addEventListener('online', onlineHandler);
+  }
+
   connect();
 }
 
@@ -81,6 +101,10 @@ export function stopRealtime() {
   stopped = true;
   clearTimeout(retryTimer);
   retryTimer = null;
+  if (onlineHandler && typeof window !== 'undefined') {
+    window.removeEventListener('online', onlineHandler);
+    onlineHandler = null;
+  }
   if (controller) {
     controller.abort();
     controller = null;
