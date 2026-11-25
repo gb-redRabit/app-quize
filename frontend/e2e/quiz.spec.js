@@ -168,6 +168,26 @@ async function login(page) {
   await expect(page.getByRole('heading', { name: /Cześć/ })).toBeVisible();
 }
 
+/** Emuluje offline i czeka, aż przeglądarka zgłosi to w navigator.onLine. */
+async function goOffline(page, context) {
+  await context.setOffline(true);
+  await page
+    .waitForFunction(() => navigator.onLine === false, null, { timeout: 5000 })
+    .catch(() => {});
+}
+
+/**
+ * Wypełnia pole i upewnia się, że wartość trafiła do właściwego elementu.
+ * Zabezpiecza przed wyścigiem autofokusa w modalach.
+ */
+async function fillAndVerify(locator, value) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await locator.fill(value);
+    if ((await locator.inputValue().catch(() => null)) === value) return;
+  }
+  await expect(locator).toHaveValue(value);
+}
+
 async function answerAllCorrectly(page) {
   for (let i = 0; i < 5; i += 1) {
     if (await page.getByRole('heading', { name: 'Podsumowanie testu' }).isVisible().catch(() => false)) {
@@ -437,7 +457,7 @@ test.describe('Quiz App E2E', () => {
 
     // Zdejmujemy mocki, żeby offline naprawdę kończył się błędem sieci.
     await page.unroute('**/api/**');
-    await context.setOffline(true);
+    await goOffline(page, context);
 
     await answerAllCorrectly(page);
     await expect(page.getByRole('heading', { name: 'Podsumowanie testu' })).toBeVisible();
@@ -476,7 +496,7 @@ test.describe('Quiz App E2E', () => {
       timeout: 20000,
     });
 
-    await context.setOffline(true);
+    await goOffline(page, context);
     await page.goto('/history');
 
     await expect(page.getByRole('heading', { name: 'Historia nauki' })).toBeVisible();
@@ -488,7 +508,7 @@ test.describe('Quiz App E2E', () => {
   }) => {
     await login(page);
 
-    await context.setOffline(true);
+    await goOffline(page, context);
     const banner = page.getByRole('status').filter({ hasText: 'Tryb offline' });
     await expect(banner).toBeVisible();
 
@@ -497,7 +517,7 @@ test.describe('Quiz App E2E', () => {
 
     await context.setOffline(false);
     await page.waitForTimeout(300);
-    await context.setOffline(true);
+    await goOffline(page, context);
     await expect(banner).toBeVisible();
   });
 
@@ -514,10 +534,10 @@ test.describe('Quiz App E2E', () => {
 
     const questionField = page.locator('#inline-edit-1-question');
     await expect(questionField).toBeVisible();
-    await questionField.fill('E2E offline: zmienione pytanie?');
+    await fillAndVerify(questionField, 'E2E offline: zmienione pytanie?');
 
     await page.unroute('**/api/**');
-    await context.setOffline(true);
+    await goOffline(page, context);
     await page.getByRole('button', { name: 'Zapisz zmiany' }).click();
 
     const queuedUpdate = () =>
@@ -561,15 +581,15 @@ test.describe('Quiz App E2E', () => {
     await page.getByRole('button', { name: /Dodaj pytanie/ }).click();
 
     const dialog = page.getByRole('dialog');
-    await dialog.locator('#question-text').fill('E2E offline: nowe pytanie?');
-    await dialog.locator('#answer-a').fill('Tak');
-    await dialog.locator('#answer-b').fill('Nie');
-    await dialog.locator('#answer-c').fill('Może');
+    await fillAndVerify(dialog.locator('#answer-a'), 'Tak');
+    await fillAndVerify(dialog.locator('#answer-b'), 'Nie');
+    await fillAndVerify(dialog.locator('#answer-c'), 'Może');
+    await fillAndVerify(dialog.locator('#question-text'), 'E2E offline: nowe pytanie?');
     await dialog.locator('#correct-a').click();
     await dialog.locator('#category').selectOption('E2E');
 
     await page.unroute('**/api/**');
-    await context.setOffline(true);
+    await goOffline(page, context);
     await dialog.getByRole('button', { name: 'Zapisz pytanie' }).click();
 
     await expect(dialog).not.toBeVisible();
@@ -624,7 +644,7 @@ test.describe('Quiz App E2E', () => {
     await expect(confirm).toContainText('Usuń pytanie');
 
     await page.unroute('**/api/**');
-    await context.setOffline(true);
+    await goOffline(page, context);
     await confirm.getByRole('button', { name: 'Tak, usuń' }).click();
 
     await expect(page.locator('[data-question-id="1"]')).toHaveCount(0);
@@ -668,10 +688,62 @@ test.describe('Quiz App E2E', () => {
     await page.waitForTimeout(2000); // snapshot pytań → IndexedDB
 
     await page.unroute('**/api/**');
-    await context.setOffline(true);
+    await goOffline(page, context);
     await page.goto('/duplikaty');
 
     await expect(page.getByText('Brak duplikatów pytań')).toBeVisible({ timeout: 15000 });
+  });
+
+  test('offline: grupowa edycja pytań trafia do kolejki', async ({ page, context }) => {
+    await login(page);
+    await page.goto('/admin');
+    await page.getByRole('button', { name: 'Grupowa edycja', exact: true }).click();
+
+    await page.locator('#batch-ids').fill('1,2');
+    await page.getByRole('button', { name: 'Pobierz pytania' }).click();
+    await expect(page.getByText('E2E: stolica Polski')).toBeVisible();
+
+    await page.locator('#batch-category').selectOption('E2E');
+
+    await page.unroute('**/api/**');
+    await goOffline(page, context);
+    await page.getByRole('button', { name: 'Zapisz zmiany' }).click();
+
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(() => {
+            const queue = JSON.parse(localStorage.getItem('offline-queue-v1') || '[]');
+            const ids = queue
+              .filter((op) => op.type === 'question-update')
+              .map((op) => op.payload.ID)
+              .sort();
+            return ids.join(',');
+          }),
+        { timeout: 10000 }
+      )
+      .toBe('1,2');
+
+    const updates = [];
+    page.on('request', (request) => {
+      if (request.method() === 'PUT' && request.url().includes('/questions/')) {
+        updates.push(request.url());
+      }
+    });
+
+    await mockApi(page);
+    await context.setOffline(false);
+
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(
+            () => JSON.parse(localStorage.getItem('offline-queue-v1') || '[]').length
+          ),
+        { timeout: 15000 }
+      )
+      .toBe(0);
+    expect(updates).toHaveLength(2);
   });
 
   test('quiz: odpowiedź wybrana klawiaturą odblokowuje „Następne”', async ({ page }) => {

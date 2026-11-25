@@ -1038,7 +1038,8 @@
 import { ref, computed, onMounted, onBeforeUnmount, inject, watch } from 'vue';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
-import { queueQuestionCreate } from '@/services/offlineSync';
+import { queueQuestionCreate, queueQuestionUpdate } from '@/services/offlineSync';
+import { getCachedQuestionsByIds } from '@/services/questionsSync';
 import Avatar from '@/components/base/Avatar.vue';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseModal from '@/components/base/BaseModal.vue';
@@ -1676,8 +1677,15 @@ async function fetchBatchQuestions() {
         showAlert?.('info', 'Nie znaleziono pytań o podanych ID.');
       }
     } catch (e) {
-      showAlert?.('error', 'Błąd podczas pobierania pytań.');
-      batchQuestions.value = [];
+      // Offline: spróbuj pobrać pytania z lokalnego cache (IndexedDB).
+      const cached = await getCachedQuestionsByIds(ids.map(Number));
+      if (cached.length) {
+        batchQuestions.value = cached;
+        showAlert?.('info', 'Brak sieci — pytania z lokalnego cache.', 4000);
+      } else {
+        showAlert?.('error', 'Błąd podczas pobierania pytań.');
+        batchQuestions.value = [];
+      }
     }
   } finally {
     isFetchingBatch.value = false;
@@ -1688,35 +1696,58 @@ async function fetchBatchQuestions() {
 async function saveBatchEdit() {
   if (!batchQuestions.value.length) return;
   isSavingBatch.value = true;
-  try {
-    await Promise.all(
-      batchQuestions.value.map((q) => {
-        let newDescription = q.description || q.Opis || '';
-        // Podziel aktualny opis na dwa człony
-        const [oldPart1, oldPart2] = splitDescription(newDescription);
+  let updates = [];
 
-        if (batchEditDescPart1.value !== '' || batchEditDescPart2.value !== '') {
-          // Jeśli użytkownik coś wpisał
-          const part1 = batchEditDescPart1.value !== '' ? batchEditDescPart1.value : oldPart1;
-          const part2 = batchEditDescPart2.value !== '' ? batchEditDescPart2.value : oldPart2;
-          newDescription = [part1, part2].filter(Boolean).join(' ');
-        }
-
-        return apiClient.put(`/questions/${q.ID}`, {
-          ...q,
-          category: batchEditCategory.value || q.category,
-          description: newDescription,
-        });
-      })
-    );
-    showAlert?.('success', 'Zaktualizowano wybrane pytania.');
+  const clearForm = () => {
     batchQuestions.value = [];
     batchIdsInput.value = '';
     batchEditCategory.value = '';
     batchEditDescPart1.value = '';
     batchEditDescPart2.value = '';
+  };
+
+  try {
+    updates = batchQuestions.value.map((q) => {
+      let newDescription = q.description || q.Opis || '';
+      // Podziel aktualny opis na dwa człony
+      const [oldPart1, oldPart2] = splitDescription(newDescription);
+
+      if (batchEditDescPart1.value !== '' || batchEditDescPart2.value !== '') {
+        // Jeśli użytkownik coś wpisał
+        const part1 = batchEditDescPart1.value !== '' ? batchEditDescPart1.value : oldPart1;
+        const part2 = batchEditDescPart2.value !== '' ? batchEditDescPart2.value : oldPart2;
+        newDescription = [part1, part2].filter(Boolean).join(' ');
+      }
+
+      return {
+        ...q,
+        category: batchEditCategory.value || q.category,
+        description: newDescription,
+      };
+    });
+
+    if (navigator.onLine === false) {
+      updates.forEach((update) => queueQuestionUpdate(update));
+      clearForm();
+      showAlert?.(
+        'info',
+        `Brak sieci — ${updates.length} pytań zapisanych lokalnie i wysłanych później.`,
+        5000
+      );
+      return;
+    }
+
+    await Promise.all(updates.map((update) => apiClient.put(`/questions/${update.ID}`, update)));
+    showAlert?.('success', 'Zaktualizowano wybrane pytania.');
+    clearForm();
     await store.dispatch('questions/fetchStats');
   } catch (e) {
+    if (!e?.response) {
+      updates.forEach((update) => queueQuestionUpdate(update));
+      clearForm();
+      showAlert?.('info', 'Brak sieci — zmiany zapisane lokalnie i wysłane później.', 5000);
+      return;
+    }
     showAlert?.('error', 'Błąd podczas grupowej edycji pytań.');
   } finally {
     isSavingBatch.value = false;
