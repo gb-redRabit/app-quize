@@ -16,6 +16,7 @@ const user = {
   hiddenCategory: [],
   history: [],
   hquestion: [],
+  settings: { autoNext: true, showDescriptions: true, examLength: 120 },
 };
 
 const questions = [
@@ -194,6 +195,15 @@ test.describe('Quiz App E2E', () => {
 
     expect(new URL(page.url()).pathname).toBe('/');
     await expect(page.getByRole('heading', { name: 'Kategorie' })).toBeVisible();
+  });
+
+  test('egzamin: modal pokazuje skonfigurowaną liczbę pytań', async ({ page }) => {
+    await login(page);
+    await page.getByRole('button', { name: /Egzamin z ubiegłych lat/ }).click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toContainText('do 120 pytań');
   });
 
   test('quiz: odpowiedzi prowadzą do podsumowania z wynikiem', async ({ page }) => {
