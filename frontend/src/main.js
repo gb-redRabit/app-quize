@@ -4,6 +4,7 @@ import router from './router';
 import store from './store';
 import './assets/tailwind.css';
 import { startTokenRefresh } from './services/tokenRefresh';
+import { setupPWA } from './services/pwa';
 
 // Inicjalizacja tematu przy starcie aplikacji
 store.dispatch('ui/initTheme');
@@ -16,11 +17,5 @@ const app = createApp(App);
 app.config.performance = import.meta.env.DEV;
 app.use(router).use(store).mount('#app');
 
-// Service worker: cache tylko statycznych zasobów (bez HTML/API).
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register(`${import.meta.env.BASE_URL}sw.js`)
-      .catch((error) => console.warn('Nie udało się zarejestrować service workera:', error));
-  });
-}
+// PWA: rejestracja Service Workera + wykrywanie nowej wersji aplikacji.
+setupPWA();

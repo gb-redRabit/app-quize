@@ -60,6 +60,38 @@
 
       <AppFooter v-if="showFooter" />
 
+      <!-- Nowa wersja PWA: Service Worker czeka na aktywację. -->
+      <div
+        v-if="updateAvailable"
+        class="fixed z-50 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bottom-[calc(6.25rem+env(safe-area-inset-bottom))] lg:bottom-6 rounded-xl border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 shadow-lg p-3 flex items-center gap-3"
+        role="status"
+        aria-live="polite"
+      >
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">
+            Nowa wersja aplikacji
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            Odśwież, aby zobaczyć zmiany.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="h-9 px-3 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shrink-0"
+          @click="applyUpdate"
+        >
+          Odśwież
+        </button>
+        <button
+          type="button"
+          class="h-9 w-9 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shrink-0"
+          aria-label="Zamknij powiadomienie o aktualizacji"
+          @click="dismissUpdate"
+        >
+          ✕
+        </button>
+      </div>
+
       <BottomNav v-if="showBottomNav" />
 
       <!-- Pasek z czasem ważności tokenu -->
@@ -130,6 +162,7 @@ import { queueSize } from '@/utils/offlineQueue';
 import { startRealtime, stopRealtime } from '@/utils/realtime';
 import { useSkeletonConfig } from '@/composables/useSkeletonConfig.js';
 import { useGlobalLoader } from '@/composables/useGlobalLoader.js';
+import { updateAvailable, applyUpdate, dismissUpdate } from '@/services/pwa';
 
 const store = useStore();
 const router = useRouter();

@@ -3,10 +3,11 @@
 // - Nawigacje (HTML): network-first z fallbackiem do ostatnio zapisanej powłoki,
 //   dzięki czemu aplikacja uruchamia się także bez sieci.
 // - API i manifest zawsze z sieci (żadnych starych danych).
-const STATIC_CACHE = 'quiz-static-v1';
-const SHELL_CACHE = 'quiz-shell-v1';
+const STATIC_CACHE = 'quiz-static-v2';
+const SHELL_CACHE = 'quiz-shell-v2';
 const SHELL_URL = '/index.html';
 const STATIC_DESTINATIONS = new Set(['script', 'style', 'font', 'image']);
+const MAX_STATIC_ENTRIES = 300;
 
 self.addEventListener('install', () => {
   self.skipWaiting();
@@ -22,6 +23,21 @@ self.addEventListener('activate', (event) => {
     })()
   );
 });
+
+// Pozwala stronie wymusić aktywację nowej wersji (przycisk „Odśwież”).
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+async function trimCache(cache) {
+  const keys = await cache.keys();
+  if (keys.length <= MAX_STATIC_ENTRIES) return;
+  // Najstarsze wpisy usuwamy partiami — cache nie rośnie w nieskończoność.
+  const excess = keys.length - MAX_STATIC_ENTRIES;
+  await Promise.all(keys.slice(0, excess).map((request) => cache.delete(request)));
+}
 
 async function handleNavigation(request) {
   try {
@@ -47,7 +63,8 @@ async function handleStatic(request) {
 
   const response = await fetch(request);
   if (response.ok) {
-    cache.put(request, response.clone()).catch(() => {});
+    await cache.put(request, response.clone()).catch(() => {});
+    trimCache(cache).catch(() => {});
   }
   return response;
 }
