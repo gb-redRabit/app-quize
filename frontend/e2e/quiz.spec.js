@@ -44,8 +44,40 @@ function json(body, status = 200) {
 }
 
 async function mockApi(page) {
+  const mockUsers = [
+    {
+      _id: 'u1',
+      login: 'admin',
+      rola: 'admin',
+      avatar: 0,
+      avatarColors: '#416AFF',
+      answersCount: 5,
+      correctAnswers: 4,
+      historyCount: 1,
+      lastActivity: '2026-11-24T10:00:00.000Z',
+    },
+  ];
+
+  const usersStats = () => {
+    const totals = mockUsers.reduce(
+      (acc, item) => {
+        acc.answers += item.answersCount || 0;
+        acc.correct += item.correctAnswers || 0;
+        acc.quizzes += item.historyCount || 0;
+        if (item.rola === 'admin') acc.admins += 1;
+        return acc;
+      },
+      { users: mockUsers.length, admins: 0, answers: 0, correct: 0, quizzes: 0, questions: 2 }
+    );
+    totals.accuracy = totals.answers
+      ? Math.round((totals.correct / totals.answers) * 100)
+      : 0;
+    return { users: mockUsers, totals };
+  };
+
   await page.route('**/api/**', async (route) => {
     const request = route.request();
+    const method = request.method();
     const url = new URL(request.url());
     const path = url.pathname.replace(/^\/api/, '');
 
@@ -57,6 +89,31 @@ async function mockApi(page) {
     }
     if (path === '/users/me') {
       return route.fulfill(json(user));
+    }
+    if (path === '/users/stats') {
+      return route.fulfill(json(usersStats()));
+    }
+    if (path === '/users' && method === 'POST') {
+      const body = request.postDataJSON() || {};
+      const created = {
+        _id: `u${mockUsers.length + 1}`,
+        login: body.login,
+        rola: body.rola || 'user',
+        avatar: 0,
+        avatarColors: '#416AFF',
+        answersCount: 0,
+        correctAnswers: 0,
+        historyCount: 0,
+        lastActivity: null,
+      };
+      mockUsers.push(created);
+      return route.fulfill(json(created, 201));
+    }
+    if (path.startsWith('/users/') && method === 'DELETE') {
+      const id = path.split('/').pop();
+      const index = mockUsers.findIndex((item) => item._id === id);
+      if (index >= 0) mockUsers.splice(index, 1);
+      return route.fulfill(json({ success: true }));
     }
     if (path === '/users/history') {
       return route.fulfill(json([]));
@@ -283,6 +340,27 @@ test.describe('Quiz App E2E', () => {
     await expect(dialog).toContainText('Login musi mieć 3–32 znaków.');
     await expect(dialog).toContainText('Hasło musi mieć co najmniej 8 znaków.');
     await expect(page.locator('#new-user-login')).toBeFocused();
+  });
+
+  test('admin: dodaje i usuwa użytkownika', async ({ page }) => {
+    await login(page);
+    await page.goto('/admin');
+    await page.getByRole('button', { name: 'Użytkownicy', exact: true }).click();
+
+    await expect(page.locator('tbody tr').first()).toContainText('admin');
+
+    await page.getByRole('button', { name: 'Dodaj użytkownika' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.locator('#new-user-login').fill('e2e.nowy');
+    await dialog.locator('#new-user-password').fill('haslo123');
+    await dialog.getByRole('button', { name: 'Dodaj', exact: true }).click();
+
+    await expect(page.locator('tbody tr').filter({ hasText: 'e2e.nowy' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Usuń użytkownika e2e.nowy' }).click();
+    await page.getByRole('button', { name: 'Usuń konto' }).click();
+
+    await expect(page.locator('tbody tr').filter({ hasText: 'e2e.nowy' })).toHaveCount(0);
   });
 
   test('quiz: odpowiedź wybrana klawiaturą odblokowuje „Następne”', async ({ page }) => {

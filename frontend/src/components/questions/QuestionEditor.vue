@@ -16,7 +16,7 @@
         ref="questionField"
         v-model="form.question"
         rows="3"
-        class="mt-1 w-full p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
+        class="mt-1 w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
       ></textarea>
     </div>
 
@@ -70,7 +70,7 @@
         <select
           :id="fieldId('category')"
           v-model="categoryChoice"
-          class="mt-1 w-full p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+          class="mt-1 w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
         >
           <option v-for="cat in categoryOptions" :key="cat" :value="cat">{{ cat }}</option>
           <option value="__new__">+ nowa kategoria…</option>
@@ -80,7 +80,7 @@
           v-model="newCategory"
           type="text"
           placeholder="Nazwa nowej kategorii"
-          class="mt-2 w-full p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+          class="mt-2 w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
           :aria-label="'Nazwa nowej kategorii'"
         />
       </div>
@@ -94,7 +94,7 @@
           v-model="form.note"
           type="text"
           placeholder="Opcjonalna notatka"
-          class="mt-1 w-full p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+          class="mt-1 w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
         />
       </div>
     </div>
@@ -107,7 +107,7 @@
         :id="fieldId('description')"
         v-model="form.description"
         rows="2"
-        class="mt-1 w-full p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
+        class="mt-1 w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
       ></textarea>
     </div>
 

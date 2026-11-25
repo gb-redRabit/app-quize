@@ -2,7 +2,7 @@
   <Transition name="modal-fade">
     <div
       v-if="show"
-      class="fixed inset-0 bg-gray-500/75 transition-opacity flex items-center justify-center z-50 p-4"
+      class="fixed inset-0 bg-gray-950/60 backdrop-blur-sm transition-opacity flex items-center justify-center z-50 p-4 sm:p-6"
       role="presentation"
       @click.self="$emit('close')"
     >
@@ -12,15 +12,15 @@
         aria-modal="true"
         :aria-labelledby="$slots.header ? 'modal-title' : undefined"
         tabindex="-1"
-        class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl transform transition-all sm:my-8 w-full flex flex-col outline-hidden"
+        class="surface relative shadow-2xl transform transition-all sm:my-8 w-full flex flex-col outline-hidden"
         style="max-height: 90vh; max-width: 64rem"
       >
         <div
-          class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-gray-700"
+          class="flex justify-between items-center px-5 py-4 border-b border-gray-200 dark:border-gray-800"
         >
           <h3
             v-if="$slots.header"
-            class="text-xl font-semibold text-slate-800 dark:text-white"
+            class="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-50"
             id="modal-title"
           >
             <slot name="header"></slot>
@@ -28,10 +28,10 @@
           <div v-else></div>
           <button
             @click="$emit('close')"
-            class="text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 transition-colors"
+            class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:hover:text-gray-200 dark:hover:bg-gray-800 transition-colors"
             aria-label="Zamknij"
           >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -42,7 +42,7 @@
           </button>
         </div>
 
-        <div class="p-6 overflow-y-auto">
+        <div class="p-5 overflow-y-auto">
           <div class="sm:flex sm:items-start">
             <div
               v-if="$slots.icon"
@@ -50,7 +50,7 @@
             >
               <slot name="icon"></slot>
             </div>
-            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+            <div class="mt-3 sm:mt-0 sm:ml-4 text-left w-full">
               <slot></slot>
             </div>
           </div>
@@ -58,7 +58,7 @@
 
         <div
           v-if="$slots.footer"
-          class="bg-slate-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3 rounded-b-lg border-t border-slate-200 dark:border-gray-600"
+          class="bg-gray-50 dark:bg-gray-800/60 px-5 py-3 sm:flex sm:flex-row-reverse gap-3 rounded-b-2xl border-t border-gray-200 dark:border-gray-800"
         >
           <slot name="footer"></slot>
         </div>
