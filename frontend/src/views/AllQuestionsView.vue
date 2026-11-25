@@ -50,7 +50,7 @@
     <!-- Lista pytań + panel szczegółów (desktop) -->
     <div v-else class="lg:grid lg:grid-cols-5 lg:gap-6">
       <div
-        class="space-y-3 lg:col-span-2 xl:max-h-[calc(100vh-3rem)] lg:overflow-y-auto lg:pr-2"
+        class="space-y-3 lg:col-span-2 xl:max-h-[calc(100vh-20rem)] lg:overflow-y-auto overscroll-contain lg:pr-2"
       >
       <div
         v-for="(q, idx) in filteredQuestions"
@@ -156,7 +156,7 @@
 
       <aside class="hidden lg:block lg:col-span-3" data-testid="question-details">
         <div
-          class="sticky top-20 xl:top-6 surface p-5 max-h-[calc(100vh-11rem)] xl:max-h-[calc(100vh-3rem)] overflow-y-auto"
+          class="sticky top-20 xl:top-6 surface p-5 max-h-[calc(100vh-11rem)] xl:max-h-[calc(100vh-20rem)] overflow-y-auto overscroll-contain"
         >
           <QuestionEditor
             v-if="isAdmin && isEditing && selectedQuestion"
