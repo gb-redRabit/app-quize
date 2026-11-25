@@ -3,7 +3,7 @@
     <h1 class="text-2xl font-bold mb-6 text-blue-700 dark:text-blue-300">Lista wszystkich pytań</h1>
     <div
       ref="searchBarWrap"
-      class="sticky top-[88px] z-20 -mx-4 px-4 py-2 mb-3 bg-white dark:bg-gray-900 border-b border-transparent flex flex-col md:flex-row md:items-center gap-2"
+      class="sticky top-[88px] xl:top-2 z-20 -mx-4 px-4 py-2 mb-3 bg-white dark:bg-gray-900 border-b border-transparent flex flex-col md:flex-row md:items-center gap-2"
     >
       <SearchBar
         :model-value="search"
@@ -49,7 +49,7 @@
     <!-- Lista pytań + panel szczegółów (desktop) -->
     <div v-else class="lg:grid lg:grid-cols-5 lg:gap-6">
       <div
-        class="space-y-3 lg:col-span-2 lg:max-h-[calc(100vh-11rem)] lg:overflow-y-auto lg:pr-2"
+        class="space-y-3 lg:col-span-2 xl:max-h-[calc(100vh-3rem)] lg:overflow-y-auto lg:pr-2"
       >
       <div
         v-for="(q, idx) in filteredQuestions"
@@ -153,9 +153,9 @@
       </div>
       </div>
 
-      <aside class="hidden lg:block lg:col-span-3">
+      <aside class="hidden lg:block lg:col-span-3" data-testid="question-details">
         <div
-          class="sticky top-20 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xs p-5 max-h-[calc(100vh-11rem)] overflow-y-auto"
+          class="sticky top-20 xl:top-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xs p-5 max-h-[calc(100vh-11rem)] xl:max-h-[calc(100vh-3rem)] overflow-y-auto"
         >
           <QuestionEditor
             v-if="isAdmin && isEditing && selectedQuestion"

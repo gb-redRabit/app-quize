@@ -16,7 +16,7 @@
     <div class="lg:flex lg:items-start lg:gap-8">
       <!-- Zakładki -->
       <div
-        class="mb-8 border-b border-gray-200 dark:border-gray-700 flex gap-2 overflow-x-auto pb-1 lg:mb-0 lg:w-56 lg:shrink-0 lg:flex-col lg:border-b-0 lg:border-r lg:pr-4 lg:sticky lg:top-20"
+        class="mb-8 border-b border-gray-200 dark:border-gray-700 flex gap-2 overflow-x-auto pb-1 lg:mb-0 lg:w-56 lg:shrink-0 lg:flex-col lg:border-b-0 lg:border-r lg:pr-4 lg:sticky lg:top-20 xl:top-6"
       >
         <BaseButton
           v-for="tab in tabs"

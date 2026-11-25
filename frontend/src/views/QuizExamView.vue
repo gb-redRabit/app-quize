@@ -4,6 +4,31 @@
     :class="!showSummary ? 'pb-28 lg:pb-6' : ''"
   >
     <div class="mx-auto">
+      <!-- Wyjście z trybu skupienia (nawigacja jest ukryta) -->
+      <div v-if="!showSummary" class="flex justify-end mb-2">
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800 transition-colors"
+          @click="router.push('/')"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Wyjdź z quizu
+        </button>
+      </div>
       <!-- Widok pytania (gdy nie pokazujemy podsumowania) -->
       <div v-if="!showSummary" class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6">
         <!-- Nagłówek z informacjami -->

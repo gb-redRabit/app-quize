@@ -12,10 +12,12 @@
       >
         Przejdź do treści
       </a>
-      <Navbar v-if="showNavbar" />
+      <AppSidebar v-if="showAppNavigation" />
+      <Navbar v-if="showAppNavigation" class="lg:hidden" />
       <div
         v-if="!isOnline"
         class="w-full bg-red-600 text-white text-center py-2 fixed top-0 left-0 z-50 text-sm"
+        :class="showAppNavigation ? 'xl:left-60 xl:w-[calc(100%-15rem)]' : ''"
         role="status"
         aria-live="polite"
       >
@@ -29,41 +31,46 @@
         </template>
       </div>
 
-      <main
-        id="main"
-        tabindex="-1"
-        class="w-full"
-        :class="
-          showBottomNav ? 'pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0' : ''
-        "
+      <div
+        class="w-full flex flex-col flex-1 min-h-screen"
+        :class="showAppNavigation ? 'xl:pl-60' : ''"
       >
-        <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="isPageLoading ? null : Component" :key="$route.fullPath" />
-          </transition>
-          <!-- Skeleton pojawia się tylko, gdy isPageLoading i nie ma widoku -->
-          <BaseSkeleton
-            v-if="isPageLoading"
-            :variant="skeletonVariant"
-            :cardCount="skeletonCardCount"
-            :showLines="showSkeletonLines"
-            :showCards="showSkeletonCards"
-            :showHeader="showSkeletonHeader"
-            :showSubtitle="showSkeletonSubtitle"
-            :containerClass="skeletonContainerClass"
-            :gridCols="skeletonGridCols"
-            :lineWidths="getLineWidths"
-            class="container my-6 rounded-xl shadow-xs border border-gray-100 dark:border-gray-700"
-          />
-        </router-view>
-      </main>
+        <main
+          id="main"
+          tabindex="-1"
+          class="w-full flex-1"
+          :class="
+            showBottomNav ? 'pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0' : ''
+          "
+        >
+          <router-view v-slot="{ Component }">
+            <transition name="fade" mode="out-in">
+              <component :is="isPageLoading ? null : Component" :key="$route.fullPath" />
+            </transition>
+            <!-- Skeleton pojawia się tylko, gdy isPageLoading i nie ma widoku -->
+            <BaseSkeleton
+              v-if="isPageLoading"
+              :variant="skeletonVariant"
+              :cardCount="skeletonCardCount"
+              :showLines="showSkeletonLines"
+              :showCards="showSkeletonCards"
+              :showHeader="showSkeletonHeader"
+              :showSubtitle="showSkeletonSubtitle"
+              :containerClass="skeletonContainerClass"
+              :gridCols="skeletonGridCols"
+              :lineWidths="getLineWidths"
+              class="container my-6 rounded-xl shadow-xs border border-gray-100 dark:border-gray-700"
+            />
+          </router-view>
+        </main>
 
-      <AppFooter v-if="showFooter" />
+        <AppFooter v-if="showFooter" />
+      </div>
 
       <!-- Nowa wersja PWA: Service Worker czeka na aktywację. -->
       <div
         v-if="updateAvailable"
-        class="fixed z-50 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bottom-[calc(6.25rem+env(safe-area-inset-bottom))] lg:bottom-6 rounded-xl border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 shadow-lg p-3 flex items-center gap-3"
+        class="fixed z-50 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bottom-[calc(6.25rem+env(safe-area-inset-bottom))] lg:bottom-6 xl:left-[calc(50%+7.5rem)] rounded-xl border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 shadow-lg p-3 flex items-center gap-3"
         role="status"
         aria-live="polite"
       >
@@ -149,6 +156,7 @@ import {
 import { useStore } from 'vuex';
 import { useRouter, useRoute } from 'vue-router';
 const Navbar = defineAsyncComponent(() => import('@/components/layout/Navbar.vue'));
+const AppSidebar = defineAsyncComponent(() => import('@/components/layout/AppSidebar.vue'));
 const BottomNav = defineAsyncComponent(() => import('@/components/layout/BottomNav.vue'));
 const AppFooter = defineAsyncComponent(() => import('@/components/layout/AppFooter.vue'));
 const BaseAlert = defineAsyncComponent(() => import('@/components/base/BaseAlert.vue'));
@@ -183,11 +191,11 @@ const globalLoader = ref();
 
 const currentTheme = computed(() => store.getters['ui/currentTheme']);
 const showNavbar = computed(() => route.name !== 'Login' && route.name !== 'Register');
-const showBottomNav = computed(
-  () => showNavbar.value && !['QuizView', 'ExamView'].includes(route.name)
-);
-// Stopka wersji: wszędzie poza trybem skupienia (quiz/egzamin).
-const showFooter = computed(() => !['QuizView', 'ExamView'].includes(route.name));
+// Tryb skupienia: quiz i egzamin bez nawigacji (sidebar/navbar/stopka).
+const isFocusMode = computed(() => ['QuizView', 'ExamView'].includes(route.name));
+const showAppNavigation = computed(() => showNavbar.value && !isFocusMode.value);
+const showBottomNav = computed(() => showAppNavigation.value);
+const showFooter = computed(() => !isFocusMode.value);
 
 // Skeleton logic
 const {
