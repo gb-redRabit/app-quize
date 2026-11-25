@@ -18,7 +18,7 @@
       >
         Wczytano {{ filteredQuestions.length }} z {{ total }}
       </p>
-      <p class="hidden lg:block text-[11px] text-gray-400 dark:text-gray-500 whitespace-nowrap">
+      <p class="hidden lg:block text-[11px] text-gray-500 dark:text-gray-400 whitespace-nowrap">
         / szukaj · ↑↓ wybór · Enter otwórz · E edycja · Esc anuluj
       </p>
     </div>
@@ -63,70 +63,78 @@
       >
         <!-- Nagłówek pytania -->
         <div
-          class="flex items-start p-4 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-gray-700 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
+          class="flex items-start gap-2 p-4 transition-colors hover:bg-blue-50 dark:hover:bg-gray-700"
           :class="{
             'border-b border-gray-200 dark:border-gray-700': expandedQuestions.includes(q.ID),
             'bg-blue-50 dark:bg-gray-700': expandedQuestions.includes(q.ID),
           }"
-          role="button"
-          tabindex="0"
-          :data-question-id="q.ID"
-          :aria-expanded="isDesktop ? undefined : expandedQuestions.includes(q.ID)"
-          :aria-current="isDesktop && selectedQuestion?.ID === q.ID ? 'true' : undefined"
-          @click="handleRowClick(q)"
-          @keydown.enter.prevent="handleRowClick(q)"
-          @keydown.space.prevent="handleRowClick(q)"
-          @keydown.down.prevent="moveSelection(idx, 1)"
-          @keydown.up.prevent="moveSelection(idx, -1)"
         >
-          <div class="font-mono text-sm text-gray-500 dark:text-gray-400 mt-1" style="min-width: 36px">
-            {{ q.ID }}
-          </div>
-          <div class="flex-grow min-w-0">
-            <div class="font-medium text-gray-800 dark:text-gray-200 text-sm sm:text-base">
-              {{ q.question }}
-            </div>
-            <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Kategoria: <span class="font-medium">{{ q.category || 'Bez kategorii' }}</span>
-            </div>
-            <div v-if="isAdmin" class="mt-3 sm:hidden">
-              <QuestionActions
-                :question="q"
-                @deleted="handleQuestionDeleted"
-                @edit="handleQuestionEdited"
-              />
-            </div>
-          </div>
-          <div class="ml-2 flex items-center justify-center shrink-0">
-            <div
-              class="flex items-center justify-center h-8 w-8 rounded-full transition-colors duration-300 bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900"
+          <button
+            type="button"
+            class="flex items-start flex-1 min-w-0 text-left rounded-lg cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
+            :data-question-id="q.ID"
+            :aria-expanded="isDesktop ? undefined : expandedQuestions.includes(q.ID)"
+            :aria-current="isDesktop && selectedQuestion?.ID === q.ID ? 'true' : undefined"
+            @click="handleRowClick(q)"
+            @keydown.down.prevent="moveSelection(idx, 1)"
+            @keydown.up.prevent="moveSelection(idx, -1)"
+          >
+            <span
+              class="font-mono text-sm text-gray-500 dark:text-gray-400 mt-1 shrink-0"
+              style="min-width: 36px"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5 text-gray-500 dark:text-gray-300 transition-transform duration-300"
-                :class="{ 'rotate-180': expandedQuestions.includes(q.ID) }"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+              {{ q.ID }}
+            </span>
+            <span class="flex-grow min-w-0">
+              <span class="block font-medium text-gray-800 dark:text-gray-200 text-sm sm:text-base">
+                {{ q.question }}
+              </span>
+              <span class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Kategoria: <span class="font-medium">{{ q.category || 'Bez kategorii' }}</span>
+              </span>
+            </span>
+            <span class="ml-2 flex items-center justify-center shrink-0">
+              <span
+                class="flex items-center justify-center h-8 w-8 rounded-full transition-colors duration-300 bg-gray-100 dark:bg-gray-700"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </div>
-            <div v-if="isAdmin" class="ml-3 hidden sm:block">
-              <QuestionActions
-                :question="q"
-                :inline-edit="isDesktop"
-                @deleted="handleQuestionDeleted"
-                @edit="handleQuestionEdited"
-                @request-edit="startInlineEdit"
-              />
-            </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 text-gray-500 dark:text-gray-300 transition-transform duration-300"
+                  :class="{ 'rotate-180': expandedQuestions.includes(q.ID) }"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </span>
+            </span>
+          </button>
+
+          <div v-if="isAdmin" class="hidden sm:block shrink-0 self-center">
+            <QuestionActions
+              :question="q"
+              :inline-edit="isDesktop"
+              @deleted="handleQuestionDeleted"
+              @edit="handleQuestionEdited"
+              @request-edit="startInlineEdit"
+            />
           </div>
+        </div>
+
+        <!-- Akcje na mobile pod treścią, poza przyciskiem wiersza -->
+        <div v-if="isAdmin" class="sm:hidden px-4 pb-3">
+          <QuestionActions
+            :question="q"
+            @deleted="handleQuestionDeleted"
+            @edit="handleQuestionEdited"
+          />
         </div>
 
         <!-- Szczegóły pytania - animowane rozwijanie -->

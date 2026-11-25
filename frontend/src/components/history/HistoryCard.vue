@@ -47,9 +47,9 @@
           </div>
         </div>
         <div class="flex items-center justify-center mt-2 text-sm">
-          <span class="text-green-600 font-semibold">{{ entry.correct || 0 }}</span>
+          <span class="text-green-700 dark:text-green-400 font-semibold">{{ entry.correct || 0 }}</span>
           <span class="mx-1 text-gray-400">/</span>
-          <span class="text-red-600 font-semibold">{{ entry.wrong || 0 }}</span>
+          <span class="text-red-700 dark:text-red-400 font-semibold">{{ entry.wrong || 0 }}</span>
         </div>
       </div>
 

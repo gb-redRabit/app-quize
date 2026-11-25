@@ -190,5 +190,19 @@ test.describe('Quiz App E2E', () => {
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();
     expect(serious(homeResults.violations)).toEqual([]);
+
+    await page.goto('/questions');
+    await page.waitForTimeout(1500);
+    const questionsResults = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    expect(serious(questionsResults.violations)).toEqual([]);
+
+    await page.goto('/user');
+    await page.waitForTimeout(1200);
+    const userResults = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    expect(serious(userResults.violations)).toEqual([]);
   });
 });

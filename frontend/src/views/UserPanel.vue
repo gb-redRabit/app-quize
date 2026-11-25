@@ -155,6 +155,9 @@
                 <button
                   v-for="i in 17"
                   :key="`avatar-select-${i - 1}`"
+                  type="button"
+                  :aria-label="`Wybierz styl awatara ${i}`"
+                  :aria-pressed="currentAvatarIndex === i - 1"
                   @click="selectAvatar(i - 1)"
                   class="rounded-full p-1 transition-all duration-200 focus:outline-hidden relative hover:bg-gray-200 dark:hover:bg-gray-600"
                   :class="{
