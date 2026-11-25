@@ -2,36 +2,33 @@
 <template>
   <BaseModal :show="show" @close="$emit('close')">
     <template #header>
-      <h2 class="text-xl font-semibold">Wybierz kategorię quizu</h2>
+      <h2 class="text-lg font-semibold tracking-tight">Wybierz kategorię quizu</h2>
     </template>
-    <div class="max-h-[70vh] overflow-y-auto p-4">
+    <div class="max-h-[70vh] overflow-y-auto">
+      <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
+        Quiz bez limitu czasu — wybierz 50 pytań albo całą pozostałą pulę.
+      </p>
       <div v-if="!categories || categories.length === 0" class="text-center text-gray-500 py-4">
         Brak dostępnych kategorii
       </div>
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div
           v-for="category in categories"
           :key="category"
-          class="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all p-4"
+          class="surface-muted p-4 flex flex-col gap-3"
         >
-          <!-- Nazwa kategorii i pasek postępu -->
-          <div class="mb-3">
-            <div class="flex justify-between items-center mb-2">
-              <h3 class="font-medium text-gray-800 dark:text-gray-200">{{ category }}</h3>
-              <div class="flex items-center text-xs">
-                <span
-                  v-if="categoryStats[category]"
-                  class="text-green-600 dark:text-green-400 font-medium"
-                >
+          <div>
+            <div class="flex justify-between items-start gap-3">
+              <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ category }}</h3>
+              <div
+                v-if="categoryStats[category]"
+                class="flex items-center gap-1 text-xs font-medium shrink-0"
+              >
+                <span class="text-green-700 dark:text-green-300">
                   {{ categoryStats[category].correct || 0 }}
                 </span>
-                <span v-if="categoryStats[category]" class="mx-1 text-gray-500 dark:text-gray-400"
-                  >/</span
-                >
-                <span
-                  v-if="categoryStats[category]"
-                  class="text-red-600 dark:text-red-400 font-medium"
-                >
+                <span class="text-gray-400">/</span>
+                <span class="text-red-700 dark:text-red-300">
                   {{ categoryStats[category].wrong || 0 }}
                 </span>
               </div>
@@ -40,7 +37,7 @@
             <!-- Pasek postępu -->
             <div
               v-if="categoryStats[category]"
-              class="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden"
+              class="mt-2 w-full h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden"
             >
               <div class="flex h-full">
                 <div
@@ -55,20 +52,24 @@
             </div>
           </div>
 
-          <!-- Przyciski -->
-          <div class="flex gap-2 mt-2">
-            <button
-              class="flex-1 py-2 px-3 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600 transition-colors dark:bg-blue-600 dark:hover:bg-blue-500"
+          <div class="flex gap-2">
+            <BaseButton
+              color="blue"
+              size="sm"
+              class="flex-1"
               @click="$emit('start-quiz', category, 50)"
             >
               Quiz 50 pytań
-            </button>
-            <button
-              class="flex-1 py-2 px-3 bg-indigo-500 text-white text-sm rounded-md hover:bg-indigo-600 transition-colors dark:bg-indigo-600 dark:hover:bg-indigo-500"
+            </BaseButton>
+            <BaseButton
+              color="blue"
+              variant="outline"
+              size="sm"
+              class="flex-1"
               @click="$emit('start-quiz', category, 0)"
             >
-              Cała pula pozostałych pytań
-            </button>
+              Cała pula
+            </BaseButton>
           </div>
         </div>
       </div>
@@ -78,6 +79,7 @@
 
 <script setup>
 import BaseModal from '@/components/base/BaseModal.vue';
+import BaseButton from '@/components/base/BaseButton.vue';
 
 const props = defineProps({
   show: {

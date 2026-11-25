@@ -166,6 +166,7 @@
       :show="showExamPopup"
       :categories="questionsHelper.examCategories.value"
       :categoryStats="categoryStats"
+      :examLength="configuredExamLength"
       @close="showExamPopup = false"
       @select-category="startExamFromCategory"
     />
@@ -189,7 +190,7 @@ import { useStore } from 'vuex';
 import apiClient from '@/api';
 import { getStoredUser, setUser } from '@/utils/authStorage';
 import { computeRemainingSeconds } from '@/utils/quizProgress';
-import { getExamLength } from '@/utils/examSettings';
+import { getExamLength, normalizeExamLength } from '@/utils/examSettings';
 import { useQuestions } from '@/composables/useQuestions';
 
 // Komponenty
@@ -218,6 +219,9 @@ const showAlert = inject('showAlert');
 const router = useRouter();
 const store = useStore(); // Inicjalizuj store na najwyższym poziomie
 const userName = computed(() => store.getters['user/getUser']?.login || 'uczniu');
+const configuredExamLength = computed(() =>
+  normalizeExamLength(store.state.user.user?.settings?.examLength)
+);
 
 // Wspólne helpery kategorii (jedno źródło prawdy — także offline fallback).
 const questionsHelper = useQuestions();
