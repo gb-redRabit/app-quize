@@ -227,6 +227,50 @@ test.describe('Quiz App E2E', () => {
     await expect(dialog).not.toBeVisible();
   });
 
+  test('admin: modal dodawania pytania ma focus trap i Escape', async ({ page }) => {
+    await login(page);
+    await page.goto('/admin');
+    await expect(page.getByRole('heading', { name: 'Panel Administratora' })).toBeVisible();
+
+    const trigger = page.getByRole('button', { name: /Dodaj pytanie/ });
+    await trigger.click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect
+      .poll(() => page.evaluate(() => Boolean(document.activeElement?.closest('[role="dialog"]'))))
+      .toBe(true);
+
+    for (let i = 0; i < 12; i += 1) {
+      await page.keyboard.press('Tab');
+    }
+    const focusInside = await page.evaluate(() =>
+      Boolean(document.activeElement?.closest('[role="dialog"]'))
+    );
+    expect(focusInside).toBe(true);
+
+    await page.keyboard.press('Escape');
+    await expect(dialog).not.toBeVisible();
+    await expect(trigger).toBeFocused();
+  });
+
+  test('quiz: odpowiedź wybrana klawiaturą odblokowuje „Następne”', async ({ page }) => {
+    await login(page);
+    await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=kb');
+
+    // Wyłącz auto-next, żeby sprawdzić stan przycisku po wyborze.
+    await page.getByRole('button', { name: /Auto-Next/ }).click();
+
+    const answer = page.getByRole('button', { name: /^\w\s*Warszawa$/ });
+    await expect(answer).toBeVisible();
+    await answer.focus();
+    await expect(answer).toBeFocused();
+
+    await page.keyboard.press('Enter');
+
+    await expect(page.getByRole('button', { name: /Następne/ })).toBeEnabled();
+  });
+
   test('logowanie i strona główna bez poważnych naruszeń WCAG', async ({ page }) => {
     // Wyłącz animacje wejścia — axe skanowałby kolory w trakcie przenikania.
     await page.emulateMedia({ reducedMotion: 'reduce' });
