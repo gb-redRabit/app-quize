@@ -1,3 +1,4 @@
+import { clearSession } from '@/utils/authStorage';
 import { inject } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -9,8 +10,7 @@ export function useLogout() {
   const showAlert = inject('showAlert', null);
 
   return function logout() {
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
+    clearSession();
     store.dispatch('user/logout');
 
     router.push({ name: 'Login' }).then(() => {

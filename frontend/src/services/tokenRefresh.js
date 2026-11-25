@@ -1,4 +1,5 @@
 import apiClient from '@/api';
+import { getToken, setToken } from '@/utils/authStorage';
 
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 const REFRESH_THRESHOLD_S = 10 * 60;
@@ -29,7 +30,7 @@ function secondsLeft(token) {
 }
 
 async function refreshIfNeeded() {
-  const token = sessionStorage.getItem('token');
+  const token = getToken();
   if (!token || inFlight) return;
 
   const remaining = secondsLeft(token);
@@ -40,7 +41,7 @@ async function refreshIfNeeded() {
   try {
     const res = await apiClient.silentPost('/auth/refresh', {});
     if (res.data?.token) {
-      sessionStorage.setItem('token', res.data.token);
+      setToken(res.data.token);
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
     }
   } catch {

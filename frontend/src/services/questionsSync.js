@@ -1,4 +1,5 @@
 import apiClient from '@/api';
+import { getToken } from '@/utils/authStorage';
 import {
   getCachedVersion,
   replaceAllQuestions,
@@ -63,7 +64,7 @@ export async function ensureQuestionsCache({ force = false } = {}) {
   if (inFlightSync) return inFlightSync;
 
   // Snapshot wymaga tokenu — bez logowania nie ma czego synchronizować.
-  if (typeof sessionStorage !== 'undefined' && !sessionStorage.getItem('token')) {
+  if (!getToken()) {
     return { skipped: true, reason: 'unauthenticated' };
   }
 

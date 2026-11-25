@@ -76,7 +76,7 @@
       </button>
     </div>
     <QuestionDescription
-      v-if="routeName !== 'ExamView'"
+      v-if="routeName !== 'ExamView' && showDescription"
       :answered="answered"
       :description="question.description"
       class="mt-2"
@@ -101,6 +101,7 @@ const props = defineProps({
   answered: Boolean,
   selected: Number,
   showCorrect: Boolean,
+  showDescription: { type: Boolean, default: true },
   selectedKey: String,
   questionNumber: { type: [String, Number], default: null },
 });

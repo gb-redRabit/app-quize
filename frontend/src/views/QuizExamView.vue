@@ -218,6 +218,7 @@
               :selected="answersStatus[currentQuestionIndex].selected"
               :selectedKey="answersStatus[currentQuestionIndex].selectedKey"
               :showCorrect="answersStatus[currentQuestionIndex].answered && mode === 'quiz'"
+              :show-description="showDescriptionsSetting"
               :questionNumber="`${currentQuestionIndex + 1} `"
               @select="selectAnswer"
             />
@@ -470,7 +471,11 @@ const timer = ref(null);
 const examStartedAt = ref(null);
 
 // Auto-Next
-const autoNextEnabled = ref(true); // domyślnie włączone
+const currentUser = computed(() => store.getters['user/getUser'] || {});
+const autoNextEnabled = ref(currentUser.value.settings?.autoNext !== false);
+const showDescriptionsSetting = computed(
+  () => currentUser.value.settings?.showDescriptions !== false
+);
 const showAutoNextTimer = ref(false);
 const autoNextTimer = ref(5);
 let autoNextTimeout = null;

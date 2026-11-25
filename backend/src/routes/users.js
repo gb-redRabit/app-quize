@@ -28,6 +28,28 @@ router.get(
   usersController.getUserHistory
 );
 
+// --- Administracja użytkownikami (admin) ---
+router.get(
+  "/stats",
+  authMiddleware.verifyToken,
+  authMiddleware.requireAdmin,
+  usersController.getUsersStats
+);
+
+router.post(
+  "/",
+  authMiddleware.verifyToken,
+  authMiddleware.requireAdmin,
+  usersController.createUser
+);
+
+router.delete(
+  "/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.requireAdmin,
+  usersController.deleteUser
+);
+
 // Aktualizacja profilu
 router.put(
   "/update-profile",

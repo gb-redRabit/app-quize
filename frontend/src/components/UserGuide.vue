@@ -3,7 +3,7 @@
     <div class="absolute inset-0 bg-black/60 transition-opacity duration-300"></div>
 
     <div
-      v-if="currentStepEl && currentStepEl.rect"
+      v-if="currentStepEl && currentStepEl.rect && !currentStepEl.fallback"
       class="absolute spotlight transition-all duration-300 ease-in-out"
       style="z-index: 1005"
       :style="{
@@ -24,7 +24,7 @@
       <h3 class="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-3">
         {{ steps[currentStep].title }}
       </h3>
-      <p class="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+      <p class="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed whitespace-pre-line">
         {{ steps[currentStep].description }}
       </p>
       <div
@@ -224,111 +224,66 @@ const enableScroll = () => {
 // Definicja kroków przewodnika - zmodyfikowana z bardziej szczegółowymi opisami
 const steps = [
   {
-    title: 'Witaj w systemie nauki!',
+    title: 'Witaj w Quiz App!',
     description:
-      'Zapoznaj się z podstawowymi funkcjami aplikacji. Naciśnij "Dalej", aby rozpocząć.',
+      'Krótki przewodnik po najważniejszych funkcjach. Przechodzisz go przyciskami „Wstecz/Dalej”, a Esc zamyka okno.',
     selector: 'body',
     position: 'center',
   },
   {
-    title: 'Pasek nawigacyjny',
+    title: 'Nawigacja',
     description:
-      'Pasek nawigacyjny zawiera dostęp do wszystkich głównych funkcji: strony głównej, historii quizów, przeglądania pytań, panelu użytkownika oraz przycisk wylogowania po prawej stronie.',
-    selector: '.nav',
+      'Na komputerze menu jest w panelu po lewej stronie (możesz je zwinąć). Na telefonie użyj paska nawigacji na dole ekranu.',
+    selector: 'nav',
     position: 'bottom',
   },
   {
-    title: 'Szybki wybór kategorii',
+    title: 'Start nauki',
     description:
-      'Szybki wybór kategorii pozwala na szybkie rozpoczęcie quizu lub egzaminu z pytań z ubiegłych lat lub pozostałych kategorii. Ukazuje statystyki ostatnich podejść do quizów.',
-    selector: '.quiz-buttons ',
+      'Tutaj rozpoczniesz egzamin z ubiegłych lat albo quiz z pozostałych kategorii. Pytania i odpowiedzi są losowane przy każdym starcie.',
+    selector: '.quiz-buttons',
     position: 'bottom',
   },
   {
-    title: 'Rozpocznij egzamin z ubiegłych lat',
+    title: 'Twoje statystyki',
     description:
-      'Kliknij tutaj, aby rozpocząć egzamin z oficjalnych pytań z poprzednich lat. Zawsze odpala pełną listę pytań.',
-    selector: '.quiz-buttons button:first-child',
-    position: 'bottom',
-  },
-  {
-    title: 'Rozpocznij quiz z pozostałych kategorii',
-    description: 'Kliknij tutaj, aby rozpocząć quiz z pytaniami z różnych kategorii tematycznych. ',
-    selector: '.quiz-buttons button:last-child',
-    position: 'bottom',
-  },
-  {
-    title: 'Statystyki',
-    description:
-      'Śledź swoje postępy i sprawdzaj wyniki w poszczególnych kategoriach. Tutaj zobaczysz procent poprawnych odpowiedzi i najczęstsze błędy.',
+      'Liczba pytań, poprawnych i błędnych odpowiedzi oraz średni wynik. Aktualizują się po każdym quizie.',
     selector: '.statistics-summary',
     position: 'top',
   },
   {
-    title: 'Wyszukiwarka kategorii',
+    title: 'Kategorie i wyszukiwarka',
     description:
-      'Wpisz nazwę lub fragment kategorii, aby szybko znaleźć interesujące Cię kategorie.',
-    selector: '.search-input',
-    position: 'bottom',
-  },
-  {
-    title: 'Zmiana układu listy',
-    description:
-      'Dostosuj widok kategorii - możesz wybrać układ listy lub siatki oraz zmienić liczbę kolumn (2,3,4) dla wygodniejszego przeglądania.',
-    selector: '.view-options',
-    position: 'bottom',
-  },
-  {
-    title: 'Filtrowanie kategorii',
-    description: 'Filtruj kategorie według typów: wszystkie, egzaminy, pozostałe quizy.',
-    selector: '.filter-options',
+      'Filtruj kategorie, zmieniaj widok (siatka/lista) i szukaj po nazwie. Kliknij kategorię, aby zobaczyć pytania lub rozpocząć naukę.',
+    selector: '#categories',
     position: 'top',
   },
   {
-    title: 'Lista dostępnych kategorii',
+    title: 'Karta kategorii',
     description:
-      'Tutaj znajdziesz wszystkie kategorie pytań. Każda kategoria pokazuje statystyki twoich odpowiedzi oraz opcje rozpoczęcia quizu lub egzaminu. Kolor tła oznacza stopień udzielonych poprawnych/błędnych odpowiedzi.',
+      'Pasek pokazuje postęp, a kolory — poprawne, błędne i pozostałe pytania. Przyciski uruchamiają pytania, quiz lub egzamin; ikona kosza czyści historię kategorii.',
     selector: '.categories-container',
     position: 'top',
   },
   {
-    title: 'Wskaźnik pokazujący ilość przerobionych pytań',
+    title: 'Skróty klawiszowe',
     description:
-      'Wskaźnik pokazuje, ile pytań zostało przerobionych w danej kategorii. Im wyższy wskaźnik, tym lepiej.',
-    selector: '.categories-container .indicator_A',
-    position: 'top',
-  },
-  {
-    title: 'Wskaźnik pokazujący stopień opanowania kategorii',
-    description:
-      'Wskaźnik pokazuje, jak dobrze opanowałeś daną kategorię. Im wyższy wskaźnik, tym lepiej.',
-    selector: '.categories-container .indicator_B',
-    position: 'top',
-  },
-  {
-    title: 'Opcje kategorii',
-    description:
-      'Dla każdej kategorii możesz: rozpocząć quiz, rozpocząć egzamin, przeglądać pytania lub wyczyścić historię.',
-    selector: '.category-card',
-    position: 'top',
-  },
-  {
-    title: 'Sterowanie podczas quizu/egzaminu',
-    description:
-      'Sterowanie odbywa się za pomocą przycisków 1 od 4, które odpowiadają odpowiedziom A, B, C i D. Możesz także użyć przycisków strzałek do nawigacji między pytaniami.',
+      'Skróty działają w całej aplikacji:\n' +
+      '• / — wyszukiwarka pytań\n' +
+      '• ↑ / ↓ — wybór pytania na liście\n' +
+      '• Enter — otwórz / zatwierdź\n' +
+      '• E — edycja pytania (admin)\n' +
+      '• Ctrl+Enter — zapisz formularz\n' +
+      '• Esc — anuluj / zamknij okno\n' +
+      '• N — nowe pytanie (admin)\n' +
+      '• ? — pomoc i skróty (admin)',
     selector: 'body',
     position: 'center',
   },
   {
-    title: 'O tutaj jestem:P',
+    title: 'Ustawienia i profil',
     description:
-      'Pamiętaj, że możesz zawsze wrócić do tego przewodnika klikając ikonę "i" na stronie głównej.',
-    selector: '.info-icon',
-    position: 'info',
-  },
-  {
-    title: 'Wszystko gotowe!',
-    description: 'Teraz możesz korzystać z aplikacji. Powodzenia w nauce!.',
+      'W panelu użytkownika zmienisz awatar, motyw, hasło, ukryjesz kategorie i ustawisz zachowanie quizu. Powodzenia w nauce!',
     selector: 'body',
     position: 'center',
   },
@@ -337,6 +292,15 @@ const steps = [
 // Obliczenie pozycji dymka
 const tooltipPosition = computed(() => {
   if (!currentStepEl.value || !currentStepEl.value.rect) return {};
+
+  if (currentStepEl.value.fallback) {
+    return {
+      position: 'fixed',
+      left: '50%',
+      top: '50%',
+      transform: 'translate(-50%, -50%)',
+    };
+  }
 
   const rect = currentStepEl.value.rect;
   let position = steps[currentStep.value].position || 'bottom';
@@ -525,7 +489,24 @@ const findElement = () => {
   if (!step || !step.selector) return null;
 
   const el = document.querySelector(step.selector);
-  if (!el) return null;
+  if (!el) {
+    // Selektor może nie istnieć na danej stronie/rozmiarze ekranu — pokazujemy
+    // dymek na środku, zamiast pustego ekranu bez instrukcji.
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    return {
+      fallback: true,
+      element: null,
+      rect: {
+        left: vw / 2 - 150 + window.scrollX,
+        top: vh / 2 - 100 + window.scrollY,
+        width: 300,
+        height: 200,
+        right: vw / 2 + 150 + window.scrollX,
+        bottom: vh / 2 + 100 + window.scrollY,
+      },
+    };
+  }
 
   const rect = el.getBoundingClientRect();
   return {

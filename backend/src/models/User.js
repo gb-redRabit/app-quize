@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
   history: { type: Array, default: [] },
   hquestion: { type: [answerHistorySchema], default: [] },
   hiddenCategory: { type: [String], default: [] },
+  settings: {
+    autoNext: { type: Boolean, default: true },
+    showDescriptions: { type: Boolean, default: true },
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);

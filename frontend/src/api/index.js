@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getToken, setToken, clearSession } from '@/utils/authStorage';
 
 /**
  * Konfigurowalna instancja klienta API z zaawansowanym cachowaniem i obsługą błędów
@@ -146,15 +147,14 @@ const showAlert = (type, message, duration = 3000) => {
  * Obsługa tokenów uwierzytelniania
  */
 const tokenManager = {
-  getToken: () => sessionStorage.getItem('token'),
+  getToken: () => getToken(),
 
   setToken: (token) => {
-    sessionStorage.setItem('token', token);
+    setToken(token);
   },
 
   removeToken: () => {
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
+    clearSession();
   },
 
   handleSessionExpired: () => {
@@ -258,7 +258,7 @@ apiClient.interceptors.response.use(
         // Odśwież token
         const res = await apiClient.silentPost('/auth/refresh', {});
         const newToken = res.data.token;
-        sessionStorage.setItem('token', newToken);
+        setToken(newToken);
         setAuthHeader(apiClient.defaults.headers.common, newToken);
         processQueue(null, newToken);
         setAuthHeader(originalRequest.headers, newToken);

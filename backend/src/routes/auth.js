@@ -26,8 +26,10 @@ router.post("/refresh", (req, res) => {
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.status(401).json({ message: "Unauthorized" });
-    // Generate a new token for the next hour
-    const newToken = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "1h" });
+    // Nowy token z tym samym (domyślnie 7-dniowym) czasem życia.
+    const newToken = jwt.sign({ id: user.id }, JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+    });
     res.json({ token: newToken });
   });
 });

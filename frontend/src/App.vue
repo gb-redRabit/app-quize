@@ -191,6 +191,7 @@ import { useSkeletonConfig } from '@/composables/useSkeletonConfig.js';
 import { useGlobalLoader } from '@/composables/useGlobalLoader.js';
 import { updateAvailable, applyUpdate, dismissUpdate } from '@/services/pwa';
 import { useSidebar } from '@/composables/useSidebar';
+import { getToken, setToken, setUser } from '@/utils/authStorage';
 
 const store = useStore();
 const router = useRouter();
@@ -253,7 +254,7 @@ async function refreshSessionToken() {
   try {
     const res = await apiClient.silentPost('/auth/refresh', {});
     if (res.data && res.data.token) {
-      sessionStorage.setItem('token', res.data.token);
+      setToken(res.data.token);
       showAlert('success', 'Sesja została odświeżona!');
       showSessionModal.value = false;
     } else {
@@ -284,7 +285,7 @@ function showSessionExpirationModal(minutesLeft = 5) {
 
 // Token expiration check
 function checkTokenExpiration() {
-  const token = sessionStorage.getItem('token');
+  const token = getToken();
   if (!token) return;
   try {
     const base64Url = token.split('.')[1];
@@ -311,7 +312,7 @@ function checkTokenExpiration() {
 
 // Autoryzacja na starcie
 async function checkAuthOnStart() {
-  const token = sessionStorage.getItem('token');
+  const token = getToken();
   if (!token) {
     if (route.name !== 'Login' && route.name !== 'Register') {
       await router.replace({ name: 'Login' });
@@ -364,7 +365,7 @@ async function verifySession() {
   lastSessionCheck = now;
 
   try {
-    const token = sessionStorage.getItem('token');
+    const token = getToken();
     if (!token) return;
     await store.dispatch('user/verifySession');
   } catch (error) {
@@ -413,7 +414,7 @@ function handleUserUpdated(event) {
     ...incoming,
   };
   store.commit('user/SET_USER', merged);
-  sessionStorage.setItem('user', JSON.stringify(merged));
+  setUser(merged);
   if (incoming.option) {
     store.dispatch('ui/setTheme', incoming.option);
   }

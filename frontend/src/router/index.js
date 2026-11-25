@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { getStoredUser, hasSession } from '@/utils/authStorage';
 import Home from '../views/HomeView.vue';
 
 import authRoutes from './auth';
@@ -34,16 +35,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const token = sessionStorage.getItem('token');
-  const rawUser = sessionStorage.getItem('user');
-  let user = null;
-  try {
-    user = rawUser ? JSON.parse(rawUser) : null;
-  } catch (e) {
-    console.warn('Nieprawidłowe dane użytkownika w sessionStorage');
-  }
-
-  const isAuthenticated = !!token && !!user;
+  const isAuthenticated = hasSession();
+  const user = getStoredUser();
   const isAdmin = user?.rola === 'admin';
 
   if (to.name !== 'Login' && to.name !== 'Register' && !isAuthenticated) {

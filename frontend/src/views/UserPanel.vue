@@ -237,6 +237,24 @@
           :user="user"
           @password-changed="onPasswordChanged"
         />
+
+        <!-- Sesja -->
+        <div
+          v-if="activeTab === 'security'"
+          class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700"
+        >
+          <h3 class="font-semibold text-gray-800 dark:text-gray-100">Sesja</h3>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Wylogowanie kończy sesję na tym urządzeniu. Postępy są już zapisane.
+          </p>
+          <button
+            type="button"
+            class="mt-3 inline-flex items-center gap-2 h-10 px-4 rounded-lg border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+            @click="logout"
+          >
+            Wyloguj się
+          </button>
+        </div>
       </div>
     </div>
 
@@ -288,6 +306,80 @@
         </BaseButton>
       </div>
     </div>
+
+    <!-- Preferencje nauki -->
+    <div
+      v-if="activeTab === 'learning'"
+      class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8"
+    >
+      <div class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+        <div class="px-6 py-4 flex items-center">
+          <div class="w-10 h-10 rounded-md bg-indigo-500 text-white flex items-center justify-center mr-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              />
+            </svg>
+          </div>
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">
+            Preferencje nauki
+          </h2>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <label
+          class="flex items-start gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors"
+        >
+          <input
+            v-model="learningSettings.autoNext"
+            type="checkbox"
+            class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <span>
+            <span class="block font-medium text-gray-800 dark:text-gray-100">
+              Automatyczne przejście do następnego pytania
+            </span>
+            <span class="block text-sm text-gray-500 dark:text-gray-400">
+              Po odpowiedzi odczekaj 5 sekund (możesz to wyłączyć podczas quizu przyciskiem
+              Auto-Next).
+            </span>
+          </span>
+        </label>
+
+        <label
+          class="flex items-start gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors"
+        >
+          <input
+            v-model="learningSettings.showDescriptions"
+            type="checkbox"
+            class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <span>
+            <span class="block font-medium text-gray-800 dark:text-gray-100">
+              Pokazuj opis po odpowiedzi
+            </span>
+            <span class="block text-sm text-gray-500 dark:text-gray-400">
+              Podstawa prawna lub wyjaśnienie pojawi się pod odpowiedziami.
+            </span>
+          </span>
+        </label>
+
+        <BaseButton color="blue" :loading="savingSettings" @click="saveLearningSettings">
+          Zapisz preferencje
+        </BaseButton>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -309,10 +401,13 @@ const PasswordChangeForm = defineAsyncComponent(
   () => import('@/components/settings/PasswordChangeForm.vue')
 );
 import apiClient from '@/api';
+import { useLogout } from '@/composables/useLogout';
+import { setUser } from '@/utils/authStorage';
 
 // Globalny system alertów
 const showAlert = inject('showAlert');
 const store = useStore();
+const logout = useLogout();
 
 // Stan reaktywny
 const activeTab = ref('profile');
@@ -321,12 +416,15 @@ const profileTabs = [
   { id: 'appearance', label: 'Wygląd' },
   { id: 'security', label: 'Bezpieczeństwo' },
   { id: 'categories', label: 'Kategorie' },
+  { id: 'learning', label: 'Nauka' },
 ];
 const theme = ref('light');
 const selectorPosition = ref({ x: 0, y: 0 });
 const selectedColor = ref('#3B82F6');
 const currentAvatarIndex = ref(0);
 const selectedHiddenCategories = ref([]);
+const learningSettings = ref({ autoNext: true, showDescriptions: true });
+const savingSettings = ref(false);
 const allCategories = ref([]);
 const colorWheelCanvas = ref(null);
 
@@ -473,7 +571,7 @@ const saveTheme = async () => {
   // 2. Zapisz w local/sessionStorage i store
   const updatedUser = { ...user.value, option: theme.value };
   store.commit('user/SET_USER', updatedUser);
-  sessionStorage.setItem('user', JSON.stringify(updatedUser));
+  setUser(updatedUser);
 
   // 3. Dopiero teraz wyślij żądanie do API (asynchronicznie)
   try {
@@ -498,7 +596,7 @@ const updateAvatar = async (index) => {
 
     const updatedUser = { ...user.value, avatar: index };
     store.commit('user/SET_USER', updatedUser);
-    sessionStorage.setItem('user', JSON.stringify(updatedUser));
+    setUser(updatedUser);
 
     showAlert('success', 'Styl awatara został zaktualizowany');
   } catch (error) {
@@ -514,7 +612,7 @@ const updateAvatarColor = async (colorHex) => {
 
     const updatedUser = { ...user.value, avatarColors: colorHex };
     store.commit('user/SET_USER', updatedUser);
-    sessionStorage.setItem('user', JSON.stringify(updatedUser));
+    setUser(updatedUser);
 
     showAlert('success', 'Kolor awatara został zaktualizowany');
   } catch (error) {
@@ -604,7 +702,7 @@ const saveHiddenCategories = async () => {
 
     const updatedUser = { ...user.value, hiddenCategory: categoriesToSave };
     store.commit('user/SET_USER', updatedUser);
-    sessionStorage.setItem('user', JSON.stringify(updatedUser));
+    setUser(updatedUser);
 
     showAlert('success', 'Ukryte kategorie zapisane!');
   } catch (e) {
@@ -624,6 +722,27 @@ const toggleCategory = (catDisplayName) => {
 const getCategoryNameForDisplay = (categoryName) =>
   categoryName === '' ? 'Pytania bez kategorii' : categoryName;
 
+async function saveLearningSettings() {
+  if (savingSettings.value) return;
+  savingSettings.value = true;
+  try {
+    const res = await apiClient.put('/users/update-profile', {
+      settings: learningSettings.value,
+    });
+    const updated = {
+      ...(user.value || {}),
+      settings: res.data?.settings || learningSettings.value,
+    };
+    store.commit('user/SET_USER', updated);
+    setUser(updated);
+    showAlert('success', 'Preferencje nauki zapisane.');
+  } catch (e) {
+    showAlert('error', 'Błąd zapisu preferencji nauki.');
+  } finally {
+    savingSettings.value = false;
+  }
+}
+
 // Inicjalizacja komponentu
 watch(activeTab, (tab) => {
   if (tab === 'profile') {
@@ -641,6 +760,10 @@ onMounted(async () => {
 
   selectedColor.value = user.value?.avatarColors || '#3B82F6';
   currentAvatarIndex.value = user.value?.avatar || 0;
+  learningSettings.value = {
+    autoNext: user.value?.settings?.autoNext !== false,
+    showDescriptions: user.value?.settings?.showDescriptions !== false,
+  };
 
   // Inicjalizacja koła kolorów
   drawColorWheel();

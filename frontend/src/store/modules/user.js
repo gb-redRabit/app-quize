@@ -1,4 +1,14 @@
 import apiClient from '@/api';
+import {
+  getToken,
+  getStoredUser,
+  setSession,
+  setUser,
+  setCachedHistory,
+  setCachedHQuestion,
+  getCachedUserData,
+  clearSession,
+} from '@/utils/authStorage';
 
 export default {
   namespaced: true,
@@ -41,18 +51,18 @@ export default {
   actions: {
     // Dodajemy akcję inicjalizacji danych użytkownika
     initUser({ commit }) {
-      const userStr = sessionStorage.getItem('user');
-      const token = sessionStorage.getItem('token');
+      const user = getStoredUser();
+      const token = getToken();
 
-      if (userStr && token) {
-        try {
-          const user = JSON.parse(userStr);
-          commit('SET_USER', user);
-          commit('SET_AUTHENTICATED', true);
-        } catch (e) {
-          console.error('Błąd parsowania danych użytkownika z sessionStorage', e);
-        }
+      if (user && token) {
+        commit('SET_USER', user);
+        commit('SET_AUTHENTICATED', true);
       }
+
+      // Ostatnia znana historia/odpowiedzi — używane offline i przy starcie.
+      const cached = getCachedUserData();
+      if (Array.isArray(cached.history)) commit('SET_USER_HISTORY', cached.history);
+      if (Array.isArray(cached.hquestion)) commit('SET_HQUESTION', cached.hquestion);
     },
 
     async login({ commit, dispatch }, credentials) {
@@ -62,8 +72,7 @@ export default {
 
         commit('SET_AUTHENTICATED', true);
         commit('SET_USER', user);
-        sessionStorage.setItem('token', token);
-        sessionStorage.setItem('user', JSON.stringify(user));
+        setSession(token, user);
 
         // Ustaw motyw z preferencji użytkownika
         if (user.option) {
@@ -76,8 +85,7 @@ export default {
       } catch (error) {
         commit('SET_AUTHENTICATED', false);
         commit('SET_USER', {});
-        sessionStorage.removeItem('token');
-        sessionStorage.removeItem('user');
+        clearSession();
         throw (
           (error.response && error.response.data && error.response.data.message) || 'Błąd logowania'
         );
@@ -96,24 +104,29 @@ export default {
           apiClient.get('/users/me'),
         ]);
 
-        commit('SET_USER_HISTORY', Array.isArray(historyRes.data) ? historyRes.data : []);
-        commit('SET_HQUESTION', Array.isArray(hqRes.data) ? hqRes.data : []);
+        const history = Array.isArray(historyRes.data) ? historyRes.data : [];
+        const hquestion = Array.isArray(hqRes.data) ? hqRes.data : [];
+        commit('SET_USER_HISTORY', history);
+        commit('SET_HQUESTION', hquestion);
+        setCachedHistory(history);
+        setCachedHQuestion(hquestion);
 
         // Profil (bez historii/hquestion) — aktualizujemy avatar, motyw itp.
         const updatedUser = { ...meRes.data };
         commit('SET_USER', updatedUser);
-        sessionStorage.setItem('user', JSON.stringify(updatedUser));
+        setUser(updatedUser);
       } catch (e) {
-        commit('SET_USER_HISTORY', []);
-        commit('SET_HQUESTION', []);
+        // Offline lub błąd sieci: zostaje ostatnia zapisana kopia.
+        const cached = getCachedUserData();
+        if (Array.isArray(cached.history)) commit('SET_USER_HISTORY', cached.history);
+        if (Array.isArray(cached.hquestion)) commit('SET_HQUESTION', cached.hquestion);
       }
     },
-    async logout({ commit, dispatch }) {
+    async logout({ commit }) {
       commit('SET_AUTHENTICATED', false);
       commit('SET_USER', {});
       commit('SET_HQUESTION', []);
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('user');
+      clearSession();
       // Po wylogowaniu
     },
     async clearCategoryHistory({ dispatch }, { category }) {
@@ -134,18 +147,19 @@ export default {
         // Natychmiast czyść wszystkie powiązane dane
         commit('SET_USER_HISTORY', []);
         commit('SET_HQUESTION', []);
+        setCachedHistory([]);
+        setCachedHQuestion([]);
 
-        // Wyczyść dane w sessionStorage
+        // Wyczyść dane w pamięci sesji trwałej
         try {
-          const userStr = sessionStorage.getItem('user');
-          if (userStr) {
-            const userData = JSON.parse(userStr);
+          const userData = getStoredUser();
+          if (userData) {
             userData.history = [];
             userData.hquestion = [];
-            sessionStorage.setItem('user', JSON.stringify(userData));
+            setUser(userData);
           }
         } catch (e) {
-          console.error('Błąd podczas aktualizacji sessionStorage', e);
+          console.error('Błąd podczas aktualizacji danych użytkownika', e);
         }
 
         // Pobierz świeże dane
@@ -172,8 +186,7 @@ export default {
           commit('SET_USER', {});
           commit('SET_USER_HISTORY', []);
           commit('SET_HQUESTION', []);
-          sessionStorage.removeItem('token');
-          sessionStorage.removeItem('user');
+          clearSession();
           throw new Error('Sesja wygasła');
         }
         return false;

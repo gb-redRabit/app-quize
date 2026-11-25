@@ -1,3 +1,5 @@
+import { getToken } from '@/utils/authStorage';
+
 const API_BASE =
   import.meta.env.VITE_API_URL || 'https://app-quize.onrender.com/api';
 
@@ -16,7 +18,7 @@ function scheduleReconnect() {
 
 async function connect() {
   if (stopped) return;
-  const token = sessionStorage.getItem('token');
+  const token = getToken();
   if (!token) {
     scheduleReconnect();
     return;

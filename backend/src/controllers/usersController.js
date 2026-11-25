@@ -1,6 +1,8 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
+const Question = require("../models/Question");
 const events = require("../utils/events");
+const { validateNewUserPayload } = require("../utils/validateUser");
 
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_PASSWORD_LENGTH = 72;
@@ -164,6 +166,19 @@ exports.updateProfile = async (req, res) => {
       }
       user.hiddenCategory = hidden;
     }
+
+    // Preferencje nauki (auto-next, opisy po odpowiedzi)
+    if (req.body.settings !== undefined) {
+      const settings = req.body.settings;
+      if (!settings || typeof settings !== "object" || Array.isArray(settings)) {
+        return res.status(400).json({ message: "Nieprawidłowe ustawienia" });
+      }
+      const next = { ...(user.settings?.toObject?.() || user.settings || {}) };
+      for (const key of ["autoNext", "showDescriptions"]) {
+        if (typeof settings[key] === "boolean") next[key] = settings[key];
+      }
+      user.settings = next;
+    }
     await user.save();
     emitUserUpdate(user);
     const responseUser = user.toObject();
@@ -185,6 +200,126 @@ exports.getMe = async (req, res) => {
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: "Error fetching user data" });
+  }
+};
+
+// --- Administracja użytkownikami (admin) ---
+
+exports.createUser = async (req, res) => {
+  try {
+    const { errors, value } = validateNewUserPayload(req.body || {});
+    if (errors.length) {
+      return res.status(400).json({ message: errors.join(" ") });
+    }
+
+    const existing = await User.findOne({ login: value.login });
+    if (existing) {
+      return res.status(409).json({ message: "Login jest już zajęty" });
+    }
+
+    const password = await bcrypt.hash(value.password, 10);
+    const user = await User.create({
+      login: value.login,
+      password,
+      rola: value.rola,
+    });
+
+    res.status(201).json({
+      _id: user._id,
+      login: user.login,
+      rola: user.rola,
+      avatar: user.avatar,
+      avatarColors: user.avatarColors,
+      option: user.option,
+      hiddenCategory: user.hiddenCategory,
+    });
+  } catch (err) {
+    console.error("Błąd tworzenia użytkownika:", err);
+    res.status(500).json({ message: "Błąd tworzenia użytkownika" });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const target = await User.findById(req.params.id).select("_id rola login");
+    if (!target) return res.status(404).json({ message: "User not found" });
+
+    if (String(target._id) === String(req.user.id)) {
+      return res.status(400).json({ message: "Nie możesz usunąć własnego konta" });
+    }
+
+    if (target.rola === "admin") {
+      const admins = await User.countDocuments({ rola: "admin" });
+      if (admins <= 1) {
+        return res
+          .status(400)
+          .json({ message: "Nie można usunąć ostatniego administratora" });
+      }
+    }
+
+    await target.deleteOne();
+    res.json({ success: true, deletedId: String(target._id) });
+  } catch (err) {
+    console.error("Błąd usuwania użytkownika:", err);
+    res.status(500).json({ message: "Błąd usuwania użytkownika" });
+  }
+};
+
+exports.getUsersStats = async (req, res) => {
+  try {
+    const users = await User.aggregate([
+      {
+        $project: {
+          login: 1,
+          rola: 1,
+          avatar: 1,
+          avatarColors: 1,
+          option: 1,
+          hiddenCategory: 1,
+          historyCount: { $size: { $ifNull: ["$history", []] } },
+          answersCount: { $size: { $ifNull: ["$hquestion", []] } },
+          correctAnswers: {
+            $size: {
+              $filter: {
+                input: { $ifNull: ["$hquestion", []] },
+                as: "q",
+                cond: { $eq: ["$$q.correct", true] },
+              },
+            },
+          },
+          lastActivity: {
+            $max: {
+              $map: {
+                input: { $ifNull: ["$history", []] },
+                as: "h",
+                in: "$$h.data",
+              },
+            },
+          },
+        },
+      },
+      { $sort: { login: 1 } },
+    ]);
+
+    const totalQuestions = await Question.countDocuments();
+    const totals = users.reduce(
+      (acc, user) => {
+        acc.users += 1;
+        if (user.rola === "admin") acc.admins += 1;
+        acc.answers += user.answersCount || 0;
+        acc.correct += user.correctAnswers || 0;
+        acc.quizzes += user.historyCount || 0;
+        return acc;
+      },
+      { users: 0, admins: 0, answers: 0, correct: 0, quizzes: 0, questions: totalQuestions }
+    );
+    totals.accuracy =
+      totals.answers > 0 ? Math.round((totals.correct / totals.answers) * 100) : 0;
+
+    res.json({ users, totals });
+  } catch (err) {
+    console.error("Błąd statystyk użytkowników:", err);
+    res.status(500).json({ message: "Błąd statystyk użytkowników" });
   }
 };
 

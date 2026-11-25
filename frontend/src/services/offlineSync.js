@@ -1,4 +1,5 @@
 import apiClient from '@/api';
+import { getToken } from '@/utils/authStorage';
 import {
   enqueue,
   getQueue,
@@ -39,7 +40,7 @@ export async function flushOfflineQueue() {
     }
 
     // Bez tokenu nie ma sensu wysyłać — poczekamy na logowanie.
-    if (typeof sessionStorage !== 'undefined' && !sessionStorage.getItem('token')) {
+    if (!getToken()) {
       return { skipped: true, reason: 'unauthenticated' };
     }
 

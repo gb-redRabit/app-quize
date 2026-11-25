@@ -274,49 +274,123 @@
       </div>
     </div>
 
-    <div v-else-if="activeTab === 'users'">
+    <div v-else-if="activeTab === 'users'" class="space-y-6">
+      <!-- Statystyki użytkowników -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div
+          class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
+        >
+          <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Użytkownicy
+          </p>
+          <p class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+            {{ userTotals.users }}
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            {{ userTotals.admins }} z rolą admin
+          </p>
+        </div>
+        <div
+          class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
+        >
+          <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Odpowiedzi
+          </p>
+          <p class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+            {{ userTotals.answers }}
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">we wszystkich kontach</p>
+        </div>
+        <div
+          class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
+        >
+          <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Skuteczność
+          </p>
+          <p class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+            {{ userTotals.accuracy }}%
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">poprawnych odpowiedzi</p>
+        </div>
+        <div
+          class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
+        >
+          <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Pytania w bazie
+          </p>
+          <p class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+            {{ userTotals.questions }}
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">łącznie</p>
+        </div>
+      </div>
+
       <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 space-y-6"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 space-y-4"
       >
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-          Zarejestrowani użytkownicy
-        </h2>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
+            Zarejestrowani użytkownicy
+          </h2>
+          <BaseButton color="blue" size="sm" @click="openAddUserModal">
+            Dodaj użytkownika
+          </BaseButton>
+        </div>
 
         <div class="md:hidden space-y-3">
           <div
             v-for="user in users"
             :key="`mobile-${user._id}`"
-            class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+            class="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
           >
-            <Avatar :avatar-index="user.avatar" :color="user.avatarColors" :size="40" />
-            <div class="flex-1 min-w-0">
-              <p class="font-medium text-gray-800 dark:text-gray-100 truncate">
-                {{ user.login }}
-              </p>
-              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {{ user.avatarColors }}
-              </p>
+            <div class="flex items-center gap-3">
+              <Avatar :avatar-index="user.avatar" :color="user.avatarColors" :size="40" />
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-gray-800 dark:text-gray-100 truncate">
+                  {{ user.login }}
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  {{ user.answersCount || 0 }} odp. · {{ userAccuracy(user) }}%
+                </p>
+              </div>
+              <select
+                v-model="user.rola"
+                @change="changeRole(user)"
+                class="h-10 rounded-lg px-2 border bg-gray-50 dark:bg-gray-900 dark:text-gray-200 text-sm"
+                :aria-label="`Rola użytkownika ${user.login}`"
+              >
+                <option value="user">user</option>
+                <option value="admin">admin</option>
+              </select>
             </div>
-            <select
-              v-model="user.rola"
-              @change="changeRole(user)"
-              class="h-10 rounded-lg px-2 border bg-gray-50 dark:bg-gray-900 dark:text-gray-200 text-sm"
-              :aria-label="`Rola użytkownika ${user.login}`"
-            >
-              <option value="user">user</option>
-              <option value="admin">admin</option>
-            </select>
+            <div class="mt-2 flex items-center justify-between">
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                Ostatnia aktywność: {{ formatLastActivity(user.lastActivity) }}
+              </span>
+              <button
+                type="button"
+                class="text-xs font-medium text-red-600 dark:text-red-400 hover:underline disabled:opacity-40 disabled:no-underline"
+                :disabled="String(user._id) === String(currentUserId)"
+                @click="askDeleteUser(user)"
+              >
+                Usuń
+              </button>
+            </div>
           </div>
         </div>
 
         <div class="hidden md:block overflow-x-auto">
-          <table class="min-w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+          <table class="min-w-full text-sm bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
             <thead>
               <tr class="bg-blue-50 dark:bg-blue-900 text-left">
                 <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Login</th>
                 <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Avatar</th>
-                <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Kolor avatara</th>
                 <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Rola</th>
+                <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Odpowiedzi</th>
+                <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Skuteczność</th>
+                <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">
+                  Ostatnia aktywność
+                </th>
                 <th class="px-4 py-2 font-medium text-gray-700 dark:text-gray-200">Akcje</th>
               </tr>
             </thead>
@@ -326,11 +400,10 @@
                 :key="user._id"
                 class="border-b border-gray-200 dark:border-gray-700"
               >
-                <td class="px-4 py-2">{{ user.login }}</td>
+                <td class="px-4 py-2 font-medium">{{ user.login }}</td>
                 <td class="px-4 py-2">
                   <Avatar :avatar-index="user.avatar" :color="user.avatarColors" :size="32" />
                 </td>
-                <td class="px-4 py-2">{{ user.avatarColors }}</td>
                 <td class="px-4 py-2">
                   <span
                     :class="{
@@ -343,15 +416,32 @@
                     {{ user.rola }}
                   </span>
                 </td>
+                <td class="px-4 py-2">{{ user.answersCount || 0 }}</td>
+                <td class="px-4 py-2">{{ userAccuracy(user) }}%</td>
+                <td class="px-4 py-2 text-gray-600 dark:text-gray-300">
+                  {{ formatLastActivity(user.lastActivity) }}
+                </td>
                 <td class="px-4 py-2">
-                  <select
-                    v-model="user.rola"
-                    @change="changeRole(user)"
-                    class="rounded-sm px-2 py-1 border bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
-                  >
-                    <option value="user">user</option>
-                    <option value="admin">admin</option>
-                  </select>
+                  <div class="flex items-center gap-2">
+                    <select
+                      v-model="user.rola"
+                      @change="changeRole(user)"
+                      class="rounded-md px-2 py-1 border bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
+                      :aria-label="`Rola użytkownika ${user.login}`"
+                    >
+                      <option value="user">user</option>
+                      <option value="admin">admin</option>
+                    </select>
+                    <button
+                      type="button"
+                      class="text-xs font-medium text-red-600 dark:text-red-400 hover:underline disabled:opacity-40 disabled:no-underline"
+                      :disabled="String(user._id) === String(currentUserId)"
+                      :aria-label="`Usuń użytkownika ${user.login}`"
+                      @click="askDeleteUser(user)"
+                    >
+                      Usuń
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -364,6 +454,98 @@
           Brak zarejestrowanych użytkowników.
         </div>
       </div>
+
+      <!-- Dodawanie użytkownika -->
+      <BaseModal :show="showAddUserModal" @close="closeAddUserModal">
+        <template #header>Dodaj użytkownika</template>
+        <div
+          v-if="userFormErrors.general"
+          role="alert"
+          class="mb-4 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 px-3 py-2 text-sm text-red-700 dark:text-red-200"
+        >
+          {{ userFormErrors.general }}
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label for="new-user-login" class="block text-sm font-medium text-gray-700 dark:text-gray-200"
+              >Login</label
+            >
+            <input
+              id="new-user-login"
+              v-model="newUser.login"
+              type="text"
+              autocomplete="off"
+              class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              :class="
+                userFormErrors.login ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+              "
+              :aria-invalid="Boolean(userFormErrors.login)"
+              @input="clearUserError('login')"
+            />
+            <p v-if="userFormErrors.login" class="mt-1 text-xs font-medium text-red-600">
+              {{ userFormErrors.login }}
+            </p>
+          </div>
+          <div>
+            <label for="new-user-password" class="block text-sm font-medium text-gray-700 dark:text-gray-200"
+              >Hasło</label
+            >
+            <input
+              id="new-user-password"
+              v-model="newUser.password"
+              type="password"
+              autocomplete="new-password"
+              class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              :class="
+                userFormErrors.password
+                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                  : ''
+              "
+              :aria-invalid="Boolean(userFormErrors.password)"
+              @input="clearUserError('password')"
+            />
+            <p v-if="userFormErrors.password" class="mt-1 text-xs font-medium text-red-600">
+              {{ userFormErrors.password }}
+            </p>
+            <p v-else class="mt-1 text-xs text-gray-500 dark:text-gray-400">Minimum 8 znaków.</p>
+          </div>
+          <div>
+            <label for="new-user-role" class="block text-sm font-medium text-gray-700 dark:text-gray-200"
+              >Rola</label
+            >
+            <select
+              id="new-user-role"
+              v-model="newUser.rola"
+              class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            >
+              <option value="user">user</option>
+              <option value="admin">admin</option>
+            </select>
+            <p v-if="userFormErrors.rola" class="mt-1 text-xs font-medium text-red-600">
+              {{ userFormErrors.rola }}
+            </p>
+          </div>
+        </div>
+        <template #footer>
+          <BaseButton color="gray" @click="closeAddUserModal">Anuluj</BaseButton>
+          <BaseButton color="blue" :loading="userSaving" @click="createUser">Dodaj</BaseButton>
+        </template>
+      </BaseModal>
+
+      <!-- Usuwanie użytkownika -->
+      <BaseModal :show="showDeleteUserModal" @close="showDeleteUserModal = false">
+        <template #header>Usuń użytkownika</template>
+        <p class="text-sm text-gray-700 dark:text-gray-200">
+          Czy na pewno usunąć konto <b>{{ userToDelete?.login }}</b>? Usunięta zostanie też jego
+          historia i statystyki. Tej operacji nie można cofnąć.
+        </p>
+        <template #footer>
+          <BaseButton color="gray" @click="showDeleteUserModal = false">Anuluj</BaseButton>
+          <BaseButton color="red" :loading="userDeleting" @click="confirmDeleteUser">
+            Usuń konto
+          </BaseButton>
+        </template>
+      </BaseModal>
     </div>
 
     <div v-else-if="activeTab === 'categories'">
@@ -373,10 +555,11 @@
         <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
           Usuń wybraną kategorię
         </h2>
-        <div class="flex gap-2 items-center w-full">
+        <div class="flex flex-col sm:flex-row gap-2 sm:items-center w-full">
           <select
             v-model="selectedCategory"
-            class="rounded-sm px-2 py-1 border bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
+            class="w-full sm:flex-1 min-w-0 rounded-lg px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
+            aria-label="Kategoria do usunięcia"
           >
             <option disabled value="">Wybierz kategorię</option>
             <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
@@ -384,6 +567,7 @@
           <BaseButton
             color="red"
             size="md"
+            class="shrink-0 sm:w-auto w-full"
             :disabled="!selectedCategory"
             @click="confirmDeleteCategory"
           >
@@ -489,6 +673,13 @@
 
     <BaseModal :show="showAddPopup" @close="closeAddPopup">
       <template #header>Nowe pytanie</template>
+      <div
+        v-if="formErrors.general"
+        role="alert"
+        class="mb-4 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 px-3 py-2 text-sm text-red-700 dark:text-red-200"
+      >
+        {{ formErrors.general }}
+      </div>
       <form @submit.prevent>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6">
           <div class="lg:col-span-2 space-y-6">
@@ -503,9 +694,24 @@
                 id="question-text"
                 rows="4"
                 class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                :class="
+                  formErrors.question
+                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                    : ''
+                "
+                :aria-invalid="Boolean(formErrors.question)"
+                aria-describedby="question-error"
+                @input="clearFormError('question')"
                 placeholder="Wpisz treść pytania..."
                 required
               ></textarea>
+              <p
+                v-if="formErrors.question"
+                id="question-error"
+                class="mt-1 text-xs font-medium text-red-600 dark:text-red-400"
+              >
+                {{ formErrors.question }}
+              </p>
             </div>
             <div class="space-y-4">
               <div v-for="key in ['a', 'b', 'c']" :key="key">
@@ -519,9 +725,24 @@
                   :id="`answer-${key}`"
                   v-model="formModel[`answer_${key}`].answer"
                   class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  :class="
+                    formErrors[`answer_${key}`]
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                      : ''
+                  "
+                  :aria-invalid="Boolean(formErrors[`answer_${key}`])"
+                  :aria-describedby="`answer-${key}-error`"
+                  @input="clearFormError(`answer_${key}`)"
                   :placeholder="`Treść odpowiedzi ${key.toUpperCase()}`"
                   required
                 />
+                <p
+                  v-if="formErrors[`answer_${key}`]"
+                  :id="`answer-${key}-error`"
+                  class="mt-1 text-xs font-medium text-red-600 dark:text-red-400"
+                >
+                  {{ formErrors[`answer_${key}`] }}
+                </p>
               </div>
             </div>
           </div>
@@ -538,17 +759,30 @@
                   v-for="key in ['a', 'b', 'c']"
                   :key="`btn-${key}`"
                   type="button"
-                  @click="setCorrectAnswer(key)"
+                  :id="`correct-${key}`"
+                  :aria-invalid="Boolean(formErrors.correct)"
+                  @click="
+                    setCorrectAnswer(key);
+                    clearFormError('correct');
+                  "
                   :class="[
                     'p-2 rounded-md text-sm font-semibold border-2 transition-all',
                     formModel[`answer_${key}`].isCorret
                       ? 'bg-green-600 text-white border-green-600 shadow-sm dark:bg-green-500 dark:border-green-500'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-900',
+                      : formErrors.correct
+                        ? 'bg-white text-gray-700 border-red-400 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-red-500 dark:hover:bg-gray-900'
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-900',
                   ]"
                 >
                   {{ key.toUpperCase() }}
                 </button>
               </div>
+              <p
+                v-if="formErrors.correct"
+                class="mt-2 text-xs font-medium text-red-600 dark:text-red-400"
+              >
+                {{ formErrors.correct }}
+              </p>
             </div>
 
             <div>
@@ -561,6 +795,14 @@
                 v-model="formModel.category"
                 id="category"
                 class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                :class="
+                  formErrors.category
+                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                    : ''
+                "
+                :aria-invalid="Boolean(formErrors.category)"
+                aria-describedby="category-error"
+                @change="clearFormError('category')"
                 required
               >
                 <option value="" disabled>Wybierz kategorię</option>
@@ -574,12 +816,25 @@
                   v-model="newCategoryInput"
                   @keyup.enter.prevent="confirmNewCategory()"
                   class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  :class="
+                    formErrors.category
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                      : ''
+                  "
                   placeholder="Nowa kategoria"
+                  @input="clearFormError('category')"
                 />
                 <BaseButton size="sm" color="green" type="button" @click="confirmNewCategory()"
                   >OK</BaseButton
                 >
               </div>
+              <p
+                v-if="formErrors.category"
+                id="category-error"
+                class="mt-1 text-xs font-medium text-red-600 dark:text-red-400"
+              >
+                {{ formErrors.category }}
+              </p>
             </div>
 
             <div>
@@ -593,8 +848,21 @@
                 v-model="formModel.description"
                 id="description"
                 class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                :class="
+                  formErrors.description
+                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                    : ''
+                "
+                :aria-invalid="Boolean(formErrors.description)"
+                @input="clearFormError('description')"
                 placeholder="Np. podstawa prawna"
               />
+              <p
+                v-if="formErrors.description"
+                class="mt-1 text-xs font-medium text-red-600 dark:text-red-400"
+              >
+                {{ formErrors.description }}
+              </p>
             </div>
           </div>
         </div>
@@ -682,9 +950,23 @@
             <input
               type="text"
               v-model="formModel.note"
+              id="note"
               class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
+              :class="
+                formErrors.note
+                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                  : ''
+              "
+              :aria-invalid="Boolean(formErrors.note)"
+              @input="clearFormError('note')"
               placeholder="Dodaj notatkę..."
             />
+            <p
+              v-if="formErrors.note"
+              class="mt-1 text-xs font-medium text-red-600 dark:text-red-400"
+            >
+              {{ formErrors.note }}
+            </p>
           </div>
         </div>
       </form>
@@ -777,6 +1059,15 @@ const currentUser = computed(() => store.getters['user/getUser']);
 const isAdmin = computed(() => currentUser.value?.rola === 'admin');
 
 const users = ref([]);
+const userTotals = ref({ users: 0, admins: 0, answers: 0, accuracy: 0, quizzes: 0, questions: 0 });
+const showAddUserModal = ref(false);
+const newUser = ref({ login: '', password: '', rola: 'user' });
+const userFormErrors = ref({});
+const userSaving = ref(false);
+const showDeleteUserModal = ref(false);
+const userToDelete = ref(null);
+const userDeleting = ref(false);
+const currentUserId = computed(() => currentUser.value?._id || currentUser.value?.id);
 const excelInput = ref(null);
 const categories = ref([]);
 const selectedCategory = ref('');
@@ -823,6 +1114,8 @@ const formModel = ref({
   note: '',
 });
 
+const formErrors = ref({});
+
 const batchIdsInput = ref('');
 const batchQuestions = ref([]);
 const batchEditCategory = ref('');
@@ -861,15 +1154,9 @@ onMounted(async () => {
     return;
   }
 
-  try {
-    const res = await apiClient.get('/users/all');
-    users.value = Array.isArray(res.data) ? res.data : [];
-    if (users.value.length === 0) {
-      showAlert?.('info', 'Brak zarejestrowanych użytkowników.');
-    }
-  } catch (e) {
-    users.value = [];
-    showAlert?.('error', 'Błąd podczas pobierania listy użytkowników.');
+  await loadUsers();
+  if (users.value.length === 0) {
+    showAlert?.('info', 'Brak zarejestrowanych użytkowników.');
   }
 
   try {
@@ -889,12 +1176,134 @@ onBeforeUnmount(() => {
 });
 
 // Zmiana roli użytkownika
+async function loadUsers() {
+  try {
+    const res = await apiClient.get('/users/stats');
+    users.value = Array.isArray(res.data?.users) ? res.data.users : [];
+    userTotals.value =
+      res.data?.totals || { users: 0, admins: 0, answers: 0, accuracy: 0, quizzes: 0, questions: 0 };
+  } catch (e) {
+    users.value = [];
+    showAlert?.('error', 'Błąd podczas pobierania listy użytkowników.');
+  }
+}
+
+function openAddUserModal() {
+  newUser.value = { login: '', password: '', rola: 'user' };
+  userFormErrors.value = {};
+  showAddUserModal.value = true;
+  setTimeout(() => document.getElementById('new-user-login')?.focus(), 50);
+}
+
+function closeAddUserModal() {
+  showAddUserModal.value = false;
+  userFormErrors.value = {};
+}
+
+function clearUserError(field) {
+  if (!userFormErrors.value[field]) return;
+  const next = { ...userFormErrors.value };
+  delete next[field];
+  userFormErrors.value = next;
+}
+
+function validateNewUser() {
+  const errors = {};
+  const login = newUser.value.login.trim();
+  if (login.length < 3 || login.length > 32) {
+    errors.login = 'Login musi mieć 3–32 znaków.';
+  } else if (!/^[a-zA-Z0-9._-]+$/.test(login)) {
+    errors.login = 'Dozwolone są litery, cyfry, kropka, podkreślenie i myślnik.';
+  }
+  if (newUser.value.password.length < 8) {
+    errors.password = 'Hasło musi mieć co najmniej 8 znaków.';
+  } else if (newUser.value.password.length > 72) {
+    errors.password = 'Hasło może mieć maksymalnie 72 znaki.';
+  }
+  if (!['user', 'admin'].includes(newUser.value.rola)) {
+    errors.rola = 'Wybierz poprawną rolę.';
+  }
+
+  userFormErrors.value = errors;
+
+  const firstInvalid = [
+    ['login', 'new-user-login'],
+    ['password', 'new-user-password'],
+    ['rola', 'new-user-role'],
+  ].find(([field]) => errors[field]);
+  if (firstInvalid) {
+    setTimeout(() => document.getElementById(firstInvalid[1])?.focus(), 0);
+  }
+
+  return Object.keys(errors).length === 0;
+}
+
+async function createUser() {
+  if (userSaving.value) return;
+  userFormErrors.value = {};
+  if (!validateNewUser()) return;
+
+  userSaving.value = true;
+  try {
+    await apiClient.post('/users', {
+      login: newUser.value.login.trim(),
+      password: newUser.value.password,
+      rola: newUser.value.rola,
+    });
+    showAlert?.('success', `Dodano użytkownika ${newUser.value.login.trim()}.`);
+    closeAddUserModal();
+    await loadUsers();
+  } catch (error) {
+    const message = error?.response?.data?.message || 'Błąd podczas dodawania użytkownika.';
+    userFormErrors.value = { general: message };
+    showAlert?.('error', message);
+  } finally {
+    userSaving.value = false;
+  }
+}
+
+function askDeleteUser(user) {
+  userToDelete.value = user;
+  showDeleteUserModal.value = true;
+}
+
+async function confirmDeleteUser() {
+  if (!userToDelete.value || userDeleting.value) return;
+  userDeleting.value = true;
+  try {
+    await apiClient.delete(`/users/${userToDelete.value._id}`);
+    showAlert?.('success', `Usunięto użytkownika ${userToDelete.value.login}.`);
+    showDeleteUserModal.value = false;
+    userToDelete.value = null;
+    await loadUsers();
+  } catch (error) {
+    const message = error?.response?.data?.message || 'Błąd podczas usuwania użytkownika.';
+    showAlert?.('error', message);
+  } finally {
+    userDeleting.value = false;
+  }
+}
+
+function userAccuracy(user) {
+  const total = user?.answersCount || 0;
+  if (!total) return 0;
+  return Math.round(((user.correctAnswers || 0) / total) * 100);
+}
+
+function formatLastActivity(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
 async function changeRole(user) {
   try {
     await apiClient.put(`/users/${user._id}/role`, { rola: user.rola });
     showAlert?.('success', `Zmieniono rolę użytkownika ${user.login}.`);
+    await loadUsers();
   } catch (e) {
-    showAlert?.('error', 'Błąd podczas zmiany roli użytkownika.');
+    showAlert?.('error', e?.response?.data?.message || 'Błąd podczas zmiany roli użytkownika.');
   }
 }
 
@@ -955,7 +1364,13 @@ function openAddPopup() {
     answer_c: { answer: '', isCorret: false },
     category: '',
     description: '',
+    flagged: false,
+    bad: false,
+    unknown: false,
+    note: '',
   };
+  formErrors.value = {};
+  newCategoryInput.value = '';
   showAddPopup.value = true;
 
   // Po otwarciu ustaw fokus na treści pytania.
@@ -968,6 +1383,73 @@ function openAddPopup() {
 // Zamykanie popupu dodawania pytania
 function closeAddPopup() {
   showAddPopup.value = false;
+  formErrors.value = {};
+}
+
+function clearFormError(field) {
+  if (!formErrors.value[field]) return;
+  const next = { ...formErrors.value };
+  delete next[field];
+  formErrors.value = next;
+}
+
+/**
+ * Walidacja formularza nowego pytania. Zwraca `true`, gdy można wysłać.
+ * Ustawia konkretne komunikaty przy polach i przenosi fokus na pierwszy błąd.
+ */
+function validateNewQuestion() {
+  const errors = {};
+  const value = formModel.value;
+
+  if (!value.question.trim()) errors.question = 'Podaj treść pytania.';
+  else if (value.question.length > 5000) errors.question = 'Maksymalnie 5000 znaków.';
+
+  for (const key of ['a', 'b', 'c']) {
+    const field = `answer_${key}`;
+    const answer = value[field].answer.trim();
+    if (!answer) errors[field] = `Podaj treść odpowiedzi ${key.toUpperCase()}.`;
+    else if (answer.length > 2000) errors[field] = 'Maksymalnie 2000 znaków.';
+  }
+
+  const correctCount = ['a', 'b', 'c'].filter((key) => value[`answer_${key}`].isCorret).length;
+  if (correctCount !== 1) {
+    errors.correct = 'Wskaż dokładnie jedną poprawną odpowiedź.';
+  }
+
+  if (!value.category) {
+    errors.category = 'Wybierz kategorię.';
+  } else if (value.category === '__nowa__') {
+    if (!newCategoryInput.value.trim()) {
+      errors.category = 'Podaj nazwę nowej kategorii.';
+    }
+  } else if (value.category.length > 200) {
+    errors.category = 'Maksymalnie 200 znaków.';
+  }
+
+  if (value.description.length > 2000) errors.description = 'Maksymalnie 2000 znaków.';
+  if (value.note.length > 1000) errors.note = 'Maksymalnie 1000 znaków.';
+
+  formErrors.value = errors;
+
+  const firstInvalid = [
+    ['question', 'question-text'],
+    ['answer_a', 'answer-a'],
+    ['answer_b', 'answer-b'],
+    ['answer_c', 'answer-c'],
+    ['correct', 'correct-a'],
+    ['category', 'category'],
+    ['description', 'description'],
+    ['note', 'note'],
+  ].find(([field]) => errors[field]);
+
+  if (firstInvalid) {
+    setTimeout(() => {
+      const element = document.getElementById(firstInvalid[1]);
+      if (element) element.focus();
+    }, 0);
+  }
+
+  return Object.keys(errors).length === 0;
 }
 
 // Skróty klawiszowe panelu administracyjnego.
@@ -1005,6 +1487,10 @@ function handleAdminKeydown(event) {
 // Zapisywanie nowego pytania
 async function saveNewQuestion() {
   if (isSaving.value) return;
+  formErrors.value = {};
+
+  if (!validateNewQuestion()) return;
+
   isSaving.value = true;
   try {
     // Obsługa nowej kategorii
@@ -1022,7 +1508,10 @@ async function saveNewQuestion() {
       closeAddPopup();
       await store.dispatch('questions/addQuestion', formModel.value);
     } catch (error) {
-      showAlert?.('error', 'Błąd podczas dodawania pytania.');
+      const message =
+        error?.response?.data?.message || 'Błąd podczas dodawania pytania. Spróbuj ponownie.';
+      formErrors.value = { general: message };
+      showAlert?.('error', message);
     }
   } finally {
     isSaving.value = false;

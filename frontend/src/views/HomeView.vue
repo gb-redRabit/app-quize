@@ -195,6 +195,7 @@ import { ref, computed, inject, defineAsyncComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
+import { getStoredUser, setUser } from '@/utils/authStorage';
 import { computeRemainingSeconds } from '@/utils/quizProgress';
 import { useQuestions } from '@/composables/useQuestions';
 
@@ -466,11 +467,11 @@ async function clearCategoryHistory(category) {
   store.commit('user/CLEAR_CATEGORY_HISTORY_OPTIMISTIC', category);
 
   // 2. Aktualizacja sessionStorage, aby stan przetrwał odświeżenie strony.
-  const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
+  const userData = getStoredUser() || {};
   if (userData.hquestion) {
     // Upewniamy się, że modyfikujemy TYLKO hquestion, a nie główną historię
     userData.hquestion = userData.hquestion.filter((q) => q.category !== category);
-    sessionStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
   }
 
   try {
