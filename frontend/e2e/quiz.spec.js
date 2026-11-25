@@ -381,6 +381,50 @@ test.describe('Quiz App E2E', () => {
     await expect(page.locator('tbody tr').filter({ hasText: 'e2e.nowy' })).toHaveCount(0);
   });
 
+  test('offline: wynik trafia do kolejki i wysyła się po powrocie sieci', async ({
+    page,
+    context,
+  }) => {
+    await login(page);
+
+    const sentAnswers = [];
+    page.on('request', (request) => {
+      if (request.method() === 'POST' && request.url().includes('/users/hquestion')) {
+        sentAnswers.push(request.postDataJSON());
+      }
+    });
+
+    await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=e2e');
+    // Poczekaj na pytanie, zanim odetniemy sieć (start quizu pobiera dane).
+    await expect(
+      page.getByRole('heading', { name: /E2E: stolica Polski|E2E: 2 \+ 2/ })
+    ).toBeVisible();
+
+    // Zdejmujemy mocki, żeby offline naprawdę kończył się błędem sieci.
+    await page.unroute('**/api/**');
+    await context.setOffline(true);
+
+    await answerAllCorrectly(page);
+    await expect(page.getByRole('heading', { name: 'Podsumowanie testu' })).toBeVisible();
+
+    const queueWhileOffline = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('offline-queue-v1') || '[]').length
+    );
+    expect(queueWhileOffline).toBeGreaterThan(0);
+
+    // Przywracamy API i sieć, żeby kolejka mogła się opróżnić.
+    sentAnswers.length = 0;
+    await mockApi(page);
+    await context.setOffline(false);
+    await page.waitForTimeout(2000);
+
+    const queueAfterOnline = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('offline-queue-v1') || '[]').length
+    );
+    expect(queueAfterOnline).toBe(0);
+    expect(sentAnswers.length).toBeGreaterThan(0);
+  });
+
   test('quiz: odpowiedź wybrana klawiaturą odblokowuje „Następne”', async ({ page }) => {
     await login(page);
     await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=kb');

@@ -393,11 +393,13 @@ import {
 import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
+// Podsumowanie jest potrzebne tuż po zakończeniu quizu — także offline,
+// więc ładujemy je statycznie (dynamiczny chunk mógłby nie być w cache).
+import SummaryBox from '@/components/questions/SummaryBox.vue';
 const QuestionList = defineAsyncComponent(() => import('@/components/questions/QuestionList.vue'));
 const QuestionNavigation = defineAsyncComponent(
   () => import('@/components/questions/QuestionNavigation.vue')
 );
-const SummaryBox = defineAsyncComponent(() => import('@/components/questions/SummaryBox.vue'));
 const ProgressBar = defineAsyncComponent(() => import('@/components/questions/ProgressBar.vue'));
 import { getRandomUniqueQuestions } from '@/utils/randomQuestions';
 import { shuffleArray } from '@/utils/shuffleArray';
