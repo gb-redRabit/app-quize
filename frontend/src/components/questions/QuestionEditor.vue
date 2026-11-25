@@ -55,7 +55,7 @@
               :id="fieldId('answer-' + key)"
               v-model="form[`answer_${key}`].answer"
               rows="2"
-              class="mt-0.5 w-full p-1.5 text-sm rounded-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
+              class="mt-0.5 w-full p-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
             ></textarea>
           </div>
         </div>

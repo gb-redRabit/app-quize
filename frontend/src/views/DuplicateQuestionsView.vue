@@ -49,7 +49,7 @@
     <!-- Empty state -->
     <div
       v-else-if="filteredGroups.length === 0"
-      class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 p-12 bg-white dark:bg-gray-800 rounded-xl shadow-xs"
+      class="surface flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 p-12"
     >
       <img
         src="@/assets/icons/question-mark-circle.svg"
@@ -67,7 +67,7 @@
       <section
         v-for="(group, groupIndex) in visibleGroups"
         :key="`group-${group[0].ID}`"
-        class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-900/40 p-3"
+        class="surface-muted p-3"
       >
         <header class="flex flex-wrap items-center justify-between gap-2 px-1 pb-2">
           <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-200">
@@ -233,7 +233,9 @@ import {
 import QuestionActions from '@/components/questions/QuestionActions.vue';
 const PageHeader = defineAsyncComponent(() => import('@/components/layout/PageHeader.vue'));
 import apiClient from '@/api';
+import { useStore } from 'vuex';
 
+const store = useStore();
 const showAlert = inject('showAlert');
 const loading = ref(true);
 const groups = ref([]);
@@ -245,7 +247,7 @@ const loadingTrigger = ref(null);
 const sortByCategory = ref(false);
 const selectedCategory = ref('');
 
-const isAdmin = true; // lub pobierz z auth
+const isAdmin = computed(() => store.getters['user/getUser']?.rola === 'admin');
 
 const flatQuestions = computed(() => groups.value.flat());
 
