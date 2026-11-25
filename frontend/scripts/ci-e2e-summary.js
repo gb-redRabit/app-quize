@@ -30,12 +30,18 @@ function walk(suite, path) {
         (result) => result.status === 'failed' || result.status === 'timedOut'
       );
       for (const result of failed) {
-        lines.push(`### ${[...path, spec.title].join(' > ')}`);
+        const title = [...path, spec.title].join(' > ');
+        const message = String(result.error?.message || 'Nieznany błąd')
+          .replace(/\s+/g, ' ')
+          .slice(0, 800);
+        lines.push(`### ${title}`);
         lines.push('```');
         lines.push(
           String(result.error?.message || result.error?.stack || 'Nieznany błąd').slice(0, 4000)
         );
         lines.push('```');
+        // Adnotacja widoczna publicznie w checks API (logi wymagają logowania).
+        console.log(`::error title=E2E: ${title}::${message}`);
       }
     }
   }
