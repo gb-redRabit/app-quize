@@ -254,6 +254,37 @@ test.describe('Quiz App E2E', () => {
     await expect(trigger).toBeFocused();
   });
 
+  test('admin: walidacja nowego pytania oznacza brakujące pola', async ({ page }) => {
+    await login(page);
+    await page.goto('/admin');
+    await page.getByRole('button', { name: /Dodaj pytanie/ }).click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: 'Zapisz pytanie' }).click();
+
+    await expect(dialog).toContainText('Podaj treść pytania.');
+    await expect(dialog).toContainText('Podaj treść odpowiedzi A.');
+    await expect(dialog).toContainText('Wskaż dokładnie jedną poprawną odpowiedź.');
+    await expect(dialog).toContainText('Wybierz kategorię.');
+    await expect(page.locator('#question-text')).toBeFocused();
+  });
+
+  test('admin: walidacja nowego użytkownika pokazuje błędy', async ({ page }) => {
+    await login(page);
+    await page.goto('/admin');
+    await page.getByRole('button', { name: 'Użytkownicy', exact: true }).click();
+    await page.getByRole('button', { name: 'Dodaj użytkownika' }).click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: 'Dodaj', exact: true }).click();
+
+    await expect(dialog).toContainText('Login musi mieć 3–32 znaków.');
+    await expect(dialog).toContainText('Hasło musi mieć co najmniej 8 znaków.');
+    await expect(page.locator('#new-user-login')).toBeFocused();
+  });
+
   test('quiz: odpowiedź wybrana klawiaturą odblokowuje „Następne”', async ({ page }) => {
     await login(page);
     await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=kb');
