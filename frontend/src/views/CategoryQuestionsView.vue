@@ -214,7 +214,7 @@
     <!-- Empty state -->
     <div
       v-else-if="filteredQuestions.length === 0"
-      class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 p-12 bg-white dark:bg-gray-800 rounded-xl shadow-xs"
+      class="surface flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 p-12"
     >
       <img
         src="@/assets/icons/question-mark-circle.svg"
@@ -229,6 +229,21 @@
 
     <!-- Questions list -->
     <div v-else>
+      <div
+        class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400"
+        aria-label="Legenda oznaczeń pytań"
+      >
+        <span class="inline-flex items-center gap-1.5">
+          <span class="h-2 w-2 rounded-full bg-green-500" aria-hidden="true"></span> Sprawdzone
+        </span>
+        <span class="inline-flex items-center gap-1.5">
+          <span class="h-2 w-2 rounded-full bg-red-500" aria-hidden="true"></span> Złe
+        </span>
+        <span class="inline-flex items-center gap-1.5">
+          <span class="h-2 w-2 rounded-full bg-yellow-500" aria-hidden="true"></span> Nie wiem
+        </span>
+      </div>
+
       <!-- Desktop: lista + szczegóły obok siebie -->
       <div v-if="isDesktop" class="lg:grid lg:grid-cols-5 lg:gap-6">
         <div class="lg:col-span-2 xl:max-h-[calc(100vh-20rem)] lg:overflow-y-auto overscroll-contain lg:py-1 lg:pl-1 lg:pr-2">

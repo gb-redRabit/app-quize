@@ -24,6 +24,22 @@
       </p>
     </div>
 
+    <div
+      v-if="!isLoading && filteredQuestions.length > 0"
+      class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400"
+      aria-label="Legenda oznaczeń pytań"
+    >
+      <span class="inline-flex items-center gap-1.5">
+        <span class="h-2 w-2 rounded-full bg-green-500" aria-hidden="true"></span> Sprawdzone
+      </span>
+      <span class="inline-flex items-center gap-1.5">
+        <span class="h-2 w-2 rounded-full bg-red-500" aria-hidden="true"></span> Złe
+      </span>
+      <span class="inline-flex items-center gap-1.5">
+        <span class="h-2 w-2 rounded-full bg-yellow-500" aria-hidden="true"></span> Nie wiem
+      </span>
+    </div>
+
     <!-- Brak duplikatów, tylko lista pytań -->
     <!-- Stan ładowania -->
     <div v-if="isLoading && page === 1" class="mt-8">
@@ -82,8 +98,27 @@
               <span class="block font-medium text-gray-800 dark:text-gray-200 text-sm sm:text-base">
                 {{ q.question }}
               </span>
-              <span class="block mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Kategoria: <span class="font-medium">{{ q.category || 'Bez kategorii' }}</span>
+              <span class="mt-1 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <span>
+                  Kategoria: <span class="font-medium">{{ q.category || 'Bez kategorii' }}</span>
+                </span>
+                <span
+                  v-if="q.flagged || q.bad || q.unknown"
+                  class="flex items-center gap-1"
+                  aria-hidden="true"
+                >
+                  <span
+                    v-if="q.flagged"
+                    class="h-2 w-2 rounded-full bg-green-500"
+                    title="Sprawdzone"
+                  ></span>
+                  <span v-if="q.bad" class="h-2 w-2 rounded-full bg-red-500" title="Złe"></span>
+                  <span
+                    v-if="q.unknown"
+                    class="h-2 w-2 rounded-full bg-yellow-500"
+                    title="Nie wiem"
+                  ></span>
+                </span>
               </span>
             </span>
             <span class="ml-2 flex items-center justify-center shrink-0">

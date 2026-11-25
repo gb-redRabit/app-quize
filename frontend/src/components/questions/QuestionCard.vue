@@ -30,16 +30,22 @@
             v-if="question.flagged"
             class="h-2.5 w-2.5 rounded-full bg-green-500"
             title="Sprawdzone"
+            role="img"
+            aria-label="Sprawdzone"
           ></span>
           <span
             v-if="question.bad"
             class="h-2.5 w-2.5 rounded-full bg-red-500"
             title="Złe"
+            role="img"
+            aria-label="Złe"
           ></span>
           <span
             v-if="question.unknown"
             class="h-2.5 w-2.5 rounded-full bg-yellow-500"
             title="Nie wiem"
+            role="img"
+            aria-label="Nie wiem"
           ></span>
         </span>
       </div>
