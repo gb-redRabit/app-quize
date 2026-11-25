@@ -13,8 +13,8 @@ router.get(
     try {
       const users = await User.find(
         {},
-        "login avatar avatarColors rola option history hquestion hiddenCategory"
-      ); // tylko potrzebne pola
+        "login avatar avatarColors rola option hiddenCategory"
+      ); // tylko potrzebne pola (bez historii i hquestion)
       res.json(users);
     } catch (err) {
       res.status(500).json({ message: "Błąd pobierania użytkowników" });

@@ -87,21 +87,21 @@ export default {
       const res = await apiClient.get('/users/history');
       commit('SET_USER_HISTORY', res.data);
     },
-    async fetchUserHistoryAndHQ({ commit, state }) {
+    async fetchUserHistoryAndHQ({ commit }) {
       try {
-        const historyRes = await apiClient.get('/users/history');
-        commit('SET_USER_HISTORY', historyRes.data);
+        // Trzy lekkie zapytania równolegle: historia, odpowiedzi i profil.
+        const [historyRes, hqRes, meRes] = await Promise.all([
+          apiClient.get('/users/history'),
+          apiClient.get('/users/hquestion'),
+          apiClient.get('/users/me'),
+        ]);
 
-        const meRes = await apiClient.get('/users/me');
+        commit('SET_USER_HISTORY', Array.isArray(historyRes.data) ? historyRes.data : []);
+        commit('SET_HQUESTION', Array.isArray(hqRes.data) ? hqRes.data : []);
 
-        // Zachowujemy wszystkie dane użytkownika, w tym avatar i avatarColors
-        commit('SET_HQUESTION', meRes.data && meRes.data.hquestion ? meRes.data.hquestion : []);
-
-        // Aktualizujemy dane użytkownika, zachowując poprzednie dane
+        // Profil (bez historii/hquestion) — aktualizujemy avatar, motyw itp.
         const updatedUser = { ...meRes.data };
         commit('SET_USER', updatedUser);
-
-        // Aktualizujemy sessionStorage
         sessionStorage.setItem('user', JSON.stringify(updatedUser));
       } catch (e) {
         commit('SET_USER_HISTORY', []);

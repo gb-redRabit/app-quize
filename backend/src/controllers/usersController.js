@@ -166,8 +166,11 @@ exports.updateProfile = async (req, res) => {
     }
     await user.save();
     emitUserUpdate(user);
-    const { password, ...userWithoutPassword } = user.toObject();
-    res.json(userWithoutPassword);
+    const responseUser = user.toObject();
+    delete responseUser.password;
+    delete responseUser.history;
+    delete responseUser.hquestion;
+    res.json(responseUser);
   } catch (error) {
     console.error("Błąd podczas aktualizacji profilu:", error);
     res.status(500).json({ message: "Błąd aktualizacji profilu" });
@@ -177,7 +180,7 @@ exports.updateProfile = async (req, res) => {
 // Pobierz dane zalogowanego użytkownika
 exports.getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findById(req.user.id).select("-password -history -hquestion");
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json(user);
   } catch (err) {

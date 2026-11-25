@@ -58,8 +58,12 @@ exports.login = async (req, res) => {
     if (!match) return res.status(401).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
-    const { password: _, ...userWithoutPassword } = user.toObject();
-    res.json({ token, user: userWithoutPassword });
+    // Historia i hquestion są pobierane osobnymi endpointami — login ma być lekki.
+    const responseUser = user.toObject();
+    delete responseUser.password;
+    delete responseUser.history;
+    delete responseUser.hquestion;
+    res.json({ token, user: responseUser });
   } catch (e) {
     res.status(500).json({ message: "Login error" });
   }
