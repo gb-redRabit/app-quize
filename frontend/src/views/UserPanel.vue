@@ -59,17 +59,15 @@
         v-if="activeTab === 'profile'"
         class="surface overflow-hidden"
       >
-        <div class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
-          <div class="px-6 py-4 flex items-center">
-            <div
-              class="w-10 h-10 rounded-md bg-blue-500 text-white flex items-center justify-center mr-3"
-            >
-              <img src="@/assets/icons/user.svg" alt="Ikona użytkownika" class="w-6 h-6" />
-            </div>
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">
-              Personalizacja awatara
-            </h2>
+        <div class="px-5 py-4 flex items-center gap-3 border-b border-gray-200 dark:border-gray-800">
+          <div
+            class="h-9 w-9 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 grid place-items-center"
+          >
+            <img src="@/assets/icons/user.svg" alt="" class="w-5 h-5" aria-hidden="true" />
           </div>
+          <h2 class="text-base font-semibold tracking-tight text-gray-900 dark:text-gray-50">
+            Personalizacja awatara
+          </h2>
         </div>
 
         <div class="p-6">
@@ -192,19 +190,15 @@
           v-if="activeTab === 'appearance'"
           class="surface overflow-hidden h-fit"
         >
-          <div
-            class="border-b border-gray-200 dark:border-gray-700 bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900"
-          >
-            <div class="px-6 py-4 flex items-center">
-              <div
-                class="w-10 h-10 rounded-md bg-purple-500 text-white flex items-center justify-center mr-3"
-              >
-                <img src="@/assets/icons/theme.svg" alt="Ikona motywu" class="w-6 h-6" />
-              </div>
-              <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                Personalizacja motywu
-              </h2>
+          <div class="px-5 py-4 flex items-center gap-3 border-b border-gray-200 dark:border-gray-800">
+            <div
+              class="h-9 w-9 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 grid place-items-center"
+            >
+              <img src="@/assets/icons/theme.svg" alt="" class="w-5 h-5" aria-hidden="true" />
             </div>
+            <h2 class="text-base font-semibold tracking-tight text-gray-900 dark:text-gray-50">
+              Personalizacja motywu
+            </h2>
           </div>
 
           <div class="p-6">
@@ -236,38 +230,56 @@
           </div>
         </div>
 
-        <!-- Zmiana hasła -->
-        <PasswordChangeForm
-          v-if="activeTab === 'security'"
-          :user="user"
-          @password-changed="onPasswordChanged"
-        />
+        <!-- Bezpieczeństwo -->
+        <div v-if="activeTab === 'security'" class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          <!-- Zmiana hasła -->
+          <PasswordChangeForm :user="user" @password-changed="onPasswordChanged" />
 
-        <!-- Sesja -->
-        <div
-          v-if="activeTab === 'security'"
-          class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700"
-        >
-          <h3 class="font-semibold text-gray-800 dark:text-gray-100">Sesja</h3>
-          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Wylogowanie kończy sesję na tym urządzeniu. Postępy są już zapisane.
-          </p>
-          <div class="mt-3 flex flex-wrap gap-2">
-            <button
-              type="button"
-              class="inline-flex items-center gap-2 h-10 px-4 rounded-lg border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
-              @click="logout"
+          <!-- Sesja -->
+          <section class="surface overflow-hidden h-fit">
+            <div
+              class="px-5 py-4 flex items-center gap-3 border-b border-gray-200 dark:border-gray-800"
             >
-              Wyloguj się
-            </button>
-            <button
-              type="button"
-              class="inline-flex items-center gap-2 h-10 px-4 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-              @click="showLogoutAllModal = true"
-            >
-              Wyloguj wszystkie urządzenia
-            </button>
-          </div>
+              <div
+                class="h-9 w-9 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 grid place-items-center"
+                aria-hidden="true"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+              </div>
+              <h2 class="text-base font-semibold tracking-tight text-gray-900 dark:text-gray-50">
+                Sesja
+              </h2>
+            </div>
+
+            <div class="p-5 sm:p-6">
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Wylogowanie kończy sesję na tym urządzeniu. Postępy są już zapisane.
+              </p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-2 h-10 px-4 rounded-lg border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                  @click="logout"
+                >
+                  Wyloguj się
+                </button>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-2 h-10 px-4 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  @click="showLogoutAllModal = true"
+                >
+                  Wyloguj wszystkie urządzenia
+                </button>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </div>
@@ -277,15 +289,15 @@
       v-if="activeTab === 'categories'"
       class="surface overflow-hidden mb-8"
     >
-      <div class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
-        <div class="px-6 py-4 flex items-center">
-          <div
-            class="w-10 h-10 rounded-md bg-yellow-400 text-white flex items-center justify-center mr-3"
-          >
-            <img src="@/assets/icons/bulb.svg" alt="Ikona kategorii" class="w-6 h-6" />
-          </div>
-          <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Ukryj kategorie</h2>
+      <div class="px-5 py-4 flex items-center gap-3 border-b border-gray-200 dark:border-gray-800">
+        <div
+          class="h-9 w-9 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 grid place-items-center"
+        >
+          <img src="@/assets/icons/bulb.svg" alt="" class="w-5 h-5" aria-hidden="true" />
         </div>
+        <h2 class="text-base font-semibold tracking-tight text-gray-900 dark:text-gray-50">
+          Ukryj kategorie
+        </h2>
       </div>
 
       <div class="p-6">
@@ -326,29 +338,29 @@
       v-if="activeTab === 'learning'"
       class="surface overflow-hidden mb-8"
     >
-      <div class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
-        <div class="px-6 py-4 flex items-center">
-          <div class="w-10 h-10 rounded-md bg-indigo-500 text-white flex items-center justify-center mr-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="w-6 h-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-              />
-            </svg>
-          </div>
-          <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">
-            Preferencje nauki
-          </h2>
+      <div class="px-5 py-4 flex items-center gap-3 border-b border-gray-200 dark:border-gray-800">
+        <div
+          class="h-9 w-9 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 grid place-items-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+            />
+          </svg>
         </div>
+        <h2 class="text-base font-semibold tracking-tight text-gray-900 dark:text-gray-50">
+          Preferencje nauki
+        </h2>
       </div>
 
       <div class="p-6 space-y-4">

@@ -59,9 +59,15 @@
           </div>
           <div>
             <h3 class="font-semibold text-gray-700 dark:text-gray-100">Eksport</h3>
-            <BaseButton color="green" size="sm" @click="exportQuestionsExcel" class="mt-1"
-              >Pobierz plik .xlsx</BaseButton
+            <BaseButton
+              color="green"
+              size="sm"
+              :loading="exportingExcel"
+              class="mt-1"
+              @click="exportQuestionsExcel"
             >
+              {{ exportingExcel ? 'Eksportuję…' : 'Pobierz plik .xlsx' }}
+            </BaseButton>
           </div>
         </div>
         <div
@@ -1531,10 +1537,17 @@ function confirmNewCategory() {
 }
 
 // Eksport pytań do Excela
+const exportingExcel = ref(false);
+
 async function exportQuestionsExcel() {
+  if (exportingExcel.value) return;
+  exportingExcel.value = true;
   try {
-    const response = await apiClient.get('/questions/export/excel', {
+    const response = await apiClient.silentGet('/questions/export/excel', {
       responseType: 'blob',
+      noCache: true,
+      // Duży eksport na wolnym hostingu potrafi trwać ~20 s.
+      timeout: 120000,
     });
 
     const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -1544,10 +1557,13 @@ async function exportQuestionsExcel() {
     document.body.appendChild(link);
     link.click();
     link.remove();
+    window.URL.revokeObjectURL(url);
     showAlert?.('success', 'Pytania zostały wyeksportowane do Excela.');
   } catch (e) {
     const errorMessage = e.response && e.response.data ? e.response.data.error : e.message;
     showAlert?.('error', `Błąd eksportu do Excela: ${errorMessage}`);
+  } finally {
+    exportingExcel.value = false;
   }
 }
 

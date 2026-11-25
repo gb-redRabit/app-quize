@@ -215,7 +215,11 @@ exports.deleteQuestion = async (req, res) => {
 // Eksportuj pytania do Excela
 exports.exportQuestionsToExcel = async (req, res) => {
   try {
-    const questions = await QuestionNot.find({}, null, { sort: { ID: 1 } });
+    const questions = await QuestionNot.find(
+      {},
+      "ID question answer_a answer_b answer_c category description flagged bad unknown note",
+      { sort: { ID: 1 } }
+    ).lean();
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Questions");
@@ -237,8 +241,9 @@ exports.exportQuestionsToExcel = async (req, res) => {
       { header: "note", key: "note", width: 30 },
     ];
 
-    questions.forEach((q) => {
-      worksheet.addRow({
+    // Jedno wywołanie zamiast tysiąca — zauważalnie szybciej przy pełnej bazie.
+    worksheet.addRows(
+      questions.map((q) => ({
         ID: q.ID,
         question: q.question,
         answer_a: q.answer_a?.answer,
@@ -253,8 +258,8 @@ exports.exportQuestionsToExcel = async (req, res) => {
         bad: q.bad ?? false,
         unknown: q.unknown ?? false,
         note: q.note ?? "",
-      });
-    });
+      }))
+    );
 
     res.setHeader(
       "Content-Type",
@@ -265,7 +270,11 @@ exports.exportQuestionsToExcel = async (req, res) => {
     await workbook.xlsx.write(res);
     res.end();
   } catch (e) {
-    res.status(500).json({ message: "Error exporting questions" });
+    if (!res.headersSent) {
+      res.status(500).json({ message: "Error exporting questions" });
+    } else {
+      res.destroy(e);
+    }
   }
 };
 
