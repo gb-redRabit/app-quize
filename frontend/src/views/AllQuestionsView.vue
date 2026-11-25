@@ -267,7 +267,7 @@
         <span class="text-base sm:text-xl">Pytanie ID {{ mobileQuestion?.ID }}</span>
       </template>
 
-      <template v-if="mobileQuestion">
+      <div v-if="mobileQuestion" class="text-left">
         <p class="text-sm font-medium text-blue-700 dark:text-blue-300 mb-1">
           {{ mobileQuestion.category || 'Bez kategorii' }}
         </p>
@@ -317,7 +317,7 @@
             {{ mobileQuestion.description }}
           </p>
         </div>
-      </template>
+      </div>
 
       <template #footer>
         <button
