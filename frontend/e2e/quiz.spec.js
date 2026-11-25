@@ -284,6 +284,24 @@ test.describe('Quiz App E2E', () => {
     await expect(dialog).not.toBeVisible();
   });
 
+  test('mobile: kategoria otwiera szczegóły pytania w modalu', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await login(page);
+    await page.goto('/category/E2E');
+
+    const card = page.getByRole('button', { name: /E2E: stolica Polski/ }).first();
+    await expect(card).toBeVisible();
+    await card.click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toContainText('Pytanie ID 1');
+    await expect(dialog).toContainText('Warszawa');
+
+    await page.keyboard.press('Escape');
+    await expect(dialog).not.toBeVisible();
+  });
+
   test('admin: modal dodawania pytania ma focus trap i Escape', async ({ page }) => {
     await login(page);
     await page.goto('/admin');

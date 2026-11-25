@@ -281,31 +281,28 @@
         </aside>
       </div>
 
-      <!-- Mobile: wirtualizowana lista kart -->
+      <!-- Mobile: wirtualizowana lista kart + szczegóły w modalu -->
       <div v-else>
         <DynamicScroller
           :items="sortedQuestions"
           key-field="ID"
           :buffer="10"
           :page-mode="true"
-          :min-item-size="405.5"
+          :min-item-size="96"
           v-slot="{ item: q, index }"
         >
           <DynamicScrollerItem
             :item="q"
             :active="true"
             :index="index"
-            :size-dependencies="[q.question, q.description]"
+            :size-dependencies="[q.question, q.category]"
           >
-            <div class="py-2">
+            <div class="py-1.5">
               <QuestionCard
                 :question="q"
                 :last-attempt-map="lastAttemptMap"
-                @toggle-flagged="toggleFlagged"
-                @toggle-bad="toggleBad"
-                @toggle-unknown="toggleUnknown"
-                @deleted="onQuestionDeleted"
-                @edited="onQuestionEdited"
+                compact
+                @select="openMobileQuestion"
               />
             </div>
           </DynamicScrollerItem>
@@ -318,6 +315,32 @@
         >
           Wczytywanie pozostałych pytań… {{ localQuestions.length }}/{{ totalCount }}
         </div>
+
+        <BaseModal :show="!!mobileQuestion" @close="closeMobileQuestion">
+          <template #header>
+            <span class="text-base sm:text-xl">Pytanie ID {{ mobileQuestion?.ID }}</span>
+          </template>
+          <div v-if="mobileQuestion" class="text-left">
+            <QuestionEditor
+              v-if="isEditingQuestion"
+              :question="mobileQuestion"
+              @saved="handleInlineSaved"
+              @cancel="isEditingQuestion = false"
+            />
+            <QuestionCard
+              v-else
+              :question="mobileQuestion"
+              :last-attempt-map="lastAttemptMap"
+              inline-edit
+              @toggle-flagged="toggleFlagged"
+              @toggle-bad="toggleBad"
+              @toggle-unknown="toggleUnknown"
+              @deleted="onQuestionDeleted"
+              @edited="onQuestionEdited"
+              @request-edit="startInlineEdit"
+            />
+          </div>
+        </BaseModal>
       </div>
     </div>
   </div>
@@ -333,6 +356,7 @@ const QuestionCard = defineAsyncComponent(() => import('@/components/questions/Q
 const QuestionEditor = defineAsyncComponent(
   () => import('@/components/questions/QuestionEditor.vue')
 );
+const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal.vue'));
 import apiClient from '@/api';
 import { getCachedQuestionsByCategory } from '@/services/questionsSync';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
@@ -357,6 +381,7 @@ const forceUpdate = ref(0);
 const sortByDescriptionField = ref(false);
 const sortByQuestion = ref(false);
 const selectedQuestion = ref(null);
+const mobileQuestion = ref(null);
 const isEditingQuestion = ref(false);
 const isDesktop = ref(
   typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false
@@ -369,8 +394,21 @@ function selectQuestion(question) {
   selectedQuestion.value = question;
 }
 
+function openMobileQuestion(question) {
+  if (mobileQuestion.value?.ID !== question.ID) isEditingQuestion.value = false;
+  mobileQuestion.value = question;
+}
+
+function closeMobileQuestion() {
+  mobileQuestion.value = null;
+  isEditingQuestion.value = false;
+}
+
 function startInlineEdit(question) {
-  if (question && question.ID) selectedQuestion.value = question;
+  if (question && question.ID) {
+    selectedQuestion.value = question;
+    if (!isDesktop.value) mobileQuestion.value = question;
+  }
   isEditingQuestion.value = true;
 }
 
@@ -693,6 +731,9 @@ function onQuestionDeleted(deletedQuestion, silent = false) {
     isEditingQuestion.value = false;
     selectedQuestion.value = localQuestions.value[0] || null;
   }
+  if (mobileQuestion.value && mobileQuestion.value.ID === deletedQuestion.ID) {
+    mobileQuestion.value = null;
+  }
   if (!silent) showAlert('success', 'Pytanie zostało usunięte.');
 }
 
@@ -703,6 +744,9 @@ function onQuestionEdited(editedQuestion, silent = false) {
     localQuestions.value.splice(idx, 1, editedQuestion);
     if (selectedQuestion.value && selectedQuestion.value.ID === editedQuestion.ID) {
       selectedQuestion.value = editedQuestion;
+    }
+    if (mobileQuestion.value && mobileQuestion.value.ID === editedQuestion.ID) {
+      mobileQuestion.value = editedQuestion;
     }
     if (!silent) showAlert('success', 'Pytanie zostało zaktualizowane.');
   } else if (!silent) {
