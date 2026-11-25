@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen w-full flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-950">
+  <div class="min-h-[calc(100dvh-4.5rem)] w-full flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-950">
     <div class="relative w-full max-w-md">
       <!-- Karta rejestracji -->
       <div

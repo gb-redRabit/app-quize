@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-screen w-full flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-950"
+    class="min-h-[calc(100dvh-4.5rem)] w-full flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-950"
   >
     <div
       class="w-full max-w-4xl overflow-hidden rounded-2xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl grid lg:grid-cols-2"
