@@ -233,6 +233,7 @@ import {
 import QuestionActions from '@/components/questions/QuestionActions.vue';
 const PageHeader = defineAsyncComponent(() => import('@/components/layout/PageHeader.vue'));
 import apiClient from '@/api';
+import { getAllCachedQuestions } from '@/services/questionsSync';
 import { useStore } from 'vuex';
 
 const store = useStore();
@@ -304,11 +305,34 @@ async function loadQuestions() {
       .map((group) => (Array.isArray(group) ? group.filter(Boolean) : []))
       .filter((group) => group.length > 1);
   } catch (e) {
-    showAlert && showAlert('error', 'Błąd pobierania duplikatów: ' + e.message);
-    groups.value = [];
+    // Offline: policz duplikaty z lokalnego cache pytań (IndexedDB).
+    const cached = await getAllCachedQuestions();
+    if (cached.length) {
+      groups.value = groupDuplicates(cached);
+      showAlert?.('info', 'Brak sieci — duplikaty z lokalnego cache.', 4000);
+    } else {
+      showAlert?.('error', 'Błąd pobierania duplikatów: ' + e.message);
+      groups.value = [];
+    }
   } finally {
     loading.value = false;
   }
+}
+
+/** Grupowanie po znormalizowanej treści — ta sama reguła co na backendzie. */
+function groupDuplicates(list) {
+  const normalize = (text) =>
+    (text || '')
+      .replace(/[.?!\s]+$/g, '')
+      .trim()
+      .toLowerCase();
+  const map = new Map();
+  for (const question of list) {
+    const key = normalize(question.question);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(question);
+  }
+  return Array.from(map.values()).filter((group) => group.length > 1);
 }
 
 // Infinite scroll z Intersection Observer

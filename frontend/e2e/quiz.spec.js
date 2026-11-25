@@ -662,6 +662,18 @@ test.describe('Quiz App E2E', () => {
     expect(deletes).toHaveLength(1);
   });
 
+  test('offline: duplikaty liczą się z lokalnego cache', async ({ page, context }) => {
+    await login(page);
+    await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
+    await page.waitForTimeout(2000); // snapshot pytań → IndexedDB
+
+    await page.unroute('**/api/**');
+    await context.setOffline(true);
+    await page.goto('/duplikaty');
+
+    await expect(page.getByText('Brak duplikatów pytań')).toBeVisible({ timeout: 15000 });
+  });
+
   test('quiz: odpowiedź wybrana klawiaturą odblokowuje „Następne”', async ({ page }) => {
     await login(page);
     await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=kb');
