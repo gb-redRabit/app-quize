@@ -140,7 +140,7 @@
               type="text"
               id="batch-ids"
               v-model="batchIdsInput"
-              class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              class="p-2 block w-full rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
               placeholder="Np. 123, 456, 789 lub 123 - 125 albo 123-130, 131, 132-134"
             />
           </div>
@@ -153,7 +153,7 @@
             <select
               id="batch-category"
               v-model="batchEditCategory"
-              class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              class="p-2 block w-full rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             >
               <option value="">-- Bez zmiany --</option>
               <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
@@ -167,14 +167,14 @@
               <input
                 type="text"
                 v-model="batchEditDescPart1"
-                class="p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                class="p-2 block w-full rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="Część 1 opisu (np. dowolny tekst)"
               />
               <input
                 type="text"
                 v-model="batchEditDescPart2"
                 style="width: 12rem"
-                class="p-2 block rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                class="p-2 block rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder='Część "art..."'
               />
             </div>
@@ -475,7 +475,7 @@
               v-model="newUser.login"
               type="text"
               autocomplete="off"
-              class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              class="mt-1 p-2 block w-full rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               :class="
                 userFormErrors.login ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
               "
@@ -495,7 +495,7 @@
               v-model="newUser.password"
               type="password"
               autocomplete="new-password"
-              class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              class="mt-1 p-2 block w-full rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               :class="
                 userFormErrors.password
                   ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
@@ -516,7 +516,7 @@
             <select
               id="new-user-role"
               v-model="newUser.rola"
-              class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              class="mt-1 p-2 block w-full rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             >
               <option value="user">user</option>
               <option value="admin">admin</option>
@@ -659,7 +659,7 @@
           autocomplete="off"
           autocapitalize="characters"
           spellcheck="false"
-          class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-red-400"
+          class="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-red-400"
           :placeholder="clearConfirmPhrase"
         />
       </div>
@@ -693,7 +693,7 @@
                 v-model="formModel.question"
                 id="question-text"
                 rows="4"
-                class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                class="mt-1 p-2 block w-full rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 :class="
                   formErrors.question
                     ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
@@ -724,7 +724,7 @@
                   type="text"
                   :id="`answer-${key}`"
                   v-model="formModel[`answer_${key}`].answer"
-                  class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  class="mt-1 p-2 block w-full rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                   :class="
                     formErrors[`answer_${key}`]
                       ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
@@ -794,7 +794,7 @@
               <select
                 v-model="formModel.category"
                 id="category"
-                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                class="mt-1 block w-full rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 :class="
                   formErrors.category
                     ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
@@ -815,7 +815,7 @@
                 <input
                   v-model="newCategoryInput"
                   @keyup.enter.prevent="confirmNewCategory()"
-                  class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  class="block w-full rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                   :class="
                     formErrors.category
                       ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
@@ -847,7 +847,7 @@
                 type="text"
                 v-model="formModel.description"
                 id="description"
-                class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                class="mt-1 p-2 block w-full rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 :class="
                   formErrors.description
                     ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
@@ -951,7 +951,7 @@
               type="text"
               v-model="formModel.note"
               id="note"
-              class="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
+              class="mt-1 p-2 block w-full rounded-lg border border-gray-200 shadow-xs focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
               :class="
                 formErrors.note
                   ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
