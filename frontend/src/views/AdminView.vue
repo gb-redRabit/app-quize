@@ -82,12 +82,20 @@
           </div>
           <div>
             <h3 class="font-semibold text-gray-700 dark:text-gray-100">Import</h3>
-            <label
-              class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 font-medium cursor-pointer"
+            <button
+              type="button"
+              class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 font-medium"
+              @click="excelInput?.click()"
             >
               Wybierz plik .xlsx
-              <input type="file" accept=".xlsx" @change="importQuestions" class="hidden" />
-            </label>
+            </button>
+            <input
+              ref="excelInput"
+              type="file"
+              accept=".xlsx"
+              class="hidden"
+              @change="importQuestions"
+            />
             <BaseButton color="gray" size="sm" @click="showExcelInfo = true" class="block mt-1 p-1"
               >Jak przygotować plik?</BaseButton
             >
@@ -769,6 +777,7 @@ const currentUser = computed(() => store.getters['user/getUser']);
 const isAdmin = computed(() => currentUser.value?.rola === 'admin');
 
 const users = ref([]);
+const excelInput = ref(null);
 const categories = ref([]);
 const selectedCategory = ref('');
 const showConfirmDelete = ref(false);

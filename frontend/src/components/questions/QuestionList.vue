@@ -19,7 +19,9 @@
         <span>{{ questionNumber }}</span>
       </div>
       <h2
-        class="text-gray-800 font-medium text-lg sm:text-xl flex-1 leading-relaxed dark:text-white"
+        tabindex="-1"
+        data-quiz-question-heading
+        class="text-gray-800 font-medium text-lg sm:text-xl flex-1 leading-relaxed dark:text-white focus:outline-hidden"
       >
         {{ question.question }}
       </h2>
@@ -32,7 +34,7 @@
         class="flex items-center w-full text-left p-3 sm:p-4 rounded-lg border transition-all duration-200 relative overflow-hidden"
         :class="buttonClass(answer, idx)"
         @click="onSelect(idx)"
-        :disabled="answered"
+        :aria-disabled="answered || undefined"
         style="min-height: 3.5rem"
       >
         <div
@@ -136,6 +138,7 @@ watch(
 
 // Metody
 function onSelect(index) {
+  if (props.answered) return;
   emit('select', index, answers.value[index].key);
 }
 

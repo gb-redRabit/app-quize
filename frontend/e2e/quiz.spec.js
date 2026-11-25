@@ -261,7 +261,15 @@ test.describe('Quiz App E2E', () => {
     // Wyłącz auto-next, żeby sprawdzić stan przycisku po wyborze.
     await page.getByRole('button', { name: /Auto-Next/ }).click();
 
-    const answer = page.getByRole('button', { name: /^\w\s*Warszawa$/ });
+    // Pytania są tasowane — wybieramy poprawną odpowiedź do widocznego pytania.
+    const isCapitalQuestion = await page
+      .getByRole('heading', { name: /stolica Polski/ })
+      .isVisible()
+      .catch(() => false);
+    const answer = isCapitalQuestion
+      ? page.getByRole('button', { name: /^\w\s*Warszawa$/ })
+      : page.getByRole('button', { name: /^\w\s*4$/ });
+
     await expect(answer).toBeVisible();
     await answer.focus();
     await expect(answer).toBeFocused();
@@ -269,6 +277,8 @@ test.describe('Quiz App E2E', () => {
     await page.keyboard.press('Enter');
 
     await expect(page.getByRole('button', { name: /Następne/ })).toBeEnabled();
+    await expect(answer).toBeFocused();
+    await expect(answer).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('logowanie i strona główna bez poważnych naruszeń WCAG', async ({ page }) => {

@@ -385,6 +385,7 @@ import {
   onMounted,
   onBeforeUnmount,
   watch,
+  nextTick,
   inject,
   defineAsyncComponent,
 } from 'vue';
@@ -422,6 +423,14 @@ const initialQuizLength = parseInt(route.query.length, 10) || 10;
 // Stan komponentu
 const questions = ref([]);
 const currentQuestionIndex = ref(0);
+
+// Po zmianie pytania przenosimy fokus na jego treść — klawiatura i czytniki
+// ekranu nie zostają na usuniętym przycisku odpowiedzi.
+watch(currentQuestionIndex, async () => {
+  await nextTick();
+  const heading = document.querySelector('[data-quiz-question-heading]');
+  if (heading) heading.focus();
+});
 const currentQuestion = computed(
   () => questions.value[currentQuestionIndex.value] || null
 );
