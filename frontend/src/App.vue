@@ -15,26 +15,34 @@
       <AppSidebar v-if="showAppNavigation" />
       <Navbar v-if="showAppNavigation" class="lg:hidden" />
       <div
-        v-if="!isOnline"
-        class="w-full bg-red-600 text-white text-center py-2 fixed top-0 left-0 z-50 text-sm"
-        :class="
-          showAppNavigation
-            ? sidebarCollapsed
-              ? 'xl:left-20 xl:w-[calc(100%-5rem)]'
-              : 'xl:left-60 xl:w-[calc(100%-15rem)]'
-            : ''
-        "
+        v-if="!isOnline && !offlineBannerDismissed"
+        class="fixed left-1/2 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-50 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 rounded-full border border-gray-700/60 bg-gray-900/95 px-3 py-1.5 text-xs text-gray-100 shadow-lg backdrop-blur lg:left-auto lg:right-6 lg:bottom-6 lg:translate-x-0"
         role="status"
         aria-live="polite"
       >
-        Brak połączenia z internetem. Niektóre funkcje mogą być niedostępne.
-        <template v-if="pendingChanges > 0">
-          <span class="font-semibold">
-            {{ pendingChanges }}
+        <span class="h-2 w-2 shrink-0 rounded-full bg-amber-400" aria-hidden="true"></span>
+        <span class="truncate">
+          Tryb offline
+          <template v-if="pendingChanges > 0">
+            · {{ pendingChanges }}
             {{ pendingChanges === 1 ? 'zmiana czeka' : 'zmiany czekają' }}
-            na wysłanie.
-          </span>
-        </template>
+          </template>
+        </span>
+        <button
+          type="button"
+          class="ml-1 rounded-full p-0.5 text-gray-400 transition-colors hover:bg-white/10 hover:text-white focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white/60"
+          aria-label="Ukryj powiadomienie o braku połączenia"
+          @click="dismissOfflineBanner"
+        >
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
       </div>
 
       <div
@@ -205,6 +213,24 @@ const sessionSecondsLeft = ref(0);
 const sessionModalLoading = ref(false);
 const isAuthChecked = ref(false);
 const isOnline = ref(navigator.onLine);
+const offlineBannerDismissed = ref(
+  (() => {
+    try {
+      return sessionStorage.getItem('offlineBannerDismissed') === '1';
+    } catch (e) {
+      return false;
+    }
+  })()
+);
+
+function dismissOfflineBanner() {
+  offlineBannerDismissed.value = true;
+  try {
+    sessionStorage.setItem('offlineBannerDismissed', '1');
+  } catch (e) {
+    // Brak dostępu do sessionStorage — ukrywamy tylko do końca życia strony.
+  }
+}
 const pendingChanges = ref(queueSize());
 
 const globalAlert = ref();
@@ -343,6 +369,12 @@ function refreshPendingChanges() {
 
 function handleOnline() {
   isOnline.value = true;
+  offlineBannerDismissed.value = false;
+  try {
+    sessionStorage.removeItem('offlineBannerDismissed');
+  } catch (e) {
+    // ignoruj
+  }
   refreshPendingChanges();
 }
 function handleOffline() {

@@ -139,6 +139,7 @@ import { computed, nextTick, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
 import BaseButton from '@/components/base/BaseButton.vue';
+import { queueQuestionUpdate } from '@/services/offlineSync';
 
 const props = defineProps({
   question: {
@@ -237,8 +238,14 @@ async function save() {
     const res = await apiClient.put(`/questions/${props.question.ID}`, payload);
     emit('saved', res.data);
   } catch (e) {
-    // apiClient pokazuje komunikat błędu; tutaj tylko log dla diagnostyki.
-    console.error('Błąd zapisu pytania:', e);
+    if (!e?.response) {
+      // Offline: zapisujemy lokalnie i wysyłamy po powrocie sieci.
+      queueQuestionUpdate({ ...payload, ID: props.question.ID });
+      emit('saved', { ...props.question, ...payload });
+    } else {
+      // apiClient pokazuje komunikat błędu; tutaj tylko log dla diagnostyki.
+      console.error('Błąd zapisu pytania:', e);
+    }
   } finally {
     saving.value = false;
   }

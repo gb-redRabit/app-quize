@@ -1038,6 +1038,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, inject, watch } from 'vue';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
+import { queueQuestionCreate } from '@/services/offlineSync';
 import Avatar from '@/components/base/Avatar.vue';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseModal from '@/components/base/BaseModal.vue';
@@ -1507,8 +1508,16 @@ async function saveNewQuestion() {
       await apiClient.post('/questions', formModel.value);
       showAlert?.('success', 'Pytanie zostało dodane pomyślnie!');
       closeAddPopup();
-      await store.dispatch('questions/addQuestion', formModel.value);
+      // Samo POST odświeżyło statystyki po stronie serwera; lokalnie tylko je dociągamy.
+      await store.dispatch('questions/fetchStats');
     } catch (error) {
+      if (!error?.response) {
+        // Offline: przyjmij formularz i wyślij pytanie po powrocie sieci.
+        queueQuestionCreate(formModel.value);
+        closeAddPopup();
+        showAlert?.('info', 'Brak sieci — pytanie zapisane lokalnie i wysłane później.');
+        return;
+      }
       const message =
         error?.response?.data?.message || 'Błąd podczas dodawania pytania. Spróbuj ponownie.';
       formErrors.value = { general: message };

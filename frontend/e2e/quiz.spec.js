@@ -478,6 +478,113 @@ test.describe('Quiz App E2E', () => {
     await expect(page.getByRole('heading', { name: 'Historia nauki' })).toBeVisible();
   });
 
+  test('offline: pasek można ukryć, a po powrocie sieci pokazuje się ponownie', async ({
+    page,
+    context,
+  }) => {
+    await login(page);
+
+    await context.setOffline(true);
+    const banner = page.getByRole('status').filter({ hasText: 'Tryb offline' });
+    await expect(banner).toBeVisible();
+
+    await page.getByRole('button', { name: /Ukryj powiadomienie o braku połączenia/ }).click();
+    await expect(banner).not.toBeVisible();
+
+    await context.setOffline(false);
+    await page.waitForTimeout(300);
+    await context.setOffline(true);
+    await expect(banner).toBeVisible();
+  });
+
+  test('offline: edycja pytania trafia do kolejki i wysyła się po powrocie sieci', async ({
+    page,
+    context,
+  }) => {
+    await login(page);
+    await page.goto('/questions');
+    await page.locator('[data-question-id="1"]').click();
+
+    const details = page.getByTestId('question-details');
+    await details.getByRole('button', { name: 'Edytuj' }).click();
+
+    const questionField = page.locator('#inline-edit-1-question');
+    await expect(questionField).toBeVisible();
+    await questionField.fill('E2E offline: zmienione pytanie?');
+
+    await page.unroute('**/api/**');
+    await context.setOffline(true);
+    await page.getByRole('button', { name: 'Zapisz zmiany' }).click();
+
+    const queued = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem('offline-queue-v1') || '[]')
+    );
+    expect(queued.some((op) => op.type === 'question-update' && op.payload.ID === 1)).toBe(true);
+    await expect(details).toContainText('E2E offline: zmienione pytanie?');
+
+    const updates = [];
+    page.on('request', (request) => {
+      if (request.method() === 'PUT' && request.url().includes('/questions/1')) {
+        updates.push(request.postDataJSON());
+      }
+    });
+
+    await mockApi(page);
+    await context.setOffline(false);
+    await page.waitForTimeout(1800);
+
+    const queueAfter = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem('offline-queue-v1') || '[]')
+    );
+    expect(queueAfter.length).toBe(0);
+    expect(updates.length).toBeGreaterThan(0);
+  });
+
+  test('offline: nowe pytanie czeka w kolejce i wysyła się po powrocie sieci', async ({
+    page,
+    context,
+  }) => {
+    await login(page);
+    await page.goto('/admin');
+    await page.getByRole('button', { name: /Dodaj pytanie/ }).click();
+
+    const dialog = page.getByRole('dialog');
+    await dialog.locator('#question-text').fill('E2E offline: nowe pytanie?');
+    await dialog.locator('#answer-a').fill('Tak');
+    await dialog.locator('#answer-b').fill('Nie');
+    await dialog.locator('#answer-c').fill('Może');
+    await dialog.locator('#correct-a').click();
+    await dialog.locator('#category').selectOption('E2E');
+
+    await page.unroute('**/api/**');
+    await context.setOffline(true);
+    await dialog.getByRole('button', { name: 'Zapisz pytanie' }).click();
+
+    await expect(dialog).not.toBeVisible();
+    const queued = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem('offline-queue-v1') || '[]')
+    );
+    expect(queued.some((op) => op.type === 'question-create')).toBe(true);
+
+    const creates = [];
+    page.on('request', (request) => {
+      if (request.method() === 'POST' && request.url().endsWith('/api/questions')) {
+        creates.push(request.postDataJSON());
+      }
+    });
+
+    await mockApi(page);
+    await context.setOffline(false);
+    await page.waitForTimeout(1800);
+
+    const queueAfter = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem('offline-queue-v1') || '[]')
+    );
+    expect(queueAfter.length).toBe(0);
+    expect(creates).toHaveLength(1);
+    expect(creates[0].question).toBe('E2E offline: nowe pytanie?');
+  });
+
   test('quiz: odpowiedź wybrana klawiaturą odblokowuje „Następne”', async ({ page }) => {
     await login(page);
     await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=kb');

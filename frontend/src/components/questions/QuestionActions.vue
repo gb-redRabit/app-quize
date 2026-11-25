@@ -288,6 +288,7 @@ import apiClient from '@/api';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseModal from '@/components/base/BaseModal.vue';
 import IconButton from '@/components/base/IconButton.vue';
+import { queueQuestionUpdate } from '@/services/offlineSync';
 
 // Props
 const props = defineProps({
@@ -394,6 +395,12 @@ async function saveEdit() {
       store.dispatch('questions/fetchStats');
     })
     .catch((error) => {
+      if (!error?.response) {
+        // Offline: zmiana jest już widoczna lokalnie, wyślemy ją później.
+        queueQuestionUpdate(questionToUpdate);
+        showAlert('info', 'Brak sieci — zmiany zapisane lokalnie i wysłane później.');
+        return;
+      }
       // W przypadku błędu, informujemy o nim
       console.error('Błąd podczas edycji pytania:', error);
       showAlert('error', 'Wystąpił błąd podczas zapisywania pytania. Odśwież stronę.');

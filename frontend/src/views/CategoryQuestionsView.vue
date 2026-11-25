@@ -358,6 +358,7 @@ const QuestionEditor = defineAsyncComponent(
 );
 const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal.vue'));
 import apiClient from '@/api';
+import { queueQuestionUpdate } from '@/services/offlineSync';
 import { getCachedQuestionsByCategory } from '@/services/questionsSync';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
@@ -772,6 +773,11 @@ async function toggleFlagged(q) {
       updated.flagged ? 'Pytanie oznaczone jako sprawdzone' : 'Oznaczenie usunięte'
     );
   } catch (e) {
+    if (!e?.response) {
+      queueQuestionUpdate({ ...q });
+      showAlert('info', 'Brak sieci — oznaczenie zapisane lokalnie i wysłane później.');
+      return;
+    }
     q.flagged = prev; // Cofnij zmianę w razie błędu
     showAlert('error', 'Błąd podczas zmiany oznaczenia pytania');
   }
@@ -788,6 +794,11 @@ async function toggleBad(q) {
     await apiClient.put(`/questions/${q.ID}`, updated);
     showAlert('success', updated.bad ? 'Pytanie oznaczone jako złe' : 'Oznaczenie usunięte');
   } catch (e) {
+    if (!e?.response) {
+      queueQuestionUpdate({ ...q });
+      showAlert('info', 'Brak sieci — oznaczenie zapisane lokalnie i wysłane później.');
+      return;
+    }
     q.bad = prev;
     showAlert('error', 'Błąd podczas zmiany oznaczenia "złe"');
   }
@@ -807,6 +818,11 @@ async function toggleUnknown(q) {
       updated.unknown ? 'Pytanie oznaczone jako "nie wiem"' : 'Oznaczenie usunięte'
     );
   } catch (e) {
+    if (!e?.response) {
+      queueQuestionUpdate({ ...q });
+      showAlert('info', 'Brak sieci — oznaczenie zapisane lokalnie i wysłane później.');
+      return;
+    }
     q.unknown = prev;
     showAlert('error', 'Błąd podczas zmiany oznaczenia "nie wiem"');
   }

@@ -313,7 +313,9 @@ apiClient.interceptors.response.use(
       }
     } else if (error.request) {
       // Brak odpowiedzi od serwera — jeden komunikat, nie lawina przy starcie offline.
-      if (!error.config?.silent) {
+      // Gdy przeglądarka wie, że jest offline, wystarczy subtelny pasek w App.vue.
+      const browserOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+      if (!error.config?.silent && !browserOffline) {
         const now = Date.now();
         if (now - lastNetworkErrorAt > 10000) {
           lastNetworkErrorAt = now;

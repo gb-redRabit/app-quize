@@ -16,6 +16,16 @@ export function queueHquestion({ id, correct, category }) {
   enqueue({ type: 'hquestion', payload: { id, correct, category } });
 }
 
+/** Nowe pytanie dodane offline — backend nada ID po synchronizacji. */
+export function queueQuestionCreate(payload) {
+  enqueue({ type: 'question-create', payload });
+}
+
+/** Edycja istniejącego pytania (po ID) wykonana offline. */
+export function queueQuestionUpdate(payload) {
+  enqueue({ type: 'question-update', payload });
+}
+
 /** Wpis historii z quizu/egzaminu. `clientId` chroni przed duplikatem. */
 export function queueHistory(historyItem) {
   const payload = { ...historyItem, clientId: historyItem.clientId || newClientId() };
@@ -45,6 +55,7 @@ export async function flushOfflineQueue() {
     }
 
     let sent = 0;
+    let questionsChanged = false;
     while (true) {
       const [op] = getQueue();
       if (!op) break;
@@ -54,6 +65,12 @@ export async function flushOfflineQueue() {
           await apiClient.silentPost('/users/hquestion', op.payload);
         } else if (op.type === 'history') {
           await apiClient.silentPut('/users/update-profile', { addHistory: op.payload });
+        } else if (op.type === 'question-create') {
+          await apiClient.silentPost('/questions', op.payload);
+          questionsChanged = true;
+        } else if (op.type === 'question-update') {
+          await apiClient.silentPut(`/questions/${op.payload.ID}`, op.payload);
+          questionsChanged = true;
         }
         shiftQueue();
         sent += 1;
@@ -67,6 +84,18 @@ export async function flushOfflineQueue() {
         }
         // Błąd sieci/serwera — zostawiamy resztę na później.
         break;
+      }
+    }
+
+    if (questionsChanged) {
+      // Odśwież widoki i statystyki po zsynchronizowaniu pytań.
+      try {
+        apiClient.clearCache();
+        window.dispatchEvent(
+          new CustomEvent('questions-changed', { detail: { type: 'bulk', action: 'sync' } })
+        );
+      } catch (e) {
+        // ignoruj
       }
     }
 
