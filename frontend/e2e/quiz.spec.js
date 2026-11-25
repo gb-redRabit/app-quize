@@ -167,6 +167,47 @@ test.describe('Quiz App E2E', () => {
     ).toBeVisible();
   });
 
+  test('klawiatura: skip link i widoczny fokus', async ({ page }) => {
+    await page.goto('/login');
+    await expect(page.getByRole('heading', { name: 'Logowanie' })).toBeVisible();
+
+    await page.keyboard.press('Tab');
+
+    const focused = await page.evaluate(() => {
+      const el = document.activeElement;
+      const styles = getComputedStyle(el);
+      return {
+        text: (el?.textContent || '').trim(),
+        outlineWidth: styles.outlineWidth,
+        outlineStyle: styles.outlineStyle,
+        visibleWidth: el?.getBoundingClientRect().width || 0,
+      };
+    });
+
+    expect(focused.text).toContain('Przejdź do treści');
+    expect(focused.visibleWidth).toBeGreaterThan(0);
+    expect(focused.outlineStyle).not.toBe('none');
+    expect(parseFloat(focused.outlineWidth)).toBeGreaterThan(0);
+  });
+
+  test('klawiatura: strzałki i Enter w liście pytań', async ({ page }) => {
+    await login(page);
+    await page.goto('/questions');
+
+    const firstRow = page.locator('[data-question-id]').first();
+    await expect(firstRow).toBeVisible();
+    await firstRow.focus();
+
+    await page.keyboard.press('ArrowDown');
+    const focusedId = await page.evaluate(() =>
+      document.activeElement?.getAttribute('data-question-id')
+    );
+    expect(focusedId).toBe('2');
+
+    await page.keyboard.press('Enter');
+    await expect(page.locator('aside')).toContainText('ID 2');
+  });
+
   test('logowanie i strona główna bez poważnych naruszeń WCAG', async ({ page }) => {
     // Wyłącz animacje wejścia — axe skanowałby kolory w trakcie przenikania.
     await page.emulateMedia({ reducedMotion: 'reduce' });
