@@ -425,6 +425,24 @@ test.describe('Quiz App E2E', () => {
     expect(sentAnswers.length).toBeGreaterThan(0);
   });
 
+  test('offline: ekran nigdy wcześniej nieotwarty ładuje się z precache', async ({
+    page,
+    context,
+  }) => {
+    await login(page);
+
+    // Poczekaj, aż service worker zainstaluje precache i przejmie stronę.
+    await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
+    await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller), null, {
+      timeout: 20000,
+    });
+
+    await context.setOffline(true);
+    await page.goto('/history');
+
+    await expect(page.getByRole('heading', { name: 'Historia nauki' })).toBeVisible();
+  });
+
   test('quiz: odpowiedź wybrana klawiaturą odblokowuje „Następne”', async ({ page }) => {
     await login(page);
     await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=kb');
