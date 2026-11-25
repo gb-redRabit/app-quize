@@ -31,7 +31,7 @@
 
     <!-- Zakładki panelu -->
     <div
-      class="mb-5 flex flex-nowrap gap-1 overflow-x-auto rounded-2xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 p-1"
+      class="mb-5 grid grid-cols-3 gap-1 rounded-2xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 p-1 sm:flex sm:flex-nowrap sm:overflow-x-auto"
       role="tablist"
       aria-label="Ustawienia profilu"
     >
@@ -40,7 +40,7 @@
         :key="tab.id"
         role="tab"
         :aria-selected="activeTab === tab.id"
-        class="h-9 px-3 rounded-xl text-sm font-medium whitespace-nowrap transition-colors"
+        class="h-9 px-2 sm:px-3 rounded-xl text-[13px] sm:text-sm font-medium whitespace-nowrap transition-colors"
         :class="
           activeTab === tab.id
             ? 'bg-blue-600 text-white shadow-xs'
