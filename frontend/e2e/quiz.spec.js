@@ -451,12 +451,16 @@ test.describe('Quiz App E2E', () => {
     sentAnswers.length = 0;
     await mockApi(page);
     await context.setOffline(false);
-    await page.waitForTimeout(2000);
 
-    const queueAfterOnline = await page.evaluate(
-      () => JSON.parse(localStorage.getItem('offline-queue-v1') || '[]').length
-    );
-    expect(queueAfterOnline).toBe(0);
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(
+            () => JSON.parse(localStorage.getItem('offline-queue-v1') || '[]').length
+          ),
+        { timeout: 15000 }
+      )
+      .toBe(0);
     expect(sentAnswers.length).toBeGreaterThan(0);
   });
 
@@ -531,12 +535,16 @@ test.describe('Quiz App E2E', () => {
 
     await mockApi(page);
     await context.setOffline(false);
-    await page.waitForTimeout(1800);
 
-    const queueAfter = await page.evaluate(() =>
-      JSON.parse(localStorage.getItem('offline-queue-v1') || '[]')
-    );
-    expect(queueAfter.length).toBe(0);
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(
+            () => JSON.parse(localStorage.getItem('offline-queue-v1') || '[]').length
+          ),
+        { timeout: 15000 }
+      )
+      .toBe(0);
     expect(updates.length).toBeGreaterThan(0);
   });
 
@@ -575,12 +583,16 @@ test.describe('Quiz App E2E', () => {
 
     await mockApi(page);
     await context.setOffline(false);
-    await page.waitForTimeout(1800);
 
-    const queueAfter = await page.evaluate(() =>
-      JSON.parse(localStorage.getItem('offline-queue-v1') || '[]')
-    );
-    expect(queueAfter.length).toBe(0);
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(
+            () => JSON.parse(localStorage.getItem('offline-queue-v1') || '[]').length
+          ),
+        { timeout: 15000 }
+      )
+      .toBe(0);
     expect(creates).toHaveLength(1);
     expect(creates[0].question).toBe('E2E offline: nowe pytanie?');
   });
