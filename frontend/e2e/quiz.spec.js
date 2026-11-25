@@ -206,6 +206,18 @@ test.describe('Quiz App E2E', () => {
     await expect(dialog).toContainText('do 120 pytań');
   });
 
+  test('instrukcja: Escape zamyka przewodnik', async ({ page }) => {
+    await login(page);
+    await page.getByRole('button', { name: /Instrukcja/ }).click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toContainText('Krok 1');
+
+    await page.keyboard.press('Escape');
+    await expect(dialog).not.toBeVisible();
+  });
+
   test('quiz: odpowiedzi prowadzą do podsumowania z wynikiem', async ({ page }) => {
     await login(page);
     await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=e2e');

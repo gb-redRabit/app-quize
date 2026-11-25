@@ -17,47 +17,67 @@
 
     <div
       v-if="currentStepEl && currentStepEl.rect"
-      class="absolute bg-white dark:bg-gray-800 rounded-lg shadow-xl p-7 max-w-xl transition-all duration-300 border-2 border-blue-400 dark:border-blue-500"
+      class="absolute bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-5 sm:p-6 w-[min(34rem,calc(100vw-2rem))] transition-all duration-300 border border-gray-200 dark:border-gray-800"
       style="z-index: 1005"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="user-guide-title"
       :style="tooltipPosition"
     >
-      <h3 class="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-3">
+      <p class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+        Krok {{ currentStep + 1 }} z {{ steps.length }}
+      </p>
+      <h3
+        id="user-guide-title"
+        class="mt-1 text-base font-semibold tracking-tight text-gray-900 dark:text-gray-50"
+      >
         {{ steps[currentStep].title }}
       </h3>
-      <p class="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed whitespace-pre-line">
+      <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line">
         {{ steps[currentStep].description }}
       </p>
       <div
-        class="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700"
+        class="mt-5 flex flex-wrap justify-between items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-800"
       >
-        <div class="flex space-x-2">
-          <span
+        <div class="flex items-center gap-2">
+          <button
             v-for="(_, idx) in steps.length"
             :key="idx"
-            class="w-2.5 h-2.5 rounded-full transition-all duration-300"
-            :class="idx === currentStep ? 'bg-blue-500 scale-125' : 'bg-gray-300 dark:bg-gray-600'"
-          ></span>
+            type="button"
+            class="h-2.5 rounded-full transition-all duration-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+            :class="
+              idx === currentStep
+                ? 'w-6 bg-blue-600 dark:bg-blue-500'
+                : 'w-2.5 bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600'
+            "
+            :aria-label="`Krok ${idx + 1}`"
+            :aria-current="idx === currentStep ? 'step' : undefined"
+            @click="goToStep(idx)"
+          ></button>
         </div>
 
-        <div class="flex space-x-3">
+        <div class="flex items-center gap-2">
           <button
             v-if="currentStep > 0"
+            type="button"
+            class="h-9 px-3 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500"
             @click="prevStep"
-            class="px-4 py-1.5 text-sm text-blue-600 dark:text-blue-400 hover:underline focus:outline-hidden focus:ring-2 focus:ring-blue-400"
           >
             Wstecz
           </button>
           <button
             v-if="currentStep < steps.length - 1"
+            type="button"
+            class="h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
             @click="nextStep"
-            class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-sm dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
           >
             Dalej
           </button>
           <button
             v-else
+            type="button"
+            class="h-9 px-4 rounded-lg bg-green-700 hover:bg-green-800 text-white text-sm font-medium transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
             @click="closeGuide"
-            class="px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded-sm dark:bg-green-500 dark:hover:bg-green-600 focus:outline-hidden focus:ring-2 focus:ring-green-400"
           >
             Zakończ
           </button>
@@ -67,8 +87,9 @@
 
     <!-- Przycisk do pominięcia -->
     <button
+      type="button"
       @click="closeGuide"
-      class="fixed top-4 right-4 text-white bg-gray-700/80 hover:bg-gray-700 rounded-full p-2 transition-colors focus:outline-hidden focus:ring-2 focus:ring-white"
+      class="fixed top-4 right-4 text-white bg-gray-900/80 hover:bg-gray-900 rounded-lg p-2 transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
       style="z-index: 1010"
       aria-label="Pomiń instrukcję"
     >
@@ -540,6 +561,13 @@ const prevStep = () => {
   }
 };
 
+const goToStep = (idx) => {
+  if (idx === currentStep.value || idx < 0 || idx >= steps.length) return;
+  resetElementStyles();
+  currentStep.value = idx;
+  updateCurrentElement();
+};
+
 // Zmodyfikuj funkcję closeGuide, aby upewnić się, że przewijanie jest odblokowane
 const closeGuide = () => {
   resetElementStyles();
@@ -595,15 +623,24 @@ const updateCurrentElement = async () => {
 };
 
 // Obserwuj zmiany w pokazie/ukryciu przewodnika
+const handleEscape = (e) => {
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    closeGuide();
+  }
+};
+
 watch(
   () => props.show,
   (newVal) => {
     if (newVal) {
+      window.addEventListener('keydown', handleEscape);
       nextTick(() => {
         disableScroll(); // Blokuj przewijanie po renderowaniu przewodnika
         updateCurrentElement();
       });
     } else {
+      window.removeEventListener('keydown', handleEscape);
       enableScroll(); // Odblokuj przewijanie przy zamknięciu
       resetElementStyles();
     }
@@ -619,15 +656,12 @@ const handleResize = () => {
 };
 
 onMounted(() => {
-  if (props.show) {
-    disableScroll();
-    updateCurrentElement();
-  }
   window.addEventListener('resize', handleResize);
 });
 
 onBeforeUnmount(() => {
   enableScroll();
+  window.removeEventListener('keydown', handleEscape);
   window.removeEventListener('resize', handleResize);
   resetElementStyles();
 });
