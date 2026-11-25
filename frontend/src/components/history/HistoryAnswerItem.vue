@@ -2,7 +2,7 @@
   <li
     ref="answerElement"
     :data-question-index="index"
-    class="surface overflow-hidden p-4 border-l-4"
+    class="surface overflow-hidden p-4 border-l-4 [content-visibility:auto] [contain-intrinsic-size:140px]"
     :class="
       isAnswerCorrect(item)
         ? 'border-green-500 dark:border-green-600'

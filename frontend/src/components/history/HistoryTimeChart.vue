@@ -35,7 +35,9 @@
           :title="`Pytanie ${idx + 1}: ${t}s`"
           @click="$emit('click-bar', idx)"
         ></div>
-        <span class="text-xs text-gray-500 mt-1 whitespace-nowrap">{{ idx + 1 }} · {{ t }}s</span>
+        <span class="text-xs text-gray-500 mt-1 whitespace-nowrap">
+          {{ answerTimes.length <= 20 ? `${idx + 1} · ${t}s` : idx + 1 }}
+        </span>
       </div>
     </div>
 
@@ -59,7 +61,9 @@
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue';
+
+const props = defineProps({
   answerTimes: {
     type: Array,
     required: true,
@@ -76,10 +80,15 @@ defineProps({
 
 defineEmits(['click-bar']);
 
-// Skalujemy wysokość do 40 s, żeby długie odpowiedzi nie rozpychały wykresu.
+// Skalujemy słupek względem najdłuższej odpowiedzi, żeby wykres był czytelny
+// także przy bardzo szybkich odpowiedziach (ułamki sekund).
+const maxTime = computed(() =>
+  Math.max(1e-6, ...props.answerTimes.map((value) => Math.max(0, Number(value) || 0)))
+);
+
 function barHeight(seconds) {
-  const value = Number(seconds) || 0;
-  return Math.max(8, Math.min(Math.max(value, 0), 40) * 5);
+  const value = Math.max(0, Number(seconds) || 0);
+  return Math.max(8, Math.round((value / maxTime.value) * 200));
 }
 
 function isAnswerCorrect(item) {
