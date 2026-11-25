@@ -34,6 +34,29 @@ const router = createRouter({
   },
 });
 
+// Po nowym wdrożeniu stary klient może odwoływać się do chunków, których już nie ma.
+// Wtedy Vercel zwraca index.html (text/html) i import modułu pada. Przeładowujemy
+// stronę raz, żeby pobrać świeży index.html i nowe nazwy plików.
+const CHUNK_RELOAD_KEY = 'chunk-reload-at';
+router.onError((error) => {
+  const message = String(error?.message || error || '');
+  const isChunkError =
+    /dynamically imported module|Importing a module script failed|MIME type/i.test(message);
+  if (!isChunkError) return;
+
+  const lastReload = Number(sessionStorage.getItem(CHUNK_RELOAD_KEY) || 0);
+  if (Date.now() - lastReload < 15000) return; // ochrona przed pętlą przeładowań
+
+  sessionStorage.setItem(CHUNK_RELOAD_KEY, String(Date.now()));
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker
+      .getRegistration()
+      .then((registration) => registration?.update())
+      .catch(() => {});
+  }
+  window.location.reload();
+});
+
 router.beforeEach((to, from, next) => {
   const isAuthenticated = hasSession();
   const user = getStoredUser();

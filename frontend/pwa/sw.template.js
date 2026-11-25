@@ -17,6 +17,9 @@ const SHELL_CACHE = `quiz-shell-${CACHE_VERSION}`;
 const SHELL_URL = '/index.html';
 const STATIC_DESTINATIONS = new Set(['script', 'style', 'font', 'image']);
 const MAX_STATIC_ENTRIES = 300;
+// Jednorazowa migracja: wymusza aktualizację klientów z starym SW, którzy
+// mogą utknąć na chunkach usuniętych po wdrożeniu.
+const FORCE_UPDATE_MARKER = 'quiz-sw-force-2026-11';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -28,7 +31,16 @@ self.addEventListener('install', (event) => {
           cache.add(new Request(url, { cache: 'reload' })).catch(() => {})
         )
       );
-      await self.skipWaiting();
+      // Bez skipWaiting: nowa wersja czeka, aż użytkownik kliknie „Odśwież”.
+      // Dzięki temu otwarta stara karta nie traci swoich chunków w trakcie.
+      // Wyjątki: migracja ze starego SW (cache v2) oraz jednorazowa akcja
+      // ratunkowa dla klientów z brakującymi chunkami po wdrożeniu.
+      const keys = await caches.keys();
+      const hasLegacyCaches = keys.some(
+        (key) => key === 'quiz-static-v2' || key === 'quiz-shell-v2'
+      );
+      const needsForceUpdate = hasLegacyCaches || !keys.includes(FORCE_UPDATE_MARKER);
+      if (needsForceUpdate) await self.skipWaiting();
     })()
   );
 });
@@ -36,9 +48,11 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
-      const keep = new Set([PRECACHE, STATIC_CACHE, SHELL_CACHE]);
+      const keep = new Set([PRECACHE, STATIC_CACHE, SHELL_CACHE, FORCE_UPDATE_MARKER]);
       const keys = await caches.keys();
       await Promise.all(keys.filter((key) => !keep.has(key)).map((key) => caches.delete(key)));
+      // Znacznik: kolejne wersje nie wymuszają już skipWaiting.
+      await caches.open(FORCE_UPDATE_MARKER);
       await self.clients.claim();
     })()
   );
@@ -56,6 +70,26 @@ async function trimCache(cache) {
   if (keys.length <= MAX_STATIC_ENTRIES) return;
   const excess = keys.length - MAX_STATIC_ENTRIES;
   await Promise.all(keys.slice(0, excess).map((request) => cache.delete(request)));
+}
+
+// Nie pozwól zapisać odpowiedzi HTML pod adresem modułu/skryptu — po deployu
+// Vercel potrafi zwrócić index.html dla nieistniejącego chunku.
+function isExpectedContent(destination, response) {
+  const type = (response.headers.get('content-type') || '').toLowerCase();
+  if (!type) return true;
+
+  switch (destination) {
+    case 'script':
+      return type.includes('javascript') || type.includes('ecmascript');
+    case 'style':
+      return type.includes('text/css');
+    case 'font':
+      return type.includes('font') || type.includes('woff');
+    case 'image':
+      return type.startsWith('image/');
+    default:
+      return true;
+  }
 }
 
 async function handleNavigation(request) {
@@ -77,14 +111,25 @@ async function handleNavigation(request) {
 }
 
 async function handleStatic(request) {
-  const precached = await caches.match(request);
+  // 1. Precache z bieżącego builda.
+  const precache = await caches.open(PRECACHE);
+  const precached = await precache.match(request);
   if (precached) return precached;
 
+  // 2. Cache runtime — tylko wpisy o poprawnym typie.
   const cache = await caches.open(STATIC_CACHE);
   const cached = await cache.match(request);
-  if (cached) return cached;
+  if (cached && isExpectedContent(request.destination, cached)) return cached;
+  if (cached) await cache.delete(request);
 
   const response = await fetch(request);
+
+  if (response.ok && !isExpectedContent(request.destination, response)) {
+    // Serwer zwrócił HTML zamiast modułu — traktujemy jak błąd sieci,
+    // żeby router przeładował stronę po nowym wdrożeniu.
+    return Response.error();
+  }
+
   if (response.ok) {
     await cache.put(request, response.clone()).catch(() => {});
     trimCache(cache).catch(() => {});

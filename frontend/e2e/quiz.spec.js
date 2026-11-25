@@ -813,3 +813,39 @@ test.describe('Quiz App E2E', () => {
     expect(serious(userResults.violations)).toEqual([]);
   });
 });
+
+test.describe('odporność na stare chunki po wdrożeniu', () => {
+  // Bez SW, żeby przechwycić żądanie chunku i podać HTML (jak Vercel po deployu).
+  test.use({ serviceWorkers: 'block' });
+
+  test('błąd importu chunku przeładowuje stronę i otwiera nowy widok', async ({ page }) => {
+    await mockApi(page);
+    await login(page);
+
+    let reloads = 0;
+    page.on('framenavigated', (frame) => {
+      if (frame === page.mainFrame()) reloads += 1;
+    });
+
+    let firstChunk = true;
+    await page.route(/\/assets\/UserPanel-[A-Za-z0-9_-]+\.js$/, async (route) => {
+      if (firstChunk) {
+        firstChunk = false;
+        return route.fulfill({
+          status: 200,
+          contentType: 'text/html',
+          body: '<!doctype html><html><body>stale chunk</body></html>',
+        });
+      }
+      return route.continue();
+    });
+
+    await page.getByRole('link', { name: /Panel użytkownika/ }).click();
+
+    await expect(
+      page.getByText('Zarządzaj profilem, wyglądem i preferencjami nauki.')
+    ).toBeVisible({ timeout: 15000 });
+    expect(reloads).toBeGreaterThan(1);
+    await expect(page.getByRole('tab', { name: 'Nauka', exact: true })).toBeVisible();
+  });
+});
