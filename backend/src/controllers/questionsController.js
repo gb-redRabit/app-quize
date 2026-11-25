@@ -54,6 +54,10 @@ exports.getQuestionsVersionInfo = async (req, res) => {
 };
 
 // Pełny snapshot pytań dla lokalnego cache PWA.
+// Snapshot jest duży (8,5 tys. pytań) — trzymamy gotowy JSON w pamięci do
+// najbliższej zmiany wersji bazy, zamiast składać go przy każdym żądaniu.
+let snapshotCache = null;
+
 exports.getQuestionsSnapshot = async (req, res) => {
   try {
     const { version, updatedAt } = await getQuestionsVersion();
@@ -63,13 +67,25 @@ exports.getQuestionsSnapshot = async (req, res) => {
       return res.status(304).end();
     }
 
-    const questions = await Question.find({}, { _id: 0, __v: 0 })
-      .sort({ ID: 1 })
-      .lean();
+    if (!snapshotCache || snapshotCache.version !== version) {
+      const questions = await Question.find({}, { _id: 0, __v: 0 })
+        .sort({ ID: 1 })
+        .lean();
+
+      snapshotCache = {
+        version,
+        payload: {
+          version,
+          updatedAt,
+          count: questions.length,
+          questions,
+        },
+      };
+    }
 
     res.setHeader("ETag", etag);
     res.setHeader("Cache-Control", "private, max-age=300");
-    res.json({ version, updatedAt, count: questions.length, questions });
+    res.json(snapshotCache.payload);
   } catch (e) {
     console.error("Błąd snapshotu pytań:", e);
     res.status(500).json({ message: "Błąd pobierania snapshotu pytań" });

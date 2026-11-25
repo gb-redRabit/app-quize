@@ -102,22 +102,27 @@ defineProps({
 defineEmits(['show-details']);
 
 function getBadgeClass(type) {
-  if (type === 'quiz') return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-  if (type === 'egzamin')
-    return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
-  if (type === 'Quiz - poprawa błędów')
-    return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-  if (type === 'Egzamin - poprawa błędów')
-    return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+  const value = String(type || '').toLowerCase();
+  if (value.startsWith('quiz')) {
+    return value.includes('poprawa')
+      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+      : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+  }
+  if (value.startsWith('egzamin') || value.startsWith('exam')) {
+    return value.includes('poprawa')
+      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+      : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+  }
   return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
 }
 
 function getTypeName(type) {
-  if (type === 'quiz') return 'Quiz';
-  if (type === 'egzamin') return 'Egzamin';
-  if (type === 'Quiz - poprawa błędów') return 'Quiz - poprawa';
-  if (type === 'Egzamin - poprawa błędów') return 'Egzamin - poprawa';
-  return type;
+  const value = String(type || '').toLowerCase();
+  if (value.startsWith('quiz')) return value.includes('poprawa') ? 'Quiz - poprawa' : 'Quiz';
+  if (value.startsWith('egzamin') || value.startsWith('exam')) {
+    return value.includes('poprawa') ? 'Egzamin - poprawa' : 'Egzamin';
+  }
+  return type || '—';
 }
 
 function formatDate(dateString) {
