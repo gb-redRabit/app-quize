@@ -15,8 +15,8 @@
     </div>
 
     <!-- Zawartość wpisu -->
-    <div class="flex items-center justify-between p-4">
-      <div class="flex flex-col items-center mr-4">
+    <div class="flex items-center gap-4 p-4">
+      <div class="flex flex-col items-center shrink-0">
         <div class="relative" style="width: 80px; height: 80px">
           <svg class="w-full h-full transform -rotate-90">
             <circle
@@ -54,9 +54,9 @@
       </div>
 
       <!-- Informacje o kategorii -->
-      <div class="flex-1 ml-2">
+      <div class="flex-1 min-w-0">
         <div class="mb-2">
-          <h3 class="font-medium text-gray-900 dark:text-gray-100">
+          <h3 class="font-medium text-gray-900 dark:text-gray-100 break-words">
             {{ entry.category && entry.category[0] ? entry.category : 'Brak kategorii' }}
           </h3>
           <div class="text-xs text-gray-500 mt-1 dark:text-gray-400">
@@ -73,7 +73,7 @@
           color="blue"
           size="xs"
           @click="$emit('show-details')"
-          class="inline-flex items-center text-xs transition-colors"
+          class="inline-flex w-full sm:w-auto items-center justify-center text-xs transition-colors"
         >
           <span class="flex items-center">
             Pokaż szczegóły

@@ -31,7 +31,7 @@
 
     <!-- Zakładki panelu -->
     <div
-      class="mb-5 flex flex-wrap gap-1 rounded-2xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 p-1"
+      class="mb-5 flex flex-nowrap gap-1 overflow-x-auto rounded-2xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 p-1"
       role="tablist"
       aria-label="Ustawienia profilu"
     >
