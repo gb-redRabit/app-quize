@@ -18,8 +18,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      // Runtime compiler jest potrzebny dla ikon definiowanych jako stringi `template`.
-      vue: 'vue/dist/vue.esm-bundler.js',
     },
   },
   server: {

@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, h } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 
@@ -38,21 +38,41 @@ const store = useStore();
 const user = computed(() => store.getters['user/getUser'] || {});
 const isAdmin = computed(() => user.value.rola === 'admin');
 
-const HomeIcon = {
-  template: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-10.5Z"/></svg>`,
+// Ikony jako funkcje renderujące — bez runtime compilera Vue.
+const makeIcon = (props, children) => ({
+  render: () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', ...props }, children),
+});
+const path = (props) => h('path', props);
+const commonProps = {
+  fill: 'none',
+  viewBox: '0 0 24 24',
+  stroke: 'currentColor',
+  class: 'h-6 w-6',
 };
-const HistoryIcon = {
-  template: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 2m6-2a9 9 0 1 1-3.2-6.9"/></svg>`,
+const pathProps = {
+  'stroke-linecap': 'round',
+  'stroke-linejoin': 'round',
+  'stroke-width': '1.8',
 };
-const ListIcon = {
-  template: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M4 12h16M4 18h16"/></svg>`,
-};
-const UserIcon = {
-  template: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM4 21a8 8 0 0 1 16 0"/></svg>`,
-};
-const AdminIcon = {
-  template: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Zm0 5v4m0 4h.01"/></svg>`,
-};
+
+const HomeIcon = makeIcon(commonProps, [
+  path({ ...pathProps, d: 'M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-10.5Z' }),
+]);
+const HistoryIcon = makeIcon(commonProps, [
+  path({ ...pathProps, d: 'M12 8v4l3 2m6-2a9 9 0 1 1-3.2-6.9' }),
+]);
+const ListIcon = makeIcon(commonProps, [
+  path({ ...pathProps, d: 'M4 6h16M4 12h16M4 18h16' }),
+]);
+const UserIcon = makeIcon(commonProps, [
+  path({ ...pathProps, d: 'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM4 21a8 8 0 0 1 16 0' }),
+]);
+const AdminIcon = makeIcon(commonProps, [
+  path({
+    ...pathProps,
+    d: 'M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Zm0 5v4m0 4h.01',
+  }),
+]);
 
 const items = computed(() => {
   const base = [

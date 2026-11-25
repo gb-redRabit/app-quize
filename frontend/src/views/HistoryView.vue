@@ -8,6 +8,45 @@
         @clear-history="showConfirmModal = true"
       />
 
+      <!-- Filtry historii -->
+      <div
+        v-if="!selectedHistoryEntry && history.length > 0"
+        class="mb-4 flex flex-col sm:flex-row sm:items-end gap-3"
+      >
+        <div class="flex-1 min-w-0">
+          <label
+            for="history-category"
+            class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+            >Kategoria</label
+          >
+          <select
+            id="history-category"
+            v-model="selectedCategory"
+            class="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 px-3 text-sm"
+          >
+            <option value="all">Wszystkie kategorie</option>
+            <option v-for="category in categoryOptions" :key="category" :value="category">
+              {{ category }}
+            </option>
+          </select>
+        </div>
+        <div class="sm:w-56">
+          <label
+            for="history-sort"
+            class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+            >Sortowanie</label
+          >
+          <select
+            id="history-sort"
+            v-model="sortOrder"
+            class="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 px-3 text-sm"
+          >
+            <option value="newest">Najnowsze najpierw</option>
+            <option value="oldest">Najstarsze najpierw</option>
+          </select>
+        </div>
+      </div>
+
       <!-- Zawartość -->
       <HistoryDetails
         v-if="selectedHistoryEntry"
@@ -52,6 +91,7 @@ import {
   defineAsyncComponent,
 } from 'vue';
 import { useStore } from 'vuex';
+import { filterHistory, listHistoryCategories } from '@/utils/historyFilters';
 const HistoryHeader = defineAsyncComponent(() => import('@/components/history/HistoryHeader.vue'));
 const HistoryDetails = defineAsyncComponent(
   () => import('@/components/history/HistoryDetails.vue')
@@ -70,6 +110,8 @@ const showAlert = inject('showAlert');
 // Reaktywne dane
 const showConfirmModal = ref(false);
 const activeFilter = ref('all');
+const selectedCategory = ref('all');
+const sortOrder = ref('newest');
 const selectedHistoryEntry = ref(null);
 const selectedHistoryIndex = ref(null);
 const allQuestions = ref([]);
@@ -79,35 +121,21 @@ const loading = ref(false);
 // Pobieranie danych z Vuex
 const history = computed(() => store.getters['user/getUserHistory'] || []);
 
-// Filtrowane dane
-const filteredHistory = computed(() => {
-  if (activeFilter.value === 'all') {
-    return history.value;
-  } else if (activeFilter.value === 'quiz') {
-    return history.value.filter(
-      (item) => item.type === 'quiz' || item.type === 'Quiz - poprawa błędów'
-    );
-  } else if (activeFilter.value === 'exam') {
-    return history.value.filter(
-      (item) => item.type === 'egzamin' || item.type === 'Egzamin - poprawa błędów'
-    );
-  }
-  return history.value;
-});
+// Lista kategorii do filtra
+const categoryOptions = computed(() => listHistoryCategories(history.value));
+
+// Filtrowane i sortowane dane
+const filteredHistory = computed(() =>
+  filterHistory(history.value, {
+    type: activeFilter.value,
+    category: selectedCategory.value,
+    sort: sortOrder.value,
+  })
+);
 
 // Liczniki typów historii
-const quizCount = computed(
-  () =>
-    history.value.filter((item) => item.type === 'quiz' || item.type === 'Quiz - poprawa błędów')
-      .length
-);
-
-const examCount = computed(
-  () =>
-    history.value.filter(
-      (item) => item.type === 'egzamin' || item.type === 'Egzamin - poprawa błędów'
-    ).length
-);
+const quizCount = computed(() => filterHistory(history.value, { type: 'quiz' }).length);
+const examCount = computed(() => filterHistory(history.value, { type: 'exam' }).length);
 
 // Funkcja do wyświetlania szczegółów
 async function showDetails(entry, index) {
