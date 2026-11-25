@@ -1,25 +1,28 @@
 <template>
   <div class="app-shell">
     <!-- Nagłówek strony -->
-    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Duplikaty pytań</h1>
-      <div class="flex items-center gap-4">
-        <div class="text-gray-600 dark:text-gray-300 text-lg w-4/12">
+    <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 whitespace-nowrap">
+        Duplikaty pytań
+      </h1>
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="text-gray-600 dark:text-gray-300">
           Ilość duplikatów: <span class="font-semibold">{{ total }}</span>
         </div>
         <button
           @click="toggleSortByCategory"
-          class="px-4 py-2 rounded-lg font-semibold shadow-sm transition-colors duration-200"
+          class="px-4 py-2 rounded-lg font-semibold shadow-xs transition-colors duration-200 whitespace-nowrap"
           :class="sortByCategory ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
         >
           Sortuj według kategorii
           <span v-if="sortByCategory">(A-Z)</span>
           <span v-else>(domyślnie)</span>
         </button>
-        <div class="">
+        <div>
           <select
             v-model="selectedCategory"
-            class="px-3 py-2 rounded-lg border border-gray-300 dark:bg-gray-700 dark:text-gray-100"
+            class="h-10 w-full sm:w-72 px-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            aria-label="Filtruj duplikaty po kategorii"
           >
             <option value="">Wszystkie kategorie</option>
             <option v-for="cat in uniqueCategories" :key="cat" :value="cat">
@@ -43,7 +46,7 @@
 
     <!-- Empty state -->
     <div
-      v-else-if="filteredQuestions.length === 0"
+      v-else-if="filteredGroups.length === 0"
       class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 p-12 bg-white dark:bg-gray-800 rounded-xl shadow-xs"
     >
       <img
@@ -57,25 +60,40 @@
       </p>
     </div>
 
-    <!-- Questions list z infinite scroll -->
-    <div v-else class="space-y-3">
-      <div
-        v-for="q in visibleQuestions"
-        :key="q.ID"
-        class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-xs border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
-        :class="{
-          'shadow-md ring-2 ring-blue-100 dark:ring-blue-900': expandedQuestions.includes(q.ID),
-        }"
+    <!-- Grupy duplikatów -->
+    <div v-else class="space-y-6">
+      <section
+        v-for="(group, groupIndex) in visibleGroups"
+        :key="`group-${group[0].ID}`"
+        class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-900/40 p-3"
       >
-        <!-- Nagłówek pytania -->
-        <div
-          class="flex items-start p-4 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-gray-700"
-          :class="{
-            'border-b border-gray-200 dark:border-gray-700': expandedQuestions.includes(q.ID),
-            'bg-blue-50 dark:bg-gray-700': expandedQuestions.includes(q.ID),
-          }"
-          @click="toggleQuestionDetails(q.ID)"
-        >
+        <header class="flex flex-wrap items-center justify-between gap-2 px-1 pb-2">
+          <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-200">
+            Grupa {{ groupIndex + 1 }} · {{ group.length }} pytań
+          </h2>
+          <span class="text-xs text-gray-500 dark:text-gray-400">
+            ID: {{ group.map((q) => q.ID).join(', ') }}
+          </span>
+        </header>
+
+        <div class="grid gap-3" :class="group.length > 1 ? 'lg:grid-cols-2' : ''">
+          <article
+            v-for="q in group"
+            :key="q.ID"
+            class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-xs border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
+            :class="{
+              'shadow-md ring-2 ring-blue-100 dark:ring-blue-900': expandedQuestions.includes(q.ID),
+            }"
+          >
+            <!-- Nagłówek pytania -->
+            <div
+              class="flex items-start p-4 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-gray-700"
+              :class="{
+                'border-b border-gray-200 dark:border-gray-700': expandedQuestions.includes(q.ID),
+                'bg-blue-50 dark:bg-gray-700': expandedQuestions.includes(q.ID),
+              }"
+              @click="toggleQuestionDetails(q.ID)"
+            >
           <div class="font-mono text-gray-500 dark:text-gray-400 mt-1" style="min-width: 50px">
             {{ q.ID }}
           </div>
@@ -171,7 +189,9 @@
             </div>
           </div>
         </transition>
-      </div>
+          </article>
+        </div>
+      </section>
 
       <!-- Element obserwowany dla infinite scroll -->
       <div ref="loadingTrigger" class="py-4 flex justify-center mt-4">
@@ -187,7 +207,7 @@
           ></div>
         </div>
         <p
-          v-else-if="page === pages && filteredQuestions.length > 0"
+          v-else-if="page === pages && filteredGroups.length > 0"
           class="text-gray-500 dark:text-gray-400 italic"
         >
           Koniec wyników ({{ total }} pytań)
@@ -205,39 +225,46 @@ import apiClient from '@/api';
 
 const showAlert = inject('showAlert');
 const loading = ref(true);
-const questions = ref([]);
+const groups = ref([]);
 const expandedQuestions = ref([]);
 const isLoading = ref(false);
 const page = ref(1);
-const pageSize = 20;
+const groupsPerPage = 8;
 const loadingTrigger = ref(null);
 const sortByCategory = ref(false);
 const selectedCategory = ref('');
 
 const isAdmin = true; // lub pobierz z auth
 
-const total = computed(() => filteredQuestions.value.length);
-const pages = computed(() => Math.ceil(total.value / pageSize));
-const visibleQuestions = computed(() => filteredQuestions.value.slice(0, page.value * pageSize));
+const flatQuestions = computed(() => groups.value.flat());
 
-const filteredQuestions = computed(() => {
-  let arr = questions.value.slice();
+const filteredGroups = computed(() => {
+  let arr = groups.value.map((group) => group.slice());
+
   if (selectedCategory.value) {
-    arr = arr.filter((q) => (q.category || 'Bez kategorii') === selectedCategory.value);
+    arr = arr.filter((group) =>
+      group.some((q) => (q.category || 'Bez kategorii') === selectedCategory.value)
+    );
   }
+
   if (sortByCategory.value) {
     arr.sort((a, b) => {
-      const catA = (a.category || '').toLowerCase();
-      const catB = (b.category || '').toLowerCase();
+      const catA = (a[0]?.category || '').toLowerCase();
+      const catB = (b[0]?.category || '').toLowerCase();
       if (catA !== catB) return catA.localeCompare(catB);
-      return (a.question || '').localeCompare(b.question || '');
+      return (a[0]?.question || '').localeCompare(b[0]?.question || '');
     });
   }
+
   return arr;
 });
 
+const total = computed(() => filteredGroups.value.reduce((sum, group) => sum + group.length, 0));
+const pages = computed(() => Math.ceil(filteredGroups.value.length / groupsPerPage));
+const visibleGroups = computed(() => filteredGroups.value.slice(0, page.value * groupsPerPage));
+
 const uniqueCategories = computed(() => {
-  const set = new Set(questions.value.map((q) => q.category || 'Bez kategorii'));
+  const set = new Set(flatQuestions.value.map((q) => q.category || 'Bez kategorii'));
   return Array.from(set).sort((a, b) => a.localeCompare(b));
 });
 
@@ -259,14 +286,13 @@ async function loadQuestions() {
   loading.value = true;
   try {
     const res = await apiClient.get('/questions/all');
-    if (Array.isArray(res.data.duplicates)) {
-      questions.value = res.data.duplicates.flat();
-    } else {
-      questions.value = [];
-    }
+    const list = Array.isArray(res.data.duplicates) ? res.data.duplicates : [];
+    groups.value = list
+      .map((group) => (Array.isArray(group) ? group.filter(Boolean) : []))
+      .filter((group) => group.length > 1);
   } catch (e) {
     showAlert && showAlert('error', 'Błąd pobierania duplikatów: ' + e.message);
-    questions.value = [];
+    groups.value = [];
   } finally {
     loading.value = false;
   }
@@ -308,7 +334,11 @@ function toggleQuestionDetails(id) {
 
 // Akcje na pytaniach
 function handleQuestionDeleted(deletedQuestion) {
-  questions.value = questions.value.filter((q) => q.ID !== deletedQuestion.ID);
+  const id = deletedQuestion?.ID;
+  groups.value = groups.value
+    .map((group) => group.filter((q) => q.ID !== id))
+    .filter((group) => group.length > 1);
+  expandedQuestions.value = expandedQuestions.value.filter((qid) => qid !== id);
   showAlert && showAlert('success', 'Pytanie zostało usunięte.');
 }
 
