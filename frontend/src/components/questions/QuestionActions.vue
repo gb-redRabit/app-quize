@@ -380,6 +380,13 @@ async function saveEdit() {
   // Natychmiast zaktualizuj lokalne dane
   emit('edit', questionToUpdate);
 
+  if (navigator.onLine === false) {
+    // Offline: zmiana jest już widoczna, wyślemy ją po powrocie sieci.
+    queueQuestionUpdate(questionToUpdate);
+    showAlert('info', 'Brak sieci — zmiany zapisane lokalnie i wysłane później.');
+    return;
+  }
+
   // Rozpocznij zapis w tle
   apiClient
     .put(`/questions/${questionToUpdate.ID}`, questionToUpdate)

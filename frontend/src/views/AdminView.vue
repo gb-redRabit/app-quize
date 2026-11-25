@@ -1504,6 +1504,14 @@ async function saveNewQuestion() {
       newCategoryInput.value = '';
     }
 
+    if (navigator.onLine === false) {
+      // Bez sieci nie czekamy na timeout — od razu kolejkujemy.
+      queueQuestionCreate(formModel.value);
+      closeAddPopup();
+      showAlert?.('info', 'Brak sieci — pytanie zapisane lokalnie i wysłane później.');
+      return;
+    }
+
     try {
       await apiClient.post('/questions', formModel.value);
       showAlert?.('success', 'Pytanie zostało dodane pomyślnie!');

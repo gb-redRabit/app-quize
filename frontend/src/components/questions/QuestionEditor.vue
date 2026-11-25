@@ -234,6 +234,14 @@ async function save() {
   delete payload.answer_d;
 
   saving.value = true;
+  if (navigator.onLine === false) {
+    // Offline: zapis natychmiast do kolejki (bez czekania na timeout sieci).
+    queueQuestionUpdate({ ...payload, ID: props.question.ID });
+    emit('saved', { ...props.question, ...payload });
+    saving.value = false;
+    return;
+  }
+
   try {
     const res = await apiClient.put(`/questions/${props.question.ID}`, payload);
     emit('saved', res.data);

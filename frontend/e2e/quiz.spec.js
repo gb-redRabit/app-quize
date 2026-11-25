@@ -520,10 +520,14 @@ test.describe('Quiz App E2E', () => {
     await context.setOffline(true);
     await page.getByRole('button', { name: 'Zapisz zmiany' }).click();
 
-    const queued = await page.evaluate(() =>
-      JSON.parse(localStorage.getItem('offline-queue-v1') || '[]')
-    );
-    expect(queued.some((op) => op.type === 'question-update' && op.payload.ID === 1)).toBe(true);
+    const queuedUpdate = () =>
+      page.evaluate(() =>
+        JSON.parse(localStorage.getItem('offline-queue-v1') || '[]').some(
+          (op) => op.type === 'question-update' && op.payload.ID === 1
+        )
+      );
+
+    await expect.poll(queuedUpdate, { timeout: 10000 }).toBe(true);
     await expect(details).toContainText('E2E offline: zmienione pytanie?');
 
     const updates = [];
@@ -569,10 +573,18 @@ test.describe('Quiz App E2E', () => {
     await dialog.getByRole('button', { name: 'Zapisz pytanie' }).click();
 
     await expect(dialog).not.toBeVisible();
-    const queued = await page.evaluate(() =>
-      JSON.parse(localStorage.getItem('offline-queue-v1') || '[]')
-    );
-    expect(queued.some((op) => op.type === 'question-create')).toBe(true);
+
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(() =>
+            JSON.parse(localStorage.getItem('offline-queue-v1') || '[]').some(
+              (op) => op.type === 'question-create'
+            )
+          ),
+        { timeout: 10000 }
+      )
+      .toBe(true);
 
     const creates = [];
     page.on('request', (request) => {

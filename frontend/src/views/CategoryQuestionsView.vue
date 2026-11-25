@@ -759,6 +759,13 @@ async function toggleFlagged(q) {
   const prev = q.flagged;
   q.flagged = !q.flagged; // Optymistycznie zmień od razu
 
+  if (navigator.onLine === false) {
+    queueQuestionUpdate({ ...q });
+    forceUpdate.value++;
+    showAlert('info', 'Brak sieci — oznaczenie zapisane lokalnie i wysłane później.');
+    return;
+  }
+
   try {
     const updated = { ...q, flagged: q.flagged };
     if ('_id' in updated) delete updated._id;
@@ -787,6 +794,12 @@ async function toggleBad(q) {
   const prev = q.bad;
   q.bad = !q.bad;
 
+  if (navigator.onLine === false) {
+    queueQuestionUpdate({ ...q });
+    showAlert('info', 'Brak sieci — oznaczenie zapisane lokalnie i wysłane później.');
+    return;
+  }
+
   try {
     const updated = { ...q, bad: q.bad };
     if ('_id' in updated) delete updated._id;
@@ -807,6 +820,12 @@ async function toggleBad(q) {
 async function toggleUnknown(q) {
   const prev = q.unknown;
   q.unknown = !q.unknown;
+
+  if (navigator.onLine === false) {
+    queueQuestionUpdate({ ...q });
+    showAlert('info', 'Brak sieci — oznaczenie zapisane lokalnie i wysłane później.');
+    return;
+  }
 
   try {
     const updated = { ...q, unknown: q.unknown };
