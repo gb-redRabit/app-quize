@@ -1,6 +1,6 @@
 <template>
   <footer
-    class="w-full px-4 pb-4 pt-6 text-center text-xs text-gray-400 dark:text-gray-500 flex flex-wrap items-center justify-center gap-x-2 gap-y-1"
+    class="w-full px-4 pb-4 pt-6 text-center text-xs text-gray-500 dark:text-gray-400 flex flex-wrap items-center justify-center gap-x-2 gap-y-1"
     aria-label="Informacje o wersji"
   >
     <span :title="buildTitle">Aplikacja {{ appVersionLabel }}</span>

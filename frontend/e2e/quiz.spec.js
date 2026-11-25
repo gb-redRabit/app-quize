@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const AxeBuilder = require('@axe-core/playwright').default;
 
 /**
  * E2E na spreparowanym API (bez bazy i bez mutowania produkcji).
@@ -164,5 +165,30 @@ test.describe('Quiz App E2E', () => {
     await expect(
       page.getByRole('heading', { name: /E2E: stolica Polski|E2E: 2 \+ 2/ })
     ).toBeVisible();
+  });
+
+  test('logowanie i strona główna bez poważnych naruszeń WCAG', async ({ page }) => {
+    // Wyłącz animacje wejścia — axe skanowałby kolory w trakcie przenikania.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+
+    const serious = (violations) =>
+      violations.filter((violation) => ['serious', 'critical'].includes(violation.impact));
+
+    await page.goto('/login');
+    await expect(page.getByRole('heading', { name: 'Logowanie' })).toBeVisible();
+    await page.waitForTimeout(300);
+
+    const loginResults = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    expect(serious(loginResults.violations)).toEqual([]);
+
+    await login(page);
+    await page.waitForTimeout(1200);
+
+    const homeResults = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    expect(serious(homeResults.violations)).toEqual([]);
   });
 });
