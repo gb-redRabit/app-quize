@@ -6,7 +6,13 @@ module.exports = defineConfig({
   expect: { timeout: 10_000 },
   fullyParallel: false,
   retries: process.env.CI ? 1 : 0,
-  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
+  reporter: process.env.CI
+    ? [
+        ['list'],
+        ['html', { open: 'never' }],
+        ['json', { outputFile: 'test-results/results.json' }],
+      ]
+    : 'list',
   use: {
     baseURL: 'http://127.0.0.1:4173',
     // Lokalnie korzystamy z zainstalowanego Chrome; w CI z Playwright Chromium.

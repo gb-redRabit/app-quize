@@ -131,6 +131,10 @@ jobs:
       - name: Run e2e
         run: npm run e2e
 
+      - name: Publish e2e failure summary
+        if: failure()
+        run: node scripts/ci-e2e-summary.js
+
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4

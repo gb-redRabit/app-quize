@@ -197,6 +197,7 @@ test.describe('Quiz App E2E', () => {
     const firstRow = page.locator('[data-question-id]').first();
     await expect(firstRow).toBeVisible();
     await firstRow.focus();
+    await expect(firstRow).toBeFocused();
 
     await page.keyboard.press('ArrowDown');
     const focusedId = await page.evaluate(() =>
@@ -205,7 +206,7 @@ test.describe('Quiz App E2E', () => {
     expect(focusedId).toBe('2');
 
     await page.keyboard.press('Enter');
-    await expect(page.locator('aside')).toContainText('ID 2');
+    await expect(page.getByTestId('question-details')).toContainText('ID 2');
   });
 
   test('mobile: szczegóły pytania otwierają się w modalu', async ({ page }) => {
@@ -243,7 +244,7 @@ test.describe('Quiz App E2E', () => {
     expect(serious(loginResults.violations)).toEqual([]);
 
     await login(page);
-    await page.waitForTimeout(1200);
+    await page.waitForTimeout(2000);
 
     const homeResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -251,7 +252,8 @@ test.describe('Quiz App E2E', () => {
     expect(serious(homeResults.violations)).toEqual([]);
 
     await page.goto('/questions');
-    await page.waitForTimeout(1500);
+    await expect(page.getByText(/Wczytano \d+ z \d+/)).toBeVisible();
+    await page.waitForTimeout(800);
     const questionsResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();
