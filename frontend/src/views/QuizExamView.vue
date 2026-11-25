@@ -251,7 +251,6 @@
           @restart="restartQuiz"
           @retry-wrong="retryWrongQuestions"
           @go-home="goToHome"
-          class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sm:p-6 dark:text-white"
         ></SummaryBox>
       </transition>
     </div>

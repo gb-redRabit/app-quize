@@ -232,6 +232,19 @@ test.describe('Quiz App E2E', () => {
     await expect(page.getByText('2/2')).toBeVisible();
   });
 
+  test('podsumowanie: „Wróć do strony głównej” prowadzi do pulpitu', async ({ page }) => {
+    await login(page);
+    await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=e2e-home');
+
+    await answerAllCorrectly(page);
+    await expect(page.getByRole('heading', { name: 'Podsumowanie testu' })).toBeVisible();
+
+    await page.getByRole('button', { name: /Wróć do strony głównej/ }).click();
+
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole('heading', { name: /Cześć/ })).toBeVisible();
+  });
+
   test('„Rozpocznij ponownie” wraca do pytań', async ({ page }) => {
     await login(page);
     await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=e2e2');

@@ -1,14 +1,14 @@
 <template>
-  <div class="bg-white rounded-xl shadow-md overflow-hidden dark:bg-gray-800 dark:shadow-lg">
+  <div class="surface overflow-hidden">
     <!-- Nagłówek z wynikiem -->
     <div
-      class="bg-linear-to-r from-blue-50 to-indigo-50 p-6 border-b dark:from-gray-700 dark:to-gray-900 dark:border-gray-700"
+      class="bg-gray-50/70 p-5 sm:p-6 border-b border-gray-200 dark:bg-gray-900/40 dark:border-gray-800"
     >
-      <div
-        class="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0"
-      >
-        <div class="flex flex-col space-y-2">
-          <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Podsumowanie testu</h2>
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div class="flex flex-col gap-2">
+          <h2 class="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
+            Podsumowanie testu
+          </h2>
           <div class="flex items-center">
             <div class="relative h-16 w-16 mr-4">
               <!-- Wykres kołowy wyników -->
@@ -49,7 +49,7 @@
         </div>
 
         <!-- Przyciski akcji -->
-        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <BaseButton
             :color="allQuestionsCompleted ? 'blue' : 'green'"
             @click="handleMainButton"
@@ -105,6 +105,32 @@
               Popraw błędne odpowiedzi
             </span>
           </BaseButton>
+          <BaseButton
+            v-if="!allQuestionsCompleted"
+            color="gray"
+            variant="outline"
+            @click="emit('go-home')"
+            class="w-full sm:w-auto"
+          >
+            <span class="flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+              Wróć do strony głównej
+            </span>
+          </BaseButton>
         </div>
       </div>
 
@@ -112,7 +138,8 @@
       <div class="mt-6">
         <div class="h-2 w-full bg-gray-200 rounded-full overflow-hidden dark:bg-gray-700">
           <div
-            class="h-2 bg-linear-to-r from-green-400 to-green-500 transition-all duration-1000 dark:from-green-500 dark:to-green-600"
+            class="h-2 transition-all duration-1000"
+            :class="scoreBarClass"
             :style="`width: ${percentage}%`"
           ></div>
         </div>
@@ -170,10 +197,10 @@
         <div
           v-for="{ q, idx } in filteredReview"
           :key="idx"
-          class="border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-700 dark:hover:shadow-lg"
+          class="rounded-xl border border-gray-200 overflow-hidden transition-shadow duration-200 hover:shadow-sm dark:border-gray-800"
         >
           <div
-            class="flex items-center p-4 border-b border-gray-100 bg-gray-50 dark:border-gray-600 dark:bg-gray-800"
+            class="flex items-center p-4 border-b border-gray-100 bg-gray-50/70 dark:border-gray-800 dark:bg-gray-900/40"
           >
             <div
               class="shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm font-bold"
@@ -285,7 +312,7 @@
             <!-- Opis/wyjaśnienie pytania -->
             <div
               v-if="q.description"
-              class="mt-3 p-3 bg-gray-50 rounded-md border border-gray-200 text-sm text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300"
+              class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm text-gray-700 dark:bg-gray-900/40 dark:border-gray-800 dark:text-gray-300"
             >
               <div class="flex items-center text-gray-600 font-medium mb-1 dark:text-gray-400">
                 <svg
@@ -348,6 +375,12 @@ const scoreColorClass = computed(() => {
   if (percentage.value >= 80) return 'text-green-700 dark:text-green-400';
   if (percentage.value >= 50) return 'text-yellow-700 dark:text-yellow-400';
   return 'text-red-700 dark:text-red-400';
+});
+
+const scoreBarClass = computed(() => {
+  if (percentage.value >= 80) return 'bg-green-500';
+  if (percentage.value >= 50) return 'bg-yellow-500';
+  return 'bg-red-500';
 });
 
 const showOnlyWrong = ref(false);
