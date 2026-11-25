@@ -1,3 +1,11 @@
+const prefersDarkScheme = () =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+/** Zamienia zapisany motyw (light/dark/system) na faktyczny motyw. */
+const resolveTheme = (theme) => (theme === 'system' ? (prefersDarkScheme() ? 'dark' : 'light') : theme);
+
 const ui = {
   namespaced: true,
   state: {
@@ -7,7 +15,8 @@ const ui = {
   getters: {
     isLoading: (state) => state.loading,
     currentTheme: (state) => state.theme,
-    isDarkTheme: (state) => state.theme === 'dark',
+    resolvedTheme: (state) => resolveTheme(state.theme),
+    isDarkTheme: (state) => resolveTheme(state.theme) === 'dark',
   },
   mutations: {
     SET_LOADING(state, loading) {
@@ -15,8 +24,8 @@ const ui = {
     },
     SET_THEME(state, theme) {
       state.theme = theme;
-      // Zastosowanie tematu do elementu HTML
-      document.documentElement.setAttribute('data-theme', theme);
+      // Zastosowanie rozwiązanego motywu do elementu HTML
+      document.documentElement.setAttribute('data-theme', resolveTheme(theme));
       // Zapisanie preferencji w localStorage
       localStorage.setItem('theme', theme);
     },

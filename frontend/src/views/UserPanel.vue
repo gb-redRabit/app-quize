@@ -218,6 +218,14 @@
                 title="Ciemny motyw"
                 @select="theme = 'dark'"
               />
+
+              <!-- Motyw systemowy -->
+              <ThemeOption
+                :active="theme === 'system'"
+                theme-name="system"
+                title="Systemowy"
+                @select="theme = 'system'"
+              />
             </div>
 
             <BaseButton
@@ -602,14 +610,8 @@ const updateSelectorPositionFromColor = (hexColor) => {
 
 // Obsługa motywu
 const saveTheme = async () => {
-  // 1. Natychmiastowa zmiana motywu lokalnie
+  // 1. Natychmiastowa zmiana motywu lokalnie (App.vue stosuje klasę .dark)
   store.dispatch('ui/setTheme', theme.value);
-
-  if (theme.value === 'dark') {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
 
   // 2. Zapisz w local/sessionStorage i store
   const updatedUser = { ...user.value, option: theme.value };
@@ -814,7 +816,6 @@ watch(activeTab, (tab) => {
 onMounted(async () => {
   // Ustawienie początkowego stanu
   theme.value = user.value?.option || 'light';
-  if (theme.value === 'dark') document.documentElement.classList.add('dark');
 
   selectedColor.value = user.value?.avatarColors || '#3B82F6';
   currentAvatarIndex.value = user.value?.avatar || 0;

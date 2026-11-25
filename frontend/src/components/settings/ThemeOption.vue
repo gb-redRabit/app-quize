@@ -1,7 +1,9 @@
 <template>
-  <div
-    class="flex-1 relative cursor-pointer rounded-xl overflow-hidden transition-all duration-300 group"
+  <button
+    type="button"
+    class="flex-1 relative cursor-pointer rounded-xl overflow-hidden transition-all duration-300 group text-left"
     :class="{ 'ring-4 ring-blue-400': active }"
+    :aria-pressed="active ? 'true' : 'false'"
     @click="$emit('select')"
   >
     <div
@@ -25,6 +27,7 @@
       :class="{
         'bg-white border border-gray-200': themeName === 'light',
         'bg-gray-900 border border-gray-700': themeName === 'dark',
+        'bg-linear-to-r from-white to-gray-900 border border-gray-400': themeName === 'system',
       }"
       class="shadow-xs transform group-hover:scale-105 transition-transform duration-300"
     >
@@ -32,6 +35,7 @@
         :class="{
           'bg-gray-100 border-gray-200': themeName === 'light',
           'bg-gray-800 border-gray-700': themeName === 'dark',
+          'bg-linear-to-r from-gray-100 to-gray-800 border-gray-500': themeName === 'system',
         }"
         class="border-b px-3 py-2 flex items-center gap-1.5"
       >
@@ -43,11 +47,19 @@
         <div class="h-2 w-16 bg-blue-500 rounded-sm"></div>
         <div
           class="h-2 w-full rounded-sm"
-          :class="{ 'bg-gray-300': themeName === 'light', 'bg-gray-700': themeName === 'dark' }"
+          :class="{
+            'bg-gray-300': themeName === 'light',
+            'bg-gray-700': themeName === 'dark',
+            'bg-gray-400': themeName === 'system',
+          }"
         ></div>
         <div
           class="h-2 w-2/3 rounded-sm"
-          :class="{ 'bg-gray-300': themeName === 'light', 'bg-gray-700': themeName === 'dark' }"
+          :class="{
+            'bg-gray-300': themeName === 'light',
+            'bg-gray-700': themeName === 'dark',
+            'bg-gray-400': themeName === 'system',
+          }"
         ></div>
       </div>
       <div
@@ -55,12 +67,13 @@
         :class="{
           'bg-gray-50 border-t border-gray-200 text-gray-700': themeName === 'light',
           'bg-gray-800 border-t border-gray-700 text-gray-300': themeName === 'dark',
+          'bg-gray-100 border-t border-gray-400 text-gray-700': themeName === 'system',
         }"
       >
         {{ title }}
       </div>
     </div>
-  </div>
+  </button>
 </template>
 
 <script setup>

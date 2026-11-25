@@ -378,19 +378,28 @@ async function verifySession() {
   }
 }
 
-// Motyw
+// Motyw (jasny/ciemny/systemowy)
+const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+function applyTheme(theme) {
+  const isDark = theme === 'dark' || (theme === 'system' && systemThemeQuery.matches);
+  document.documentElement.classList.toggle('dark', isDark);
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+}
+
 watch(
   currentTheme,
   (newTheme) => {
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    applyTheme(newTheme);
     localStorage.setItem('theme', newTheme);
   },
   { immediate: true }
 );
+
+function handleSystemThemeChange() {
+  if (currentTheme.value === 'system') applyTheme('system');
+}
+systemThemeQuery.addEventListener('change', handleSystemThemeChange);
 
 let sessionCheckInterval;
 let statsRefreshTimer = null;
@@ -439,13 +448,6 @@ onMounted(() => {
   window.addEventListener('questions-changed', handleQuestionsChanged);
   window.addEventListener('user-updated', handleUserUpdated);
   window.addEventListener('offline-queue-changed', refreshPendingChanges);
-  // Motyw na starcie
-  const savedTheme = localStorage.getItem('theme') || currentTheme.value;
-  if (savedTheme === 'dark') {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
 
   window.addEventListener('online', handleOnline);
   window.addEventListener('offline', handleOffline);
@@ -478,6 +480,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('online', handleOnline);
   window.removeEventListener('offline', handleOffline);
   window.removeEventListener('focus', verifySession);
+  systemThemeQuery.removeEventListener('change', handleSystemThemeChange);
 });
 </script>
 
