@@ -168,6 +168,14 @@ const tokenManager = {
   },
 };
 
+function setAuthHeader(headers, token) {
+  if (!headers) return;
+  const value = `Bearer ${token}`;
+  // Axios 1.x używa instancji AxiosHeaders; starsze wersje — zwykłego obiektu.
+  if (typeof headers.set === 'function') headers.set('Authorization', value);
+  else headers.Authorization = value;
+}
+
 // Interceptor dla zapytań - dodaje token i obsługuje loader
 apiClient.interceptors.request.use(
   (config) => {
@@ -186,9 +194,7 @@ apiClient.interceptors.request.use(
 
     // Dodaj token uwierzytelniania jeśli istnieje
     const token = tokenManager.getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    if (token) setAuthHeader(config.headers, token);
 
     return config;
   },
@@ -241,7 +247,7 @@ apiClient.interceptors.response.use(
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
-            originalRequest.headers['Authorization'] = 'Bearer ' + token;
+            setAuthHeader(originalRequest.headers, token);
             return apiClient(originalRequest);
           })
           .catch((err) => Promise.reject(err));
@@ -253,9 +259,9 @@ apiClient.interceptors.response.use(
         const res = await apiClient.silentPost('/auth/refresh', {});
         const newToken = res.data.token;
         sessionStorage.setItem('token', newToken);
-        apiClient.defaults.headers.common['Authorization'] = 'Bearer ' + newToken;
+        setAuthHeader(apiClient.defaults.headers.common, newToken);
         processQueue(null, newToken);
-        originalRequest.headers['Authorization'] = 'Bearer ' + newToken;
+        setAuthHeader(originalRequest.headers, newToken);
         return apiClient(originalRequest);
       } catch (err) {
         processQueue(err, null);
