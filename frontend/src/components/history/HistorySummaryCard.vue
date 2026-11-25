@@ -1,24 +1,30 @@
 <template>
-  <div class="bg-white shadow-md rounded-lg p-6 mb-6 dark:bg-gray-800 dark:shadow-lg">
-    <div class="grid md:grid-cols-3 gap-4">
+  <div class="surface p-5 sm:p-6 mb-6">
+    <div class="grid gap-4 sm:grid-cols-3">
       <div>
-        <span class="text-gray-500 block text-sm dark:text-gray-400">Data:</span>
-        <span class="font-medium text-gray-900 dark:text-gray-100">{{
+        <span class="block text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+          Data
+        </span>
+        <span class="mt-1 block font-medium text-gray-900 dark:text-gray-100">{{
           formatDate(historyEntry.data)
         }}</span>
       </div>
       <div>
-        <span class="text-gray-500 block text-sm dark:text-gray-400">Typ:</span>
+        <span class="block text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+          Typ
+        </span>
         <span
-          class="inline-block px-3 py-1 rounded-full text-xs font-bold"
+          class="mt-1 inline-block px-3 py-1 rounded-full text-xs font-semibold"
           :class="getDetailTypeClass(historyEntry.type)"
         >
           {{ getTypeName(historyEntry.type) }}
         </span>
       </div>
       <div>
-        <span class="text-gray-500 block text-sm dark:text-gray-400">Wynik:</span>
-        <span class="font-medium text-gray-900 dark:text-gray-100">
+        <span class="block text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+          Wynik
+        </span>
+        <span class="mt-1 block font-medium text-gray-900 dark:text-gray-100">
           {{ historyEntry.correct || 0 }} /
           {{ (historyEntry.correct || 0) + (historyEntry.wrong || 0) }} ({{
             calculatePercentage(historyEntry.correct, historyEntry.wrong)

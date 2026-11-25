@@ -2,7 +2,7 @@
   <li
     ref="answerElement"
     :data-question-index="index"
-    class="p-4 bg-white rounded-lg shadow-md border-l-4 dark:bg-gray-800 dark:shadow-lg"
+    class="surface overflow-hidden p-4 border-l-4"
     :class="
       isAnswerCorrect(item)
         ? 'border-green-500 dark:border-green-600'
@@ -20,7 +20,7 @@
 
     <div
       v-if="getQuestionDescription(item.id_questions)"
-      class="text-gray-600 text-sm mb-3 p-2 bg-gray-50 rounded-sm dark:bg-gray-700 dark:text-gray-300"
+      class="text-gray-600 text-sm mb-3 p-3 rounded-lg bg-gray-50 border border-gray-100 dark:bg-gray-800/60 dark:border-gray-800 dark:text-gray-300"
     >
       {{ getQuestionDescription(item.id_questions) }}
     </div>

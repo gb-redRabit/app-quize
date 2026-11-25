@@ -12,7 +12,12 @@
       @click-bar="handleBarClick"
     />
 
-    <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Odpowiedzi:</h2>
+    <div class="flex items-center justify-between gap-3 mb-3">
+      <h2 class="text-base font-semibold tracking-tight text-gray-900 dark:text-gray-50">
+        Odpowiedzi
+      </h2>
+      <span class="text-xs text-gray-500 dark:text-gray-400">{{ entryList.length }} pytań</span>
+    </div>
 
     <HistoryAnswersList :entryList="entryList" :answerRefs="answerRefs" />
   </div>

@@ -22,7 +22,7 @@
           <select
             id="history-category"
             v-model="selectedCategory"
-            class="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 px-3 text-sm"
+            class="h-10 w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 px-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 focus:outline-hidden"
           >
             <option value="all">Wszystkie kategorie</option>
             <option v-for="category in categoryOptions" :key="category" :value="category">
@@ -39,7 +39,7 @@
           <select
             id="history-sort"
             v-model="sortOrder"
-            class="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 px-3 text-sm"
+            class="h-10 w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 px-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 focus:outline-hidden"
           >
             <option value="newest">Najnowsze najpierw</option>
             <option value="oldest">Najstarsze najpierw</option>
