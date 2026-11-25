@@ -252,13 +252,22 @@
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Wylogowanie kończy sesję na tym urządzeniu. Postępy są już zapisane.
           </p>
-          <button
-            type="button"
-            class="mt-3 inline-flex items-center gap-2 h-10 px-4 rounded-lg border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
-            @click="logout"
-          >
-            Wyloguj się
-          </button>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 h-10 px-4 rounded-lg border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+              @click="logout"
+            >
+              Wyloguj się
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 h-10 px-4 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              @click="showLogoutAllModal = true"
+            >
+              Wyloguj wszystkie urządzenia
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -385,6 +394,20 @@
         </BaseButton>
       </div>
     </div>
+
+    <BaseModal :show="showLogoutAllModal" @close="showLogoutAllModal = false">
+      <template #header>Wyloguj wszystkie urządzenia</template>
+      <p class="text-sm text-gray-700 dark:text-gray-200">
+        Ta operacja unieważni wszystkie aktywne sesje na wszystkich urządzeniach, w tym tę
+        bieżącą. Będziesz musiał zalogować się ponownie.
+      </p>
+      <template #footer>
+        <BaseButton color="gray" @click="showLogoutAllModal = false">Anuluj</BaseButton>
+        <BaseButton color="red" :loading="loggingOutAll" @click="logoutAllDevices">
+          Wyloguj wszędzie
+        </BaseButton>
+      </template>
+    </BaseModal>
   </div>
 </template>
 
@@ -405,6 +428,7 @@ const ThemeOption = defineAsyncComponent(() => import('@/components/settings/The
 const PasswordChangeForm = defineAsyncComponent(
   () => import('@/components/settings/PasswordChangeForm.vue')
 );
+const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal.vue'));
 import apiClient from '@/api';
 import { useLogout } from '@/composables/useLogout';
 import { setUser } from '@/utils/authStorage';
@@ -430,6 +454,8 @@ const currentAvatarIndex = ref(0);
 const selectedHiddenCategories = ref([]);
 const learningSettings = ref({ autoNext: true, showDescriptions: true });
 const savingSettings = ref(false);
+const showLogoutAllModal = ref(false);
+const loggingOutAll = ref(false);
 const allCategories = ref([]);
 const colorWheelCanvas = ref(null);
 
@@ -745,6 +771,21 @@ async function saveLearningSettings() {
     showAlert('error', 'Błąd zapisu preferencji nauki.');
   } finally {
     savingSettings.value = false;
+  }
+}
+
+async function logoutAllDevices() {
+  if (loggingOutAll.value) return;
+  loggingOutAll.value = true;
+  try {
+    await apiClient.post('/auth/logout-all', {});
+  } catch (e) {
+    // Nawet przy błędzie czyścimy lokalną sesję.
+    showAlert('error', e?.response?.data?.message || 'Nie udało się unieważnić sesji.');
+  } finally {
+    loggingOutAll.value = false;
+    showLogoutAllModal.value = false;
+    logout();
   }
 }
 

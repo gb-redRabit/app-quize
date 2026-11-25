@@ -3,6 +3,7 @@ const User = require("../models/User");
 const Question = require("../models/Question");
 const events = require("../utils/events");
 const { validateNewUserPayload } = require("../utils/validateUser");
+const { invalidateSessionVersion } = require("../utils/sessionVersion");
 
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_PASSWORD_LENGTH = 72;
@@ -117,6 +118,8 @@ exports.updateProfile = async (req, res) => {
       if (!match)
         return res.status(400).json({ message: "Stare hasło nieprawidłowe" });
       user.password = await bcrypt.hash(newPassword, 10);
+      // Zmiana hasła unieważnia wszystkie wcześniejsze tokeny.
+      user.tokenVersion = (user.tokenVersion || 0) + 1;
     }
 
     // Aktualizacja avatara, kolorów, opcji
@@ -180,6 +183,10 @@ exports.updateProfile = async (req, res) => {
       user.settings = next;
     }
     await user.save();
+    if (req.body.changePassword) {
+      // Nowa wersja sesji jest już w bazie — czyścimy cache w middleware.
+      invalidateSessionVersion(user._id);
+    }
     emitUserUpdate(user);
     const responseUser = user.toObject();
     delete responseUser.password;

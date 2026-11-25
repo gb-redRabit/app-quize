@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema({
   history: { type: Array, default: [] },
   hquestion: { type: [answerHistorySchema], default: [] },
   hiddenCategory: { type: [String], default: [] },
+  tokenVersion: { type: Number, default: 0 },
   settings: {
     autoNext: { type: Boolean, default: true },
     showDescriptions: { type: Boolean, default: true },

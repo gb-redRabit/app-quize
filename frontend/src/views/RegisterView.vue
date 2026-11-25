@@ -1,13 +1,50 @@
 <template>
   <div class="min-h-[calc(100dvh-4.5rem)] w-full flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-950">
-    <div class="relative w-full max-w-md">
+    <div
+      class="w-full max-w-4xl overflow-hidden rounded-2xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl grid lg:grid-cols-2"
+    >
+      <aside class="hidden lg:flex flex-col justify-between bg-gray-900 text-white p-10">
+        <div class="flex items-center gap-3">
+          <div
+            class="h-10 w-10 rounded-xl bg-blue-600 grid place-items-center text-sm font-bold"
+            aria-hidden="true"
+          >
+            Q
+          </div>
+          <span class="font-semibold tracking-tight">Quiz App</span>
+        </div>
+
+        <div>
+          <h2 class="text-3xl font-semibold tracking-tight leading-tight">
+            Zacznij uczyć się<br />z głową.
+          </h2>
+          <p class="mt-3 text-sm text-gray-300">
+            Konto daje Ci postępy, historię i tryb egzaminu.
+          </p>
+          <ul class="mt-7 space-y-3 text-sm text-gray-300">
+            <li class="flex items-center gap-2">
+              <span class="text-blue-400">✓</span> Twoje statystyki i słabe punkty
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-blue-400">✓</span> Historia quizów i egzaminów
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-blue-400">✓</span> Prywatne ustawienia nauki
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-blue-400">✓</span> Dostęp offline w PWA
+            </li>
+          </ul>
+        </div>
+
+        <p class="text-xs text-gray-400">Rejestracja wymaga kodu zaproszenia.</p>
+      </aside>
+
       <!-- Karta rejestracji -->
-      <div
-        class="rounded-2xl p-6 sm:p-8 w-full relative z-10 border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl animate-slide-up"
-      >
+      <div class="p-6 sm:p-10 w-full relative z-10 animate-slide-up">
         <!-- Nagłówek -->
         <div class="mb-6">
-          <div class="mb-5 flex items-center gap-2.5">
+          <div class="lg:hidden mb-5 flex items-center gap-2.5">
             <div class="h-9 w-9 rounded-xl bg-blue-600 grid place-items-center text-xs font-bold text-white">
               Q
             </div>

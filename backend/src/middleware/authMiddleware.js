@@ -1,9 +1,10 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { getSessionVersion } = require("../utils/sessionVersion");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-exports.verifyToken = (req, res, next) => {
+exports.verifyToken = async (req, res, next) => {
   if (!JWT_SECRET) {
     console.error("Brak JWT_SECRET w zmiennych środowiskowych");
     return res.status(500).json({ message: "Server configuration error" });
@@ -13,13 +14,28 @@ exports.verifyToken = (req, res, next) => {
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) return res.status(401).json({ message: "Unauthorized" });
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
+  let payload;
+  try {
+    payload = jwt.verify(token, JWT_SECRET);
+  } catch {
     // 401 = nieprawidłowy/wygasły token (frontend próbuje wtedy refreshu),
     // 403 jest zarezerwowane dla braku uprawnień.
-    if (err) return res.status(401).json({ message: "Unauthorized" });
-    req.user = user;
-    next();
-  });
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    const currentVersion = await getSessionVersion(payload.id);
+    // Token bez `ver` (starszy) traktujemy jak wersję 0.
+    if (currentVersion === null || (payload.ver || 0) !== currentVersion) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+  } catch (err) {
+    console.error("Błąd weryfikacji sesji:", err);
+    return res.status(500).json({ message: "Server configuration error" });
+  }
+
+  req.user = payload;
+  next();
 };
 
 // Wymaga zalogowanego użytkownika z rolą "admin" (rola czytana z bazy, nie z tokenu).

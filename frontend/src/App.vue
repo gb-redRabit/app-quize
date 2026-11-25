@@ -312,6 +312,7 @@ function checkTokenExpiration() {
 
 // Autoryzacja na starcie
 async function checkAuthOnStart() {
+  await router.isReady();
   const token = getToken();
   if (!token) {
     if (route.name !== 'Login' && route.name !== 'Register') {
