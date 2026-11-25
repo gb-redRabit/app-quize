@@ -8,6 +8,7 @@ import {
   setCachedVersion,
   getQuestionsByIds as cacheGetByIds,
   getQuestionsByCategory as cacheGetByCategory,
+  getAllQuestions as cacheGetAll,
   countQuestions,
 } from '@/utils/questionsCache';
 
@@ -155,6 +156,14 @@ export async function getCachedQuestionsByIds(ids) {
 export async function getCachedQuestionsByCategory(category) {
   try {
     return await cacheGetByCategory(category);
+  } catch (e) {
+    return [];
+  }
+}
+
+export async function getAllCachedQuestions() {
+  try {
+    return await cacheGetAll();
   } catch (e) {
     return [];
   }

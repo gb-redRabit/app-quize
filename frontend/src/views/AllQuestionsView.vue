@@ -353,6 +353,7 @@ const QuestionEditor = defineAsyncComponent(
 const BaseSkeleton = defineAsyncComponent(() => import('@/components/base/BaseSkeleton.vue'));
 const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal.vue'));
 import apiClient from '@/api';
+import { getAllCachedQuestions } from '@/services/questionsSync';
 import { useStore } from 'vuex';
 
 const store = useStore();
@@ -442,6 +443,40 @@ async function fetchQuestions(forceRefresh = false, append = false) {
     pages.value = pagesCount;
   } catch (e) {
     if (token !== fetchToken) return;
+
+    // Offline: pokaż pytania z lokalnego cache (IndexedDB).
+    const cached = await getAllCachedQuestions();
+    if (cached.length) {
+      const query = search.value.trim().toLowerCase();
+      let list = cached;
+      if (query) {
+        list = cached.filter(
+          (q) =>
+            String(q.ID) === query || (q.question || '').toLowerCase().includes(query)
+        );
+      }
+
+      if (query) {
+        questions.value = list.slice(0, 100);
+        total.value = list.length;
+        pages.value = 1;
+      } else {
+        const pageSize = limit.value;
+        const start = (page.value - 1) * pageSize;
+        const slice = list.slice(start, start + pageSize);
+        questions.value = append ? [...questions.value, ...slice] : slice;
+        total.value = list.length;
+        pages.value = Math.max(1, Math.ceil(list.length / pageSize));
+      }
+
+      showAlert(
+        'warning',
+        'Brak połączenia — pokazuję pytania zapisane na urządzeniu.',
+        5000
+      );
+      return;
+    }
+
     console.error('Błąd podczas pobierania pytań:', e);
     showAlert('error', `Błąd pobierania pytań: ${e.message}`);
 
@@ -449,31 +484,6 @@ async function fetchQuestions(forceRefresh = false, append = false) {
       questions.value = [];
       total.value = 0;
       pages.value = 1;
-
-      // Dodajemy testowe dane jeśli API zwróci błąd - to pozwoli sprawdzić czy widok działa
-      if (import.meta.env.DEV) {
-        questions.value = [
-          {
-            ID: 1,
-            question: 'Testowe pytanie 1',
-            category: 'Test',
-            answer_a: 'Odpowiedź A',
-            answer_b: 'Odpowiedź B',
-            answer_c: 'Odpowiedź C',
-            correct_answer: 'a',
-            description: 'Opis testowego pytania',
-          },
-          {
-            ID: 2,
-            question: 'Testowe pytanie 2',
-            category: 'Test',
-            answer_a: 'Odpowiedź A',
-            answer_b: 'Odpowiedź B',
-            correct_answer: 'b',
-          },
-        ];
-        total.value = 2;
-      }
     }
   } finally {
     // Upewnijmy się, że zawsze zmieniamy stan isLoading na false
