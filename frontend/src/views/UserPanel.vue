@@ -571,6 +571,7 @@ const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal
 import apiClient from '@/api';
 import { useLogout } from '@/composables/useLogout';
 import { setUser } from '@/utils/authStorage';
+import { clearHistoryCache } from '@/utils/historyCache';
 import { clearQueue } from '@/utils/offlineQueue';
 import {
   DEFAULT_EXAM_LENGTH,
@@ -1004,6 +1005,7 @@ async function deleteAccount() {
     });
     // Kolejka mogła zawierać dane tego konta — nie przenosimy jej na inne konto.
     clearQueue();
+    await clearHistoryCache().catch(() => {});
     showDeleteAccountModal.value = false;
     logout();
   } catch (e) {

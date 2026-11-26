@@ -9,12 +9,26 @@ import {
   getCachedUserData,
   clearSession,
 } from '@/utils/authStorage';
+import {
+  getHistoryCache,
+  replaceHistoryCache,
+  clearHistoryCache,
+} from '@/utils/historyCache';
+
+function persistHistory(userId, history) {
+  if (!userId) return;
+  replaceHistoryCache(userId, history).catch((e) => {
+    console.warn('Nie udało się zapisać pełnej historii lokalnie:', e?.message || e);
+  });
+}
 
 export default {
   namespaced: true,
   state: {
     user: {},
+    history: [],
     hquestion: [],
+    historyLoadedFromServer: false,
     isAuthenticated: false,
   },
   mutations: {
@@ -23,6 +37,9 @@ export default {
     },
     SET_USER_HISTORY(state, history) {
       state.history = history;
+    },
+    SET_HISTORY_SOURCE(state, source) {
+      state.historyLoadedFromServer = source === 'server';
     },
     SET_HQUESTION(state, hq) {
       state.hquestion = hq || [];
@@ -49,8 +66,8 @@ export default {
     },
   },
   actions: {
-    // Dodajemy akcję inicjalizacji danych użytkownika
-    initUser({ commit }) {
+    // Inicjalizacja danych użytkownika (wywoływana przed mountem aplikacji).
+    async initUser({ commit, state }) {
       const user = getStoredUser();
       const token = getToken();
 
@@ -63,6 +80,18 @@ export default {
       const cached = getCachedUserData();
       if (Array.isArray(cached.history)) commit('SET_USER_HISTORY', cached.history);
       if (Array.isArray(cached.hquestion)) commit('SET_HQUESTION', cached.hquestion);
+
+      // Pełne wpisy (z listami odpowiedzi) doładuj z IndexedDB. Serwer ma
+      // pierwszeństwo: jeśli zdążył już odpowiedzieć, nie nadpisujemy.
+      if (!user?._id) return;
+      try {
+        const full = await getHistoryCache(user._id);
+        if (Array.isArray(full) && full.length > 0 && !state.historyLoadedFromServer) {
+          commit('SET_USER_HISTORY', full);
+        }
+      } catch (e) {
+        // Brak IndexedDB — zostają podsumowania z localStorage.
+      }
     },
 
     async login({ commit, dispatch }, credentials) {
@@ -97,7 +126,11 @@ export default {
     },
     async fetchUserHistory({ commit }) {
       const res = await apiClient.get('/users/history');
-      commit('SET_USER_HISTORY', res.data);
+      const history = Array.isArray(res.data) ? res.data : [];
+      commit('SET_USER_HISTORY', history);
+      commit('SET_HISTORY_SOURCE', 'server');
+      setCachedHistory(history);
+      persistHistory(getStoredUser()?._id, history);
     },
     /** Sam profil — używany przy starcie, gdy nie ma lokalnej kopii danych. */
     async fetchUserProfile({ commit }) {
@@ -111,7 +144,7 @@ export default {
      * Historia + odpowiedzi (+ opcjonalnie profil). Żądania lecą równolegle,
      * a błąd sieci zostawia ostatnią lokalną kopię (offline-first).
      */
-    async fetchUserHistoryAndHQ({ commit }, { withProfile = true } = {}) {
+    async fetchUserHistoryAndHQ({ commit, state }, { withProfile = true } = {}) {
       try {
         const requests = [
           apiClient.get('/users/history'),
@@ -124,9 +157,11 @@ export default {
         const history = Array.isArray(historyRes.data) ? historyRes.data : [];
         const hquestion = Array.isArray(hqRes.data) ? hqRes.data : [];
         commit('SET_USER_HISTORY', history);
+        commit('SET_HISTORY_SOURCE', 'server');
         commit('SET_HQUESTION', hquestion);
         setCachedHistory(history);
         setCachedHQuestion(hquestion);
+        persistHistory(meRes?.data?._id || state.user?._id, history);
 
         // Profil (bez historii/hquestion) — aktualizujemy avatar, motyw itp.
         if (meRes) {
@@ -135,18 +170,26 @@ export default {
           setUser(updatedUser);
         }
       } catch (e) {
-        // Offline lub błąd sieci: zostaje ostatnia zapisana kopia.
+        // Offline lub błąd sieci: zostaje ostatnia zapisana kopia. Nie nadpisujemy
+        // pełnych danych z IndexedDB uboższymi podsumowaniami.
         const cached = getCachedUserData();
-        if (Array.isArray(cached.history)) commit('SET_USER_HISTORY', cached.history);
-        if (Array.isArray(cached.hquestion)) commit('SET_HQUESTION', cached.hquestion);
+        if (!state.history?.length && Array.isArray(cached.history)) {
+          commit('SET_USER_HISTORY', cached.history);
+        }
+        if (!state.hquestion?.length && Array.isArray(cached.hquestion)) {
+          commit('SET_HQUESTION', cached.hquestion);
+        }
       }
     },
     async logout({ commit }) {
       commit('SET_AUTHENTICATED', false);
       commit('SET_USER', {});
+      commit('SET_USER_HISTORY', []);
+      commit('SET_HISTORY_SOURCE', 'server');
       commit('SET_HQUESTION', []);
       clearSession();
-      // Po wylogowaniu
+      // Pełna kopia historii nie może zostać na współdzielonym urządzeniu.
+      clearHistoryCache().catch(() => {});
     },
     async clearCategoryHistory({ dispatch }, { category }) {
       try {
@@ -165,9 +208,11 @@ export default {
 
         // Natychmiast czyść wszystkie powiązane dane
         commit('SET_USER_HISTORY', []);
+        commit('SET_HISTORY_SOURCE', 'server');
         commit('SET_HQUESTION', []);
         setCachedHistory([]);
         setCachedHQuestion([]);
+        await clearHistoryCache().catch(() => {});
 
         // Wyczyść dane w pamięci sesji trwałej
         try {
@@ -204,8 +249,10 @@ export default {
           commit('SET_AUTHENTICATED', false);
           commit('SET_USER', {});
           commit('SET_USER_HISTORY', []);
+          commit('SET_HISTORY_SOURCE', 'server');
           commit('SET_HQUESTION', []);
           clearSession();
+          clearHistoryCache().catch(() => {});
           throw new Error('Sesja wygasła');
         }
         return false;

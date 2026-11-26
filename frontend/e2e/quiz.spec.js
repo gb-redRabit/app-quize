@@ -235,6 +235,46 @@ test.describe('Quiz App E2E', () => {
     await expect(page).toHaveURL(/\/history$/);
   });
 
+  test('historia: szczegóły działają po reloadzie bez API (IndexedDB)', async ({ page }) => {
+    const entry = {
+      clientId: 'history-e2e-1',
+      type: 'quiz',
+      category: 'E2E',
+      correct: 1,
+      wrong: 0,
+      data: '2026-11-20T10:00:00.000Z',
+      time: 10,
+      list: [{ id_questions: 1, answer: 'answer_a', correct: true }],
+      questionTimes: [Date.parse('2026-11-20T10:00:05.000Z') / 1000],
+    };
+    let historyMode = 'ok';
+    await page.route('**/api/users/history', async (route) => {
+      if (historyMode === 'ok') return route.fulfill(json([entry]));
+      return route.abort();
+    });
+
+    await login(page);
+    await page.goto('/history');
+    await page.getByRole('button', { name: /Pokaż szczegóły/ }).first().click();
+    await expect(page.getByText('E2E: stolica Polski?')).toBeVisible();
+    await expect(page.getByText('A: Warszawa')).toBeVisible();
+
+    // localStorage trzyma tylko podsumowanie — bez listy odpowiedzi.
+    const cached = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem('cached-history') || '[]')
+    );
+    expect(cached[0].clientId).toBe('history-e2e-1');
+    expect(cached[0].list).toBeUndefined();
+
+    // Po reloadzie bez API historii pełne szczegóły muszą przyjść z IndexedDB.
+    historyMode = 'fail';
+    await page.reload();
+    await page.goto('/history');
+    await page.getByRole('button', { name: /Pokaż szczegóły/ }).first().click();
+    await expect(page.getByText('E2E: stolica Polski?')).toBeVisible();
+    await expect(page.getByText('A: Warszawa')).toBeVisible();
+  });
+
   test('start: zapisana sesja pokazuje pulpit bez czekania na historię', async ({ page }) => {
     let releaseHistory;
     const historyGate = new Promise((resolve) => {

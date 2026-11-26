@@ -1,3 +1,5 @@
+import { toHistorySummary } from './historySummary';
+
 const TOKEN_KEY = 'token';
 const USER_KEY = 'user';
 const HISTORY_KEY = 'cached-history';
@@ -95,8 +97,9 @@ export function getCachedUserData() {
 }
 
 export function setCachedHistory(history) {
-  const raw = JSON.stringify(Array.isArray(history) ? history : []);
-  // Tylko localStorage — sessionStorage podwajał serializację dużych tablic.
+  // Tylko podsumowania — pełne wpisy (listy odpowiedzi) są w IndexedDB.
+  const summaries = (Array.isArray(history) ? history : []).map(toHistorySummary);
+  const raw = JSON.stringify(summaries);
   write(localStorage, HISTORY_KEY, raw);
   remove(sessionStorage, HISTORY_KEY);
 }

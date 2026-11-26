@@ -41,8 +41,10 @@ describe('authStorage', () => {
     expect(hasSession()).toBe(false);
   });
 
-  it('przechowuje kopię historii i odpowiedzi dla trybu offline', () => {
-    setCachedHistory([{ type: 'quiz' }]);
+  it('przechowuje kopię historii (bez list odpowiedzi) i odpowiedzi dla trybu offline', () => {
+    setCachedHistory([
+      { type: 'quiz', list: [{ id_questions: 1 }], questionTimes: [3] },
+    ]);
     setCachedHQuestion([{ id: 1, correct: true }]);
 
     const cached = getCachedUserData();

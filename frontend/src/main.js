@@ -8,14 +8,18 @@ import { setupPWA } from './services/pwa';
 
 // Inicjalizacja tematu przy starcie aplikacji
 store.dispatch('ui/initTheme');
-store.dispatch('user/initUser');
 
 // Jedno źródło odświeżania tokenu (interwał + focus/online/aktywność quizu).
 startTokenRefresh();
 
-const app = createApp(App);
-app.config.performance = import.meta.env.DEV;
-app.use(router).use(store).mount('#app');
+// Najpierw sesja + pełna historia z IndexedDB (szybkie, lokalne), potem mount.
+// Limit czasu chroni przed zawieszeniem, gdy IndexedDB jest zablokowane.
+const initTimeout = new Promise((resolve) => setTimeout(resolve, 800));
+Promise.race([store.dispatch('user/initUser'), initTimeout]).finally(() => {
+  const app = createApp(App);
+  app.config.performance = import.meta.env.DEV;
+  app.use(router).use(store).mount('#app');
 
-// PWA: rejestracja Service Workera + wykrywanie nowej wersji aplikacji.
-setupPWA();
+  // PWA: rejestracja Service Workera + wykrywanie nowej wersji aplikacji.
+  setupPWA();
+});
