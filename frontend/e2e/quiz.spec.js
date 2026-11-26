@@ -222,6 +222,19 @@ test.describe('Quiz App E2E', () => {
     await expect(page.getByRole('heading', { name: 'Kategorie' })).toBeVisible();
   });
 
+  test('nawigacja: tablet 1024–1279 px ma pasek i wylogowanie', async ({ page }) => {
+    // Realny przypadek: iPad poziomo lub laptop ze skalowaniem Windows 125%.
+    await page.setViewportSize({ width: 1100, height: 800 });
+    await login(page);
+
+    const historyLink = page.getByRole('link', { name: 'Historia' }).first();
+    await expect(historyLink).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Wyloguj' }).first()).toBeVisible();
+
+    await historyLink.click();
+    await expect(page).toHaveURL(/\/history$/);
+  });
+
   test('start: zapisana sesja pokazuje pulpit bez czekania na historię', async ({ page }) => {
     let releaseHistory;
     const historyGate = new Promise((resolve) => {

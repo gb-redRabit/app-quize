@@ -23,6 +23,7 @@ const state = {
   legacyQuestionExists: false,
   answerEvent: null,
   answerEventCreateCalls: [],
+  invalidateCalls: [],
 };
 
 const fakeAnswerEventModel = {
@@ -117,7 +118,7 @@ require.cache[sessionVersionPath] = {
   loaded: true,
   exports: {
     getSessionVersion: async () => 0,
-    invalidateSessionVersion: () => {},
+    invalidateSessionVersion: (id) => state.invalidateCalls.push(String(id)),
     bumpSessionVersion: async () => 1,
   },
 };
@@ -153,6 +154,7 @@ function reset() {
   state.legacyQuestionExists = false;
   state.answerEvent = null;
   state.answerEventCreateCalls = [];
+  state.invalidateCalls = [];
 }
 
 function makeSelfUser({ password = "haslo123", rola = "user" } = {}) {
@@ -288,6 +290,8 @@ test("deleteUser: usuwa konto innego użytkownika", async () => {
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.success, true);
   assert.equal(state.deleted, true);
+  // Usunięty użytkownik nie może działać z tokenem z cache wersji sesji.
+  assert.deepEqual(state.invalidateCalls, ["u2"]);
 });
 
 test("deleteSelf: wymaga hasła i odrzuca złe hasło", async () => {

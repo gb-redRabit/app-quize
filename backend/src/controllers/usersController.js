@@ -305,6 +305,7 @@ exports.deleteUser = async (req, res) => {
 
     await target.deleteOne();
     await userData.deleteUserData(target._id);
+    invalidateSessionVersion(target._id);
     res.json({ success: true, deletedId: String(target._id) });
   } catch (err) {
     console.error("Błąd usuwania użytkownika:", err);

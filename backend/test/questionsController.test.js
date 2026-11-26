@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 // Stuby zależności kontrolera (bez bazy i bez ExcelJS).
 const questionPath = require.resolve("../src/models/Question");
 const statsModelPath = require.resolve("../src/models/Stats");
+const questionChangePath = require.resolve("../src/models/QuestionChange");
 const versionPath = require.resolve("../src/utils/questionsVersion");
 const eventsPath = require.resolve("../src/utils/events");
 
@@ -12,6 +13,7 @@ const state = {
   updated: null,
   updateCalls: 0,
   emitted: null,
+  changeLog: [],
 };
 
 const QuestionStub = {
@@ -35,6 +37,17 @@ require.cache[statsModelPath] = {
   filename: statsModelPath,
   loaded: true,
   exports: { findOneAndUpdate: async () => ({}) },
+};
+require.cache[questionChangePath] = {
+  id: questionChangePath,
+  filename: questionChangePath,
+  loaded: true,
+  exports: {
+    create: async (entry) => {
+      state.changeLog.push(entry);
+      return entry;
+    },
+  },
 };
 require.cache[versionPath] = {
   id: versionPath,
@@ -85,6 +98,7 @@ function reset() {
   state.updated = null;
   state.updateCalls = 0;
   state.emitted = null;
+  state.changeLog = [];
 }
 
 test("updateQuestion: odrzuca konflikt wersji (409)", async () => {
@@ -128,6 +142,7 @@ test("updateQuestion: zgodna wersja zapisuje zmiany", async () => {
   assert.equal(state.updateCalls, 1);
   assert.equal(res.body.question, "Nowa?");
   assert.equal(state.emitted?.name, "questions-changed");
+  assert.deepEqual(state.changeLog, [{ version: 1, action: "upsert", ID: 1 }]);
 });
 
 test("updateQuestion: brak expectedUpdatedAt nie blokuje zapisu", async () => {
