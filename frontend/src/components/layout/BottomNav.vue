@@ -1,29 +1,24 @@
 <template>
   <nav
-    class="fixed bottom-0 left-0 right-0 z-30 lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-nav"
+    class="fixed inset-x-3 bottom-3 z-30 mx-auto flex max-w-md items-center justify-around gap-1 rounded-2xl border px-2 py-1.5 shadow-lg backdrop-blur-md lg:hidden"
+    style="background-color: var(--bg-glass); border-color: var(--border-bento); padding-bottom: max(0.375rem, env(safe-area-inset-bottom))"
     aria-label="Nawigacja mobilna"
-    style="padding-bottom: env(safe-area-inset-bottom)"
   >
-    <div
-      class="grid w-full"
-      :style="{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }"
+    <router-link
+      v-for="item in items"
+      :key="item.path"
+      :to="item.path"
+      class="flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-[10px] font-medium transition-colors"
+      :style="
+        isActive(item)
+          ? 'background-color: var(--accent-soft); color: var(--accent)'
+          : 'color: var(--text-muted)'
+      "
+      :aria-current="isActive(item) ? 'page' : undefined"
     >
-      <router-link
-        v-for="item in items"
-        :key="item.path"
-        :to="item.path"
-        class="flex flex-col items-center justify-center gap-0.5 min-h-[56px] px-1 text-[11px] font-medium transition-colors"
-        :class="
-          isActive(item)
-            ? 'text-blue-700 dark:text-blue-300'
-            : 'text-gray-500 dark:text-gray-400'
-        "
-        :aria-current="isActive(item) ? 'page' : undefined"
-      >
-        <component :is="item.icon" class="h-6 w-6" />
-        <span class="truncate max-w-full">{{ item.label }}</span>
-      </router-link>
-    </div>
+      <component :is="item.icon" class="h-5 w-5" />
+      <span class="truncate max-w-full">{{ item.label }}</span>
+    </router-link>
   </nav>
 </template>
 

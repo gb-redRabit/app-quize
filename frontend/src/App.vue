@@ -1,7 +1,8 @@
 <template>
   <div
     id="app"
-    class="flex flex-col items-center justify-start min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100"
+    class="flex min-h-screen flex-col items-center justify-start text-[var(--text-primary)]"
+    style="background-color: var(--bg-canvas)"
     :data-theme="currentTheme"
   >
     <BaseLoader v-if="!isAuthChecked" />
@@ -14,6 +15,7 @@
       </a>
       <AppSidebar v-if="showAppNavigation" />
       <Navbar v-if="showAppNavigation" />
+      <WorkspaceTopBar v-if="showAppNavigation" />
       <div
         v-if="!isOnline && !offlineBannerDismissed"
         class="fixed left-1/2 top-[4.75rem] z-50 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 rounded-full border border-gray-700/60 bg-gray-900/95 px-3 py-1.5 text-xs text-gray-100 shadow-lg backdrop-blur lg:left-auto lg:right-6 lg:top-auto lg:bottom-6 lg:translate-x-0"
@@ -57,8 +59,8 @@
         :class="
           showAppNavigation
             ? sidebarCollapsed
-              ? 'xl:pl-20'
-              : 'xl:pl-60'
+              ? 'lg:pl-[76px]'
+              : 'lg:pl-[248px]'
             : ''
         "
       >
@@ -67,7 +69,7 @@
           tabindex="-1"
           class="w-full flex-1"
           :class="
-            showBottomNav ? 'pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0' : ''
+            showBottomNav ? 'pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-0' : ''
           "
         >
           <router-view v-slot="{ Component }">
@@ -147,6 +149,10 @@
       <BaseAlert ref="globalAlert" />
       <BaseLoader ref="globalLoader" v-if="globalLoaderVisible" />
       <ShortcutsModal :show="showShortcuts" @close="showShortcuts = false" />
+      <CommandPalette
+        :show="showCommandPalette"
+        @close="showCommandPalette = false"
+      />
       <BaseModal :show="showSessionModal" @close="showSessionModal = false">
         <template #header>
           <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Sesja wygasa</h2>
@@ -191,6 +197,12 @@ import {
 import { useStore } from 'vuex';
 import { useRouter, useRoute } from 'vue-router';
 const Navbar = defineAsyncComponent(() => import('@/components/layout/Navbar.vue'));
+const WorkspaceTopBar = defineAsyncComponent(
+  () => import('@/components/layout/WorkspaceTopBar.vue')
+);
+const CommandPalette = defineAsyncComponent(
+  () => import('@/components/layout/CommandPalette.vue')
+);
 const AppSidebar = defineAsyncComponent(() => import('@/components/layout/AppSidebar.vue'));
 const BottomNav = defineAsyncComponent(() => import('@/components/layout/BottomNav.vue'));
 const AppFooter = defineAsyncComponent(() => import('@/components/layout/AppFooter.vue'));
@@ -258,6 +270,7 @@ const showAppNavigation = computed(() => showNavbar.value && !isFocusMode.value)
 const showBottomNav = computed(() => showAppNavigation.value);
 
 const showShortcuts = ref(false);
+const showCommandPalette = ref(false);
 let gPrefixActive = false;
 let gPrefixTimer = null;
 
@@ -281,6 +294,11 @@ function resetGPrefix() {
 }
 
 function handleGlobalShortcuts(event) {
+  if ((event.ctrlKey || event.metaKey) && String(event.key || '').toLowerCase() === 'k') {
+    event.preventDefault();
+    showCommandPalette.value = !showCommandPalette.value;
+    return;
+  }
   if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
   if (isTypingTarget(event.target)) return;
 
@@ -330,6 +348,14 @@ function handleGlobalShortcuts(event) {
   }
 }
 const showFooter = computed(() => !isFocusMode.value);
+
+function handleOpenCommandPalette() {
+  showCommandPalette.value = true;
+}
+
+function handleOpenShortcuts() {
+  showShortcuts.value = true;
+}
 
 // Skeleton logic
 const {
@@ -673,6 +699,8 @@ onMounted(() => {
   window.addEventListener('offline-conflicts', handleOfflineConflicts);
   window.addEventListener('offline-import-finished', handleOfflineImportFinished);
   window.addEventListener('user-data-synced', handleUserDataSynced);
+  window.addEventListener('open-command-palette', handleOpenCommandPalette);
+  window.addEventListener('open-shortcuts', handleOpenShortcuts);
 
   window.addEventListener('online', handleOnline);
   window.addEventListener('offline', handleOffline);
@@ -708,6 +736,8 @@ onBeforeUnmount(() => {
   window.removeEventListener('offline-conflicts', handleOfflineConflicts);
   window.removeEventListener('offline-import-finished', handleOfflineImportFinished);
   window.removeEventListener('user-data-synced', handleUserDataSynced);
+  window.removeEventListener('open-command-palette', handleOpenCommandPalette);
+  window.removeEventListener('open-shortcuts', handleOpenShortcuts);
   window.removeEventListener('online', handleOnline);
   window.removeEventListener('offline', handleOffline);
   window.removeEventListener('focus', verifySession);

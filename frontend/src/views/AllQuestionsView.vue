@@ -404,8 +404,10 @@ import apiClient from '@/api';
 import { getAllCachedQuestions } from '@/services/questionsSync';
 import { getPendingQuestionCreates } from '@/utils/pendingQuestions';
 import { useStore } from 'vuex';
+import { useRoute } from 'vue-router';
 
 const store = useStore();
+const route = useRoute();
 const showAlert = inject('showAlert');
 
 // Stan komponentu
@@ -783,6 +785,12 @@ onMounted(() => {
   }
 
   setTimeout(() => {
+    const initialSearch =
+      typeof route.query.search === 'string' ? route.query.search.trim() : '';
+    if (initialSearch) {
+      search.value = initialSearch;
+      page.value = 1;
+    }
     fetchQuestions(true);
     setupInfiniteScroll();
     window.addEventListener('scroll', handleScroll);

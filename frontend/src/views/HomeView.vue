@@ -188,8 +188,8 @@
 </template>
 
 <script setup>
-import { ref, computed, inject, defineAsyncComponent, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, inject, defineAsyncComponent, watch, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
 import { getStoredUser, setUser } from '@/utils/authStorage';
@@ -222,6 +222,7 @@ const PageHeader = defineAsyncComponent(() => import('@/components/layout/PageHe
 // Hooki
 const showAlert = inject('showAlert');
 const router = useRouter();
+const route = useRoute();
 const store = useStore(); // Inicjalizuj store na najwyższym poziomie
 const userName = computed(() => store.getters['user/getUser']?.login || 'uczniu');
 const configuredExamLength = computed(() =>
@@ -632,6 +633,10 @@ const refreshAllData = async () => {
 
 // Odświeżanie po zakończeniu quizu obsługuje QuizExamView (jeden raz),
 // a widoki korzystają ze store. Nie dublujemy requestów na Home.
+onMounted(() => {
+  if (route.query.exam === '1') showExamPopup.value = true;
+  if (route.query.otherQuiz === '1') showOtherQuizPopup.value = true;
+});
 </script>
 
 <style scoped></style>

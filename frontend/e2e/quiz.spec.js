@@ -235,6 +235,51 @@ test.describe('Quiz App E2E', () => {
     await expect(page).toHaveURL(/\/history$/);
   });
 
+  test('sidebar: przy 1024 px startuje zwinięty i daje się rozwinąć', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await login(page);
+
+    const sidebar = page.locator('aside[aria-label="Nawigacja główna"]');
+    await expect(sidebar).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'Historia' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Rozwiń panel nawigacji' }).click();
+    await expect(page.getByRole('button', { name: 'Zwiń panel nawigacji' })).toBeVisible();
+    await expect(sidebar.getByText('Administracja')).toBeVisible();
+  });
+
+  test('mobile: pływający dock nawigacji jest widoczny', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await login(page);
+
+    const dock = page.getByRole('navigation', { name: 'Nawigacja mobilna' });
+    await expect(dock).toBeVisible();
+    await expect(dock.getByRole('link', { name: 'Historia' })).toBeVisible();
+  });
+
+  test('command bar: Ctrl+K otwiera kategorię i pytanie po ID', async ({ page }) => {
+    await login(page);
+
+    await page.keyboard.press('Control+k');
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+
+    const input = dialog.getByRole('combobox');
+    await expect(input).toBeFocused();
+    await input.fill('E2E');
+    await expect(dialog.getByRole('option', { name: /E2E/ }).first()).toBeVisible();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/category\/E2E$/);
+
+    await page.keyboard.press('Control+k');
+    await expect(dialog).toBeVisible();
+    const idInput = dialog.getByRole('combobox');
+    await idInput.fill('1');
+    await expect(dialog.getByRole('option', { name: /Otwórz pytanie #1/ })).toBeVisible();
+    await idInput.press('Enter');
+    await expect(page).toHaveURL(/\/questions\?search=1$/);
+  });
+
   test('historia: szczegóły działają po reloadzie bez API (IndexedDB)', async ({ page }) => {
     const entry = {
       clientId: 'history-e2e-1',

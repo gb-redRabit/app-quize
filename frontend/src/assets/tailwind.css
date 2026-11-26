@@ -4,8 +4,55 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* Bento Studio — typografia i tokeny bazowe. */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-canvas: #f4f5f7;
+  --color-bento: #ffffff;
+  --color-subtle: #f1f3f6;
+  --color-bento-border: #e5e7eb;
+  --color-accent: #4f46e5;
+  --color-accent-soft: #eef2ff;
+  --color-ok: #059669;
+  --color-warn: #d97706;
+  --color-err: #dc2626;
+
+  /* Muted text musi mieć ≥4,5:1 także na ciemniejszym canvasie Bento. */
+  --color-gray-500: #5b6573;
+
   /* Cień dolnej nawigacji mobilnej. */
   --shadow-nav: 0 -4px 16px rgba(0, 0, 0, 0.08);
+}
+
+:root {
+  --bg-canvas: #f4f5f7;
+  --bg-bento: #ffffff;
+  --bg-subtle: #f1f3f6;
+  --bg-glass: rgba(255, 255, 255, 0.82);
+  --border-bento: #e5e7eb;
+  --text-primary: #0f172a;
+  --text-muted: #5b6573;
+  --accent: #4f46e5;
+  --accent-soft: #eef2ff;
+  --status-ok: #059669;
+  --status-warn: #d97706;
+  --status-err: #dc2626;
+}
+
+.dark {
+  --bg-canvas: #09090b;
+  --bg-bento: #121318;
+  --bg-subtle: #1a1c24;
+  --bg-glass: rgba(18, 19, 24, 0.82);
+  --border-bento: #232530;
+  --text-primary: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent: #6366f1;
+  --accent-soft: rgba(99, 102, 241, 0.16);
+  --status-ok: #34d399;
+  --status-warn: #fbbf24;
+  --status-err: #f87171;
 }
 
 /*
@@ -27,9 +74,12 @@
 html {
   overflow-y: scroll;
   -webkit-text-size-adjust: 100%;
+  font-family: var(--font-sans);
+  background-color: var(--bg-canvas);
 }
 body {
   padding-bottom: env(safe-area-inset-bottom);
+  color: var(--text-primary);
 }
 @supports (padding: env(safe-area-inset-bottom)) {
   body {
@@ -59,7 +109,7 @@ body {
 .app-shell {
   margin-inline: auto;
   width: 100%;
-  max-width: 75rem; /* 1200 px */
+  max-width: 82.5rem; /* 1320 px */
   padding-inline: 1rem;
   padding-block: 1.5rem;
 }
@@ -76,18 +126,44 @@ body {
 }
 
 @layer components {
+  /* Bento Studio: hierarchia powierzchni canvas → card → subtle. */
+  .bento-card {
+    @apply rounded-3xl border shadow-xs;
+    background-color: var(--bg-bento);
+    border-color: var(--border-bento);
+  }
+  .bento-tile {
+    @apply rounded-2xl border;
+    background-color: var(--bg-subtle);
+    border-color: var(--border-bento);
+  }
+  .bento-glass {
+    @apply rounded-2xl border shadow-lg backdrop-blur-md;
+    background-color: var(--bg-glass);
+    border-color: var(--border-bento);
+  }
+
   /* Powierzchnie: jedna hierarchia kart w całej aplikacji. */
   .surface {
-    @apply rounded-2xl border border-gray-200/80 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)] dark:border-gray-800 dark:bg-gray-900;
+    @apply rounded-3xl border shadow-xs;
+    background-color: var(--bg-bento);
+    border-color: var(--border-bento);
   }
   .surface-muted {
-    @apply rounded-2xl border border-gray-200/70 bg-gray-50 dark:border-gray-800 dark:bg-gray-900/60;
+    @apply rounded-2xl border;
+    background-color: var(--bg-subtle);
+    border-color: var(--border-bento);
   }
   .section-title {
-    @apply text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400;
+    @apply text-sm font-semibold uppercase tracking-wider;
+    color: var(--text-muted);
   }
   .subtle-ring {
     @apply ring-1 ring-gray-200/70 dark:ring-gray-800;
+  }
+  .font-data {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
   }
 }
 

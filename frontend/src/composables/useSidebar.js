@@ -4,10 +4,21 @@ const STORAGE_KEY = 'sidebar-collapsed';
 
 function readInitial() {
   try {
-    return localStorage.getItem(STORAGE_KEY) === '1';
-  } catch {
-    return false;
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === '1' || stored === '0') return stored === '1';
+  } catch (e) {
+    // Prywatny tryb — wracamy do wartości zależnej od szerokości ekranu.
   }
+
+  // Zgodnie ze specyfikacją: od xl domyślnie rozwinięty, na lg kompaktowy.
+  try {
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      return !window.matchMedia('(min-width: 1280px)').matches;
+    }
+  } catch (e) {
+    // ignore
+  }
+  return false;
 }
 
 // Współdzielone między App.vue (offsety) i AppSidebar.vue (wygląd).

@@ -13,7 +13,7 @@
         :aria-labelledby="$slots.header ? 'modal-title' : undefined"
         tabindex="-1"
         class="surface relative shadow-2xl transform transition-all sm:my-8 w-full flex flex-col outline-hidden"
-        style="max-height: 90vh; max-width: 64rem"
+        :style="{ maxHeight: '90vh', maxWidth }"
       >
         <div
           class="flex justify-between items-center px-5 py-4 border-b border-gray-200 dark:border-gray-800"
@@ -75,6 +75,10 @@ const props = defineProps({
   show: {
     type: Boolean,
     default: false,
+  },
+  maxWidth: {
+    type: String,
+    default: '64rem',
   },
 });
 
