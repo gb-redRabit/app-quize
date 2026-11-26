@@ -58,8 +58,8 @@
         </div>
       </section>
 
-      <div class="grid gap-4 lg:grid-cols-3">
-        <section class="surface p-5 lg:col-span-2 flex flex-col">
+      <div class="grid gap-4 lg:grid-cols-12">
+        <section class="surface flex flex-col p-5 lg:col-span-6">
           <div class="flex flex-wrap items-start justify-between gap-2">
             <div class="min-w-0">
               <p class="section-title">
@@ -89,7 +89,7 @@
             ></div>
           </div>
 
-          <div class="mt-5 flex flex-wrap gap-2">
+          <div class="mt-auto flex flex-wrap gap-2 pt-5">
             <button
               v-if="lastActivity"
               class="h-10 px-4 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
@@ -107,18 +107,62 @@
           </div>
         </section>
 
-        <RandomQuote class="lg:col-span-1" />
+        <div class="grid gap-4 sm:grid-cols-2 lg:col-span-6">
+          <div class="bento-tile flex flex-col justify-between p-4">
+            <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Opanowane</p>
+            <p class="mt-1 font-data text-2xl font-semibold tracking-tight">
+              {{ masteredPercent }}%
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ correctCount }} / {{ totalQuestionsCount }} pytań
+            </p>
+          </div>
+
+          <div class="bento-tile flex flex-col justify-between p-4">
+            <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Skuteczność</p>
+            <p class="mt-1 font-data text-2xl font-semibold tracking-tight">
+              {{ accuracyPercent }}%
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ sessionCount }} sesji
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="bento-tile flex items-center gap-3 p-4 text-left transition-colors hover:border-indigo-300 dark:hover:border-indigo-700"
+            @click="openExamPopup"
+          >
+            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300" aria-hidden="true">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </span>
+            <span class="min-w-0 flex-1">
+              <span class="block text-sm font-semibold">Egzamin z ubiegłych lat</span>
+              <span class="block text-xs text-gray-500 dark:text-gray-400">Wybierz rocznik</span>
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="bento-tile flex items-center gap-3 p-4 text-left transition-colors hover:border-indigo-300 dark:hover:border-indigo-700"
+            @click="openOtherQuizPopup"
+          >
+            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300" aria-hidden="true">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </span>
+            <span class="min-w-0 flex-1">
+              <span class="block text-sm font-semibold">Własny quiz</span>
+              <span class="block text-xs text-gray-500 dark:text-gray-400">Pozostałe kategorie</span>
+            </span>
+          </button>
+        </div>
       </div>
 
-      <!-- Statystyki -->
-      <StatisticsSummary class="statistics-summary" />
-
-      <!-- Przyciski akcji -->
-      <QuizButtons
-        class="quiz-buttons"
-        @show-exam-popup="openExamPopup"
-        @show-other-quiz-popup="openOtherQuizPopup"
-      />
+      <RandomQuote />
 
       <!-- Lista kategorii -->
       <section id="categories">
@@ -199,11 +243,7 @@ import { getCategoryMasteryStatus } from '@/utils/categoryStatus';
 import { useQuestions } from '@/composables/useQuestions';
 
 // Komponenty
-const StatisticsSummary = defineAsyncComponent(
-  () => import('@/components/dashboard/StatisticsSummary.vue')
-);
 const RandomQuote = defineAsyncComponent(() => import('@/components/dashboard/RandomQuote.vue'));
-const QuizButtons = defineAsyncComponent(() => import('@/components/dashboard/QuizButtons.vue'));
 const CategoryFilter = defineAsyncComponent(
   () => import('@/components/dashboard/CategoryFilter.vue')
 );
@@ -295,6 +335,31 @@ const categoryStats = computed(() => {
 
   return stats;
 });
+
+const hquestionEntries = computed(() => store.getters['user/getHquestion'] || []);
+const userHistoryEntries = computed(() => store.getters['user/getUserHistory'] || []);
+
+const totalQuestionsCount = computed(() =>
+  Object.values(questionsHelper.categoryCounts.value || {}).reduce(
+    (sum, count) => sum + (Number(count) || 0),
+    0
+  )
+);
+const correctCount = computed(
+  () => hquestionEntries.value.filter((entry) => entry?.correct === true).length
+);
+const wrongCount = computed(
+  () => hquestionEntries.value.filter((entry) => entry?.correct === false).length
+);
+const masteredPercent = computed(() => {
+  const total = totalQuestionsCount.value;
+  return total > 0 ? Math.round((correctCount.value / total) * 100) : 0;
+});
+const accuracyPercent = computed(() => {
+  const answered = correctCount.value + wrongCount.value;
+  return answered > 0 ? Math.round((correctCount.value / answered) * 100) : 0;
+});
+const sessionCount = computed(() => userHistoryEntries.value.length);
 
 const lastActivity = computed(() => {
   const history = [...(store.getters['user/getUserHistory'] || [])];

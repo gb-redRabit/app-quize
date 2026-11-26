@@ -235,6 +235,17 @@ test.describe('Quiz App E2E', () => {
     await expect(page).toHaveURL(/\/history$/);
   });
 
+  test('nawigacja: brak martwych stref na 390/768/1024/1280/1920', async ({ page }) => {
+    await login(page);
+
+    for (const width of [390, 768, 1024, 1280, 1920]) {
+      await page.setViewportSize({ width, height: 900 });
+      await expect(
+        page.getByRole('link', { name: 'Historia' }).first()
+      ).toBeVisible();
+    }
+  });
+
   test('sidebar: przy 1024 px startuje zwinięty i daje się rozwinąć', async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 768 });
     await login(page);

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="mx-auto w-full max-w-4xl px-4 py-6"
+    class="mx-auto w-full max-w-6xl px-4 py-6"
     :class="!showSummary ? 'pb-28 lg:pb-6' : ''"
   >
     <div class="mx-auto">
@@ -220,6 +220,7 @@
               :showCorrect="answersStatus[currentQuestionIndex].answered && mode === 'quiz'"
               :show-description="showDescriptionsSetting"
               :questionNumber="`${currentQuestionIndex + 1} `"
+              :split="isDesktop"
               @select="selectAnswer"
             />
           </div>
