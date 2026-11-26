@@ -407,9 +407,13 @@ import {
   computeRemainingSeconds,
   shouldSaveProgress,
 } from '@/utils/quizProgress';
-import { getCachedQuestionsByIds } from '@/services/questionsSync';
+import {
+  getCachedQuestionsByIds,
+  getCachedQuestionIdsByCategory,
+} from '@/services/questionsSync';
 import { queueHquestion, queueHistory } from '@/services/offlineSync';
 import { newClientId } from '@/utils/offlineQueue';
+import { filterWrongOrNotDone } from '@/utils/wrongOrNotDone';
 
 // Zależności
 const router = useRouter();
@@ -705,10 +709,8 @@ const selectAnswer = async (index, selectedKey) => {
         }
       });
 
-    // aktualizacja cache asynchronicznie, bez await
-    updateWrongOrNotDoneCache().catch((err) => {
-      console.error('Błąd updateWrongOrNotDoneCache:', err);
-    });
+    // Cache powtórki liczymy dopiero przy podsumowaniu/restarcie (watch niżej)
+    // — wcześniej każde pytanie pobierało całe hquestion z serwera.
   } catch (e) {
     // nie powinno blokować Auto-Next
     console.error('Błąd podczas lokalnej aktualizacji historii:', e);
@@ -757,27 +759,37 @@ const selectAnswer = async (index, selectedKey) => {
 };
 
 // Aktualizacja cache pytań do powtórzenia
+// ID kategorii pobieramy raz na czas życia widoku — pula pytań nie zmienia się
+// w trakcie quizu, a wcześniej każde żądanie czyściło cache klienta.
+const categoryIdsCache = new Map();
+
+async function getCategoryQuestionIds(category) {
+  if (categoryIdsCache.has(category)) return categoryIdsCache.get(category);
+
+  // Serwer jest źródłem prawdy; cache IndexedDB to fallback offline.
+  let ids = await store.dispatch('questions/fetchQuestionIdsByCategory', category);
+  if (!Array.isArray(ids)) ids = [];
+  if (ids.length === 0) {
+    ids = await getCachedQuestionIdsByCategory(category);
+  }
+  if (ids.length > 0) categoryIdsCache.set(category, ids);
+  return ids;
+}
+
 const updateWrongOrNotDoneCache = async () => {
   if (!route.query.categories) return;
 
   try {
     const cat = route.query.categories;
-    const allIds = await store.dispatch('questions/fetchQuestionIdsByCategory', cat);
+    const allIds = await getCategoryQuestionIds(cat);
 
-    const historyRes = await apiClient.get('/users/hquestion');
-    const hq = historyRes.data.filter((q) => q.category === cat);
-
-    const filteredIds = allIds.filter((id) => {
-      const entry = hq.find(
-        (q) =>
-          String(q.id) === String(id) ||
-          String(q.ID) === String(id) ||
-          String(q.question_id) === String(id)
-      );
-      return !entry || entry.correct === false;
-    });
-
-    wrongOrNotDoneIdsCache.value = filteredIds;
+    // Odpowiedzi mamy już lokalnie (commit po każdej odpowiedzi) — bez
+    // pobierania całego hquestion i bez O(pytania × odpowiedzi).
+    wrongOrNotDoneIdsCache.value = filterWrongOrNotDone(
+      allIds,
+      store.state.user.hquestion,
+      cat
+    );
   } catch (error) {
     console.error('Błąd podczas aktualizowania cache:', error);
     wrongOrNotDoneIdsCache.value = [];
@@ -1419,8 +1431,7 @@ onMounted(async () => {
   window.dispatchEvent(new CustomEvent('quiz-activity'));
 
   if (route.query.categories) {
-    allQuestionIdsInCategory.value = await store.dispatch(
-      'questions/fetchQuestionIdsByCategory',
+    allQuestionIdsInCategory.value = await getCategoryQuestionIds(
       route.query.categories
     );
   }

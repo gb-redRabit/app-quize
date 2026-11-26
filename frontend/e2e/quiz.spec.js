@@ -303,6 +303,46 @@ test.describe('Quiz App E2E', () => {
     await expect(page.getByText('2/2')).toBeVisible();
   });
 
+  test('quiz: odpowiadanie nie pobiera całego hquestion z serwera', async ({ page }) => {
+    await login(page);
+
+    const hquestionGets = [];
+    page.on('request', (request) => {
+      const url = new URL(request.url());
+      if (request.method() === 'GET' && url.pathname.endsWith('/users/hquestion')) {
+        hquestionGets.push(url.pathname);
+      }
+    });
+
+    // page.goto to pełne wejście w aplikację — startowe odświeżenie w tle
+    // może jeszcze trwać. Interesuje nas tylko faza odpowiadania.
+    await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=no-hq');
+    await expect(
+      page.getByRole('heading', { name: /E2E: stolica Polski|E2E: 2 \+ 2/ })
+    ).toBeVisible();
+    await page.waitForTimeout(800);
+    hquestionGets.length = 0;
+
+    // Odpowiedz na pierwsze pytanie i sprawdź, że nie poleciał GET hquestion.
+    if (
+      await page
+        .getByRole('heading', { name: /E2E: stolica Polski/ })
+        .isVisible()
+        .catch(() => false)
+    ) {
+      await page.getByRole('button', { name: /^\w\s*Warszawa$/ }).click();
+    } else {
+      await page.getByRole('button', { name: /^\w\s*4$/ }).click();
+    }
+    await page.waitForTimeout(600);
+    expect(hquestionGets).toHaveLength(0);
+
+    // Po zakończeniu quizu wolno odświeżyć dane raz (rekoncyliacja z serwerem).
+    await answerAllCorrectly(page);
+    await expect(page.getByRole('heading', { name: 'Podsumowanie testu' })).toBeVisible();
+    expect(hquestionGets.length).toBeLessThanOrEqual(1);
+  });
+
   test('podsumowanie: „Wróć do strony głównej” prowadzi do pulpitu', async ({ page }) => {
     await login(page);
     await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=e2e-home');

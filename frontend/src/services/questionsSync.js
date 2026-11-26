@@ -8,6 +8,7 @@ import {
   setCachedVersion,
   getQuestionsByIds as cacheGetByIds,
   getQuestionsByCategory as cacheGetByCategory,
+  getQuestionIdsByCategory as cacheGetIdsByCategory,
   getAllQuestions as cacheGetAll,
   countQuestions,
 } from '@/utils/questionsCache';
@@ -218,6 +219,15 @@ export async function getCachedQuestionsByIds(ids) {
 export async function getCachedQuestionsByCategory(category) {
   try {
     return await cacheGetByCategory(category);
+  } catch (e) {
+    return [];
+  }
+}
+
+/** ID pytań z kategorii prosto z IndexedDB (offline, bez sieci). */
+export async function getCachedQuestionIdsByCategory(category) {
+  try {
+    return await cacheGetIdsByCategory(category);
   } catch (e) {
     return [];
   }

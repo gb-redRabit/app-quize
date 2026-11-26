@@ -159,6 +159,18 @@ export async function getQuestionsByCategory(category) {
   return requestAsPromise(store.index('byCategory').getAll(category));
 }
 
+/** Same ID pytań z kategorii — bez wczytywania pełnych dokumentów. */
+export async function getQuestionIdsByCategory(category) {
+  const db = await openDb();
+  const store = db.transaction(STORE_QUESTIONS, 'readonly').objectStore(STORE_QUESTIONS);
+  const request =
+    category === 'all'
+      ? store.getAllKeys()
+      : store.index('byCategory').getAllKeys(category);
+  const keys = await requestAsPromise(request);
+  return keys.map(Number).sort((a, b) => a - b);
+}
+
 export async function getAllQuestions() {
   const db = await openDb();
   const store = db.transaction(STORE_QUESTIONS, 'readonly').objectStore(STORE_QUESTIONS);
