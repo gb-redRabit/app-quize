@@ -52,17 +52,8 @@
       </div>
       <span class="font-medium">Łącznie: {{ total }}</span>
     </div>
-    <div class="category-card grid grid-cols-3 gap-1.5 mt-auto">
-      <BaseButton
-        color="gray"
-        variant="outline"
-        size="xs"
-        class="text-xs"
-        @click="$emit('go-to-questions', category)"
-      >
-        <span class="truncate">Pytania</span>
-      </BaseButton>
-      <div class="relative">
+    <div class="category-card mt-auto flex items-center gap-2">
+      <div class="relative flex-1">
         <BaseButton
           ref="quizToggleRef"
           color="blue"
@@ -82,6 +73,7 @@
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               stroke-linecap="round"
@@ -96,20 +88,20 @@
           :id="menuId"
           role="menu"
           :aria-label="`Opcje quizu: ${category}`"
-          class="absolute z-10 w-full mt-1"
+          class="absolute z-20 w-full mt-1"
           @keydown.esc.stop.prevent="closeMenuAndFocus"
           @keydown.down.prevent="focusMenuItem(1)"
           @keydown.up.prevent="focusMenuItem(-1)"
         >
           <div
-            class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg py-1"
+            class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg py-1"
           >
             <button
               v-for="option in quizOptions"
               :key="option.value"
               type="button"
               role="menuitem"
-              class="block w-full text-left px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 focus:outline-hidden"
+              class="block w-full text-left px-3 py-2 text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800 focus:outline-hidden"
               @click="startQuizWithLimit(option.value)"
             >
               {{ option.label }}
@@ -117,48 +109,69 @@
           </div>
         </div>
       </div>
-      <div class="flex gap-1">
-        <BaseButton
-          color="purple"
-          variant="outline"
-          size="xs"
-          class="flex-1 text-xs"
-          :disabled="isDisabled"
-          @click="$emit('start-exam', category)"
-        >
-          <span class="truncate">Egzamin</span>
-        </BaseButton>
-        <BaseButton
-          color="red"
-          variant="ghost"
-          size="xs"
-          class="px-2"
-          ariaLabel="Wyczyść historię kategorii"
-          title="Wyczyść historię kategorii"
-          @click="$emit('clear-history', category)"
+
+      <div class="relative">
+        <button
+          type="button"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500"
+          :aria-label="`Więcej akcji: ${category}`"
+          :aria-expanded="menuOpen ? 'true' : 'false'"
+          aria-haspopup="menu"
+          @click.stop="menuOpen = !menuOpen"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4"
-            fill="none"
+            class="h-5 w-5"
+            fill="currentColor"
             viewBox="0 0 24 24"
-            stroke="currentColor"
+            aria-hidden="true"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              d="M12 6a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4z"
             />
           </svg>
-        </BaseButton>
+        </button>
+
+        <div
+          v-if="menuOpen"
+          class="absolute right-0 z-20 mt-1 w-52 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg py-1"
+          role="menu"
+          :aria-label="`Akcje kategorii: ${category}`"
+          @keydown.esc.stop.prevent="menuOpen = false"
+        >
+          <button
+            type="button"
+            role="menuitem"
+            class="block w-full text-left px-3 py-2 text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800 focus:outline-hidden"
+            @click="runAction('go-to-questions')"
+          >
+            Pokaż pytania
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            class="block w-full text-left px-3 py-2 text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800 focus:outline-hidden disabled:opacity-50"
+            :disabled="isDisabled"
+            @click="runAction('start-exam')"
+          >
+            Rozpocznij egzamin
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            class="block w-full text-left px-3 py-2 text-xs text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30 focus:bg-red-50 dark:focus:bg-red-900/30 focus:outline-hidden"
+            @click="runAction('clear-history')"
+          >
+            Wyczyść historię kategorii
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref, defineProps, defineEmits } from 'vue';
+import { computed, ref, defineProps, defineEmits, onMounted, onUnmounted } from 'vue';
 import BaseButton from '@/components/base/BaseButton.vue';
 
 const props = defineProps({
@@ -191,6 +204,7 @@ const menuId = computed(
 );
 
 const quizToggleRef = ref(null);
+const menuOpen = ref(false);
 
 function focusMenuItem(delta) {
   const menu = document.getElementById(menuId.value);
@@ -286,6 +300,23 @@ const startQuizWithLimit = (limit) => {
   emit('toggle-quiz-options');
   emit('start-quiz', props.category, limit);
 };
+
+function runAction(action) {
+  menuOpen.value = false;
+  emit(action, props.category);
+}
+
+function handleDocumentClick() {
+  if (menuOpen.value) menuOpen.value = false;
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleDocumentClick);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleDocumentClick);
+});
 </script>
 
 <style scoped>
