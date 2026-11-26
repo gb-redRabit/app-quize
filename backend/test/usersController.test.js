@@ -1,5 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const bcrypt = require("bcrypt");
 
 // --- Stuby modeli, żeby testować kontroler bez bazy ---
 const userPath = require.resolve("../src/models/User");
@@ -89,6 +90,18 @@ function reset() {
   state.created = null;
   state.deleted = false;
   state.saved = null;
+}
+
+function makeSelfUser({ password = "haslo123", rola = "user" } = {}) {
+  return {
+    _id: "u1",
+    login: "self",
+    rola,
+    password: bcrypt.hashSync(password, 4),
+    deleteOne: async () => {
+      state.deleted = true;
+    },
+  };
 }
 
 function makeSettingsUser(settings = {}) {
@@ -209,6 +222,53 @@ test("deleteUser: usuwa konto innego użytkownika", async () => {
   };
   const res = makeRes();
   await controller.deleteUser({ params: { id: "u2" }, user: { id: "u1" } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.success, true);
+  assert.equal(state.deleted, true);
+});
+
+test("deleteSelf: wymaga hasła i odrzuca złe hasło", async () => {
+  reset();
+  state.target = makeSelfUser();
+
+  let res = makeRes();
+  await controller.deleteSelf({ user: { id: "u1" }, body: {} }, res);
+  assert.equal(res.statusCode, 400);
+
+  res = makeRes();
+  await controller.deleteSelf({ user: { id: "u1" }, body: { password: "zle-haslo" } }, res);
+  assert.equal(res.statusCode, 400);
+  assert.match(res.body.message, /Nieprawidłowe hasło/);
+  assert.equal(state.deleted, false);
+});
+
+test("deleteSelf: blokuje usunięcie ostatniego administratora", async () => {
+  reset();
+  state.target = makeSelfUser({ password: "haslo123", rola: "admin" });
+  state.admins = 1;
+  const res = makeRes();
+
+  await controller.deleteSelf(
+    { user: { id: "u1" }, body: { password: "haslo123" } },
+    res
+  );
+
+  assert.equal(res.statusCode, 400);
+  assert.match(res.body.message, /ostatniego administratora/);
+  assert.equal(state.deleted, false);
+});
+
+test("deleteSelf: usuwa konto przy poprawnym haśle", async () => {
+  reset();
+  state.target = makeSelfUser({ password: "haslo123", rola: "admin" });
+  state.admins = 2;
+  const res = makeRes();
+
+  await controller.deleteSelf(
+    { user: { id: "u1" }, body: { password: "haslo123" } },
+    res
+  );
+
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.success, true);
   assert.equal(state.deleted, true);

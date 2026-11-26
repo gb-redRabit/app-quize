@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
 const usersController = require("../controllers/usersController");
+const { loginLimiter } = require("../middleware/rateLimit");
 const User = require("../models/User");
 
 // Tylko dla admina!
@@ -41,6 +42,14 @@ router.post(
   authMiddleware.verifyToken,
   authMiddleware.requireAdmin,
   usersController.createUser
+);
+
+// Usunięcie własnego konta — musi być przed `/:id`, inaczej przechwyci je trasa admina.
+router.delete(
+  "/me",
+  authMiddleware.verifyToken,
+  loginLimiter,
+  usersController.deleteSelf
 );
 
 router.delete(

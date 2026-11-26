@@ -887,6 +887,24 @@ test.describe('Quiz App E2E', () => {
     ).toBeVisible({ timeout: 10000 });
   });
 
+  test('konto: eksport danych i usunięcie konta', async ({ page }) => {
+    await login(page);
+    await page.goto('/user');
+    await page.getByRole('tab', { name: 'Bezpieczeństwo', exact: true }).click();
+
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Pobierz moje dane' }).click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/^quiz-app-dane-.*\.json$/);
+
+    await page.getByRole('button', { name: 'Usuń konto' }).first().click();
+    const dialog = page.getByRole('dialog');
+    await dialog.locator('#delete-account-password').fill('admin');
+    await dialog.getByRole('button', { name: 'Usuń konto' }).click();
+
+    await expect(page).toHaveURL(/\/login$/);
+  });
+
   test('quiz: odpowiedź wybrana klawiaturą odblokowuje „Następne”', async ({ page }) => {
     await login(page);
     await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=kb');

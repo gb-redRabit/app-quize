@@ -214,6 +214,40 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
+// Usuń własne konto (wymaga potwierdzenia hasłem)
+exports.deleteSelf = async (req, res) => {
+  try {
+    const password = req.body?.password;
+    if (typeof password !== "string" || !password) {
+      return res.status(400).json({ message: "Podaj hasło, aby usunąć konto" });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(400).json({ message: "Nieprawidłowe hasło" });
+    }
+
+    if (user.rola === "admin") {
+      const admins = await User.countDocuments({ rola: "admin" });
+      if (admins <= 1) {
+        return res
+          .status(400)
+          .json({ message: "Nie można usunąć ostatniego administratora" });
+      }
+    }
+
+    await user.deleteOne();
+    invalidateSessionVersion(user._id);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Błąd usuwania konta:", err);
+    res.status(500).json({ message: "Błąd usuwania konta" });
+  }
+};
+
 // Pobierz dane zalogowanego użytkownika
 exports.getMe = async (req, res) => {
   try {

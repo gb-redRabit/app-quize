@@ -288,6 +288,60 @@
               </div>
             </div>
           </section>
+
+          <!-- Dane i konto -->
+          <section class="surface overflow-hidden xl:col-span-2">
+            <div
+              class="px-5 py-4 flex items-center gap-3 border-b border-gray-200 dark:border-gray-800"
+            >
+              <div
+                class="h-9 w-9 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 grid place-items-center"
+                aria-hidden="true"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 7c0 1.657 3.582 3 8 3s8-1.343 8-3-3.582-3-8-3-8 1.343-8 3zm0 5c0 1.657 3.582 3 8 3s8-1.343 8-3M4 12v5c0 1.657 3.582 3 8 3s8-1.343 8-3v-5"
+                  />
+                </svg>
+              </div>
+              <h2 class="text-base font-semibold tracking-tight text-gray-900 dark:text-gray-50">
+                Dane i konto
+              </h2>
+            </div>
+
+            <div class="p-5 sm:p-6">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-100">
+                    Eksport danych
+                  </p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Profil, historia quizów i odpowiedzi w pliku JSON.
+                  </p>
+                </div>
+                <BaseButton color="gray" variant="outline" @click="exportUserData">
+                  Pobierz moje dane
+                </BaseButton>
+              </div>
+
+              <div
+                class="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-gray-200 dark:border-gray-800 pt-5"
+              >
+                <div>
+                  <p class="text-sm font-medium text-red-700 dark:text-red-300">Usuń konto</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Trwale usuwa konto, historię i statystyki. Tej operacji nie można cofnąć.
+                  </p>
+                </div>
+                <BaseButton color="red" variant="outline" @click="openDeleteAccountModal">
+                  Usuń konto
+                </BaseButton>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </div>
@@ -453,6 +507,46 @@
         </BaseButton>
       </template>
     </BaseModal>
+
+    <BaseModal :show="showDeleteAccountModal" @close="closeDeleteAccountModal">
+      <template #header>Usuń konto</template>
+      <div class="text-sm text-gray-700 dark:text-gray-200 space-y-3">
+        <p>
+          Konto, historia quizów, odpowiedzi i statystyki zostaną trwale usunięte. Tej
+          operacji nie można cofnąć.
+        </p>
+        <div>
+          <label
+            for="delete-account-password"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+          >
+            Potwierdź hasłem
+          </label>
+          <input
+            id="delete-account-password"
+            v-model="deleteAccountPassword"
+            type="password"
+            autocomplete="current-password"
+            class="h-11 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 text-sm text-gray-900 dark:text-gray-100 focus:border-red-500 focus:ring-2 focus:ring-red-500/30 focus:outline-hidden"
+            :aria-invalid="Boolean(deleteAccountError)"
+            @input="deleteAccountError = ''"
+          />
+          <p
+            v-if="deleteAccountError"
+            role="alert"
+            class="mt-1 text-xs font-medium text-red-600 dark:text-red-400"
+          >
+            {{ deleteAccountError }}
+          </p>
+        </div>
+      </div>
+      <template #footer>
+        <BaseButton color="gray" @click="closeDeleteAccountModal">Anuluj</BaseButton>
+        <BaseButton color="red" :loading="deletingAccount" @click="deleteAccount">
+          Usuń konto
+        </BaseButton>
+      </template>
+    </BaseModal>
   </div>
 </template>
 
@@ -477,6 +571,7 @@ const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal
 import apiClient from '@/api';
 import { useLogout } from '@/composables/useLogout';
 import { setUser } from '@/utils/authStorage';
+import { clearQueue } from '@/utils/offlineQueue';
 import {
   DEFAULT_EXAM_LENGTH,
   MIN_EXAM_LENGTH,
@@ -510,6 +605,10 @@ const learningSettings = ref({
 const savingSettings = ref(false);
 const showLogoutAllModal = ref(false);
 const loggingOutAll = ref(false);
+const showDeleteAccountModal = ref(false);
+const deleteAccountPassword = ref('');
+const deleteAccountError = ref('');
+const deletingAccount = ref(false);
 const allCategories = ref([]);
 const colorWheelCanvas = ref(null);
 
@@ -849,6 +948,69 @@ async function logoutAllDevices() {
     loggingOutAll.value = false;
     showLogoutAllModal.value = false;
     logout();
+  }
+}
+
+function exportUserData() {
+  const profile = { ...(user.value || {}) };
+  delete profile.password;
+  delete profile.__v;
+
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    profile,
+    settings: profile.settings || {},
+    history: store.state.user.history || [],
+    hquestion: store.state.user.hquestion || [],
+  };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `quiz-app-dane-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  showAlert('success', 'Dane zostały wyeksportowane.');
+}
+
+function openDeleteAccountModal() {
+  deleteAccountPassword.value = '';
+  deleteAccountError.value = '';
+  showDeleteAccountModal.value = true;
+}
+
+function closeDeleteAccountModal() {
+  if (deletingAccount.value) return;
+  showDeleteAccountModal.value = false;
+  deleteAccountPassword.value = '';
+  deleteAccountError.value = '';
+}
+
+async function deleteAccount() {
+  if (deletingAccount.value) return;
+  if (!deleteAccountPassword.value) {
+    deleteAccountError.value = 'Podaj hasło, aby usunąć konto.';
+    return;
+  }
+
+  deletingAccount.value = true;
+  deleteAccountError.value = '';
+  try {
+    await apiClient.delete('/users/me', {
+      data: { password: deleteAccountPassword.value },
+    });
+    // Kolejka mogła zawierać dane tego konta — nie przenosimy jej na inne konto.
+    clearQueue();
+    showDeleteAccountModal.value = false;
+    logout();
+  } catch (e) {
+    deleteAccountError.value =
+      e?.response?.data?.message || 'Nie udało się usunąć konta. Spróbuj ponownie.';
+  } finally {
+    deletingAccount.value = false;
   }
 }
 
