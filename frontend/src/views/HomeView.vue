@@ -273,18 +273,25 @@ const categoryStats = computed(() => {
   if (!categories || !categories.length) return {};
 
   for (const category of categories) {
-    const totalQuestions = categoryCounts[category] || 0;
-    const categoryHistory = hquestion.filter((q) => q.category === category);
-    const correctAnswers = categoryHistory.filter((q) => q.correct === true).length;
-    const wrongAnswers = categoryHistory.length - correctAnswers;
-    const notDone = totalQuestions - categoryHistory.length;
-
-    stats[category] = {
-      correct: correctAnswers,
-      wrong: wrongAnswers,
-      notDone: Math.max(0, notDone),
-    };
+    stats[category] = { correct: 0, wrong: 0, notDone: 0, done: 0 };
   }
+
+  // Jedno przejście po odpowiedziach zamiast filtrowania całej tablicy dla każdej kategorii.
+  for (const entry of hquestion) {
+    if (!entry || !entry.category) continue;
+    if (!stats[entry.category]) {
+      stats[entry.category] = { correct: 0, wrong: 0, notDone: 0, done: 0 };
+    }
+    stats[entry.category].done += 1;
+    if (entry.correct === true) stats[entry.category].correct += 1;
+  }
+
+  for (const category of Object.keys(stats)) {
+    const totalQuestions = categoryCounts[category] || 0;
+    stats[category].wrong = stats[category].done - stats[category].correct;
+    stats[category].notDone = Math.max(0, totalQuestions - stats[category].done);
+  }
+
   return stats;
 });
 

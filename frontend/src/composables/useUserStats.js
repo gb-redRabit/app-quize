@@ -43,21 +43,41 @@ export function useUserStats() {
     return { quizCount, examCount, avg };
   });
 
-  // Statystyki dla kategorii
+  // Statystyki dla kategorii — jedna mapa liczona w jednym przebiegu.
+  // Wcześniej każde wywołanie filtrowało całe hquestion (O(C×H) na render).
+  const categoryStatsMap = computed(() => {
+    forceRefresh.value; // Wymuś przeliczenie
+    const counts = store.getters['questions/getCategoryCounts'] || {};
+    const map = {};
+
+    for (const q of hquestion.value) {
+      if (!q || !q.category) continue;
+      if (!map[q.category]) map[q.category] = { correct: 0, wrong: 0, done: 0 };
+      map[q.category].done += 1;
+      if (q.correct === true) map[q.category].correct += 1;
+      else if (q.correct === false) map[q.category].wrong += 1;
+    }
+
+    for (const category of Object.keys(counts)) {
+      if (!map[category]) map[category] = { correct: 0, wrong: 0, done: 0 };
+    }
+
+    for (const category of Object.keys(map)) {
+      const total = counts[category] || 0;
+      map[category].total = total;
+      map[category].notDone = Math.max(0, total - map[category].done);
+    }
+
+    return map;
+  });
+
   const categoryStats = (cat) => {
-    const all = hquestion.value.filter((q) => q.category === cat);
-    const correct = all.filter((q) => q.correct === true).length;
-    const wrong = all.filter((q) => q.correct === false).length;
-    const categoryCounts = store.getters['questions/getCategoryCounts'] || {};
-    const total = categoryCounts[cat] || 0;
-    const notDone = total - all.length;
-    return { correct, wrong, notDone: Math.max(0, notDone) };
+    return categoryStatsMap.value[cat] || { correct: 0, wrong: 0, notDone: 0, total: 0 };
   };
 
   const categoryPercentage = (cat) => {
     const stats = categoryStats(cat);
-    const categoryCounts = store.getters['questions/getCategoryCounts'] || {};
-    const total = categoryCounts[cat] || 0;
+    const total = stats.total || 0;
     if (total === 0) return { correct: 0, wrong: 0 };
     return {
       correct: (stats.correct / total) * 100,
@@ -67,8 +87,7 @@ export function useUserStats() {
 
   const categoryPercentComplete = (cat) => {
     const stats = categoryStats(cat);
-    const categoryCounts = store.getters['questions/getCategoryCounts'] || {};
-    const total = categoryCounts[cat] || 0;
+    const total = stats.total || 0;
     if (total === 0) return 0;
     return Math.round(((stats.correct + stats.wrong) / total) * 100);
   };

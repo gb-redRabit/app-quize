@@ -14,6 +14,10 @@ const state = {
   aggregate: [],
   created: null,
   deleted: false,
+  saved: null,
+  updateOneCalls: [],
+  updateOneResults: [],
+  userExists: true,
 };
 
 const fakeUserModel = {
@@ -44,6 +48,11 @@ const fakeUserModel = {
     if (pipeline.some((stage) => stage && stage.$unwind)) return [];
     return state.aggregate;
   },
+  updateOne: async (...args) => {
+    state.updateOneCalls.push(args);
+    return state.updateOneResults.shift() || { matchedCount: 0, modifiedCount: 0 };
+  },
+  exists: async () => state.userExists,
 };
 
 require.cache[userPath] = {
@@ -94,6 +103,9 @@ function reset() {
   state.created = null;
   state.deleted = false;
   state.saved = null;
+  state.updateOneCalls = [];
+  state.updateOneResults = [];
+  state.userExists = true;
 }
 
 function makeSelfUser({ password = "haslo123", rola = "user" } = {}) {
@@ -276,6 +288,70 @@ test("deleteSelf: usuwa konto przy poprawnym haśle", async () => {
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.success, true);
   assert.equal(state.deleted, true);
+});
+
+test("updateHQuestion: dodaje wpis atomowo, gdy go nie ma", async () => {
+  reset();
+  state.updateOneResults = [{ matchedCount: 1, modifiedCount: 1 }];
+  const res = makeRes();
+
+  await controller.updateHQuestion(
+    { user: { id: "u1" }, body: { id: 5, correct: true, category: "X" } },
+    res
+  );
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(state.updateOneCalls.length, 1);
+  const [filter, update] = state.updateOneCalls[0];
+  assert.deepEqual(filter["hquestion.id"], { $ne: 5 });
+  assert.deepEqual(update.$push.hquestion, { id: 5, correct: true, category: "X" });
+});
+
+test("updateHQuestion: false → true aktualizuje istniejący wpis", async () => {
+  reset();
+  state.updateOneResults = [
+    { matchedCount: 0 },
+    { matchedCount: 1, modifiedCount: 1 },
+  ];
+  const res = makeRes();
+
+  await controller.updateHQuestion(
+    { user: { id: "u1" }, body: { id: 5, correct: true, category: "Y" } },
+    res
+  );
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(state.updateOneCalls.length, 2);
+  const [, update] = state.updateOneCalls[1];
+  assert.equal(update.$set["hquestion.$.correct"], true);
+  assert.equal(update.$set["hquestion.$.category"], "Y");
+});
+
+test("updateHQuestion: 404, gdy użytkownik nie istnieje", async () => {
+  reset();
+  state.updateOneResults = [{ matchedCount: 0 }, { matchedCount: 0 }];
+  state.userExists = false;
+  const res = makeRes();
+
+  await controller.updateHQuestion(
+    { user: { id: "u1" }, body: { id: 5, correct: false, category: "X" } },
+    res
+  );
+
+  assert.equal(res.statusCode, 404);
+});
+
+test("updateHQuestion: odrzuca nieprawidłowe ID", async () => {
+  reset();
+  const res = makeRes();
+
+  await controller.updateHQuestion(
+    { user: { id: "u1" }, body: { id: "abc", correct: true, category: "X" } },
+    res
+  );
+
+  assert.equal(res.statusCode, 400);
+  assert.equal(state.updateOneCalls.length, 0);
 });
 
 test("getUsersStats: liczy skuteczność i sumy", async () => {

@@ -426,7 +426,8 @@ async function checkAuthOnStart() {
     return;
   }
   try {
-    await store.dispatch('user/verifySession');
+    // Jedno pobranie profilu + historia/hquestion w `refreshData`
+    // (wcześniej `verifySession` dublował GET /users/me).
     await refreshData();
     isAuthChecked.value = true;
     $hideLoader();

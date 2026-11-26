@@ -46,7 +46,13 @@ let importInProgress = false;
 exports.getQuestionsVersionInfo = async (req, res) => {
   try {
     const { version, updatedAt } = await getQuestionsVersion();
+    const etag = `W/"questions-version-${version}"`;
+    if (req.headers["if-none-match"] === etag) {
+      return res.status(304).end();
+    }
     const count = await Question.estimatedDocumentCount();
+    res.setHeader("ETag", etag);
+    res.setHeader("Cache-Control", "private, max-age=30");
     res.json({ version, updatedAt, count });
   } catch (e) {
     res.status(500).json({ message: "Błąd pobierania wersji pytań" });
@@ -394,12 +400,24 @@ async function updateStats() {
 
 // Endpoint statystyk (cache)
 exports.getStats = async (req, res) => {
-  const cached = getCache(CACHE_KEY);
-  if (cached) return res.json(cached);
+  let stats = getCache(CACHE_KEY);
 
-  const stats = await Stats.findOne({});
-  setCache(CACHE_KEY, stats || { totalQuestions: 0, categories: [] });
-  res.json(stats || { totalQuestions: 0, categories: [] });
+  if (!stats) {
+    stats = await Stats.findOne({});
+    setCache(CACHE_KEY, stats || { totalQuestions: 0, categories: [] });
+  }
+
+  const payload = stats || { totalQuestions: 0, categories: [] };
+  const updatedAt = payload.updatedAt ? new Date(payload.updatedAt).getTime() : 0;
+  const etag = `W/"stats-${updatedAt}"`;
+
+  if (req.headers["if-none-match"] === etag) {
+    return res.status(304).end();
+  }
+
+  res.setHeader("ETag", etag);
+  res.setHeader("Cache-Control", "private, max-age=60");
+  res.json(payload);
 };
 
 // Pobierz pytania wg kategorii

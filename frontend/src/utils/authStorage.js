@@ -96,12 +96,13 @@ export function getCachedUserData() {
 
 export function setCachedHistory(history) {
   const raw = JSON.stringify(Array.isArray(history) ? history : []);
+  // Tylko localStorage — sessionStorage podwajał serializację dużych tablic.
   write(localStorage, HISTORY_KEY, raw);
-  write(sessionStorage, HISTORY_KEY, raw);
+  remove(sessionStorage, HISTORY_KEY);
 }
 
 export function setCachedHQuestion(hquestion) {
   const raw = JSON.stringify(Array.isArray(hquestion) ? hquestion : []);
   write(localStorage, HQUESTION_KEY, raw);
-  write(sessionStorage, HQUESTION_KEY, raw);
+  remove(sessionStorage, HQUESTION_KEY);
 }

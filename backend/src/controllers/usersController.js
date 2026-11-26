@@ -464,25 +464,42 @@ exports.updateHQuestion = async (req, res) => {
       return res.status(400).json({ message: "Brak id, correct lub category" });
     }
 
-    const user = await User.findById(req.user.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    if (!Array.isArray(user.hquestion)) user.hquestion = [];
-
-    // Szukamy istniejącego wpisu
-    const existing = user.hquestion.find((q) => q.id == id);
-
-    if (!existing) {
-      user.hquestion.push({ id, correct, category });
-    } else if (existing.correct === false && correct === true) {
-      existing.correct = true;
-      existing.category = category;
+    const questionId = Number(id);
+    if (!Number.isSafeInteger(questionId) || questionId < 0) {
+      return res.status(400).json({ message: "Nieprawidłowe ID pytania" });
     }
-    // W innych przypadkach nie zmieniamy wpisu
 
-    await user.save();
+    // Atomowo: dodaj wpis tylko, jeśli nie istnieje (bez pobierania całego dokumentu).
+    const pushed = await User.updateOne(
+      { _id: req.user.id, "hquestion.id": { $ne: questionId } },
+      { $push: { hquestion: { id: questionId, correct, category } } }
+    );
+
+    if (!pushed.matchedCount) {
+      // Wpis już jest — jedyna dozwolona zmiana to false → true (jak dotychczas).
+      const upgraded = await User.updateOne(
+        {
+          _id: req.user.id,
+          "hquestion.id": questionId,
+          "hquestion.correct": false,
+        },
+        {
+          $set: {
+            "hquestion.$.correct": true,
+            "hquestion.$.category": category,
+          },
+        }
+      );
+
+      if (!upgraded.matchedCount) {
+        const exists = await User.exists({ _id: req.user.id });
+        if (!exists) return res.status(404).json({ message: "User not found" });
+      }
+    }
+
     res.json({ message: "OK" });
   } catch (err) {
+    console.error("Błąd aktualizacji hquestion:", err);
     res.status(500).json({ message: "Błąd aktualizacji hquestion" });
   }
 };
