@@ -88,6 +88,68 @@ export async function ensureQuestionsCache({ force = false } = {}) {
         return { upToDate: true, version: server.version };
       }
 
+      // Delta sync: pobierz tylko zmiany od lokalnej wersji (zamiast ~5 MB snapshotu).
+      const localVersion = local?.version != null ? Number(local.version) : null;
+      if (
+        localVersion != null &&
+        localVersion > 0 &&
+        server.version != null &&
+        localVersion < Number(server.version)
+      ) {
+        try {
+          let since = localVersion;
+          let guard = 0;
+          let appliedAny = false;
+
+          while (guard < 20) {
+            guard += 1;
+            const res = await apiClient.get(
+              `/questions/changes?since=${since}&limit=500`,
+              { silent: true, noCache: true }
+            );
+            const data = res.data || {};
+
+            if (data.full) break; // log zmian nie pokrywa zakresu → pełny snapshot
+
+            const changes = Array.isArray(data.changes) ? data.changes : [];
+            for (const change of changes) {
+              if (change.action === 'delete' && change.ID != null) {
+                await deleteQuestionById(change.ID);
+                appliedAny = true;
+              } else if (change.action === 'upsert' && change.question) {
+                await putQuestion(change.question);
+                appliedAny = true;
+              }
+            }
+
+            if (data.hasMore) {
+              since = Number(data.lastVersion) || since;
+              continue;
+            }
+
+            const finalVersion = data.version ?? server.version;
+            const finalUpdatedAt = data.updatedAt || server.updatedAt;
+            await setCachedVersion(finalVersion, finalUpdatedAt);
+            storeVersion({
+              version: finalVersion,
+              count: server.count,
+              updatedAt: finalUpdatedAt,
+            });
+
+            return {
+              updated: appliedAny,
+              delta: true,
+              version: finalVersion,
+            };
+          }
+        } catch (deltaError) {
+          console.warn(
+            'Synchronizacja przyrostowa nie powiodła się — pełny snapshot:',
+            deltaError?.message || deltaError
+          );
+        }
+      }
+
       const res = await apiClient.get('/questions/snapshot', { silent: true, noCache: true });
       const data = res.data || {};
       if (!Array.isArray(data.questions)) {

@@ -27,8 +27,13 @@ function uploadExcelMiddleware(req, res, next) {
   });
 }
 const Question = require("../models/Question");
+const QuestionChange = require("../models/QuestionChange");
 const events = require("../utils/events");
-const { bumpQuestionsVersion } = require("../utils/questionsVersion");
+const {
+  bumpQuestionsVersion,
+  getQuestionsVersion,
+} = require("../utils/questionsVersion");
+const { logQuestionBulkChange } = require("../utils/questionChanges");
 
 // Pobierz wszystkie pytania
 router.get("/", auth.verifyToken, async (req, res) => {
@@ -150,6 +155,107 @@ router.get("/version", questionsController.getQuestionsVersionInfo);
 // Pełny snapshot do lokalnego cache (wymaga zalogowania).
 router.get("/snapshot", auth.verifyToken, questionsController.getQuestionsSnapshot);
 
+// Zmiany od podanej wersji — klienci PWA pobierają deltę zamiast pełnego snapshotu.
+router.get("/changes", auth.verifyToken, async (req, res) => {
+  try {
+    const since = Number(req.query.since);
+    if (!Number.isSafeInteger(since) || since < 0) {
+      return res.status(400).json({ message: "Nieprawidłowy parametr since" });
+    }
+
+    const limit = Math.min(1000, Math.max(1, parseInt(req.query.limit, 10) || 500));
+    const { version: currentVersion, updatedAt } = await getQuestionsVersion();
+
+    if (since >= currentVersion) {
+      return res.json({
+        version: currentVersion,
+        updatedAt,
+        full: false,
+        changes: [],
+        hasMore: false,
+        lastVersion: currentVersion,
+      });
+    }
+
+    const oldest = await QuestionChange.findOne()
+      .sort({ version: 1 })
+      .select("version")
+      .lean();
+
+    // Brak logów lub luka (wpisy wygasły) — wymuś pełny snapshot.
+    if (!oldest || since < oldest.version - 1) {
+      return res.json({
+        version: currentVersion,
+        updatedAt,
+        full: true,
+        changes: [],
+        hasMore: false,
+        lastVersion: currentVersion,
+      });
+    }
+
+    const rows = await QuestionChange.find({ version: { $gt: since } })
+      .sort({ version: 1 })
+      .limit(limit)
+      .lean();
+
+    if (rows.some((row) => row.action === "bulk")) {
+      return res.json({
+        version: currentVersion,
+        updatedAt,
+        full: true,
+        changes: [],
+        hasMore: false,
+        lastVersion: currentVersion,
+      });
+    }
+
+    // Kilka zmian tego samego pytania w zakresie — liczy się ostatnia.
+    const latestById = new Map();
+    for (const row of rows) {
+      if (row.ID == null) continue;
+      latestById.set(row.ID, row);
+    }
+
+    const upsertIds = [...latestById.values()]
+      .filter((row) => row.action === "upsert")
+      .map((row) => row.ID);
+
+    const questions =
+      upsertIds.length > 0
+        ? await Question.find(
+            { ID: { $in: upsertIds } },
+            { _id: 0, __v: 0 }
+          ).lean()
+        : [];
+    const byId = new Map(questions.map((question) => [question.ID, question]));
+
+    const changes = [];
+    for (const row of latestById.values()) {
+      if (row.action === "delete") {
+        changes.push({ action: "delete", ID: row.ID });
+      } else if (row.action === "upsert" && byId.has(row.ID)) {
+        changes.push({ action: "upsert", ID: row.ID, question: byId.get(row.ID) });
+      }
+    }
+
+    const lastVersion = rows.length > 0 ? rows[rows.length - 1].version : since;
+    const hasMore = rows.length === limit && lastVersion < currentVersion;
+
+    res.json({
+      version: currentVersion,
+      updatedAt,
+      full: false,
+      changes,
+      hasMore,
+      lastVersion: hasMore ? lastVersion : currentVersion,
+    });
+  } catch (e) {
+    console.error("Błąd pobierania zmian pytań:", e);
+    res.status(500).json({ message: "Błąd pobierania zmian pytań" });
+  }
+});
+
 // Pobierz pytania według kategorii
 router.get(
   "/category/:category(*)",
@@ -186,6 +292,7 @@ router.delete(
       questionsController.invalidateCategoryCache();
       await questionsController.refreshStats();
       const { version } = await bumpQuestionsVersion();
+      await logQuestionBulkChange(version, "delete-category");
       events.emit("questions-changed", {
         type: "bulk",
         action: "delete-category",

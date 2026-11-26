@@ -10,6 +10,7 @@ const {
   bumpQuestionsVersion,
   getQuestionsVersion,
 } = require("../utils/questionsVersion");
+const { logQuestionChange, logQuestionBulkChange } = require("../utils/questionChanges");
 const CACHE_KEY = "stats";
 
 // Cache pełnych list kategorii (krótki TTL, ograniczona liczba wpisów).
@@ -146,6 +147,7 @@ exports.addQuestion = async (req, res) => {
 
     await updateStats();
     const { version } = await bumpQuestionsVersion();
+    await logQuestionChange(version, "upsert", nextID);
     events.emit("questions-changed", {
       type: "create",
       ID: nextID,
@@ -200,6 +202,7 @@ exports.updateQuestion = async (req, res) => {
       return res.status(404).json({ message: "Question not found" });
     }
     const { version } = await bumpQuestionsVersion();
+    await logQuestionChange(version, "upsert", updatedQuestion.ID);
     events.emit("questions-changed", {
       type: "update",
       ID: updatedQuestion.ID,
@@ -227,10 +230,12 @@ exports.deleteQuestion = async (req, res) => {
         .json({ message: "Nie znaleziono pytania do usunięcia" });
     }
 
+    const { version } = await bumpQuestionsVersion();
+    await logQuestionChange(version, "delete", Number(req.params.id));
     events.emit("questions-changed", {
       type: "delete",
       ID: Number(req.params.id),
-      version: (await bumpQuestionsVersion()).version,
+      version,
     });
     res.json({ success: true });
   } catch (e) {
@@ -310,6 +315,7 @@ exports.clearQuestions = async (req, res) => {
     await Question.deleteMany({});
     await updateStats();
     const { version } = await bumpQuestionsVersion();
+    await logQuestionBulkChange(version, "clear");
     events.emit("questions-changed", {
       type: "bulk",
       action: "clear",
@@ -351,6 +357,7 @@ exports.importQuestionsFromExcel = async (req, res) => {
     if (inserted > 0) {
       await updateStats();
       const { version } = await bumpQuestionsVersion();
+      await logQuestionBulkChange(version, "import");
       events.emit("questions-changed", {
         type: "bulk",
         action: "import",
