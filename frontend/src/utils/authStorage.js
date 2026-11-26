@@ -5,6 +5,8 @@ const USER_KEY = 'user';
 const HISTORY_KEY = 'cached-history';
 const HQUESTION_KEY = 'cached-hquestion';
 const HQUESTION_MARKER_KEY = 'cached-hquestion-user';
+const ETAG_HISTORY_KEY = 'cached-etag-history';
+const ETAG_HQUESTION_KEY = 'cached-etag-hquestion';
 
 function read(storage, key) {
   try {
@@ -70,7 +72,15 @@ export function setSession(token, user) {
 }
 
 export function clearSession() {
-  for (const key of [TOKEN_KEY, USER_KEY, HISTORY_KEY, HQUESTION_KEY, HQUESTION_MARKER_KEY]) {
+  for (const key of [
+    TOKEN_KEY,
+    USER_KEY,
+    HISTORY_KEY,
+    HQUESTION_KEY,
+    HQUESTION_MARKER_KEY,
+    ETAG_HISTORY_KEY,
+    ETAG_HQUESTION_KEY,
+  ]) {
     remove(sessionStorage, key);
     remove(localStorage, key);
   }
@@ -128,6 +138,43 @@ export function getCachedHQuestionMarker() {
 export function clearCachedHQuestionMarker() {
   remove(localStorage, HQUESTION_MARKER_KEY);
   remove(sessionStorage, HQUESTION_MARKER_KEY);
+}
+
+const ETAG_KEYS = {
+  history: ETAG_HISTORY_KEY,
+  hquestion: ETAG_HQUESTION_KEY,
+};
+
+function parseEtag(raw) {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed.etag === 'string' ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+/** ETag ostatniej pobranej historii/odpowiedzi (per użytkownik). */
+export function getCachedEtag(userId, name) {
+  const key = ETAG_KEYS[name];
+  if (!key || !userId) return null;
+  const parsed = parseEtag(read(localStorage, key) || read(sessionStorage, key));
+  return parsed && parsed.userId === String(userId) ? parsed.etag : null;
+}
+
+export function setCachedEtag(userId, name, etag) {
+  const key = ETAG_KEYS[name];
+  if (!key || !userId || !etag) return;
+  write(localStorage, key, JSON.stringify({ userId: String(userId), etag }));
+  remove(sessionStorage, key);
+}
+
+export function clearCachedEtags() {
+  for (const key of Object.values(ETAG_KEYS)) {
+    remove(localStorage, key);
+    remove(sessionStorage, key);
+  }
 }
 
 /** Czy istnieje lokalna kopia odpowiedzi (IndexedDB albo stara w localStorage). */

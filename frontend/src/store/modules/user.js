@@ -10,6 +10,9 @@ import {
   getLegacyCachedHQuestion,
   clearLegacyCachedHQuestion,
   clearCachedHQuestionMarker,
+  getCachedEtag,
+  setCachedEtag,
+  clearCachedEtags,
   clearSession,
 } from '@/utils/authStorage';
 import {
@@ -43,6 +46,18 @@ function toPlain(value) {
   }
 }
 
+const ALLOW_304 = (status) => (status >= 200 && status < 300) || status === 304;
+
+/** Warunkowy GET: ETag tylko gdy mamy pełną lokalną kopię. */
+function conditionalGet(etag) {
+  const config = { noCache: true };
+  if (etag) {
+    config.headers = { 'If-None-Match': etag };
+    config.validateStatus = ALLOW_304;
+  }
+  return config;
+}
+
 export default {
   namespaced: true,
   state: {
@@ -50,6 +65,8 @@ export default {
     history: [],
     hquestion: [],
     historyLoadedFromServer: false,
+    historyCachedLocally: false,
+    hquestionCachedLocally: false,
     isAuthenticated: false,
   },
   mutations: {
@@ -61,6 +78,12 @@ export default {
     },
     SET_HISTORY_SOURCE(state, source) {
       state.historyLoadedFromServer = source === 'server';
+    },
+    SET_HISTORY_CACHED(state, cached) {
+      state.historyCachedLocally = Boolean(cached);
+    },
+    SET_HQUESTION_CACHED(state, cached) {
+      state.hquestionCachedLocally = Boolean(cached);
     },
     SET_HQUESTION(state, hq) {
       state.hquestion = hq || [];
@@ -103,7 +126,10 @@ export default {
 
       // Stara, pełna kopia odpowiedzi (jeśli jest) — do migracji do IndexedDB.
       const legacyHQ = Array.isArray(cached.hquestion) ? cached.hquestion : null;
-      if (legacyHQ) commit('SET_HQUESTION', legacyHQ);
+      if (legacyHQ) {
+        commit('SET_HQUESTION', legacyHQ);
+        commit('SET_HQUESTION_CACHED', true);
+      }
 
       if (!user?._id) return;
       try {
@@ -116,9 +142,11 @@ export default {
 
         if (Array.isArray(fullHistory) && fullHistory.length > 0 && !state.historyLoadedFromServer) {
           commit('SET_USER_HISTORY', fullHistory);
+          commit('SET_HISTORY_CACHED', true);
         }
         if (Array.isArray(fullHQuestion) && fullHQuestion.length > 0 && !state.hquestion?.length) {
           commit('SET_HQUESTION', fullHQuestion);
+          commit('SET_HQUESTION_CACHED', true);
         }
 
         if (fullHQuestion.length > 0) {
@@ -164,33 +192,41 @@ export default {
         );
       }
     },
-    async fetchUserHistory({ commit }) {
-      const res = await apiClient.get('/users/history');
+    async fetchUserHistory({ commit, state }) {
+      const ownerId = state.user?._id || getStoredUser()?._id;
+      const etag = state.historyCachedLocally ? getCachedEtag(ownerId, 'history') : null;
+      const res = await apiClient.get('/users/history', conditionalGet(etag));
+      if (res.status === 304) return;
+
       const history = Array.isArray(res.data) ? res.data : [];
       commit('SET_USER_HISTORY', history);
       commit('SET_HISTORY_SOURCE', 'server');
+      commit('SET_HISTORY_CACHED', true);
       setCachedHistory(history);
-      persistHistory(getStoredUser()?._id, history);
+      persistHistory(ownerId, history);
+      setCachedEtag(ownerId, 'history', res.headers?.etag);
     },
     /** Zapisuje bieżący stan odpowiedzi do IndexedDB (tryb offline). */
-    async persistHQuestionLocally({ state }) {
+    async persistHQuestionLocally({ state, commit }) {
       const userId = state.user?._id;
       if (!userId) return false;
       try {
         setCachedHQuestionMarker(userId, state.hquestion.length);
         await replaceHQuestionCache(userId, toPlain(state.hquestion));
+        commit('SET_HQUESTION_CACHED', true);
         return true;
       } catch (e) {
         return false;
       }
     },
     /** Zapisuje bieżącą historię (z listami odpowiedzi) do IndexedDB. */
-    async persistHistoryLocally({ state }) {
+    async persistHistoryLocally({ state, commit }) {
       const userId = state.user?._id;
       if (!userId) return false;
       try {
         setCachedHistory(state.history);
         await replaceHistoryCache(userId, toPlain(state.history));
+        commit('SET_HISTORY_CACHED', true);
         return true;
       } catch (e) {
         return false;
@@ -210,25 +246,41 @@ export default {
      */
     async fetchUserHistoryAndHQ({ commit, state }, { withProfile = true } = {}) {
       try {
+        const currentUserId = state.user?._id || getStoredUser()?._id;
+        const historyEtag = state.historyCachedLocally
+          ? getCachedEtag(currentUserId, 'history')
+          : null;
+        const hquestionEtag = state.hquestionCachedLocally
+          ? getCachedEtag(currentUserId, 'hquestion')
+          : null;
+
         const requests = [
-          apiClient.get('/users/history'),
-          apiClient.get('/users/hquestion'),
+          apiClient.get('/users/history', conditionalGet(historyEtag)),
+          apiClient.get('/users/hquestion', conditionalGet(hquestionEtag)),
         ];
         if (withProfile) requests.push(apiClient.get('/users/me'));
 
         const [historyRes, hqRes, meRes] = await Promise.all(requests);
+        const ownerId = meRes?.data?._id || currentUserId;
 
-        const history = Array.isArray(historyRes.data) ? historyRes.data : [];
-        const hquestion = Array.isArray(hqRes.data) ? hqRes.data : [];
-        commit('SET_USER_HISTORY', history);
-        commit('SET_HISTORY_SOURCE', 'server');
-        commit('SET_HQUESTION', hquestion);
-        setCachedHistory(history);
+        if (historyRes.status !== 304) {
+          const history = Array.isArray(historyRes.data) ? historyRes.data : [];
+          commit('SET_USER_HISTORY', history);
+          commit('SET_HISTORY_SOURCE', 'server');
+          commit('SET_HISTORY_CACHED', true);
+          setCachedHistory(history);
+          persistHistory(ownerId, history);
+          setCachedEtag(ownerId, 'history', historyRes.headers?.etag);
+        }
 
-        const ownerId = meRes?.data?._id || state.user?._id;
-        setCachedHQuestionMarker(ownerId, hquestion.length);
-        persistHistory(ownerId, history);
-        persistHQuestion(ownerId, hquestion);
+        if (hqRes.status !== 304) {
+          const hquestion = Array.isArray(hqRes.data) ? hqRes.data : [];
+          commit('SET_HQUESTION', hquestion);
+          commit('SET_HQUESTION_CACHED', true);
+          setCachedHQuestionMarker(ownerId, hquestion.length);
+          persistHQuestion(ownerId, hquestion);
+          setCachedEtag(ownerId, 'hquestion', hqRes.headers?.etag);
+        }
 
         // Profil (bez historii/hquestion) — aktualizujemy avatar, motyw itp.
         if (meRes) {
@@ -245,7 +297,10 @@ export default {
         }
         if (!state.hquestion?.length) {
           const legacyHQ = getLegacyCachedHQuestion();
-          if (Array.isArray(legacyHQ)) commit('SET_HQUESTION', legacyHQ);
+          if (Array.isArray(legacyHQ)) {
+            commit('SET_HQUESTION', legacyHQ);
+            commit('SET_HQUESTION_CACHED', true);
+          }
         }
       }
     },
@@ -254,8 +309,11 @@ export default {
       commit('SET_USER', {});
       commit('SET_USER_HISTORY', []);
       commit('SET_HISTORY_SOURCE', 'server');
+      commit('SET_HISTORY_CACHED', false);
+      commit('SET_HQUESTION_CACHED', false);
       commit('SET_HQUESTION', []);
       clearSession();
+      clearCachedEtags();
       // Pełne dane użytkownika nie mogą zostać na współdzielonym urządzeniu.
       clearUserCache().catch(() => {});
     },
@@ -282,9 +340,12 @@ export default {
         // Natychmiast czyść wszystkie powiązane dane
         commit('SET_USER_HISTORY', []);
         commit('SET_HISTORY_SOURCE', 'server');
+        commit('SET_HISTORY_CACHED', false);
+        commit('SET_HQUESTION_CACHED', false);
         commit('SET_HQUESTION', []);
         setCachedHistory([]);
         clearCachedHQuestionMarker();
+        clearCachedEtags();
         await clearUserCache().catch(() => {});
 
         // Wyczyść dane w pamięci sesji trwałej
@@ -323,8 +384,11 @@ export default {
           commit('SET_USER', {});
           commit('SET_USER_HISTORY', []);
           commit('SET_HISTORY_SOURCE', 'server');
+          commit('SET_HISTORY_CACHED', false);
+          commit('SET_HQUESTION_CACHED', false);
           commit('SET_HQUESTION', []);
           clearSession();
+          clearCachedEtags();
           clearUserCache().catch(() => {});
           throw new Error('Sesja wygasła');
         }

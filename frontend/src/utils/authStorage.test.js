@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
   clearSession,
+  getCachedEtag,
   getCachedHQuestionMarker,
   getCachedUserData,
   getLegacyCachedHQuestion,
@@ -9,6 +10,7 @@ import {
   getToken,
   hasCachedHQuestion,
   hasSession,
+  setCachedEtag,
   setCachedHistory,
   setCachedHQuestionMarker,
   setSession,
@@ -59,6 +61,20 @@ describe('authStorage', () => {
 
     sessionStorage.clear();
     expect(getCachedUserData().history).toEqual([{ type: 'quiz' }]);
+  });
+
+  it('przechowuje ETag per użytkownik i czyści przy wylogowaniu', () => {
+    setSession('token-1', { _id: 'u1', login: 'admin' });
+    setCachedEtag('u1', 'history', 'W/"h1"');
+    setCachedEtag('u1', 'hquestion', 'W/"q1"');
+
+    expect(getCachedEtag('u1', 'history')).toBe('W/"h1"');
+    expect(getCachedEtag('u1', 'hquestion')).toBe('W/"q1"');
+    // Inny użytkownik nie może użyć cudzego ETaga.
+    expect(getCachedEtag('u2', 'history')).toBeNull();
+
+    clearSession();
+    expect(getCachedEtag('u1', 'history')).toBeNull();
   });
 
   it('czyta starą kopię odpowiedzi i usuwa ją po migracji/wylogowaniu', () => {

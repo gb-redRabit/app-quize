@@ -19,6 +19,7 @@ vi.mock('@/utils/userCache', () => ({
 
 import apiClient from '@/api';
 import * as userCache from '@/utils/userCache';
+import { getCachedEtag, setCachedEtag } from '@/utils/authStorage';
 import userStore from './user';
 
 function createContext(overrides = {}) {
@@ -26,6 +27,8 @@ function createContext(overrides = {}) {
     user: {},
     hquestion: [],
     history: [],
+    historyCachedLocally: false,
+    hquestionCachedLocally: false,
     isAuthenticated: false,
   };
   const commits = [];
@@ -51,8 +54,10 @@ beforeEach(() => {
 describe('user store — dane użytkownika', () => {
   it('pobiera historię, odpowiedzi i profil równolegle i zapisuje cache', async () => {
     apiClient.get.mockImplementation((url) => {
-      if (url === '/users/history') return Promise.resolve({ data: [{ clientId: 'a' }] });
-      if (url === '/users/hquestion') return Promise.resolve({ data: [{ id: 1 }] });
+      if (url === '/users/history')
+        return Promise.resolve({ data: [{ clientId: 'a' }], headers: { etag: 'W/"h1"' } });
+      if (url === '/users/hquestion')
+        return Promise.resolve({ data: [{ id: 1 }], headers: { etag: 'W/"q1"' } });
       if (url === '/users/me') return Promise.resolve({ data: { _id: 'u1', login: 'admin' } });
       return Promise.reject(new Error('unexpected ' + url));
     });
@@ -75,6 +80,39 @@ describe('user store — dane użytkownika', () => {
     expect(userCache.replaceHistoryCache).toHaveBeenCalledWith('u1', [
       { clientId: 'a' },
     ]);
+    expect(getCachedEtag('u1', 'history')).toBe('W/"h1"');
+    expect(getCachedEtag('u1', 'hquestion')).toBe('W/"q1"');
+    expect(ctx.state.historyCachedLocally).toBe(true);
+    expect(ctx.state.hquestionCachedLocally).toBe(true);
+  });
+
+  it('przy 304 nie nadpisuje stanu, cache ani IDB', async () => {
+    setCachedEtag('u1', 'history', 'W/"h1"');
+    setCachedEtag('u1', 'hquestion', 'W/"q1"');
+    apiClient.get.mockImplementation((url) => {
+      if (url === '/users/history' || url === '/users/hquestion') {
+        return Promise.resolve({ status: 304, data: '', headers: {} });
+      }
+      if (url === '/users/me') return Promise.resolve({ data: { _id: 'u1', login: 'admin' } });
+      return Promise.reject(new Error('unexpected ' + url));
+    });
+    const ctx = createContext();
+    ctx.state.user = { _id: 'u1', login: 'admin' };
+    ctx.state.history = [{ clientId: 'keep' }];
+    ctx.state.hquestion = [{ id: 1, correct: true }];
+    ctx.state.historyCachedLocally = true;
+    ctx.state.hquestionCachedLocally = true;
+
+    await userStore.actions.fetchUserHistoryAndHQ(ctx);
+
+    expect(ctx.state.history).toEqual([{ clientId: 'keep' }]);
+    expect(ctx.state.hquestion).toEqual([{ id: 1, correct: true }]);
+    expect(userCache.replaceHistoryCache).not.toHaveBeenCalled();
+    expect(userCache.replaceHQuestionCache).not.toHaveBeenCalled();
+
+    const historyCall = apiClient.get.mock.calls.find(([url]) => url === '/users/history');
+    expect(historyCall[1].headers['If-None-Match']).toBe('W/"h1"');
+    expect(historyCall[1].validateStatus(304)).toBe(true);
   });
 
   it('persistHQuestionLocally zapisuje pełne odpowiedzi i znacznik', async () => {
