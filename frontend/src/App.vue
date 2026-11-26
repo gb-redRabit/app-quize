@@ -512,6 +512,34 @@ function handleOfflineConflicts(event) {
   }
 }
 
+let lastQueueAlertAt = 0;
+function warnQueue(message) {
+  const now = Date.now();
+  if (now - lastQueueAlertAt < 5000) return;
+  lastQueueAlertAt = now;
+  showAlert('warning', message, 9000);
+}
+
+function handleOfflineQueueOverflow(event) {
+  const dropped = Number(event.detail?.dropped) || 0;
+  if (dropped <= 0) return;
+  const label = pluralizePl(
+    dropped,
+    'najstarszą zmianę',
+    'najstarsze zmiany',
+    'najstarszych zmian'
+  );
+  warnQueue(
+    `Kolejka offline jest pełna — pominięto ${dropped} ${label}. Połącz się z internetem, aby wysłać zaległe dane.`
+  );
+}
+
+function handleOfflineQueueWriteFailed() {
+  warnQueue(
+    'Nie udało się zapisać kolejki offline — pamięć urządzenia jest pełna. Połącz się z internetem, aby wysłać zmiany.'
+  );
+}
+
 function handleOfflineImportFinished(event) {
   const done = event.detail?.done || [];
   const failed = event.detail?.failed || [];
@@ -640,6 +668,8 @@ onMounted(() => {
   window.addEventListener('questions-changed', handleQuestionsChanged);
   window.addEventListener('user-updated', handleUserUpdated);
   window.addEventListener('offline-queue-changed', refreshPendingChanges);
+  window.addEventListener('offline-queue-overflow', handleOfflineQueueOverflow);
+  window.addEventListener('offline-queue-write-failed', handleOfflineQueueWriteFailed);
   window.addEventListener('offline-conflicts', handleOfflineConflicts);
   window.addEventListener('offline-import-finished', handleOfflineImportFinished);
   window.addEventListener('user-data-synced', handleUserDataSynced);
@@ -673,6 +703,8 @@ onBeforeUnmount(() => {
   window.removeEventListener('questions-changed', handleQuestionsChanged);
   window.removeEventListener('user-updated', handleUserUpdated);
   window.removeEventListener('offline-queue-changed', refreshPendingChanges);
+  window.removeEventListener('offline-queue-overflow', handleOfflineQueueOverflow);
+  window.removeEventListener('offline-queue-write-failed', handleOfflineQueueWriteFailed);
   window.removeEventListener('offline-conflicts', handleOfflineConflicts);
   window.removeEventListener('offline-import-finished', handleOfflineImportFinished);
   window.removeEventListener('user-data-synced', handleUserDataSynced);

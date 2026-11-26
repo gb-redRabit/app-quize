@@ -7,6 +7,8 @@ import {
   clearQueue,
   queueSize,
   newClientId,
+  trimQueue,
+  MAX_ENTRIES,
 } from './offlineQueue';
 
 const STORAGE_KEY = 'offline-queue-v1';
@@ -59,12 +61,34 @@ describe('offlineQueue', () => {
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
   });
 
-  it('ogranicza rozmiar kolejki do 500 pozycji', () => {
-    for (let i = 0; i < 520; i += 1) {
+  it('przy przepełnieniu zachowuje najnowsze pozycje i emituje ostrzeżenie', () => {
+    let droppedTotal = 0;
+    const handler = (event) => {
+      droppedTotal += Number(event.detail?.dropped) || 0;
+    };
+    window.addEventListener('offline-queue-overflow', handler);
+
+    for (let i = 0; i < MAX_ENTRIES + 20; i += 1) {
       enqueue({ type: 'hquestion', payload: { id: i } });
     }
 
-    expect(queueSize()).toBe(500);
+    window.removeEventListener('offline-queue-overflow', handler);
+    expect(queueSize()).toBe(MAX_ENTRIES);
+    expect(getQueue()[0].payload.id).toBe(20);
+    expect(getQueue()[MAX_ENTRIES - 1].payload.id).toBe(MAX_ENTRIES + 19);
+    expect(droppedTotal).toBe(20);
+  });
+
+  it('trimQueue respektuje limit bajtów (najnowsze zostają)', () => {
+    const big = { type: 'x', payload: { text: 'a'.repeat(1000) } };
+    const { entries, dropped } = trimQueue([big, big, big], {
+      maxEntries: 10,
+      maxBytes: 2200,
+    });
+
+    expect(dropped).toBe(1);
+    expect(entries).toHaveLength(2);
+    expect(entries[1]).toEqual(big);
   });
 
   it('emituje zdarzenie offline-queue-changed', () => {
