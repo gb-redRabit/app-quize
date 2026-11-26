@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getToken, setToken, clearSession } from '@/utils/authStorage';
+import { getUiAlert, getUiLoader } from '@/services/uiBridge';
 
 /**
  * Konfigurowalna instancja klienta API z zaawansowanym cachowaniem i obsługą błędów
@@ -93,40 +94,14 @@ apiClient.get = function (url, config = {}) {
 };
 
 /**
- * Uzyskuje dostęp do komponentu loadera
+ * Uzyskuje dostęp do komponentu loadera (rejestrowany przez App.vue).
  */
-const getLoader = () => {
-  try {
-    const app = document.getElementById('app')?.__vue_app__;
-    if (!app) return null;
-
-    const root = app._instance?.proxy;
-    if (!root) return null;
-
-    return root.$refs?.globalLoader;
-  } catch (e) {
-    console.debug('Błąd dostępu do loadera:', e);
-    return null;
-  }
-};
+const getLoader = () => getUiLoader();
 
 /**
- * Uzyskuje dostęp do systemu alertów
+ * Uzyskuje dostęp do systemu alertów (rejestrowany przez App.vue).
  */
-const getAlerter = () => {
-  try {
-    const app = document.getElementById('app')?.__vue_app__;
-    if (!app) return null;
-
-    const root = app._instance?.proxy;
-    if (!root) return null;
-
-    return root.$alert || root.$root?.$alert;
-  } catch (e) {
-    console.debug('Błąd dostępu do alertera:', e);
-    return null;
-  }
-};
+const getAlerter = () => getUiAlert();
 
 /**
  * Pokazuje alert z automatycznym zamknięciem

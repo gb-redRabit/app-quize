@@ -211,6 +211,7 @@ import { useGlobalLoader } from '@/composables/useGlobalLoader.js';
 import { updateAvailable, applyUpdate, dismissUpdate } from '@/services/pwa';
 import { useSidebar } from '@/composables/useSidebar';
 import { pluralizePl } from '@/utils/pluralize';
+import { registerUiBridge } from '@/services/uiBridge';
 import { getToken, setToken, setUser, getCachedUserData } from '@/utils/authStorage';
 
 const store = useStore();
@@ -219,7 +220,7 @@ const route = useRoute();
 
 const isPageLoading = ref(false);
 const showSessionModal = ref(false);
-const { globalLoaderVisible, hideLoader } = useGlobalLoader();
+const { globalLoaderVisible, showLoader, hideLoader } = useGlobalLoader();
 const sessionMinutesLeft = ref(5);
 const sessionSecondsLeft = ref(0);
 const sessionModalLoading = ref(false);
@@ -627,6 +628,11 @@ watch(
 );
 
 onMounted(() => {
+  // Warstwa API nie sięga już do prywatnego `__vue_app__`.
+  registerUiBridge({
+    loader: { show: showLoader, hide: hideLoader },
+    alert: showAlert,
+  });
   window.addEventListener('questions-changed', handleQuestionsChanged);
   window.addEventListener('user-updated', handleUserUpdated);
   window.addEventListener('offline-queue-changed', refreshPendingChanges);

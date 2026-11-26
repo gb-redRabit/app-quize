@@ -15,6 +15,7 @@ const state = {
   updateCalls: 0,
   statsUpdates: 0,
   versionBumps: 0,
+  findCalls: 0,
   emitted: null,
   changeLog: [],
 };
@@ -26,6 +27,10 @@ const QuestionStub = {
     return state.updated;
   },
   findOneAndDelete: async () => state.deletedQuestion,
+  find: () => {
+    state.findCalls += 1;
+    return { sort: () => ({ lean: async () => [{ ID: 1, question: "Q?" }] }) };
+  },
   countDocuments: async () => 1,
   aggregate: async () => [],
 };
@@ -112,6 +117,7 @@ function reset() {
   state.updateCalls = 0;
   state.statsUpdates = 0;
   state.versionBumps = 0;
+  state.findCalls = 0;
   state.emitted = null;
   state.changeLog = [];
 }
@@ -209,4 +215,48 @@ test("updateQuestion: 404 dla nieistniejącego ID", async () => {
 
   assert.equal(res.statusCode, 404);
   assert.equal(state.updateCalls, 0);
+});
+
+function makeSendRes() {
+  return {
+    statusCode: 200,
+    headers: {},
+    contentType: null,
+    body: null,
+    status(code) {
+      this.statusCode = code;
+      return this;
+    },
+    setHeader(key, value) {
+      this.headers[key] = value;
+      return this;
+    },
+    type(value) {
+      this.contentType = value;
+      return this;
+    },
+    send(body) {
+      this.body = body;
+      return this;
+    },
+    end() {
+      return this;
+    },
+    json(payload) {
+      this.body = JSON.stringify(payload);
+      return this;
+    },
+  };
+}
+
+test("getQuestionsSnapshot: serializuje JSON raz na wersję", async () => {
+  reset();
+  const first = makeSendRes();
+  await controller.getQuestionsSnapshot({ headers: {} }, first);
+  const second = makeSendRes();
+  await controller.getQuestionsSnapshot({ headers: {} }, second);
+
+  assert.equal(first.body, second.body);
+  assert.equal(JSON.parse(first.body).questions.length, 1);
+  assert.equal(state.findCalls, 1);
 });

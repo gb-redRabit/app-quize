@@ -23,6 +23,7 @@ const state = {
   legacyQuestionExists: false,
   answerEvent: null,
   answerEventCreateCalls: [],
+  answerEventDeletedCount: 0,
   invalidateCalls: [],
 };
 
@@ -33,7 +34,7 @@ const fakeAnswerEventModel = {
     return data;
   },
   updateOne: async () => ({ matchedCount: 1 }),
-  deleteMany: async () => ({ deletedCount: 0 }),
+  deleteMany: async () => ({ deletedCount: state.answerEventDeletedCount }),
   aggregate: async () => [],
 };
 
@@ -154,6 +155,7 @@ function reset() {
   state.legacyQuestionExists = false;
   state.answerEvent = null;
   state.answerEventCreateCalls = [];
+  state.answerEventDeletedCount = 0;
   state.invalidateCalls = [];
 }
 
@@ -407,6 +409,26 @@ test("updateHQuestion: 404, gdy użytkownik nie istnieje", async () => {
   );
 
   assert.equal(res.statusCode, 404);
+  // Brak konta nie może utworzyć osieroconego answer_event.
+  assert.equal(state.answerEventCreateCalls.length, 0);
+});
+
+test("clearCategoryHQuestion: atomowo usuwa legacy i eventy, zwraca sumę", async () => {
+  reset();
+  state.updateOneResults = [{ matchedCount: 1, modifiedCount: 2 }];
+  state.answerEventDeletedCount = 3;
+  const res = makeRes();
+
+  await controller.clearCategoryHQuestion(
+    { user: { id: "u1" }, body: { category: "X" } },
+    res
+  );
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.removed, 5);
+  const [filter, update] = state.updateOneCalls[0];
+  assert.deepEqual(filter, { _id: "u1" });
+  assert.deepEqual(update, { $pull: { hquestion: { category: "X" } } });
 });
 
 test("updateHQuestion: odrzuca nieprawidłowe ID", async () => {

@@ -79,20 +79,22 @@ exports.getQuestionsSnapshot = async (req, res) => {
         .sort({ ID: 1 })
         .lean();
 
+      // Serializujemy raz na wersję — res.json() robił to przy każdym żądaniu.
       snapshotCache = {
         version,
-        payload: {
+        body: JSON.stringify({
           version,
           updatedAt,
           count: questions.length,
           questions,
-        },
+        }),
       };
     }
 
     res.setHeader("ETag", etag);
     res.setHeader("Cache-Control", "private, max-age=300");
-    res.json(snapshotCache.payload);
+    res.type("application/json");
+    res.send(snapshotCache.body);
   } catch (e) {
     console.error("Błąd snapshotu pytań:", e);
     res.status(500).json({ message: "Błąd pobierania snapshotu pytań" });

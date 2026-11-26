@@ -332,6 +332,7 @@ exports.getUsersStats = async (req, res) => {
     const totalQuestions = await Question.countDocuments();
 
     // Aktywność z ostatnich 30 dni — stare wpisy (User.history) + nowe sesje.
+    // Sort/limit po stronie MongoDB: do Node trafia maks. 30 dni z każdego źródła.
     const [legacyActivityRaw, sessionActivityRaw, legacyCategoryRaw, sessionCategoryRaw] =
       await Promise.all([
         User.aggregate([
@@ -352,6 +353,8 @@ exports.getUsersStats = async (req, res) => {
               wrong: { $sum: "$wrong" },
             },
           },
+          { $sort: { _id: -1 } },
+          { $limit: 30 },
         ]),
         QuizSession.aggregate([
           { $match: { data: { $type: "string" } } },
@@ -370,6 +373,8 @@ exports.getUsersStats = async (req, res) => {
               wrong: { $sum: "$wrong" },
             },
           },
+          { $sort: { _id: -1 } },
+          { $limit: 30 },
         ]),
         User.aggregate([
           { $unwind: "$history" },
@@ -386,6 +391,8 @@ exports.getUsersStats = async (req, res) => {
               wrong: { $sum: { $ifNull: ["$history.wrong", 0] } },
             },
           },
+          { $sort: { quizzes: -1, _id: 1 } },
+          { $limit: 8 },
         ]),
         QuizSession.aggregate([
           { $match: { category: { $type: "string", $ne: "" } } },
@@ -397,6 +404,8 @@ exports.getUsersStats = async (req, res) => {
               wrong: { $sum: { $ifNull: ["$wrong", 0] } },
             },
           },
+          { $sort: { quizzes: -1, _id: 1 } },
+          { $limit: 8 },
         ]),
       ]);
 
@@ -548,10 +557,15 @@ exports.updateHQuestion = async (req, res) => {
       return res.status(400).json({ message: "Nieprawidłowe ID pytania" });
     }
 
-    const exists = await User.exists({ _id: req.user.id });
-    if (!exists) return res.status(404).json({ message: "User not found" });
+    const exists = await userData.addAnswer(req.user.id, {
+      id: questionId,
+      correct,
+      category,
+    });
 
-    await userData.addAnswer(req.user.id, { id: questionId, correct, category });
+    if (exists === null) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     res.json({ message: "OK" });
   } catch (err) {

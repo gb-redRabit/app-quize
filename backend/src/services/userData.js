@@ -69,11 +69,20 @@ async function addHistoryEntry(userId, entry) {
 /**
  * Zapis odpowiedzi: nowe pytania → `answer_events`; pytania obecne w starym
  * `User.hquestion` są aktualizowane w miejscu (bez tworzenia duplikatu).
+ * Zwraca `null`, gdy użytkownik nie istnieje.
  */
 async function addAnswer(userId, { id, correct, category }) {
   const questionId = Number(id);
 
-  const event = await AnswerEvent.findOne({ userId, questionId });
+  // Trzy niezależne sprawdzenia równolegle: event, wpis legacy, istnienie konta.
+  const [event, legacyExists, userExists] = await Promise.all([
+    AnswerEvent.findOne({ userId, questionId }),
+    User.exists({ _id: userId, "hquestion.id": questionId }),
+    User.exists({ _id: userId }),
+  ]);
+
+  if (!userExists) return null;
+
   if (event) {
     if (event.correct === false && correct === true) {
       await AnswerEvent.updateOne(
@@ -83,11 +92,6 @@ async function addAnswer(userId, { id, correct, category }) {
     }
     return "event";
   }
-
-  const legacyExists = await User.exists({
-    _id: userId,
-    "hquestion.id": questionId,
-  });
 
   if (legacyExists) {
     await User.updateOne(
@@ -129,21 +133,18 @@ async function clearHistory(userId) {
 }
 
 async function clearCategoryAnswers(userId, category) {
-  const user = await User.findById(userId).select("hquestion");
-  const beforeCount = Array.isArray(user?.hquestion) ? user.hquestion.length : 0;
+  // Atomowo: zdejmij wpisy legacy i skasuj nowe eventy równolegle.
+  const [legacyResult, eventsResult] = await Promise.all([
+    User.updateOne(
+      { _id: userId },
+      { $pull: { hquestion: { category } } }
+    ),
+    AnswerEvent.deleteMany({ userId, category }),
+  ]);
 
-  if (user) {
-    user.hquestion = (user.hquestion || []).filter(
-      (entry) => entry.category !== category
-    );
-    await user.save();
-  }
-
-  const eventsResult = await AnswerEvent.deleteMany({ userId, category });
-  const removedFromLegacy =
-    beforeCount - (Array.isArray(user?.hquestion) ? user.hquestion.length : 0);
-
-  return removedFromLegacy + (eventsResult.deletedCount || 0);
+  return (
+    (legacyResult?.modifiedCount || 0) + (eventsResult?.deletedCount || 0)
+  );
 }
 
 async function deleteUserData(userId) {
