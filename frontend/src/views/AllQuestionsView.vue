@@ -153,16 +153,6 @@
               </span>
             </span>
           </button>
-
-          <div v-if="isAdmin && !q.__pending" class="hidden sm:block shrink-0 self-start mt-0.5">
-            <QuestionActions
-              :question="q"
-              :inline-edit="isDesktop"
-              @deleted="handleQuestionDeleted"
-              @edit="handleQuestionEdited"
-              @request-edit="startInlineEdit"
-            />
-          </div>
         </div>
 
         <!-- Akcje na mobile pod treścią, poza przyciskiem wiersza -->

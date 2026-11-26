@@ -50,6 +50,9 @@
             błędnie ·
             <span>{{ categoryStats(cat).notDone }}</span> bez odpowiedzi
           </span>
+          <span v-if="lastActivityMap[cat]" class="hidden xl:inline text-gray-400">
+            Ostatnia: {{ formatActivity(lastActivityMap[cat]) }}
+          </span>
         </div>
       </button>
 
@@ -176,6 +179,10 @@ defineProps({
     type: Object,
     default: () => ({}),
   },
+  lastActivityMap: {
+    type: Object,
+    default: () => ({}),
+  },
 });
 
 const emit = defineEmits([
@@ -230,6 +237,15 @@ const startQuiz = (cat, limit) => {
   emit('toggle-quiz-options', cat);
   emit('start-quiz', cat, limit);
 };
+
+function formatActivity(timestamp) {
+  if (!timestamp) return '';
+  return new Date(timestamp).toLocaleDateString('pl-PL', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+}
 
 function handleDocumentClick() {
   if (openMenuFor.value !== null) openMenuFor.value = null;

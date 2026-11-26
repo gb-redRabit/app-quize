@@ -145,6 +145,7 @@
           <option value="progress-desc">Postęp malejąco</option>
           <option value="size-desc">Najwięcej pytań</option>
           <option value="size-asc">Najmniej pytań</option>
+          <option value="activity-desc">Ostatnia aktywność</option>
         </select>
       </div>
     </div>

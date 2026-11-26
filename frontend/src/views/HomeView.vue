@@ -154,6 +154,7 @@
           <CategoryList
             :categories="searchedCategories"
             :show-quiz-options="showQuizOptions"
+            :last-activity-map="lastActivityByCategory"
             @toggle-quiz-options="(cat) => (showQuizOptions[cat] = !showQuizOptions[cat])"
             @start-quiz="startQuizNotDone"
             @start-exam="startExamNotDone"
@@ -241,11 +242,25 @@ const savedView = (() => {
     return null;
   }
 })();
+const savedSort = (() => {
+  try {
+    return localStorage.getItem('categoriesSort');
+  } catch (e) {
+    return null;
+  }
+})();
+const savedStatus = (() => {
+  try {
+    return localStorage.getItem('categoriesStatus');
+  } catch (e) {
+    return null;
+  }
+})();
 const viewType = ref(savedView === 'grid' ? 'grid' : 'list');
 const gridColumns = ref(3);
 const searchQuery = ref('');
-const sortBy = ref('name');
-const statusFilter = ref('all');
+const sortBy = ref(savedSort || 'name');
+const statusFilter = ref(savedStatus || 'all');
 const showUserGuide = ref(false);
 
 const categoryStats = computed(() => {
@@ -313,9 +328,39 @@ function categoryStatusOf(cat) {
   return 'progress';
 }
 
+/** Najnowsza aktywność (quiz/egzamin) w danej kategorii, jako timestamp. */
+const lastActivityByCategory = computed(() => {
+  const map = {};
+  for (const entry of store.getters['user/getUserHistory'] || []) {
+    if (!entry?.category || !entry?.data) continue;
+    const time = new Date(entry.data).getTime();
+    if (!Number.isFinite(time)) continue;
+    if (!map[entry.category] || time > map[entry.category]) {
+      map[entry.category] = time;
+    }
+  }
+  return map;
+});
+
 watch(viewType, (value) => {
   try {
     localStorage.setItem('categoriesView', value);
+  } catch (e) {
+    // ignoruj
+  }
+});
+
+watch(sortBy, (value) => {
+  try {
+    localStorage.setItem('categoriesSort', value);
+  } catch (e) {
+    // ignoruj
+  }
+});
+
+watch(statusFilter, (value) => {
+  try {
+    localStorage.setItem('categoriesStatus', value);
   } catch (e) {
     // ignoruj
   }
@@ -357,6 +402,12 @@ const searchedCategories = computed(() => {
       break;
     case 'size-asc':
       sorted.sort((a, b) => categoryTotals(a).total - categoryTotals(b).total);
+      break;
+    case 'activity-desc':
+      sorted.sort(
+        (a, b) =>
+          (lastActivityByCategory.value[b] || 0) - (lastActivityByCategory.value[a] || 0)
+      );
       break;
     default:
       sorted.sort((a, b) => a.localeCompare(b));
