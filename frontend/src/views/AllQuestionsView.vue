@@ -208,6 +208,7 @@
             :question="selectedQuestion"
             @saved="handleInlineSaved"
             @cancel="isEditing = false"
+            @conflict="handleConflict"
           />
 
           <template v-else-if="selectedQuestion">
@@ -606,6 +607,13 @@ function handleInlineSaved(updated) {
   if (updated && updated.ID) {
     handleQuestionEdited(updated);
     showAlert?.('success', 'Pytanie zostało zaktualizowane.');
+  }
+}
+
+function handleConflict(serverQuestion) {
+  isEditing.value = false;
+  if (serverQuestion && serverQuestion.ID) {
+    handleQuestionEdited(serverQuestion);
   }
 }
 

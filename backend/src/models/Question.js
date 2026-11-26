@@ -20,7 +20,7 @@ const questionSchema = new mongoose.Schema({
   bad: { type: Boolean, default: false }, // <-- dodaj to
   unknown: { type: Boolean, default: false }, //
   note: { type: String, default: "" },
-});
+}, { timestamps: true });
 
 questionSchema.index({ ID: 1 }, { unique: true });
 questionSchema.index({ category: 1, ID: 1 });

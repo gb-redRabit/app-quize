@@ -135,7 +135,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch, inject } from 'vue';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
 import BaseButton from '@/components/base/BaseButton.vue';
@@ -148,7 +148,8 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['saved', 'cancel']);
+const emit = defineEmits(['saved', 'cancel', 'conflict']);
+const showAlert = inject('showAlert', null);
 
 const store = useStore();
 const saving = ref(false);
@@ -232,6 +233,9 @@ async function save() {
   delete payload._id;
   delete payload.__v;
   delete payload.answer_d;
+  if (props.question.updatedAt) {
+    payload.expectedUpdatedAt = props.question.updatedAt;
+  }
 
   saving.value = true;
   if (navigator.onLine === false) {
@@ -246,7 +250,11 @@ async function save() {
     const res = await apiClient.put(`/questions/${props.question.ID}`, payload);
     emit('saved', res.data);
   } catch (e) {
-    if (!e?.response) {
+    if (e?.response?.status === 409) {
+      const data = e.response.data || {};
+      showAlert?.('warning', data.message || 'Pytanie zostało zmienione w innym miejscu.', 7000);
+      emit('conflict', data.question || null);
+    } else if (!e?.response) {
       // Offline: zapisujemy lokalnie i wysyłamy po powrocie sieci.
       queueQuestionUpdate({ ...payload, ID: props.question.ID });
       emit('saved', { ...props.question, ...payload });

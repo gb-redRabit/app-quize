@@ -273,6 +273,7 @@
               :question="selectedQuestion"
               @saved="handleInlineSaved"
               @cancel="isEditingQuestion = false"
+              @conflict="handleConflict"
             />
             <QuestionCard
               v-else-if="selectedQuestion"
@@ -343,6 +344,7 @@
               :question="mobileQuestion"
               @saved="handleInlineSaved"
               @cancel="isEditingQuestion = false"
+              @conflict="handleConflict"
             />
             <QuestionCard
               v-else
@@ -436,6 +438,11 @@ function startInlineEdit(question) {
 function handleInlineSaved(updated) {
   isEditingQuestion.value = false;
   if (updated && updated.ID) onQuestionEdited(updated);
+}
+
+function handleConflict(serverQuestion) {
+  isEditingQuestion.value = false;
+  if (serverQuestion && serverQuestion.ID) onQuestionEdited(serverQuestion, true);
 }
 
 // Store i router

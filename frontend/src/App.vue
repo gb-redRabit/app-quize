@@ -381,6 +381,17 @@ function handleOffline() {
   isOnline.value = false;
   refreshPendingChanges();
 }
+
+function handleOfflineConflicts(event) {
+  const count = Number(event.detail?.count) || 0;
+  if (count > 0) {
+    showAlert(
+      'warning',
+      `${count} ${count === 1 ? 'zmiana nie została' : 'zmiany nie zostały'} wysłane — pytania zmieniono w innym miejscu.`,
+      8000
+    );
+  }
+}
 async function refreshData() {
   try {
     await store.dispatch('user/fetchUserHistoryAndHQ');
@@ -480,6 +491,7 @@ onMounted(() => {
   window.addEventListener('questions-changed', handleQuestionsChanged);
   window.addEventListener('user-updated', handleUserUpdated);
   window.addEventListener('offline-queue-changed', refreshPendingChanges);
+  window.addEventListener('offline-conflicts', handleOfflineConflicts);
 
   window.addEventListener('online', handleOnline);
   window.addEventListener('offline', handleOffline);
@@ -509,6 +521,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('questions-changed', handleQuestionsChanged);
   window.removeEventListener('user-updated', handleUserUpdated);
   window.removeEventListener('offline-queue-changed', refreshPendingChanges);
+  window.removeEventListener('offline-conflicts', handleOfflineConflicts);
   window.removeEventListener('online', handleOnline);
   window.removeEventListener('offline', handleOffline);
   window.removeEventListener('focus', verifySession);

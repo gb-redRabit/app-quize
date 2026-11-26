@@ -61,6 +61,7 @@ export async function flushOfflineQueue() {
 
     let sent = 0;
     let questionsChanged = false;
+    let conflicts = 0;
     while (true) {
       const [op] = getQueue();
       if (!op) break;
@@ -84,6 +85,13 @@ export async function flushOfflineQueue() {
         sent += 1;
       } catch (error) {
         const status = error?.response?.status;
+        if (status === 409) {
+          // Ktoś zmienił pytanie w międzyczasie — nie nadpisujemy nowszej wersji.
+          conflicts += 1;
+          console.warn('Konflikt edycji — pominięto zmianę offline:', op.type);
+          shiftQueue();
+          continue;
+        }
         if (status && status >= 400 && status < 500) {
           // Niepoprawne dane — nie ma sensu próbować w kółko.
           console.warn('Odrzucono niepoprawną operację z kolejki offline:', op.type, status);
@@ -101,6 +109,16 @@ export async function flushOfflineQueue() {
         apiClient.clearCache();
         window.dispatchEvent(
           new CustomEvent('questions-changed', { detail: { type: 'bulk', action: 'sync' } })
+        );
+      } catch (e) {
+        // ignoruj
+      }
+    }
+
+    if (conflicts > 0) {
+      try {
+        window.dispatchEvent(
+          new CustomEvent('offline-conflicts', { detail: { count: conflicts } })
         );
       } catch (e) {
         // ignoruj

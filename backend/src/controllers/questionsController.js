@@ -164,6 +164,26 @@ exports.updateQuestion = async (req, res) => {
     }
 
     const { id } = req.params;
+    const existing = await Question.findOne({ ID: Number(id) });
+    if (!existing) {
+      return res.status(404).json({ message: "Question not found" });
+    }
+
+    // Optymistyczne wykrywanie konfliktów: klient wysyła wersję, którą edytował.
+    const expected = req.body.expectedUpdatedAt;
+    if (expected && existing.updatedAt) {
+      const expectedTime = new Date(expected).getTime();
+      const currentTime = new Date(existing.updatedAt).getTime();
+      if (Number.isFinite(expectedTime) && expectedTime !== currentTime) {
+        return res.status(409).json({
+          message:
+            "Pytanie zostało zmienione w innym miejscu. Odśwież dane i spróbuj ponownie.",
+          conflict: true,
+          question: existing,
+        });
+      }
+    }
+
     const updatedQuestion = await Question.findOneAndUpdate(
       { ID: Number(id) },
       value,

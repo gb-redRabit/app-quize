@@ -371,6 +371,10 @@ async function saveEdit() {
   }
   delete questionToUpdate.newCategory;
 
+  if (props.question.updatedAt) {
+    questionToUpdate.expectedUpdatedAt = props.question.updatedAt;
+  }
+
   // Zamknij modal natychmiast
   showEdit.value = false;
 
@@ -402,6 +406,16 @@ async function saveEdit() {
       store.dispatch('questions/fetchStats');
     })
     .catch((error) => {
+      if (error?.response?.status === 409) {
+        const data = error.response.data || {};
+        showAlert('warning', data.message || 'Pytanie zmienione w innym miejscu.', 7000);
+        window.dispatchEvent(
+          new CustomEvent('questions-changed', {
+            detail: { type: 'bulk', action: 'reload' },
+          })
+        );
+        return;
+      }
       if (!error?.response) {
         // Offline: zmiana jest już widoczna lokalnie, wyślemy ją później.
         queueQuestionUpdate(questionToUpdate);

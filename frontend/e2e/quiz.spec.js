@@ -28,6 +28,7 @@ const questions = [
     answer_c: { answer: 'Gdańsk', isCorret: false },
     category: 'E2E',
     description: 'test',
+    updatedAt: '2026-11-25T10:00:00.000Z',
   },
   {
     ID: 2,
@@ -37,6 +38,7 @@ const questions = [
     answer_c: { answer: '5', isCorret: false },
     category: 'E2E',
     description: 'test',
+    updatedAt: '2026-11-25T10:00:00.000Z',
   },
 ];
 
@@ -788,6 +790,45 @@ test.describe('Quiz App E2E', () => {
       .toBe(0);
     await page.waitForTimeout(1200);
     await expect(page.getByText('E2E offline: widoczne pytanie?')).toHaveCount(0);
+  });
+
+  test('konflikt edycji: 409 pokazuje ostrzeżenie i wersję z serwera', async ({ page }) => {
+    await login(page);
+    await page.goto('/questions');
+    await page.locator('[data-question-id="1"]').click();
+
+    const details = page.getByTestId('question-details');
+    await details.getByRole('button', { name: 'Edytuj' }).click();
+    const field = page.locator('#inline-edit-1-question');
+    await expect(field).toBeVisible();
+    await fillAndVerify(field, 'Moja wersja?');
+
+    await page.route('**/api/questions/1', async (route) => {
+      if (route.request().method() === 'PUT') {
+        return route.fulfill(
+          json(
+            {
+              message: 'Pytanie zostało zmienione w innym miejscu.',
+              conflict: true,
+              question: {
+                ...questions[0],
+                question: 'Wersja z serwera?',
+                updatedAt: '2026-11-26T10:00:00.000Z',
+              },
+            },
+            409
+          )
+        );
+      }
+      return route.continue();
+    });
+
+    await page.getByRole('button', { name: 'Zapisz zmiany' }).click();
+
+    await expect(
+      page.getByRole('alert').filter({ hasText: 'zmienione w innym miejscu' })
+    ).toBeVisible();
+    await expect(details).toContainText('Wersja z serwera?');
   });
 
   test('quiz: odpowiedź wybrana klawiaturą odblokowuje „Następne”', async ({ page }) => {
