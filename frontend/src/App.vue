@@ -139,6 +139,7 @@
       <!-- Globalne komponenty -->
       <BaseAlert ref="globalAlert" />
       <BaseLoader ref="globalLoader" v-if="globalLoaderVisible" />
+      <ShortcutsModal :show="showShortcuts" @close="showShortcuts = false" />
       <BaseModal :show="showSessionModal" @close="showSessionModal = false">
         <template #header>
           <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Sesja wygasa</h2>
@@ -186,6 +187,9 @@ const Navbar = defineAsyncComponent(() => import('@/components/layout/Navbar.vue
 const AppSidebar = defineAsyncComponent(() => import('@/components/layout/AppSidebar.vue'));
 const BottomNav = defineAsyncComponent(() => import('@/components/layout/BottomNav.vue'));
 const AppFooter = defineAsyncComponent(() => import('@/components/layout/AppFooter.vue'));
+const ShortcutsModal = defineAsyncComponent(
+  () => import('@/components/layout/ShortcutsModal.vue')
+);
 const BaseAlert = defineAsyncComponent(() => import('@/components/base/BaseAlert.vue'));
 const BaseLoader = defineAsyncComponent(() => import('@/components/base/BaseLoader.vue'));
 const BaseSkeleton = defineAsyncComponent(() => import('@/components/base/BaseSkeleton.vue'));
@@ -243,6 +247,79 @@ const showNavbar = computed(() => route.name !== 'Login' && route.name !== 'Regi
 const isFocusMode = computed(() => ['QuizView', 'ExamView'].includes(route.name));
 const showAppNavigation = computed(() => showNavbar.value && !isFocusMode.value);
 const showBottomNav = computed(() => showAppNavigation.value);
+
+const showShortcuts = ref(false);
+let gPrefixActive = false;
+let gPrefixTimer = null;
+
+function isTypingTarget(target) {
+  if (!target) return false;
+  const tag = target.tagName;
+  return (
+    tag === 'INPUT' ||
+    tag === 'TEXTAREA' ||
+    tag === 'SELECT' ||
+    target.isContentEditable === true
+  );
+}
+
+function resetGPrefix() {
+  gPrefixActive = false;
+  if (gPrefixTimer) {
+    clearTimeout(gPrefixTimer);
+    gPrefixTimer = null;
+  }
+}
+
+function handleGlobalShortcuts(event) {
+  if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
+  if (isTypingTarget(event.target)) return;
+
+  const routeName = String(route.name || '');
+  const blockedRoutes = ['QuizView', 'ExamView', 'AdminView'];
+
+  if (
+    (event.key === '?' || (event.key === '/' && event.shiftKey)) &&
+    !blockedRoutes.includes(routeName)
+  ) {
+    event.preventDefault();
+    resetGPrefix();
+    showShortcuts.value = true;
+    return;
+  }
+
+  if (blockedRoutes.includes(routeName)) return;
+  if (document.querySelector('[role="dialog"]')) return;
+
+  if (gPrefixActive) {
+    const key = String(event.key || '').toLowerCase();
+    resetGPrefix();
+    const destinations = {
+      h: 'Home',
+      q: 'AllQuestions',
+      p: 'UserPanel',
+      a: 'AdminView',
+    };
+    const destination = destinations[key];
+    if (!destination) return;
+
+    if (destination === 'AdminView' && store.getters['user/getUser']?.rola !== 'admin') {
+      return;
+    }
+    event.preventDefault();
+    router.push({ name: destination });
+    return;
+  }
+
+  if (String(event.key || '').toLowerCase() === 'g') {
+    gPrefixActive = true;
+    if (gPrefixTimer) clearTimeout(gPrefixTimer);
+    gPrefixTimer = setTimeout(() => {
+      gPrefixActive = false;
+      gPrefixTimer = null;
+    }, 1200);
+  }
+}
 const showFooter = computed(() => !isFocusMode.value);
 
 // Skeleton logic
@@ -517,6 +594,7 @@ onMounted(() => {
   window.addEventListener('online', handleOnline);
   window.addEventListener('offline', handleOffline);
   window.addEventListener('focus', verifySession);
+  window.addEventListener('keydown', handleGlobalShortcuts);
 
   sessionCheckInterval = setInterval(checkTokenExpiration, 60 * 1000);
   window.testSessionModal = () => showSessionExpirationModal(5);
@@ -547,6 +625,8 @@ onBeforeUnmount(() => {
   window.removeEventListener('online', handleOnline);
   window.removeEventListener('offline', handleOffline);
   window.removeEventListener('focus', verifySession);
+  window.removeEventListener('keydown', handleGlobalShortcuts);
+  resetGPrefix();
   systemThemeQuery.removeEventListener('change', handleSystemThemeChange);
 });
 </script>

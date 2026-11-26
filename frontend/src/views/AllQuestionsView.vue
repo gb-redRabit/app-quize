@@ -745,7 +745,7 @@ function handlePageShortcut(event) {
 
   if (event.metaKey || event.ctrlKey || event.altKey) return;
 
-  if (event.key === '/' && !typing) {
+  if (event.key === '/' && !event.shiftKey && !typing) {
     const input = searchBarWrap.value?.querySelector('input');
     if (!input) return;
     event.preventDefault();

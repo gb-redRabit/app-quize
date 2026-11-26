@@ -905,6 +905,27 @@ test.describe('Quiz App E2E', () => {
     await expect(page).toHaveURL(/\/login$/);
   });
 
+  test('skróty: ? otwiera pomoc, g h wraca na pulpit', async ({ page }) => {
+    await login(page);
+    await page.goto('/questions');
+    await page.getByRole('heading', { name: 'Wszystkie pytania' }).click();
+
+    await page.keyboard.press('Shift+/');
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toContainText('Skróty klawiszowe');
+
+    await page.keyboard.press('Escape');
+    await expect(dialog).not.toBeVisible();
+
+    await page.goto('/user');
+    await page.getByText('Zarządzaj profilem, wyglądem i preferencjami nauki.').click();
+    await page.keyboard.press('g');
+    await page.keyboard.press('h');
+
+    await expect(page.getByRole('heading', { name: /Cześć/ })).toBeVisible();
+  });
+
   test('quiz: odpowiedź wybrana klawiaturą odblokowuje „Następne”', async ({ page }) => {
     await login(page);
     await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=kb');
