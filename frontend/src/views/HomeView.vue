@@ -195,6 +195,7 @@ import apiClient from '@/api';
 import { getStoredUser, setUser } from '@/utils/authStorage';
 import { computeRemainingSeconds } from '@/utils/quizProgress';
 import { getExamLength, normalizeExamLength } from '@/utils/examSettings';
+import { getCategoryMasteryStatus } from '@/utils/categoryStatus';
 import { useQuestions } from '@/composables/useQuestions';
 
 // Komponenty
@@ -319,13 +320,10 @@ function categoryPercentDone(cat) {
   return total > 0 ? Math.round((done / total) * 100) : 0;
 }
 
-/** Status zgodny z listą/kartami: Nowa / W trakcie / Opanowana (≥80% przy 100% odpowiedzi). */
+/** Status zgodny z listą/kartami: Nowa / W trakcie / Opanowana (≥90% przy 100% odpowiedzi). */
 function categoryStatusOf(cat) {
-  const { stats, total, done } = categoryTotals(cat);
-  if (total === 0 || done === 0) return 'new';
-  const accuracy = done > 0 ? (stats.correct / done) * 100 : 0;
-  if (done === total && accuracy >= 80) return 'mastered';
-  return 'progress';
+  const { stats, total } = categoryTotals(cat);
+  return getCategoryMasteryStatus(stats, total);
 }
 
 /** Najnowsza aktywność (quiz/egzamin) w danej kategorii, jako timestamp. */

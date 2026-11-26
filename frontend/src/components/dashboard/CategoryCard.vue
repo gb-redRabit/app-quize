@@ -173,6 +173,7 @@
 <script setup>
 import { computed, ref, defineProps, defineEmits, onMounted, onUnmounted } from 'vue';
 import BaseButton from '@/components/base/BaseButton.vue';
+import { getCategoryMasteryStatus } from '@/utils/categoryStatus';
 
 const props = defineProps({
   category: { type: String, required: true },
@@ -265,10 +266,10 @@ const isDisabled = computed(() => {
 
 const categoryStatus = computed(() => {
   if (!props.stats || total.value === 0) return 'Nowa';
-  if (doneCount.value === 0) return 'Nowa';
-  const accuracy = (props.stats.correct / doneCount.value) * 100;
-  if (doneCount.value === total.value && accuracy >= 80) return 'Opanowana';
-  return 'W trakcie';
+  const mastery = getCategoryMasteryStatus(props.stats, total.value);
+  if (mastery === 'mastered') return 'Opanowana';
+  if (mastery === 'progress') return 'W trakcie';
+  return 'Nowa';
 });
 
 const statusClass = computed(() => {

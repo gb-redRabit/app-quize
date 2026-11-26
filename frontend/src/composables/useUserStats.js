@@ -1,6 +1,7 @@
 // useUserStats.js
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useStore } from 'vuex';
+import { getCategoryMasteryStatus } from '@/utils/categoryStatus';
 
 export function useUserStats() {
   const store = useStore();
@@ -78,11 +79,9 @@ export function useUserStats() {
     const total = categoryCounts[cat] || 0;
     if (total === 0) return '';
 
-    const done = stats.correct + stats.wrong;
-    if (done === 0) return 'Nowa';
-
-    const accuracy = done > 0 ? (stats.correct / done) * 100 : 0;
-    if (done === total && accuracy >= 80) return 'Opanowana';
+    const mastery = getCategoryMasteryStatus(stats, total);
+    if (mastery === 'new') return 'Nowa';
+    if (mastery === 'mastered') return 'Opanowana';
     return 'W trakcie';
   };
 
