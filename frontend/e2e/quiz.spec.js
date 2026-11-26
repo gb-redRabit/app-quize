@@ -144,6 +144,9 @@ async function mockApi(page) {
         json({ version: 1, count: 2, updatedAt: new Date().toISOString(), questions })
       );
     }
+    if (path === '/questions/import/excel' && method === 'POST') {
+      return route.fulfill(json({ added: 2, skipped: 0, durationMs: 5 }));
+    }
     if (path === '/questions') {
       return route.fulfill(json({ questions }));
     }
@@ -829,6 +832,59 @@ test.describe('Quiz App E2E', () => {
       page.getByRole('alert').filter({ hasText: 'zmienione w innym miejscu' })
     ).toBeVisible();
     await expect(details).toContainText('Wersja z serwera?');
+  });
+
+  test('offline: import Excel czeka w kolejce i wysyła się po powrocie sieci', async ({
+    page,
+    context,
+  }) => {
+    await login(page);
+    await page.goto('/admin');
+
+    await page.unroute('**/api/**');
+    await goOffline(page, context);
+
+    await page.locator('input[type="file"]').first().setInputFiles({
+      name: 'pytania.xlsx',
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      buffer: Buffer.from('fake-xlsx-content'),
+    });
+
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(() =>
+            JSON.parse(localStorage.getItem('offline-queue-v1') || '[]').some(
+              (op) => op.type === 'import-excel'
+            )
+          ),
+        { timeout: 10000 }
+      )
+      .toBe(true);
+
+    const uploads = [];
+    page.on('request', (request) => {
+      if (request.method() === 'POST' && request.url().includes('/questions/import/excel')) {
+        uploads.push(request.url());
+      }
+    });
+
+    await mockApi(page);
+    await context.setOffline(false);
+
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(
+            () => JSON.parse(localStorage.getItem('offline-queue-v1') || '[]').length
+          ),
+        { timeout: 15000 }
+      )
+      .toBe(0);
+    expect(uploads).toHaveLength(1);
+    await expect(
+      page.getByRole('alert').filter({ hasText: /Import z kolejki/ })
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('quiz: odpowiedź wybrana klawiaturą odblokowuje „Następne”', async ({ page }) => {

@@ -392,6 +392,26 @@ function handleOfflineConflicts(event) {
     );
   }
 }
+
+function handleOfflineImportFinished(event) {
+  const done = event.detail?.done || [];
+  const failed = event.detail?.failed || [];
+
+  if (done.length > 0) {
+    const added = done.reduce((sum, item) => sum + (Number(item.added) || 0), 0);
+    const skipped = done.reduce((sum, item) => sum + (Number(item.skipped) || 0), 0);
+    const skippedLabel = skipped ? `, pominięto ${skipped}` : '';
+    showAlert('success', `Import z kolejki zakończony: dodano ${added}${skippedLabel}.`, 7000);
+  }
+
+  if (failed.length > 0) {
+    showAlert(
+      'warning',
+      `Nie udało się wysłać importu: ${failed[0].message || 'plik odrzucony przez serwer.'}`,
+      9000
+    );
+  }
+}
 async function refreshData() {
   try {
     await store.dispatch('user/fetchUserHistoryAndHQ');
@@ -492,6 +512,7 @@ onMounted(() => {
   window.addEventListener('user-updated', handleUserUpdated);
   window.addEventListener('offline-queue-changed', refreshPendingChanges);
   window.addEventListener('offline-conflicts', handleOfflineConflicts);
+  window.addEventListener('offline-import-finished', handleOfflineImportFinished);
 
   window.addEventListener('online', handleOnline);
   window.addEventListener('offline', handleOffline);
@@ -522,6 +543,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('user-updated', handleUserUpdated);
   window.removeEventListener('offline-queue-changed', refreshPendingChanges);
   window.removeEventListener('offline-conflicts', handleOfflineConflicts);
+  window.removeEventListener('offline-import-finished', handleOfflineImportFinished);
   window.removeEventListener('online', handleOnline);
   window.removeEventListener('offline', handleOffline);
   window.removeEventListener('focus', verifySession);

@@ -1038,7 +1038,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, inject, watch } from 'vue';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
-import { queueQuestionCreate, queueQuestionUpdate } from '@/services/offlineSync';
+import { queueQuestionCreate, queueQuestionUpdate, queueExcelImport } from '@/services/offlineSync';
 import { getCachedQuestionsByIds } from '@/services/questionsSync';
 import Avatar from '@/components/base/Avatar.vue';
 import BaseButton from '@/components/base/BaseButton.vue';
@@ -1594,23 +1594,53 @@ async function importQuestions(event) {
   }
   const formData = new FormData();
   formData.append('file', file);
-  try {
-    const response = await apiClient.post('/questions/import/excel', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      skipErrorPage: true,
-    });
 
-    const data = response.data || {};
-    const seconds = data.durationMs ? ` w ${Math.round(data.durationMs / 1000)} s` : '';
-    const skipped = data.skipped ? `, pominięto ${data.skipped}` : '';
-    showAlert?.('success', `Dodano ${data.added ?? 0} nowych pytań${skipped}${seconds}.`);
-    await store.dispatch('questions/fetchStats');
-  } catch (error) {
-    const errorMessage =
-      error.response && error.response.data ? error.response.data.error : error.message;
-    showAlert?.('error', `Wystąpił błąd podczas importu: ${errorMessage}`);
+  try {
+    if (navigator.onLine === false) {
+      await queueExcelImport(file);
+      showAlert?.(
+        'info',
+        'Brak sieci — import zapisany w kolejce i wyśle się po powrocie internetu.',
+        5000
+      );
+      return;
+    }
+
+    try {
+      const response = await apiClient.post('/questions/import/excel', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        skipErrorPage: true,
+      });
+
+      const data = response.data || {};
+      const seconds = data.durationMs ? ` w ${Math.round(data.durationMs / 1000)} s` : '';
+      const skipped = data.skipped ? `, pominięto ${data.skipped}` : '';
+      showAlert?.('success', `Dodano ${data.added ?? 0} nowych pytań${skipped}${seconds}.`);
+      await store.dispatch('questions/fetchStats');
+    } catch (error) {
+      if (!error?.response) {
+        // Sieć zniknęła w trakcie — zapisz plik i wyślij później.
+        await queueExcelImport(file);
+        showAlert?.(
+          'info',
+          'Brak sieci — import zapisany w kolejce i wyśle się po powrocie internetu.',
+          5000
+        );
+        return;
+      }
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message;
+      showAlert?.('error', `Wystąpił błąd podczas importu: ${errorMessage}`);
+    }
+  } catch (queueError) {
+    showAlert?.(
+      'error',
+      queueError?.message || 'Nie udało się zapisać importu do wysłania później.'
+    );
   } finally {
     event.target.value = ''; // Reset input file
   }

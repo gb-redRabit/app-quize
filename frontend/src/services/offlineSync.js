@@ -1,5 +1,6 @@
 import apiClient from '@/api';
 import { getToken } from '@/utils/authStorage';
+import { saveOfflineFile, getOfflineFile, deleteOfflineFile } from './offlineFiles';
 import {
   enqueue,
   getQueue,
@@ -7,6 +8,8 @@ import {
   newClientId,
   queueSize,
 } from '@/utils/offlineQueue';
+
+export const MAX_OFFLINE_IMPORT_BYTES = 15 * 1024 * 1024;
 
 let flushing = null;
 let listenersReady = false;
@@ -29,6 +32,24 @@ export function queueQuestionUpdate(payload) {
 /** Usunięcie pytania wykonane offline (po ID). */
 export function queueQuestionDelete(id) {
   enqueue({ type: 'question-delete', payload: { ID: id } });
+}
+
+/**
+ * Import Excel wykonany offline: plik trafia do IndexedDB, do kolejki tylko
+ * metadane. Po powrocie sieci plik jest wysyłany jako multipart.
+ */
+export async function queueExcelImport(file) {
+  if (!file) throw new Error('Brak pliku do importu');
+  if (file.size > MAX_OFFLINE_IMPORT_BYTES) {
+    throw new Error('Plik jest za duży do importu offline (limit 15 MB).');
+  }
+  const fileId = `import-${newClientId()}`;
+  await saveOfflineFile(fileId, file, { name: file.name });
+  enqueue({
+    type: 'import-excel',
+    payload: { fileId, name: file.name, size: file.size },
+  });
+  return fileId;
 }
 
 /** Wpis historii z quizu/egzaminu. `clientId` chroni przed duplikatem. */
@@ -62,6 +83,8 @@ export async function flushOfflineQueue() {
     let sent = 0;
     let questionsChanged = false;
     let conflicts = 0;
+    const importsDone = [];
+    const importsFailed = [];
     while (true) {
       const [op] = getQueue();
       if (!op) break;
@@ -80,6 +103,26 @@ export async function flushOfflineQueue() {
         } else if (op.type === 'question-delete') {
           await apiClient.silentDelete(`/questions/${op.payload.ID}`);
           questionsChanged = true;
+        } else if (op.type === 'import-excel') {
+          const record = await getOfflineFile(op.payload.fileId);
+          if (!record) {
+            // Plik zniknął z IndexedDB — nie ma czego wysłać.
+            shiftQueue();
+            continue;
+          }
+          const formData = new FormData();
+          formData.append('file', record.blob, record.name || 'import.xlsx');
+          const response = await apiClient.silentPost(
+            '/questions/import/excel',
+            formData,
+            {
+              headers: { 'Content-Type': 'multipart/form-data' },
+              skipErrorPage: true,
+            }
+          );
+          importsDone.push({ name: record.name, ...(response.data || {}) });
+          await deleteOfflineFile(op.payload.fileId);
+          questionsChanged = true;
         }
         shiftQueue();
         sent += 1;
@@ -95,6 +138,14 @@ export async function flushOfflineQueue() {
         if (status && status >= 400 && status < 500) {
           // Niepoprawne dane — nie ma sensu próbować w kółko.
           console.warn('Odrzucono niepoprawną operację z kolejki offline:', op.type, status);
+          if (op.type === 'import-excel') {
+            const message =
+              error?.response?.data?.error ||
+              error?.response?.data?.message ||
+              'Import został odrzucony przez serwer.';
+            importsFailed.push({ name: op.payload?.name, message });
+            await deleteOfflineFile(op.payload?.fileId).catch(() => {});
+          }
           shiftQueue();
           continue;
         }
@@ -119,6 +170,18 @@ export async function flushOfflineQueue() {
       try {
         window.dispatchEvent(
           new CustomEvent('offline-conflicts', { detail: { count: conflicts } })
+        );
+      } catch (e) {
+        // ignoruj
+      }
+    }
+
+    if (importsDone.length > 0 || importsFailed.length > 0) {
+      try {
+        window.dispatchEvent(
+          new CustomEvent('offline-import-finished', {
+            detail: { done: importsDone, failed: importsFailed },
+          })
         );
       } catch (e) {
         // ignoruj
