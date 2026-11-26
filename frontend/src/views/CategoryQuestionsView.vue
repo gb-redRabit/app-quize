@@ -333,7 +333,9 @@
 
         <BaseModal :show="!!mobileQuestion" @close="closeMobileQuestion">
           <template #header>
-            <span class="text-base sm:text-xl">Pytanie ID {{ mobileQuestion?.ID }}</span>
+            <span class="text-base sm:text-xl">
+              {{ mobileQuestion?.__pending ? 'Nowe pytanie' : `Pytanie ID ${mobileQuestion?.ID}` }}
+            </span>
           </template>
           <div v-if="mobileQuestion" class="text-left">
             <QuestionEditor
@@ -374,6 +376,7 @@ const QuestionEditor = defineAsyncComponent(
 const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal.vue'));
 import apiClient from '@/api';
 import { queueQuestionUpdate } from '@/services/offlineSync';
+import { getPendingQuestionCreates } from '@/utils/pendingQuestions';
 import { getCachedQuestionsByCategory } from '@/services/questionsSync';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
@@ -388,6 +391,7 @@ const totalCount = ref(0);
 const PAGE_SIZE = 200;
 const searchQuery = ref('');
 const localQuestions = ref([]);
+const pendingQuestions = ref([]);
 const showDuplicates = ref(false);
 const sortByDescription = ref(false);
 const massFlagLoading = ref(false);
@@ -421,6 +425,7 @@ function closeMobileQuestion() {
 }
 
 function startInlineEdit(question) {
+  if (question?.__pending) return; // najpierw musi trafić na serwer
   if (question && question.ID) {
     selectedQuestion.value = question;
     if (!isDesktop.value) mobileQuestion.value = question;
@@ -555,10 +560,16 @@ const lastAttemptStats = computed(() => {
 });
 
 const filteredQuestions = computed(() => {
-  let questions =
+  const pendingInCategory = pendingQuestions.value.filter(
+    (q) => category.value === 'all' || q.category === category.value
+  );
+  const serverQuestions =
     category.value === 'all'
       ? localQuestions.value
       : localQuestions.value.filter((q) => q.category === category.value);
+
+  // Pytania dodane offline pokazujemy na górze listy.
+  let questions = [...pendingInCategory, ...serverQuestions];
 
   if (showOnlyUnflagged.value) {
     questions = questions.filter((q) => q.flagged === false);
@@ -575,6 +586,10 @@ const filteredQuestions = computed(() => {
       (item.question && item.question.toLowerCase().includes(q))
   );
 });
+
+function refreshPendingQuestions() {
+  pendingQuestions.value = getPendingQuestionCreates();
+}
 
 const duplicateQuestions = computed(() => {
   const questions =
@@ -596,7 +611,8 @@ const duplicateQuestions = computed(() => {
 });
 
 const sortedQuestions = computed(() => {
-  let questions = [...filteredQuestions.value];
+  const pending = filteredQuestions.value.filter((q) => q.__pending);
+  let questions = filteredQuestions.value.filter((q) => !q.__pending);
 
   if (sortByQuestion.value) {
     questions.sort((a, b) => (a.question || '').localeCompare(b.question || ''));
@@ -650,7 +666,7 @@ const sortedQuestions = computed(() => {
     questions = [...wrong, ...correct, ...rest];
   }
 
-  return questions;
+  return [...pending, ...questions];
 });
 
 const areAllFlagged = computed(() => {
@@ -1052,6 +1068,8 @@ function handlePageShortcut(event) {
 }
 
 onMounted(() => {
+  refreshPendingQuestions();
+  window.addEventListener('offline-queue-changed', refreshPendingQuestions);
   loadQuestions();
   window.addEventListener('questions-changed', handleQuestionsRealtime);
   window.addEventListener('keydown', handlePageShortcut);
@@ -1075,6 +1093,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  window.removeEventListener('offline-queue-changed', refreshPendingQuestions);
   window.removeEventListener('questions-changed', handleQuestionsRealtime);
   window.removeEventListener('keydown', handlePageShortcut);
   if (desktopMediaQuery && desktopMediaChangeHandler) {

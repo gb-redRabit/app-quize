@@ -19,7 +19,13 @@
     <!-- Widok kompaktowy (lista w master-detail) -->
     <template v-if="compact">
       <div class="flex items-start gap-3">
-        <span class="font-mono text-xs text-gray-500 dark:text-gray-400 mt-0.5 shrink-0">
+        <span
+          v-if="question.__pending"
+          class="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:bg-amber-900/50 dark:text-amber-200"
+        >
+          Nowe
+        </span>
+        <span v-else class="font-mono text-xs text-gray-500 dark:text-gray-400 mt-0.5 shrink-0">
           {{ question.ID }}
         </span>
         <p class="flex-1 min-w-0 text-sm font-medium text-gray-800 dark:text-gray-200">
@@ -56,14 +62,26 @@
 
     <!-- Question header -->
     <div v-else class="flex justify-between items-start mb-3">
-      <div
-        class="text-sm font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-sm"
-      >
-        ID: {{ question.ID }}
+      <div class="flex items-center gap-2">
+        <div
+          v-if="question.__pending"
+          class="text-xs font-semibold text-amber-800 dark:text-amber-200 bg-amber-100 dark:bg-amber-900/50 px-2 py-1 rounded-full"
+        >
+          Nowe — czeka na wysłanie
+        </div>
+        <div
+          v-else
+          class="text-sm font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-sm"
+        >
+          ID: {{ question.ID }}
+        </div>
       </div>
 
       <!-- Panel administracyjny - widoczny tylko dla adminów -->
-      <div v-if="isAdmin" class="flex flex-wrap items-center justify-end gap-2 mt-2">
+      <div
+        v-if="isAdmin && !question.__pending"
+        class="flex flex-wrap items-center justify-end gap-2 mt-2"
+      >
         <!-- Flagged/Checked checkbox -->
         <div class="relative mb-2 sm:mb-0">
           <input

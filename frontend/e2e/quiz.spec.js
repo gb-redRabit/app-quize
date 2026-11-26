@@ -746,6 +746,50 @@ test.describe('Quiz App E2E', () => {
     expect(updates).toHaveLength(2);
   });
 
+  test('offline: nowe pytanie jest widoczne na liście do synchronizacji', async ({
+    page,
+    context,
+  }) => {
+    await login(page);
+    await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
+    await page.waitForTimeout(1500); // snapshot pytań → IndexedDB
+
+    await page.goto('/admin');
+    await page.getByRole('button', { name: /Dodaj pytanie/ }).click();
+    const dialog = page.getByRole('dialog');
+    await fillAndVerify(dialog.locator('#answer-a'), 'Tak');
+    await fillAndVerify(dialog.locator('#answer-b'), 'Nie');
+    await fillAndVerify(dialog.locator('#answer-c'), 'Może');
+    await fillAndVerify(dialog.locator('#question-text'), 'E2E offline: widoczne pytanie?');
+    await dialog.locator('#correct-a').click();
+    await dialog.locator('#category').selectOption('E2E');
+
+    await page.unroute('**/api/**');
+    await goOffline(page, context);
+    await dialog.getByRole('button', { name: 'Zapisz pytanie' }).click();
+    await expect(dialog).not.toBeVisible();
+
+    await page.goto('/questions');
+    await expect(page.getByText('E2E offline: widoczne pytanie?').first()).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(page.getByText('Nowe', { exact: true }).first()).toBeVisible();
+
+    await mockApi(page);
+    await context.setOffline(false);
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(
+            () => JSON.parse(localStorage.getItem('offline-queue-v1') || '[]').length
+          ),
+        { timeout: 15000 }
+      )
+      .toBe(0);
+    await page.waitForTimeout(1200);
+    await expect(page.getByText('E2E offline: widoczne pytanie?')).toHaveCount(0);
+  });
+
   test('quiz: odpowiedź wybrana klawiaturą odblokowuje „Następne”', async ({ page }) => {
     await login(page);
     await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=kb');
@@ -842,10 +886,18 @@ test.describe('odporność na stare chunki po wdrożeniu', () => {
 
     await page.getByRole('link', { name: /Panel użytkownika/ }).click();
 
+    // Strona przeładowuje się do świeżego index.html (raz, bez pętli).
+    await expect.poll(() => reloads, { timeout: 10000 }).toBeGreaterThan(1);
+    await page.waitForLoadState('load');
+
+    // Po reloadzie możemy wylądować na poprzedniej trasie albo na Home.
+    if (!page.url().endsWith('/user')) {
+      await page.getByRole('link', { name: /Panel użytkownika/ }).click();
+    }
+
     await expect(
       page.getByText('Zarządzaj profilem, wyglądem i preferencjami nauki.')
     ).toBeVisible({ timeout: 15000 });
-    expect(reloads).toBeGreaterThan(1);
     await expect(page.getByRole('tab', { name: 'Nauka', exact: true })).toBeVisible();
   });
 });

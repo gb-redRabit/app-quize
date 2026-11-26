@@ -21,11 +21,14 @@
         aria-live="polite"
       >
         Wczytano {{ filteredQuestions.length }} z {{ total }}
+        <span v-if="pendingQuestions.length" class="text-amber-700 dark:text-amber-300">
+          · +{{ pendingQuestions.length }} oczekuje
+        </span>
       </p>
     </div>
 
     <div
-      v-if="!isLoading && filteredQuestions.length > 0"
+      v-if="!isLoading && displayQuestions.length > 0"
       class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400"
       aria-label="Legenda oznaczeń pytań"
     >
@@ -42,7 +45,7 @@
 
     <!-- Brak duplikatów, tylko lista pytań -->
     <!-- Stan ładowania -->
-    <div v-if="isLoading && page === 1" class="mt-8">
+    <div v-if="isLoading && page === 1 && displayQuestions.length === 0" class="mt-8">
       <p class="sr-only" aria-live="polite">Wczytywanie danych…</p>
       <BaseSkeleton
         variant="table"
@@ -56,7 +59,7 @@
     </div>
 
     <!-- Brak wyników -->
-    <div v-else-if="filteredQuestions.length === 0" class="text-gray-500 mt-8 text-center">
+    <div v-else-if="displayQuestions.length === 0" class="text-gray-500 mt-8 text-center">
       <p>Brak pytań spełniających kryteria.</p>
       <button v-if="search" @click="clearSearch" class="mt-2 text-blue-600 hover:text-blue-800">
         Wyczyść wyszukiwanie
@@ -69,7 +72,7 @@
         class="space-y-3 lg:col-span-2 xl:max-h-[calc(100vh-20rem)] lg:overflow-y-auto overscroll-contain lg:py-1 lg:pl-1 lg:pr-2"
       >
       <div
-        v-for="(q, idx) in filteredQuestions"
+        v-for="(q, idx) in displayQuestions"
         :key="q.ID"
         class="surface overflow-hidden transition-all duration-200"
         :class="{
@@ -89,6 +92,13 @@
             @keydown.up.prevent="moveSelection(idx, -1)"
           >
             <span
+              v-if="q.__pending"
+              class="mt-0.5 shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800 dark:bg-amber-900/50 dark:text-amber-200"
+            >
+              Nowe
+            </span>
+            <span
+              v-else
               class="font-mono text-sm text-gray-500 dark:text-gray-400 mt-1 shrink-0"
               style="min-width: 36px"
             >
@@ -144,7 +154,7 @@
             </span>
           </button>
 
-          <div v-if="isAdmin" class="hidden sm:block shrink-0 self-start mt-0.5">
+          <div v-if="isAdmin && !q.__pending" class="hidden sm:block shrink-0 self-start mt-0.5">
             <QuestionActions
               :question="q"
               :inline-edit="isDesktop"
@@ -156,7 +166,7 @@
         </div>
 
         <!-- Akcje na mobile pod treścią, poza przyciskiem wiersza -->
-        <div v-if="isAdmin" class="sm:hidden px-4 pb-3">
+        <div v-if="isAdmin && !q.__pending" class="sm:hidden px-4 pb-3">
           <QuestionActions
             :question="q"
             @deleted="handleQuestionDeleted"
@@ -179,7 +189,7 @@
           ></div>
         </div>
         <p
-          v-else-if="page === pages && filteredQuestions.length > 0"
+          v-else-if="page === pages && displayQuestions.length > 0"
           class="text-gray-500 dark:text-gray-400 italic"
         >
           Koniec wyników ({{ total }} pytań)
@@ -194,7 +204,7 @@
           class="sticky top-20 xl:top-6 surface p-5 max-h-[calc(100vh-11rem)] xl:max-h-[calc(100vh-20rem)] overflow-y-auto overscroll-contain"
         >
           <QuestionEditor
-            v-if="isAdmin && isEditing && selectedQuestion"
+            v-if="isAdmin && isEditing && selectedQuestion && !selectedQuestion.__pending"
             :question="selectedQuestion"
             @saved="handleInlineSaved"
             @cancel="isEditing = false"
@@ -204,20 +214,28 @@
             <div class="flex items-start justify-between gap-3 mb-3">
               <div class="min-w-0">
                 <p class="text-xs font-mono text-gray-500 dark:text-gray-400">
-                  ID {{ selectedQuestion.ID }}
+                  <template v-if="selectedQuestion.__pending">Nowe pytanie</template>
+                  <template v-else>ID {{ selectedQuestion.ID }}</template>
                 </p>
                 <p class="text-sm font-medium text-blue-700 dark:text-blue-300 truncate">
                   {{ selectedQuestion.category || 'Bez kategorii' }}
                 </p>
               </div>
               <QuestionActions
-                v-if="isAdmin"
+                v-if="isAdmin && !selectedQuestion.__pending"
                 :question="selectedQuestion"
                 inline-edit
                 @deleted="handleQuestionDeleted"
                 @edit="handleQuestionEdited"
                 @request-edit="startInlineEdit"
               />
+            </div>
+
+            <div
+              v-if="selectedQuestion.__pending"
+              class="mb-3 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/30 px-3 py-2 text-xs text-amber-800 dark:text-amber-200"
+            >
+              Pytanie czeka na wysłanie — pojawi się na serwerze po powrocie sieci.
             </div>
 
             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 break-words">
@@ -300,7 +318,9 @@
     <!-- Mobile: szczegóły pytania w modalu (dostępny focus trap z BaseModal) -->
     <BaseModal :show="!!mobileQuestion" @close="mobileQuestion = null">
       <template #header>
-        <span class="text-base sm:text-xl">Pytanie ID {{ mobileQuestion?.ID }}</span>
+        <span class="text-base sm:text-xl">
+          {{ mobileQuestion?.__pending ? 'Nowe pytanie' : `Pytanie ID ${mobileQuestion?.ID}` }}
+        </span>
       </template>
 
       <div v-if="mobileQuestion" class="text-left">
@@ -391,6 +411,7 @@ const BaseModal = defineAsyncComponent(() => import('@/components/base/BaseModal
 const PageHeader = defineAsyncComponent(() => import('@/components/layout/PageHeader.vue'));
 import apiClient from '@/api';
 import { getAllCachedQuestions } from '@/services/questionsSync';
+import { getPendingQuestionCreates } from '@/utils/pendingQuestions';
 import { useStore } from 'vuex';
 
 const store = useStore();
@@ -399,6 +420,7 @@ const showAlert = inject('showAlert');
 // Stan komponentu
 const search = ref('');
 const questions = ref([]);
+const pendingQuestions = ref([]);
 const page = ref(1);
 const limit = ref(20);
 const total = ref(0);
@@ -423,7 +445,26 @@ const currentUser = computed(() => store.getters['user/getUser']);
 const isAdmin = computed(() => currentUser.value?.rola === 'admin');
 const filteredQuestions = computed(() => questions.value);
 
-watch(filteredQuestions, (list) => {
+const pendingQuestionsForList = computed(() => {
+  const query = search.value.trim().toLowerCase();
+  if (!query) return pendingQuestions.value;
+  return pendingQuestions.value.filter(
+    (q) =>
+      String(q.ID) === query || (q.question || '').toLowerCase().includes(query)
+  );
+});
+
+// Pytania dodane offline pokazujemy na górze listy do czasu synchronizacji.
+const displayQuestions = computed(() => [
+  ...pendingQuestionsForList.value,
+  ...filteredQuestions.value,
+]);
+
+function refreshPendingQuestions() {
+  pendingQuestions.value = getPendingQuestionCreates();
+}
+
+watch(displayQuestions, (list) => {
   if (!isDesktop.value) return;
   const stillExists =
     selectedQuestion.value && list.some((q) => q.ID === selectedQuestion.value.ID);
@@ -553,6 +594,7 @@ function loadMore() {
 
 function startInlineEdit(question) {
   if (!isDesktop.value) return;
+  if (question?.__pending) return; // najpierw musi trafić na serwer
   if (question && question.ID && selectedQuestion.value?.ID !== question.ID) {
     selectedQuestion.value = question;
   }
@@ -568,7 +610,7 @@ function handleInlineSaved(updated) {
 }
 
 function moveSelection(index, delta) {
-  const list = filteredQuestions.value;
+  const list = displayQuestions.value;
   const next = list[index + delta];
   if (!next) return;
 
@@ -722,12 +764,15 @@ function handlePageShortcut(event) {
 }
 
 onMounted(() => {
+  refreshPendingQuestions();
+  window.addEventListener('offline-queue-changed', refreshPendingQuestions);
+
   if (typeof window !== 'undefined') {
     desktopMediaQuery = window.matchMedia('(min-width: 1024px)');
     desktopMediaChangeHandler = (event) => {
       isDesktop.value = event.matches;
       if (event.matches) {
-        selectedQuestion.value = questions.value[0] || null;
+        selectedQuestion.value = displayQuestions.value[0] || null;
       } else {
         selectedQuestion.value = null;
       }
@@ -750,6 +795,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   clearTimeout(searchTimer);
+  window.removeEventListener('offline-queue-changed', refreshPendingQuestions);
   window.removeEventListener('keydown', handlePageShortcut);
   if (observer) {
     observer.disconnect();
