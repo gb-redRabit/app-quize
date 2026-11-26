@@ -14,6 +14,7 @@ const state = {
   target: null,
   admins: 1,
   aggregate: [],
+  aggregations: [],
   created: null,
   deleted: false,
   saved: null,
@@ -85,6 +86,7 @@ const fakeUserModel = {
     return state.created;
   },
   aggregate: async (pipeline = []) => {
+    state.aggregations.push(pipeline);
     // Statystyki aktywności/kategorii używają $unwind — w testach zwracamy puste.
     if (pipeline.some((stage) => stage && stage.$unwind)) return [];
     return state.aggregate;
@@ -146,6 +148,7 @@ function reset() {
   state.target = null;
   state.admins = 1;
   state.aggregate = [];
+  state.aggregations = [];
   state.created = null;
   state.deleted = false;
   state.saved = null;
@@ -465,4 +468,24 @@ test("getUsersStats: liczy skuteczność i sumy", async () => {
   });
   assert.deepEqual(res.body.activity, []);
   assert.deepEqual(res.body.topCategories, []);
+});
+
+test("getUsersStats: filtruje aktywność do ostatnich 30 dni w MongoDB", async () => {
+  reset();
+  const res = makeRes();
+  await controller.getUsersStats({}, res);
+
+  const pipeline = state.aggregations.find((stages) =>
+    stages.some((stage) => stage && stage.$match && stage.$match.day)
+  );
+  assert.ok(pipeline, "brak pipeline z filtrem daty");
+
+  const matchStage = pipeline.find(
+    (stage) => stage && stage.$match && stage.$match.day
+  );
+  const cutoff = matchStage.$match.day.$gte;
+  assert.match(cutoff, /^\d{4}-\d{2}-\d{2}$/);
+
+  const days = (Date.now() - new Date(cutoff).getTime()) / (24 * 60 * 60 * 1000);
+  assert.ok(days >= 28 && days <= 30, `nieoczekiwany zakres dat: ${days}`);
 });

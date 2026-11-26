@@ -1,7 +1,10 @@
 // useQuestions.js
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-import { getCachedQuestionsByCategory } from '@/services/questionsSync';
+import {
+  getCachedQuestionIdsByCategory,
+} from '@/services/questionsSync';
+import { filterWrongOrNotDone } from '@/utils/wrongOrNotDone';
 
 export function useQuestions() {
   const store = useStore();
@@ -42,32 +45,17 @@ export function useQuestions() {
       // Pobierz tylko ID pytań z kategorii (bez pełnych treści i odpowiedzi)
       let allIds = await store.dispatch('questions/fetchQuestionIdsByCategory', cat);
 
-      // Offline: API zwróciło pustkę, ale mamy lokalną kopię pytań.
-      if (
-        (!Array.isArray(allIds) || allIds.length === 0) &&
-        typeof navigator !== 'undefined' &&
-        navigator.onLine === false
-      ) {
-        const cached = await getCachedQuestionsByCategory(cat);
-        allIds = cached.map((q) => q.ID);
+      // Offline lub błąd API: użyj lokalnej kopii z IndexedDB.
+      if (!Array.isArray(allIds) || allIds.length === 0) {
+        allIds = await getCachedQuestionIdsByCategory(cat);
       }
 
-      // Pobierz historię użytkownika dla danej kategorii
-      const hquestion = store.getters['user/getHquestion'] || [];
-      const hq = hquestion.filter((q) => q.category === cat);
-
-      // Filtruj tylko pytania, które nie zostały odpowiedziane lub odpowiedziane błędnie
-      const wrongOrNotDoneIds = allIds.filter((id) => {
-        const entry = hq.find(
-          (q) =>
-            String(q.id) === String(id) ||
-            String(q.ID) === String(id) ||
-            String(q.question_id) === String(id)
-        );
-        return !entry || entry.correct === false;
-      });
-
-      return wrongOrNotDoneIds;
+      // Jedno przejście po odpowiedziach (Set) zamiast filter + find.
+      return filterWrongOrNotDone(
+        allIds,
+        store.getters['user/getHquestion'] || [],
+        cat
+      );
     } catch (e) {
       console.error('Błąd pobierania pytań dla quizu:', e);
       return [];

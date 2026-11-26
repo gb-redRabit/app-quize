@@ -333,6 +333,9 @@ exports.getUsersStats = async (req, res) => {
 
     // Aktywność z ostatnich 30 dni — stare wpisy (User.history) + nowe sesje.
     // Sort/limit po stronie MongoDB: do Node trafia maks. 30 dni z każdego źródła.
+    const activitySince = new Date(Date.now() - 29 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
     const [legacyActivityRaw, sessionActivityRaw, legacyCategoryRaw, sessionCategoryRaw] =
       await Promise.all([
         User.aggregate([
@@ -345,6 +348,7 @@ exports.getUsersStats = async (req, res) => {
               wrong: { $ifNull: ["$history.wrong", 0] },
             },
           },
+          { $match: { day: { $gte: activitySince } } },
           {
             $group: {
               _id: "$day",
@@ -365,6 +369,7 @@ exports.getUsersStats = async (req, res) => {
               wrong: { $ifNull: ["$wrong", 0] },
             },
           },
+          { $match: { day: { $gte: activitySince } } },
           {
             $group: {
               _id: "$day",
