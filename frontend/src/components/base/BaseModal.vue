@@ -68,7 +68,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onBeforeUnmount } from 'vue';
+import { ref, watch, nextTick, onBeforeUnmount, onMounted } from 'vue';
 
 // Definicja props
 const props = defineProps({
@@ -84,6 +84,20 @@ const emit = defineEmits(['close']);
 const dialogRef = ref(null);
 let previousOverflow = '';
 let previouslyFocused = null;
+let lastClickedElement = null;
+
+// Na części systemów kliknięcie przycisku nie ustawia fokusu (aktywny jest body).
+// Zapamiętujemy element kliknięty tuż przed otwarciem, żeby poprawnie przywrócić fokus.
+function rememberClickTarget(event) {
+  const target = event.target?.closest?.(FOCUSABLE_SELECTOR);
+  if (target && target !== document.body) lastClickedElement = target;
+}
+
+onMounted(() => {
+  if (typeof document !== 'undefined') {
+    document.addEventListener('click', rememberClickTarget, true);
+  }
+});
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -137,7 +151,9 @@ watch(
   async (visible) => {
     if (typeof document === 'undefined') return;
     if (visible) {
-      previouslyFocused = document.activeElement;
+      const active = document.activeElement;
+      previouslyFocused =
+        active && active !== document.body ? active : lastClickedElement;
       previousOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
       document.addEventListener('keydown', handleDocumentKeydown);
@@ -147,7 +163,11 @@ watch(
     } else {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleDocumentKeydown);
-      if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+      if (
+        previouslyFocused &&
+        previouslyFocused.isConnected !== false &&
+        typeof previouslyFocused.focus === 'function'
+      ) {
         previouslyFocused.focus();
       }
       previouslyFocused = null;
@@ -159,6 +179,7 @@ onBeforeUnmount(() => {
   if (typeof document !== 'undefined') {
     document.body.style.overflow = previousOverflow;
     document.removeEventListener('keydown', handleDocumentKeydown);
+    document.removeEventListener('click', rememberClickTarget, true);
   }
 });
 </script>
