@@ -289,6 +289,82 @@
             </div>
           </section>
 
+          <!-- Pamięć urządzenia -->
+          <section class="surface overflow-hidden xl:col-span-2">
+            <div
+              class="px-5 py-4 flex items-center gap-3 border-b border-gray-200 dark:border-gray-800"
+            >
+              <div
+                class="h-9 w-9 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 grid place-items-center"
+                aria-hidden="true"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 7v10c0 1.1.9 2 2 2h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2zm0 5h16M8 16h.01M12 16h.01"
+                  />
+                </svg>
+              </div>
+              <h2 class="text-base font-semibold tracking-tight text-gray-900 dark:text-gray-50">
+                Pamięć urządzenia
+              </h2>
+            </div>
+
+            <div class="p-5 sm:p-6 space-y-4">
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Pytania i pełna historia są przechowywane lokalnie w IndexedDB, żeby aplikacja
+                działała offline. Limit <code>localStorage</code> (ok. 5 MB) nie dotyczy tych
+                danych i nie trzeba go zwiększać.
+              </p>
+
+              <div v-if="storageHealth" class="space-y-2">
+                <div class="flex items-center justify-between gap-3 text-sm">
+                  <span class="text-gray-700 dark:text-gray-200">Zużycie danych offline</span>
+                  <span class="text-gray-500 dark:text-gray-400">
+                    {{ formatBytes(storageHealth.usage) }} z
+                    {{ formatBytes(storageHealth.quota) }}
+                  </span>
+                </div>
+                <div
+                  class="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800"
+                  role="progressbar"
+                  aria-label="Zużycie pamięci offline"
+                  :aria-valuenow="storageHealth.percent"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+                  <div
+                    class="h-2 rounded-full bg-blue-500 transition-all"
+                    :style="{ width: `${storageHealth.percent}%` }"
+                  ></div>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  {{ storageHealth.percent }}% dostępnej pamięci ·
+                  {{
+                    storageHealth.persisted
+                      ? 'dane chronione przed automatycznym usunięciem'
+                      : 'przeglądarka może usunąć dane offline przy braku miejsca'
+                  }}
+                </p>
+              </div>
+              <p v-else class="text-sm text-gray-500 dark:text-gray-400">
+                Ta przeglądarka nie udostępnia informacji o zużyciu pamięci.
+              </p>
+
+              <BaseButton
+                color="gray"
+                variant="outline"
+                size="sm"
+                :loading="storageLoading"
+                @click="refreshStorageHealth({ request: true })"
+              >
+                Odśwież
+              </BaseButton>
+            </div>
+          </section>
+
           <!-- Dane i konto -->
           <section class="surface overflow-hidden xl:col-span-2">
             <div
@@ -572,6 +648,7 @@ import apiClient from '@/api';
 import { useLogout } from '@/composables/useLogout';
 import { setUser } from '@/utils/authStorage';
 import { clearHistoryCache } from '@/utils/historyCache';
+import { formatBytes, getStorageHealth, requestPersistentStorage } from '@/utils/storageManager';
 import { clearQueue } from '@/utils/offlineQueue';
 import {
   DEFAULT_EXAM_LENGTH,
@@ -610,6 +687,8 @@ const showDeleteAccountModal = ref(false);
 const deleteAccountPassword = ref('');
 const deleteAccountError = ref('');
 const deletingAccount = ref(false);
+const storageHealth = ref(null);
+const storageLoading = ref(false);
 const allCategories = ref([]);
 const colorWheelCanvas = ref(null);
 
@@ -1016,6 +1095,16 @@ async function deleteAccount() {
   }
 }
 
+async function refreshStorageHealth({ request = false } = {}) {
+  storageLoading.value = true;
+  try {
+    if (request) await requestPersistentStorage();
+    storageHealth.value = await getStorageHealth();
+  } finally {
+    storageLoading.value = false;
+  }
+}
+
 // Inicjalizacja komponentu
 watch(activeTab, (tab) => {
   if (tab === 'profile') {
@@ -1023,6 +1112,9 @@ watch(activeTab, (tab) => {
       drawColorWheel();
       updateSelectorPositionFromColor(selectedColor.value);
     });
+  }
+  if (tab === 'security') {
+    refreshStorageHealth({ request: true });
   }
 });
 

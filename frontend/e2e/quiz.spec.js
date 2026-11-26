@@ -275,6 +275,17 @@ test.describe('Quiz App E2E', () => {
     await expect(page.getByText('A: Warszawa')).toBeVisible();
   });
 
+  test('profil: karta pamięci pokazuje zużycie offline', async ({ page }) => {
+    await login(page);
+    await page.goto('/user');
+
+    await page.getByRole('tab', { name: 'Bezpieczeństwo' }).click();
+    await expect(page.getByRole('heading', { name: 'Pamięć urządzenia' })).toBeVisible();
+    await expect(
+      page.getByRole('progressbar', { name: 'Zużycie pamięci offline' })
+    ).toBeVisible();
+  });
+
   test('start: zapisana sesja pokazuje pulpit bez czekania na historię', async ({ page }) => {
     let releaseHistory;
     const historyGate = new Promise((resolve) => {

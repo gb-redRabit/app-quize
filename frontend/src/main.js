@@ -5,6 +5,7 @@ import store from './store';
 import './assets/tailwind.css';
 import { startTokenRefresh } from './services/tokenRefresh';
 import { setupPWA } from './services/pwa';
+import { requestPersistentStorage } from './utils/storageManager';
 
 // Inicjalizacja tematu przy starcie aplikacji
 store.dispatch('ui/initTheme');
@@ -22,4 +23,6 @@ Promise.race([store.dispatch('user/initUser'), initTimeout]).finally(() => {
 
   // PWA: rejestracja Service Workera + wykrywanie nowej wersji aplikacji.
   setupPWA();
+  // Trwałe przechowywanie chroni IndexedDB przed automatycznym czyszczeniem.
+  requestPersistentStorage();
 });
