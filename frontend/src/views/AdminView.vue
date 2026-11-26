@@ -325,6 +325,76 @@
         </div>
       </div>
 
+      <!-- Aktywność i najpopularniejsze kategorie -->
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <section class="surface p-5">
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            Aktywność (ostatnie 30 dni)
+          </h3>
+          <p
+            v-if="adminActivity.length === 0"
+            class="mt-4 text-sm text-gray-500 dark:text-gray-400"
+          >
+            Brak zakończonych quizów w tym okresie.
+          </p>
+          <template v-else>
+            <div
+              class="mt-4 flex h-28 items-end gap-1"
+              role="img"
+              aria-label="Wykres liczby quizów dziennie"
+            >
+              <div
+                v-for="day in adminActivity"
+                :key="day.date"
+                class="flex-1 min-w-[4px] rounded-t bg-blue-500/80 hover:bg-blue-600 transition-colors"
+                :style="{
+                  height: `${Math.max(4, Math.round(((day.quizzes || 0) / maxDailyQuizzes) * 100))}%`,
+                }"
+                :title="`${formatActivityDay(day.date)}: ${day.quizzes} quizów, ${day.correct} poprawnych, ${day.wrong} błędnych`"
+              ></div>
+            </div>
+            <div class="mt-2 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+              <span>{{ formatActivityDay(adminActivity[0]?.date) }}</span>
+              <span>{{ formatActivityDay(adminActivity[adminActivity.length - 1]?.date) }}</span>
+            </div>
+          </template>
+        </section>
+
+        <section class="surface p-5">
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            Najaktywniejsze kategorie
+          </h3>
+          <p
+            v-if="adminTopCategories.length === 0"
+            class="mt-4 text-sm text-gray-500 dark:text-gray-400"
+          >
+            Brak danych o kategoriach.
+          </p>
+          <ul v-else class="mt-4 space-y-3">
+            <li
+              v-for="category in adminTopCategories"
+              :key="category.name"
+              class="flex items-center gap-3"
+            >
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-sm text-gray-800 dark:text-gray-100">
+                  {{ category.name }}
+                </span>
+                <span class="block text-xs text-gray-500 dark:text-gray-400">
+                  {{ category.quizzes }} quizów · {{ category.accuracy }}% poprawnych
+                </span>
+              </span>
+              <span class="h-1.5 w-20 shrink-0 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                <span
+                  class="block h-full bg-green-500"
+                  :style="{ width: `${category.accuracy}%` }"
+                ></span>
+              </span>
+            </li>
+          </ul>
+        </section>
+      </div>
+
       <div
         class="surface p-6 space-y-4"
       >
@@ -1063,6 +1133,20 @@ const isAdmin = computed(() => currentUser.value?.rola === 'admin');
 
 const users = ref([]);
 const userTotals = ref({ users: 0, admins: 0, answers: 0, accuracy: 0, quizzes: 0, questions: 0 });
+const adminActivity = ref([]);
+const adminTopCategories = ref([]);
+
+const maxDailyQuizzes = computed(() =>
+  Math.max(1, ...adminActivity.value.map((day) => day.quizzes || 0))
+);
+
+function formatActivityDay(date) {
+  if (!date) return '';
+  return new Date(`${date}T00:00:00`).toLocaleDateString('pl-PL', {
+    day: '2-digit',
+    month: '2-digit',
+  });
+}
 const showAddUserModal = ref(false);
 const newUser = ref({ login: '', password: '', rola: 'user' });
 const userFormErrors = ref({});
@@ -1185,6 +1269,10 @@ async function loadUsers() {
     users.value = Array.isArray(res.data?.users) ? res.data.users : [];
     userTotals.value =
       res.data?.totals || { users: 0, admins: 0, answers: 0, accuracy: 0, quizzes: 0, questions: 0 };
+    adminActivity.value = Array.isArray(res.data?.activity) ? res.data.activity : [];
+    adminTopCategories.value = Array.isArray(res.data?.topCategories)
+      ? res.data.topCategories
+      : [];
   } catch (e) {
     users.value = [];
     showAlert?.('error', 'Błąd podczas pobierania listy użytkowników.');

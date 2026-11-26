@@ -358,6 +358,68 @@ exports.getUsersStats = async (req, res) => {
     ]);
 
     const totalQuestions = await Question.countDocuments();
+
+    // Aktywność z ostatnich 30 dni (na podstawie wpisów historii).
+    const activityRaw = await User.aggregate([
+      { $unwind: "$history" },
+      { $match: { "history.data": { $type: "string" } } },
+      {
+        $project: {
+          day: { $substrCP: ["$history.data", 0, 10] },
+          correct: { $ifNull: ["$history.correct", 0] },
+          wrong: { $ifNull: ["$history.wrong", 0] },
+        },
+      },
+      {
+        $group: {
+          _id: "$day",
+          quizzes: { $sum: 1 },
+          correct: { $sum: "$correct" },
+          wrong: { $sum: "$wrong" },
+        },
+      },
+      { $sort: { _id: -1 } },
+      { $limit: 30 },
+    ]);
+    const activity = activityRaw
+      .filter((row) => /^\d{4}-\d{2}-\d{2}$/.test(row._id || ""))
+      .map((row) => ({
+        date: row._id,
+        quizzes: row.quizzes,
+        correct: row.correct,
+        wrong: row.wrong,
+      }))
+      .reverse();
+
+    // Najaktywniej ćwiczone kategorie (top 8).
+    const categoryRaw = await User.aggregate([
+      { $unwind: "$history" },
+      {
+        $match: {
+          "history.category": { $type: "string", $ne: "" },
+        },
+      },
+      {
+        $group: {
+          _id: "$history.category",
+          quizzes: { $sum: 1 },
+          correct: { $sum: { $ifNull: ["$history.correct", 0] } },
+          wrong: { $sum: { $ifNull: ["$history.wrong", 0] } },
+        },
+      },
+      { $sort: { quizzes: -1 } },
+      { $limit: 8 },
+    ]);
+    const topCategories = categoryRaw.map((row) => {
+      const total = (row.correct || 0) + (row.wrong || 0);
+      return {
+        name: row._id,
+        quizzes: row.quizzes,
+        correct: row.correct,
+        wrong: row.wrong,
+        accuracy: total > 0 ? Math.round((row.correct / total) * 100) : 0,
+      };
+    });
     const totals = users.reduce(
       (acc, user) => {
         acc.users += 1;
@@ -372,7 +434,7 @@ exports.getUsersStats = async (req, res) => {
     totals.accuracy =
       totals.answers > 0 ? Math.round((totals.correct / totals.answers) * 100) : 0;
 
-    res.json({ users, totals });
+    res.json({ users, totals, activity, topCategories });
   } catch (err) {
     console.error("Błąd statystyk użytkowników:", err);
     res.status(500).json({ message: "Błąd statystyk użytkowników" });

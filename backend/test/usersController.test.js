@@ -39,7 +39,11 @@ const fakeUserModel = {
     };
     return state.created;
   },
-  aggregate: async () => state.aggregate,
+  aggregate: async (pipeline = []) => {
+    // Statystyki aktywności/kategorii używają $unwind — w testach zwracamy puste.
+    if (pipeline.some((stage) => stage && stage.$unwind)) return [];
+    return state.aggregate;
+  },
 };
 
 require.cache[userPath] = {
@@ -293,4 +297,6 @@ test("getUsersStats: liczy skuteczność i sumy", async () => {
     questions: 100,
     accuracy: 60,
   });
+  assert.deepEqual(res.body.activity, []);
+  assert.deepEqual(res.body.topCategories, []);
 });
