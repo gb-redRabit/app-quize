@@ -2,7 +2,7 @@
 <template>
   <div
     :data-category="category"
-    class="categories-container surface p-4 transition-all duration-200 hover:shadow-sm"
+    class="categories-container surface p-4 transition-all duration-200 hover:shadow-sm flex flex-col h-full"
     :class="cardClass"
   >
     <div class="flex flex-wrap justify-between items-start gap-2 mb-3">
@@ -51,7 +51,7 @@
       </div>
       <span class="font-medium">Łącznie: {{ total }}</span>
     </div>
-    <div class="category-card grid grid-cols-3 gap-1.5">
+    <div class="category-card grid grid-cols-3 gap-1.5 mt-auto">
       <BaseButton
         color="gray"
         variant="outline"
@@ -250,57 +250,26 @@ const isDisabled = computed(() => {
 
 const categoryStatus = computed(() => {
   if (!props.stats || total.value === 0) return 'Nowa';
-  const percentDone = (doneCount.value / total.value) * 100;
-  if (percentDone === 0) return 'Nowa';
-  if (percentDone === 100) {
-    const percentCorrect = (props.stats.correct / total.value) * 100;
-    if (percentCorrect === 100) return 'Opanowana';
-    if (percentCorrect >= 80) return 'Bardzo dobra';
-    if (percentCorrect >= 60) return 'Dobra';
-    if (percentCorrect >= 40) return 'Średnia';
-    return 'Do poprawy';
-  }
-  if (percentDone >= 75) return 'W trakcie';
-  if (percentDone >= 50) return 'Połowa';
-  if (percentDone >= 25) return 'Rozpoczęta';
-  return 'Nowa';
+  if (doneCount.value === 0) return 'Nowa';
+  const accuracy = (props.stats.correct / doneCount.value) * 100;
+  if (doneCount.value === total.value && accuracy >= 80) return 'Opanowana';
+  return 'W trakcie';
 });
 
 const statusClass = computed(() => {
   const classes = {
-    Opanowana: 'bg-green-200 text-green-900 dark:bg-green-700 dark:text-green-100',
-    'Bardzo dobra': 'bg-blue-300 text-blue-900 dark:bg-blue-700 dark:text-blue-100',
-    Dobra: 'bg-blue-100 text-blue-500 dark:bg-blue-500 dark:text-blue-100',
-    Średnia: 'bg-yellow-200 text-yellow-900 dark:bg-yellow-700 dark:text-yellow-100',
-    'Do poprawy': 'bg-red-200 text-red-900 dark:bg-red-700 dark:text-red-100',
-    'W trakcie': 'bg-blue-100 text-blue-300 dark:bg-blue-300 dark:text-blue-100',
-    Połowa: 'bg-indigo-200 text-indigo-900 dark:bg-indigo-700 dark:text-indigo-100',
-    Rozpoczęta: 'bg-purple-200 text-purple-900 dark:bg-purple-700 dark:text-purple-100',
-    Nowa: 'bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-gray-100',
+    Opanowana: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+    'W trakcie': 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
+    Nowa: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
   };
   return classes[categoryStatus.value] || classes['Nowa'];
 });
 
-// Kolor karty ograniczamy do delikatnego obramowania — tło zostaje neutralne,
-// a stan i tak komunikują chip statusu oraz pasek postępu.
+// Kolor karty ograniczamy do delikatnego obramowania — tło zostaje neutralne.
 const cardClass = computed(() => {
-  if (!props.stats || total.value === 0) return 'border-gray-200 dark:border-gray-700';
-
-  const percentDone = (doneCount.value / total.value) * 100;
-  const percentCorrectOfDone =
-    doneCount.value > 0 ? (props.stats.correct / doneCount.value) * 100 : 0;
-
-  if (percentDone === 0) return 'border-gray-300 dark:border-gray-600';
-  if (props.stats.correct === total.value) return 'border-green-400 dark:border-green-600';
-  if (props.stats.wrong === total.value) return 'border-red-400 dark:border-red-600';
-  if (percentDone > 50 && percentCorrectOfDone > 70) return 'border-green-300 dark:border-green-700';
-  if (percentDone > 50 && percentCorrectOfDone >= 40)
-    return 'border-yellow-300 dark:border-yellow-700';
-  if (percentDone > 50) return 'border-red-300 dark:border-red-700';
-  if (percentCorrectOfDone > 70) return 'border-green-200 dark:border-green-800';
-  if (percentCorrectOfDone >= 40) return 'border-yellow-200 dark:border-yellow-800';
-
-  return 'border-orange-200 dark:border-orange-800';
+  if (categoryStatus.value === 'Opanowana') return 'border-green-300 dark:border-green-700';
+  if (categoryStatus.value === 'W trakcie') return 'border-amber-300 dark:border-amber-700';
+  return 'border-gray-200 dark:border-gray-700';
 });
 
 const percentCompleteClass = computed(() => {

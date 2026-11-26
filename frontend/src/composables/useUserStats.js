@@ -77,36 +77,23 @@ export function useUserStats() {
     const categoryCounts = store.getters['questions/getCategoryCounts'] || {};
     const total = categoryCounts[cat] || 0;
     if (total === 0) return '';
-    const percentDone = ((stats.correct + stats.wrong) / total) * 100;
-    if (percentDone === 0) return 'Nowa';
-    if (percentDone === 100) {
-      const percentCorrect = (stats.correct / total) * 100;
-      if (percentCorrect === 100) return 'Opanowana';
-      if (percentCorrect >= 80) return 'Bardzo dobra';
-      if (percentCorrect >= 60) return 'Dobra';
-      if (percentCorrect >= 40) return 'Średnia';
-      return 'Do poprawy';
-    }
-    if (percentDone >= 75) return 'W trakcie';
-    if (percentDone >= 50) return 'Połowa';
-    if (percentDone >= 25) return 'Rozpoczęta';
-    return 'Nowa';
+
+    const done = stats.correct + stats.wrong;
+    if (done === 0) return 'Nowa';
+
+    const accuracy = done > 0 ? (stats.correct / done) * 100 : 0;
+    if (done === total && accuracy >= 80) return 'Opanowana';
+    return 'W trakcie';
   };
 
   const getCategoryStatusClass = (cat) => {
     const status = getCategoryStatus(cat);
     const classes = {
-      Opanowana: 'bg-green-200 text-green-900 dark:bg-green-700 dark:text-green-100',
-      'Bardzo dobra': 'bg-blue-300 text-blue-900 dark:bg-blue-700 dark:text-blue-100',
-      Dobra: 'bg-blue-100 text-blue-500 dark:bg-blue-500 dark:text-blue-100',
-      Średnia: 'bg-yellow-200 text-yellow-900 dark:bg-yellow-700 dark:text-yellow-100',
-      'Do poprawy': 'bg-red-200 text-red-900 dark:bg-red-700 dark:text-red-100',
-      'W trakcie': 'bg-blue-100 text-blue-300 dark:bg-blue-300 dark:text-blue-100',
-      Połowa: 'bg-indigo-200 text-indigo-900 dark:bg-indigo-700 dark:text-indigo-100',
-      Rozpoczęta: 'bg-purple-200 text-purple-900 dark:bg-purple-700 dark:text-purple-100',
-      Nowa: 'bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-gray-100',
+      Opanowana: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      'W trakcie': 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
+      Nowa: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
     };
-    return classes[status] || 'bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-gray-100';
+    return classes[status] || classes['Nowa'];
   };
 
   const getCategoryCardClass = (cat) => {

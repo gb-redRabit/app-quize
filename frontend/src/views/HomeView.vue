@@ -127,6 +127,9 @@
           v-model:view-type="viewType"
           v-model:grid-columns="gridColumns"
           v-model:search-query="searchQuery"
+          v-model:sort-by="sortBy"
+          v-model:status-filter="statusFilter"
+          :count-label="categoriesCountLabel"
         />
 
         <template v-if="viewType === 'grid'">
@@ -184,7 +187,7 @@
 </template>
 
 <script setup>
-import { ref, computed, inject, defineAsyncComponent } from 'vue';
+import { ref, computed, inject, defineAsyncComponent, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import apiClient from '@/api';
@@ -231,9 +234,18 @@ const showExamPopup = ref(false);
 const showOtherQuizPopup = ref(false);
 const showQuizOptions = ref({});
 const activeFilter = ref('all');
-const viewType = ref('grid');
+const savedView = (() => {
+  try {
+    return localStorage.getItem('categoriesView');
+  } catch (e) {
+    return null;
+  }
+})();
+const viewType = ref(savedView === 'grid' ? 'grid' : 'list');
 const gridColumns = ref(3);
 const searchQuery = ref('');
+const sortBy = ref('name');
+const statusFilter = ref('all');
 const showUserGuide = ref(false);
 
 const categoryStats = computed(() => {
@@ -281,6 +293,34 @@ const lastActivityPercent = computed(() => {
   return total > 0 ? Math.round(((item.correct || 0) / total) * 100) : 0;
 });
 
+function categoryTotals(cat) {
+  const stats = categoryStats.value[cat] || { correct: 0, wrong: 0, notDone: 0 };
+  const total = stats.correct + stats.wrong + stats.notDone;
+  return { stats, total, done: stats.correct + stats.wrong };
+}
+
+function categoryPercentDone(cat) {
+  const { total, done } = categoryTotals(cat);
+  return total > 0 ? Math.round((done / total) * 100) : 0;
+}
+
+/** Status zgodny z listą/kartami: Nowa / W trakcie / Opanowana (≥80% przy 100% odpowiedzi). */
+function categoryStatusOf(cat) {
+  const { stats, total, done } = categoryTotals(cat);
+  if (total === 0 || done === 0) return 'new';
+  const accuracy = done > 0 ? (stats.correct / done) * 100 : 0;
+  if (done === total && accuracy >= 80) return 'mastered';
+  return 'progress';
+}
+
+watch(viewType, (value) => {
+  try {
+    localStorage.setItem('categoriesView', value);
+  } catch (e) {
+    // ignoruj
+  }
+});
+
 // Obliczone właściwości
 const filteredCategories = computed(() => {
   if (activeFilter.value === 'exam')
@@ -294,11 +334,41 @@ const filteredCategories = computed(() => {
 
 const searchedCategories = computed(() => {
   const hidden = questionsHelper.hiddenCategory.value || [];
-  return filteredCategories.value
+  const query = searchQuery.value.trim().toLowerCase();
+
+  let list = filteredCategories.value
     .filter((cat) => !hidden.includes(cat))
-    .filter(
-      (cat) => !searchQuery.value || cat.toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
+    .filter((cat) => !query || cat.toLowerCase().includes(query))
+    .filter((cat) => {
+      if (statusFilter.value === 'all') return true;
+      return categoryStatusOf(cat) === statusFilter.value;
+    });
+
+  const sorted = [...list];
+  switch (sortBy.value) {
+    case 'progress-asc':
+      sorted.sort((a, b) => categoryPercentDone(a) - categoryPercentDone(b));
+      break;
+    case 'progress-desc':
+      sorted.sort((a, b) => categoryPercentDone(b) - categoryPercentDone(a));
+      break;
+    case 'size-desc':
+      sorted.sort((a, b) => categoryTotals(b).total - categoryTotals(a).total);
+      break;
+    case 'size-asc':
+      sorted.sort((a, b) => categoryTotals(a).total - categoryTotals(b).total);
+      break;
+    default:
+      sorted.sort((a, b) => a.localeCompare(b));
+  }
+  return sorted;
+});
+
+const categoriesCountLabel = computed(() => {
+  const count = searchedCategories.value.length;
+  if (count === 1) return '1 kategoria';
+  if (count >= 2 && count <= 4) return `${count} kategorie`;
+  return `${count} kategorii`;
 });
 
 const gridLayoutClass = computed(() => {
