@@ -79,8 +79,12 @@ export default {
           dispatch('ui/setTheme', user.option, { root: true });
         }
 
-        await dispatch('fetchUserHistoryAndHQ');
-        await dispatch('questions/fetchStats', null, { root: true });
+        // Profil pochodzi z odpowiedzi logowania — nie pobieramy go drugi raz.
+        // Historia, odpowiedzi i statystyki równolegle: jedno oczekiwanie na sieć.
+        await Promise.all([
+          dispatch('fetchUserHistoryAndHQ', { withProfile: false }),
+          dispatch('questions/fetchStats', null, { root: true }),
+        ]);
         return true;
       } catch (error) {
         commit('SET_AUTHENTICATED', false);
@@ -95,14 +99,27 @@ export default {
       const res = await apiClient.get('/users/history');
       commit('SET_USER_HISTORY', res.data);
     },
-    async fetchUserHistoryAndHQ({ commit }) {
+    /** Sam profil — używany przy starcie, gdy nie ma lokalnej kopii danych. */
+    async fetchUserProfile({ commit }) {
+      const res = await apiClient.get('/users/me');
+      const updatedUser = { ...res.data };
+      commit('SET_USER', updatedUser);
+      setUser(updatedUser);
+      return updatedUser;
+    },
+    /**
+     * Historia + odpowiedzi (+ opcjonalnie profil). Żądania lecą równolegle,
+     * a błąd sieci zostawia ostatnią lokalną kopię (offline-first).
+     */
+    async fetchUserHistoryAndHQ({ commit }, { withProfile = true } = {}) {
       try {
-        // Trzy lekkie zapytania równolegle: historia, odpowiedzi i profil.
-        const [historyRes, hqRes, meRes] = await Promise.all([
+        const requests = [
           apiClient.get('/users/history'),
           apiClient.get('/users/hquestion'),
-          apiClient.get('/users/me'),
-        ]);
+        ];
+        if (withProfile) requests.push(apiClient.get('/users/me'));
+
+        const [historyRes, hqRes, meRes] = await Promise.all(requests);
 
         const history = Array.isArray(historyRes.data) ? historyRes.data : [];
         const hquestion = Array.isArray(hqRes.data) ? hqRes.data : [];
@@ -112,9 +129,11 @@ export default {
         setCachedHQuestion(hquestion);
 
         // Profil (bez historii/hquestion) — aktualizujemy avatar, motyw itp.
-        const updatedUser = { ...meRes.data };
-        commit('SET_USER', updatedUser);
-        setUser(updatedUser);
+        if (meRes) {
+          const updatedUser = { ...meRes.data };
+          commit('SET_USER', updatedUser);
+          setUser(updatedUser);
+        }
       } catch (e) {
         // Offline lub błąd sieci: zostaje ostatnia zapisana kopia.
         const cached = getCachedUserData();

@@ -203,7 +203,7 @@ import { useSkeletonConfig } from '@/composables/useSkeletonConfig.js';
 import { useGlobalLoader } from '@/composables/useGlobalLoader.js';
 import { updateAvailable, applyUpdate, dismissUpdate } from '@/services/pwa';
 import { useSidebar } from '@/composables/useSidebar';
-import { getToken, setToken, setUser } from '@/utils/authStorage';
+import { getToken, setToken, setUser, getCachedUserData } from '@/utils/authStorage';
 
 const store = useStore();
 const router = useRouter();
@@ -387,9 +387,8 @@ function showSessionExpirationModal(minutesLeft = 5) {
 }
 
 // Token expiration check
-function checkTokenExpiration() {
-  const token = getToken();
-  if (!token) return;
+function getTokenSecondsLeft(token) {
+  if (!token) return null;
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -400,16 +399,21 @@ function checkTokenExpiration() {
         .join('')
     );
     const decoded = JSON.parse(jsonPayload);
-    if (!decoded.exp) return;
-    const currentTime = Math.floor(Date.now() / 1000);
-    const timeRemaining = decoded.exp - currentTime;
-    if (timeRemaining < 5 * 60 && timeRemaining > 0) {
-      if (!showSessionModal.value) {
-        showSessionExpirationModal(Math.ceil(timeRemaining / 60));
-      }
-    }
+    if (!decoded.exp) return null;
+    return decoded.exp - Math.floor(Date.now() / 1000);
   } catch (e) {
-    // Ignoruj błędy parsowania
+    return null;
+  }
+}
+
+function checkTokenExpiration() {
+  const token = getToken();
+  const timeRemaining = getTokenSecondsLeft(token);
+  if (timeRemaining == null) return;
+  if (timeRemaining < 5 * 60 && timeRemaining > 0) {
+    if (!showSessionModal.value) {
+      showSessionExpirationModal(Math.ceil(timeRemaining / 60));
+    }
   }
 }
 
@@ -417,27 +421,54 @@ function checkTokenExpiration() {
 async function checkAuthOnStart() {
   await router.isReady();
   const token = getToken();
-  if (!token) {
-    if (route.name !== 'Login' && route.name !== 'Register') {
-      await router.replace({ name: 'Login' });
-    }
+  const secondsLeft = getTokenSecondsLeft(token);
+  const onAuthRoute = route.name === 'Login' || route.name === 'Register';
+
+  const goToLogin = async () => {
+    if (!onAuthRoute) await router.replace({ name: 'Login' });
     isAuthChecked.value = true;
     $hideLoader();
+  };
+
+  // Lokalna kopia danych pozwala pokazać aplikację natychmiast i działać offline.
+  const cached = getCachedUserData();
+  const hasCachedData =
+    Array.isArray(cached.hquestion) && Boolean(localStorage.getItem('stats'));
+
+  // Bez tokenu nie ma sesji. Wygasły token: offline nadal pozwalamy korzystać
+  // z zapisanych danych (np. quiz bez internetu), online wymagamy logowania.
+  if (!token || (secondsLeft != null && secondsLeft <= 0)) {
+    const canWorkOffline = Boolean(token) && !navigator.onLine && hasCachedData;
+    if (!canWorkOffline) {
+      await goToLogin();
+      return;
+    }
+  }
+
+  // Szybki start: mamy zapisaną sesję i lokalną kopię danych (initUser już
+  // wypełnił store). Pokazujemy aplikację od razu, a świeże dane dociągamy
+  // w tle — jedno żądanie mniej na ścieżce krytycznej.
+  if (hasCachedData) {
+    isAuthChecked.value = true;
+    $hideLoader();
+    refreshData();
     return;
   }
+
+  // Pierwsze uruchomienie bez cache: profil jest potrzebny do weryfikacji sesji.
   try {
-    // Jedno pobranie profilu + historia/hquestion w `refreshData`
-    // (wcześniej `verifySession` dublował GET /users/me).
-    await refreshData();
-    isAuthChecked.value = true;
-    $hideLoader();
+    await store.dispatch('user/fetchUserProfile');
   } catch (e) {
-    if (route.name !== 'Login' && route.name !== 'Register') {
-      await router.replace({ name: 'Login' });
+    const status = e?.response?.status;
+    if (status === 401 || status === 403) {
+      await goToLogin();
+      return;
     }
-    isAuthChecked.value = true;
-    $hideLoader();
+    // Błąd sieci (offline) — pokazujemy aplikację z tym, co mamy lokalnie.
   }
+  isAuthChecked.value = true;
+  $hideLoader();
+  refreshData();
 }
 
 // Obsługa online/offline
@@ -491,12 +522,12 @@ function handleOfflineImportFinished(event) {
   }
 }
 async function refreshData() {
-  try {
-    await store.dispatch('user/fetchUserHistoryAndHQ');
-    await store.dispatch('questions/fetchStats');
-  } catch (error) {
-    console.error('Błąd odświeżania danych:', error);
-  }
+  // Historia/odpowiedzi i statystyki są niezależne — pobieramy je równolegle,
+  // zamiast dokładać drugie opóźnienie sieciowe.
+  await Promise.allSettled([
+    store.dispatch('user/fetchUserHistoryAndHQ'),
+    store.dispatch('questions/fetchStats'),
+  ]);
 }
 
 // Weryfikacja sesji po focusie (maks. raz na minutę)

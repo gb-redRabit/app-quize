@@ -222,6 +222,52 @@ test.describe('Quiz App E2E', () => {
     await expect(page.getByRole('heading', { name: 'Kategorie' })).toBeVisible();
   });
 
+  test('start: zapisana sesja pokazuje pulpit bez czekania na historię', async ({ page }) => {
+    let releaseHistory;
+    const historyGate = new Promise((resolve) => {
+      releaseHistory = resolve;
+    });
+    let historyRequested = false;
+
+    // Historia celowo wisi — start nie może na nią czekać (cache + tło).
+    await page.route('**/api/users/history', async (route) => {
+      historyRequested = true;
+      await historyGate;
+      await route.fulfill(json([]));
+    });
+
+    await page.addInitScript(
+      ({ cachedUser }) => {
+        localStorage.setItem('token', 'e2e-token');
+        localStorage.setItem('user', JSON.stringify(cachedUser));
+        localStorage.setItem('cached-history', JSON.stringify([]));
+        localStorage.setItem('cached-hquestion', JSON.stringify([]));
+        localStorage.setItem(
+          'stats',
+          JSON.stringify({
+            categories: [{ name: 'E2E', count: 2 }],
+            totalQuestions: 2,
+            updatedAt: new Date().toISOString(),
+          })
+        );
+      },
+      { cachedUser: user }
+    );
+
+    try {
+      await page.goto('/');
+      await expect(page.getByRole('heading', { name: /Cześć/ })).toBeVisible({
+        timeout: 3000,
+      });
+      await expect(page.getByRole('heading', { name: 'Kategorie' })).toBeVisible();
+    } finally {
+      releaseHistory();
+    }
+
+    // Odświeżenie danych rzeczywiście poszło w tle.
+    await expect.poll(() => historyRequested).toBe(true);
+  });
+
   test('egzamin: modal pokazuje skonfigurowaną liczbę pytań', async ({ page }) => {
     await login(page);
     await page.getByRole('button', { name: /Egzamin z ubiegłych lat/ }).click();
