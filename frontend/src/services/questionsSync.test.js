@@ -59,6 +59,20 @@ beforeEach(() => {
 });
 
 describe('ensureQuestionsCache — synchronizacja przyrostowa', () => {
+  it('dedupuje równoległe sprawdzenia wersji (stopka + synchronizacja)', async () => {
+    apiGet.mockResolvedValue({
+      data: { version: 7, count: 10, updatedAt: '2026-11-27T10:00:00.000Z' },
+    });
+    const { fetchDbVersion } = await loadSync();
+
+    const [first, second] = await Promise.all([fetchDbVersion(), fetchDbVersion()]);
+
+    expect(apiGet).toHaveBeenCalledTimes(1);
+    expect(first.version).toBe(7);
+    expect(second.version).toBe(7);
+    expect(localStorage.getItem('quiz-db-version')).toContain('"version":7');
+  });
+
   it('stosuje deltę bez pobierania pełnego snapshotu', async () => {
     respondVersion(3);
     const { ensureQuestionsCache } = await loadSync();

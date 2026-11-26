@@ -19,6 +19,8 @@ const MIN_CHECK_INTERVAL_MS = 5 * 60 * 1000;
 let inFlightSync = null;
 let lastCheckAt = 0;
 let bulkSyncTimer = null;
+let versionRequest = null;
+let lastVersionAt = 0;
 
 function readStoredVersion() {
   try {
@@ -46,15 +48,31 @@ export function getKnownDbVersion() {
 }
 
 /** Pobiera wersję z serwera (publiczny endpoint) i zapamiętuje ją lokalnie. */
-export async function fetchDbVersion() {
-  const res = await apiClient.get('/questions/version', { silent: true, noCache: true });
-  const info = {
-    version: res.data?.version ?? null,
-    count: res.data?.count ?? null,
-    updatedAt: res.data?.updatedAt || null,
-  };
-  storeVersion(info);
-  return info;
+export async function fetchDbVersion({ force = false } = {}) {
+  // Współdzielony request: stopka i synchronizacja nie pytają dwa razy.
+  if (!force && versionRequest) return versionRequest;
+  if (!force && Date.now() - lastVersionAt < 30 * 1000) {
+    const stored = readStoredVersion();
+    if (stored) return stored;
+  }
+
+  versionRequest = apiClient
+    .get('/questions/version', { silent: true, noCache: true })
+    .then((res) => {
+      const info = {
+        version: res.data?.version ?? null,
+        count: res.data?.count ?? null,
+        updatedAt: res.data?.updatedAt || null,
+      };
+      storeVersion(info);
+      lastVersionAt = Date.now();
+      return info;
+    })
+    .finally(() => {
+      versionRequest = null;
+    });
+
+  return versionRequest;
 }
 
 /**
@@ -77,7 +95,7 @@ export async function ensureQuestionsCache({ force = false } = {}) {
       }
 
       const local = await getCachedVersion().catch(() => null);
-      const server = await fetchDbVersion();
+      const server = await fetchDbVersion({ force });
       lastCheckAt = Date.now();
 
       if (

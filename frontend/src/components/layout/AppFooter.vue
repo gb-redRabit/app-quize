@@ -26,7 +26,16 @@
         class="inline-block h-2 w-2 rounded-full bg-yellow-500"
         aria-hidden="true"
       ></span>
-      {{ pendingCount }} {{ pendingCount === 1 ? 'zmiana czeka' : 'zmiany czekają' }} na wysłanie
+      {{ pendingCount }}
+      {{
+        pluralizePl(
+          pendingCount,
+          'zmiana czeka',
+          'zmiany czekają',
+          'zmian czeka'
+        )
+      }}
+      na wysłanie
       <button
         v-if="isOnline"
         type="button"
@@ -45,6 +54,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { fetchDbVersion, getKnownDbVersion } from '@/services/questionsSync';
 import { flushOfflineQueue } from '@/services/offlineSync';
 import { queueSize } from '@/utils/offlineQueue';
+import { pluralizePl } from '@/utils/pluralize';
 
 const appVersion = __APP_VERSION__ || 'dev';
 const commit = __APP_COMMIT__ || '';
