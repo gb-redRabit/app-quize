@@ -286,6 +286,44 @@ test.describe('Quiz App E2E', () => {
     ).toBeVisible();
   });
 
+  test('odpowiedzi: pełna kopia w IndexedDB, nie w localStorage', async ({ page }) => {
+    const answers = [{ id: 1, correct: true, category: 'E2E' }];
+    await page.route('**/api/users/hquestion', (route) => route.fulfill(json(answers)));
+
+    await login(page);
+    await page.waitForTimeout(800);
+
+    const state = await page.evaluate(async () => {
+      const marker = JSON.parse(localStorage.getItem('cached-hquestion-user') || 'null');
+      const entries = await new Promise((resolve) => {
+        const open = indexedDB.open('quiz-user-cache');
+        open.onerror = () => resolve(null);
+        open.onsuccess = () => {
+          const get = open.result
+            .transaction('hquestion', 'readonly')
+            .objectStore('hquestion')
+            .get('all');
+          get.onerror = () => resolve(null);
+          get.onsuccess = () => resolve(get.result?.value ?? null);
+        };
+      });
+      return {
+        legacy: localStorage.getItem('cached-hquestion'),
+        marker,
+        entries,
+      };
+    });
+
+    expect(state.legacy).toBeNull();
+    expect(state.marker).toEqual({ userId: 'u1', count: 1 });
+    expect(state.entries).toEqual(answers);
+
+    // Reload bez API odpowiedzi — statystyki i quiz korzystają z IndexedDB.
+    await page.route('**/api/users/hquestion', (route) => route.abort());
+    await page.reload();
+    await expect(page.getByRole('heading', { name: /Cześć/ })).toBeVisible();
+  });
+
   test('start: zapisana sesja pokazuje pulpit bez czekania na historię', async ({ page }) => {
     let releaseHistory;
     const historyGate = new Promise((resolve) => {

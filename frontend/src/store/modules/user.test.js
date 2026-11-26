@@ -44,7 +44,7 @@ describe('user store — dane użytkownika', () => {
     apiClient.get.mockImplementation((url) => {
       if (url === '/users/history') return Promise.resolve({ data: [{ clientId: 'a' }] });
       if (url === '/users/hquestion') return Promise.resolve({ data: [{ id: 1 }] });
-      if (url === '/users/me') return Promise.resolve({ data: { login: 'admin' } });
+      if (url === '/users/me') return Promise.resolve({ data: { _id: 'u1', login: 'admin' } });
       return Promise.reject(new Error('unexpected ' + url));
     });
     const ctx = createContext();
@@ -55,8 +55,13 @@ describe('user store — dane użytkownika', () => {
     expect(urls).toEqual(['/users/history', '/users/hquestion', '/users/me']);
     expect(ctx.state.history).toEqual([{ clientId: 'a' }]);
     expect(ctx.state.hquestion).toEqual([{ id: 1 }]);
-    expect(ctx.state.user).toEqual({ login: 'admin' });
-    expect(JSON.parse(localStorage.getItem('cached-hquestion'))).toEqual([{ id: 1 }]);
+    expect(ctx.state.user).toEqual({ _id: 'u1', login: 'admin' });
+    // Pełne odpowiedzi nie lądują już w localStorage — tylko znacznik.
+    expect(localStorage.getItem('cached-hquestion')).toBeNull();
+    expect(JSON.parse(localStorage.getItem('cached-hquestion-user'))).toEqual({
+      userId: 'u1',
+      count: 1,
+    });
   });
 
   it('withProfile:false pomija /users/me (profil pochodzi z logowania)', async () => {

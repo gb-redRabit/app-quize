@@ -4,6 +4,7 @@ const TOKEN_KEY = 'token';
 const USER_KEY = 'user';
 const HISTORY_KEY = 'cached-history';
 const HQUESTION_KEY = 'cached-hquestion';
+const HQUESTION_MARKER_KEY = 'cached-hquestion-user';
 
 function read(storage, key) {
   try {
@@ -69,7 +70,7 @@ export function setSession(token, user) {
 }
 
 export function clearSession() {
-  for (const key of [TOKEN_KEY, USER_KEY, HISTORY_KEY, HQUESTION_KEY]) {
+  for (const key of [TOKEN_KEY, USER_KEY, HISTORY_KEY, HQUESTION_KEY, HQUESTION_MARKER_KEY]) {
     remove(sessionStorage, key);
     remove(localStorage, key);
   }
@@ -79,7 +80,7 @@ export function hasSession() {
   return Boolean(getToken() && getStoredUser());
 }
 
-// Lokalna kopia historii i odpowiedzi — statystyki i quiz działają offline.
+// Lokalna kopia historii (podsumowania) i stara kopia odpowiedzi (migracja).
 export function getCachedUserData() {
   const parse = (key) => {
     const raw = read(localStorage, key) || read(sessionStorage, key);
@@ -92,6 +93,7 @@ export function getCachedUserData() {
   };
   return {
     history: parse(HISTORY_KEY),
+    // Pełne odpowiedzi są teraz w IndexedDB; klucz zostaje dla migracji.
     hquestion: parse(HQUESTION_KEY),
   };
 }
@@ -104,8 +106,51 @@ export function setCachedHistory(history) {
   remove(sessionStorage, HISTORY_KEY);
 }
 
-export function setCachedHQuestion(hquestion) {
-  const raw = JSON.stringify(Array.isArray(hquestion) ? hquestion : []);
-  write(localStorage, HQUESTION_KEY, raw);
+/** Znacznik: odpowiedzi tego użytkownika są w IndexedDB (mały wpis). */
+export function setCachedHQuestionMarker(userId, count) {
+  if (!userId) return;
+  const raw = JSON.stringify({ userId: String(userId), count: Number(count) || 0 });
+  write(localStorage, HQUESTION_MARKER_KEY, raw);
+  remove(sessionStorage, HQUESTION_MARKER_KEY);
+  clearLegacyCachedHQuestion();
+}
+
+export function getCachedHQuestionMarker() {
+  const raw = read(localStorage, HQUESTION_MARKER_KEY) || read(sessionStorage, HQUESTION_MARKER_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+export function clearCachedHQuestionMarker() {
+  remove(localStorage, HQUESTION_MARKER_KEY);
+  remove(sessionStorage, HQUESTION_MARKER_KEY);
+}
+
+/** Czy istnieje lokalna kopia odpowiedzi (IndexedDB albo stara w localStorage). */
+export function hasCachedHQuestion() {
+  const marker = getCachedHQuestionMarker();
+  const user = getStoredUser();
+  if (marker && user?._id && marker.userId === String(user._id)) return true;
+  return Boolean(read(localStorage, HQUESTION_KEY));
+}
+
+/** Stara, pełna kopia odpowiedzi — tylko do jednorazowej migracji do IndexedDB. */
+export function getLegacyCachedHQuestion() {
+  const raw = read(localStorage, HQUESTION_KEY) || read(sessionStorage, HQUESTION_KEY);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearLegacyCachedHQuestion() {
+  remove(localStorage, HQUESTION_KEY);
   remove(sessionStorage, HQUESTION_KEY);
 }

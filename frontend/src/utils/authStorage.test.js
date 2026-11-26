@@ -2,12 +2,15 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
   clearSession,
+  getCachedHQuestionMarker,
   getCachedUserData,
+  getLegacyCachedHQuestion,
   getStoredUser,
   getToken,
+  hasCachedHQuestion,
   hasSession,
   setCachedHistory,
-  setCachedHQuestion,
+  setCachedHQuestionMarker,
   setSession,
   setUser,
 } from './authStorage';
@@ -41,19 +44,37 @@ describe('authStorage', () => {
     expect(hasSession()).toBe(false);
   });
 
-  it('przechowuje kopię historii (bez list odpowiedzi) i odpowiedzi dla trybu offline', () => {
+  it('przechowuje podsumowania historii i znacznik odpowiedzi w IndexedDB', () => {
+    setSession('token-1', { _id: 'u1', login: 'admin' });
     setCachedHistory([
       { type: 'quiz', list: [{ id_questions: 1 }], questionTimes: [3] },
     ]);
-    setCachedHQuestion([{ id: 1, correct: true }]);
+    setCachedHQuestionMarker('u1', 1);
 
     const cached = getCachedUserData();
     expect(cached.history).toEqual([{ type: 'quiz' }]);
-    expect(cached.hquestion).toEqual([{ id: 1, correct: true }]);
+    expect(cached.hquestion).toBeNull();
+    expect(getCachedHQuestionMarker()).toEqual({ userId: 'u1', count: 1 });
+    expect(hasCachedHQuestion()).toBe(true);
 
     sessionStorage.clear();
-    const afterReload = getCachedUserData();
-    expect(afterReload.history).toEqual([{ type: 'quiz' }]);
-    expect(afterReload.hquestion).toEqual([{ id: 1, correct: true }]);
+    expect(getCachedUserData().history).toEqual([{ type: 'quiz' }]);
+  });
+
+  it('czyta starą kopię odpowiedzi i usuwa ją po migracji/wylogowaniu', () => {
+    setSession('token-1', { _id: 'u1', login: 'admin' });
+    localStorage.setItem('cached-hquestion', JSON.stringify([{ id: 1, correct: true }]));
+
+    expect(getLegacyCachedHQuestion()).toEqual([{ id: 1, correct: true }]);
+    expect(hasCachedHQuestion()).toBe(true);
+
+    // Migracja do IndexedDB: znacznik zastępuje pełną kopię w localStorage.
+    setCachedHQuestionMarker('u1', 1);
+    expect(getLegacyCachedHQuestion()).toBeNull();
+    expect(hasCachedHQuestion()).toBe(true);
+
+    clearSession();
+    expect(getCachedHQuestionMarker()).toBeNull();
+    expect(hasCachedHQuestion()).toBe(false);
   });
 });

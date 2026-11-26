@@ -212,7 +212,7 @@ import { updateAvailable, applyUpdate, dismissUpdate } from '@/services/pwa';
 import { useSidebar } from '@/composables/useSidebar';
 import { pluralizePl } from '@/utils/pluralize';
 import { registerUiBridge } from '@/services/uiBridge';
-import { getToken, setToken, setUser, getCachedUserData } from '@/utils/authStorage';
+import { getToken, setToken, setUser, hasCachedHQuestion } from '@/utils/authStorage';
 
 const store = useStore();
 const router = useRouter();
@@ -440,9 +440,8 @@ async function checkAuthOnStart() {
   };
 
   // Lokalna kopia danych pozwala pokazać aplikację natychmiast i działać offline.
-  const cached = getCachedUserData();
   const hasCachedData =
-    Array.isArray(cached.hquestion) && Boolean(localStorage.getItem('stats'));
+    hasCachedHQuestion() && Boolean(localStorage.getItem('stats'));
 
   // Bez tokenu nie ma sesji. Wygasły token: offline nadal pozwalamy korzystać
   // z zapisanych danych (np. quiz bez internetu), online wymagamy logowania.

@@ -5,20 +5,32 @@ import {
   setSession,
   setUser,
   setCachedHistory,
-  setCachedHQuestion,
+  setCachedHQuestionMarker,
   getCachedUserData,
+  getLegacyCachedHQuestion,
+  clearLegacyCachedHQuestion,
+  clearCachedHQuestionMarker,
   clearSession,
 } from '@/utils/authStorage';
 import {
   getHistoryCache,
   replaceHistoryCache,
-  clearHistoryCache,
-} from '@/utils/historyCache';
+  getHQuestionCache,
+  replaceHQuestionCache,
+  clearUserCache,
+} from '@/utils/userCache';
 
 function persistHistory(userId, history) {
   if (!userId) return;
   replaceHistoryCache(userId, history).catch((e) => {
     console.warn('Nie udało się zapisać pełnej historii lokalnie:', e?.message || e);
+  });
+}
+
+function persistHQuestion(userId, answers) {
+  if (!userId) return;
+  replaceHQuestionCache(userId, answers).catch((e) => {
+    console.warn('Nie udało się zapisać odpowiedzi lokalnie:', e?.message || e);
   });
 }
 
@@ -79,18 +91,37 @@ export default {
       // Ostatnia znana historia/odpowiedzi — używane offline i przy starcie.
       const cached = getCachedUserData();
       if (Array.isArray(cached.history)) commit('SET_USER_HISTORY', cached.history);
-      if (Array.isArray(cached.hquestion)) commit('SET_HQUESTION', cached.hquestion);
 
-      // Pełne wpisy (z listami odpowiedzi) doładuj z IndexedDB. Serwer ma
-      // pierwszeństwo: jeśli zdążył już odpowiedzieć, nie nadpisujemy.
+      // Stara, pełna kopia odpowiedzi (jeśli jest) — do migracji do IndexedDB.
+      const legacyHQ = Array.isArray(cached.hquestion) ? cached.hquestion : null;
+      if (legacyHQ) commit('SET_HQUESTION', legacyHQ);
+
       if (!user?._id) return;
       try {
-        const full = await getHistoryCache(user._id);
-        if (Array.isArray(full) && full.length > 0 && !state.historyLoadedFromServer) {
-          commit('SET_USER_HISTORY', full);
+        // Pełne wpisy z IndexedDB. Serwer ma pierwszeństwo: jeśli zdążył już
+        // odpowiedzieć, nie nadpisujemy świeższych danych.
+        const [fullHistory, fullHQuestion] = await Promise.all([
+          getHistoryCache(user._id),
+          getHQuestionCache(user._id),
+        ]);
+
+        if (Array.isArray(fullHistory) && fullHistory.length > 0 && !state.historyLoadedFromServer) {
+          commit('SET_USER_HISTORY', fullHistory);
+        }
+        if (Array.isArray(fullHQuestion) && fullHQuestion.length > 0 && !state.hquestion?.length) {
+          commit('SET_HQUESTION', fullHQuestion);
+        }
+
+        if (fullHQuestion.length > 0) {
+          setCachedHQuestionMarker(user._id, fullHQuestion.length);
+          clearLegacyCachedHQuestion();
+        } else if (legacyHQ) {
+          // Jednorazowa migracja starej kopii z localStorage.
+          await replaceHQuestionCache(user._id, legacyHQ);
+          setCachedHQuestionMarker(user._id, legacyHQ.length);
         }
       } catch (e) {
-        // Brak IndexedDB — zostają podsumowania z localStorage.
+        // Brak IndexedDB — zostają podsumowania i ewentualna stara kopia.
       }
     },
 
@@ -160,8 +191,11 @@ export default {
         commit('SET_HISTORY_SOURCE', 'server');
         commit('SET_HQUESTION', hquestion);
         setCachedHistory(history);
-        setCachedHQuestion(hquestion);
-        persistHistory(meRes?.data?._id || state.user?._id, history);
+
+        const ownerId = meRes?.data?._id || state.user?._id;
+        setCachedHQuestionMarker(ownerId, hquestion.length);
+        persistHistory(ownerId, history);
+        persistHQuestion(ownerId, hquestion);
 
         // Profil (bez historii/hquestion) — aktualizujemy avatar, motyw itp.
         if (meRes) {
@@ -176,8 +210,9 @@ export default {
         if (!state.history?.length && Array.isArray(cached.history)) {
           commit('SET_USER_HISTORY', cached.history);
         }
-        if (!state.hquestion?.length && Array.isArray(cached.hquestion)) {
-          commit('SET_HQUESTION', cached.hquestion);
+        if (!state.hquestion?.length) {
+          const legacyHQ = getLegacyCachedHQuestion();
+          if (Array.isArray(legacyHQ)) commit('SET_HQUESTION', legacyHQ);
         }
       }
     },
@@ -188,14 +223,19 @@ export default {
       commit('SET_HISTORY_SOURCE', 'server');
       commit('SET_HQUESTION', []);
       clearSession();
-      // Pełna kopia historii nie może zostać na współdzielonym urządzeniu.
-      clearHistoryCache().catch(() => {});
+      // Pełne dane użytkownika nie mogą zostać na współdzielonym urządzeniu.
+      clearUserCache().catch(() => {});
     },
-    async clearCategoryHistory({ dispatch }, { category }) {
+    async clearCategoryHistory({ dispatch, state }, { category }) {
       try {
         const response = await apiClient.put('/users/clear-category', { category });
-        // Po pomyślnym wyczyszczeniu na serwerze, odświeżamy tylko ogólne statystyki pytań
+        // Odśwież statystyki pytań i utrwal lokalny stan odpowiedzi (IDB).
         dispatch('questions/fetchStats', null, { root: true });
+        const userId = state.user?._id;
+        if (userId) {
+          setCachedHQuestionMarker(userId, state.hquestion.length);
+          persistHQuestion(userId, state.hquestion);
+        }
         return response.data?.success ?? true;
       } catch (e) {
         console.error('Błąd API podczas czyszczenia pytań z kategorii:', e);
@@ -211,8 +251,8 @@ export default {
         commit('SET_HISTORY_SOURCE', 'server');
         commit('SET_HQUESTION', []);
         setCachedHistory([]);
-        setCachedHQuestion([]);
-        await clearHistoryCache().catch(() => {});
+        clearCachedHQuestionMarker();
+        await clearUserCache().catch(() => {});
 
         // Wyczyść dane w pamięci sesji trwałej
         try {
@@ -252,7 +292,7 @@ export default {
           commit('SET_HISTORY_SOURCE', 'server');
           commit('SET_HQUESTION', []);
           clearSession();
-          clearHistoryCache().catch(() => {});
+          clearUserCache().catch(() => {});
           throw new Error('Sesja wygasła');
         }
         return false;
