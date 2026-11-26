@@ -1,6 +1,9 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const Question = require("../models/Question");
+const AnswerEvent = require("../models/AnswerEvent");
+const QuizSession = require("../models/QuizSession");
+const userData = require("../services/userData");
 const events = require("../utils/events");
 const { validateNewUserPayload } = require("../utils/validateUser");
 const { invalidateSessionVersion } = require("../utils/sessionVersion");
@@ -56,12 +59,8 @@ function emitUserUpdate(user) {
 // Pobierz historię użytkownika
 exports.getUserHistory = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-    if (user) {
-      res.status(200).json(user.history);
-    } else {
-      res.status(404).json({ message: "User not found" });
-    }
+    const history = await userData.getUserHistory(req.user.id);
+    res.status(200).json(history);
   } catch (err) {
     res.status(500).json({ message: "Error reading user data", error: err });
   }
@@ -95,8 +94,7 @@ exports.updateProfile = async (req, res) => {
 
     // Obsługa czyszczenia historii
     if (req.body.clearHistory) {
-      user.history = [];
-      await user.save();
+      await userData.clearHistory(user._id);
       emitUserUpdate(user);
       return res.json({ message: "Historia wyczyszczona" });
     }
@@ -151,17 +149,8 @@ exports.updateProfile = async (req, res) => {
       if (!isValidHistoryEntry(req.body.addHistory)) {
         return res.status(400).json({ message: "Invalid history entry" });
       }
-      if (!Array.isArray(user.history)) user.history = [];
-      const incoming = req.body.addHistory;
-      const alreadyStored =
-        incoming &&
-        incoming.clientId &&
-        user.history.some((entry) => entry && entry.clientId === incoming.clientId);
-
-      // Offline-queue może wysłać ten sam wpis drugi raz — pomijamy duplikat.
-      if (!alreadyStored) {
-        user.history.push(incoming);
-      }
+      // Nowe sesje trzymamy poza dokumentem użytkownika (idempotencja po clientId).
+      await userData.addHistoryEntry(user._id, req.body.addHistory);
     }
     // Dodanie ukrycia Kategori
     if (req.body.hiddenCategory) {
@@ -240,6 +229,7 @@ exports.deleteSelf = async (req, res) => {
     }
 
     await user.deleteOne();
+    await userData.deleteUserData(user._id);
     invalidateSessionVersion(user._id);
     res.json({ success: true });
   } catch (err) {
@@ -314,6 +304,7 @@ exports.deleteUser = async (req, res) => {
     }
 
     await target.deleteOne();
+    await userData.deleteUserData(target._id);
     res.json({ success: true, deletedId: String(target._id) });
   } catch (err) {
     console.error("Błąd usuwania użytkownika:", err);
@@ -359,67 +350,173 @@ exports.getUsersStats = async (req, res) => {
 
     const totalQuestions = await Question.countDocuments();
 
-    // Aktywność z ostatnich 30 dni (na podstawie wpisów historii).
-    const activityRaw = await User.aggregate([
-      { $unwind: "$history" },
-      { $match: { "history.data": { $type: "string" } } },
-      {
-        $project: {
-          day: { $substrCP: ["$history.data", 0, 10] },
-          correct: { $ifNull: ["$history.correct", 0] },
-          wrong: { $ifNull: ["$history.wrong", 0] },
-        },
-      },
-      {
-        $group: {
-          _id: "$day",
-          quizzes: { $sum: 1 },
-          correct: { $sum: "$correct" },
-          wrong: { $sum: "$wrong" },
-        },
-      },
-      { $sort: { _id: -1 } },
-      { $limit: 30 },
-    ]);
-    const activity = activityRaw
-      .filter((row) => /^\d{4}-\d{2}-\d{2}$/.test(row._id || ""))
-      .map((row) => ({
+    // Aktywność z ostatnich 30 dni — stare wpisy (User.history) + nowe sesje.
+    const [legacyActivityRaw, sessionActivityRaw, legacyCategoryRaw, sessionCategoryRaw] =
+      await Promise.all([
+        User.aggregate([
+          { $unwind: "$history" },
+          { $match: { "history.data": { $type: "string" } } },
+          {
+            $project: {
+              day: { $substrCP: ["$history.data", 0, 10] },
+              correct: { $ifNull: ["$history.correct", 0] },
+              wrong: { $ifNull: ["$history.wrong", 0] },
+            },
+          },
+          {
+            $group: {
+              _id: "$day",
+              quizzes: { $sum: 1 },
+              correct: { $sum: "$correct" },
+              wrong: { $sum: "$wrong" },
+            },
+          },
+        ]),
+        QuizSession.aggregate([
+          { $match: { data: { $type: "string" } } },
+          {
+            $project: {
+              day: { $substrCP: ["$data", 0, 10] },
+              correct: { $ifNull: ["$correct", 0] },
+              wrong: { $ifNull: ["$wrong", 0] },
+            },
+          },
+          {
+            $group: {
+              _id: "$day",
+              quizzes: { $sum: 1 },
+              correct: { $sum: "$correct" },
+              wrong: { $sum: "$wrong" },
+            },
+          },
+        ]),
+        User.aggregate([
+          { $unwind: "$history" },
+          {
+            $match: {
+              "history.category": { $type: "string", $ne: "" },
+            },
+          },
+          {
+            $group: {
+              _id: "$history.category",
+              quizzes: { $sum: 1 },
+              correct: { $sum: { $ifNull: ["$history.correct", 0] } },
+              wrong: { $sum: { $ifNull: ["$history.wrong", 0] } },
+            },
+          },
+        ]),
+        QuizSession.aggregate([
+          { $match: { category: { $type: "string", $ne: "" } } },
+          {
+            $group: {
+              _id: "$category",
+              quizzes: { $sum: 1 },
+              correct: { $sum: { $ifNull: ["$correct", 0] } },
+              wrong: { $sum: { $ifNull: ["$wrong", 0] } },
+            },
+          },
+        ]),
+      ]);
+
+    const activityMap = new Map();
+    for (const row of [...legacyActivityRaw, ...sessionActivityRaw]) {
+      if (!row || !/^\d{4}-\d{2}-\d{2}$/.test(row._id || "")) continue;
+      const current = activityMap.get(row._id) || {
         date: row._id,
-        quizzes: row.quizzes,
-        correct: row.correct,
-        wrong: row.wrong,
-      }))
+        quizzes: 0,
+        correct: 0,
+        wrong: 0,
+      };
+      current.quizzes += row.quizzes || 0;
+      current.correct += row.correct || 0;
+      current.wrong += row.wrong || 0;
+      activityMap.set(row._id, current);
+    }
+    const activity = [...activityMap.values()]
+      .sort((a, b) => (a.date < b.date ? 1 : -1))
+      .slice(0, 30)
       .reverse();
 
-    // Najaktywniej ćwiczone kategorie (top 8).
-    const categoryRaw = await User.aggregate([
-      { $unwind: "$history" },
-      {
-        $match: {
-          "history.category": { $type: "string", $ne: "" },
-        },
-      },
-      {
-        $group: {
-          _id: "$history.category",
-          quizzes: { $sum: 1 },
-          correct: { $sum: { $ifNull: ["$history.correct", 0] } },
-          wrong: { $sum: { $ifNull: ["$history.wrong", 0] } },
-        },
-      },
-      { $sort: { quizzes: -1 } },
-      { $limit: 8 },
-    ]);
-    const topCategories = categoryRaw.map((row) => {
-      const total = (row.correct || 0) + (row.wrong || 0);
-      return {
+    // Najaktywniej ćwiczone kategorie (top 8) — również z obu źródeł.
+    const categoryMap = new Map();
+    for (const row of [...legacyCategoryRaw, ...sessionCategoryRaw]) {
+      if (!row || !row._id) continue;
+      const current = categoryMap.get(row._id) || {
         name: row._id,
-        quizzes: row.quizzes,
-        correct: row.correct,
-        wrong: row.wrong,
-        accuracy: total > 0 ? Math.round((row.correct / total) * 100) : 0,
+        quizzes: 0,
+        correct: 0,
+        wrong: 0,
       };
-    });
+      current.quizzes += row.quizzes || 0;
+      current.correct += row.correct || 0;
+      current.wrong += row.wrong || 0;
+      categoryMap.set(row._id, current);
+    }
+    const topCategories = [...categoryMap.values()]
+      .sort((a, b) => b.quizzes - a.quizzes)
+      .slice(0, 8)
+      .map((row) => {
+        const total = (row.correct || 0) + (row.wrong || 0);
+        return {
+          ...row,
+          accuracy: total > 0 ? Math.round((row.correct / total) * 100) : 0,
+        };
+      });
+
+    // Liczniki odpowiedzi/sesji z nowych kolekcji.
+    const [answerCounts, sessionCounts] = await Promise.all([
+      AnswerEvent.aggregate([
+        {
+          $group: {
+            _id: "$userId",
+            answers: { $sum: 1 },
+            correct: { $sum: { $cond: ["$correct", 1, 0] } },
+          },
+        },
+      ]),
+      QuizSession.aggregate([
+        {
+          $group: {
+            _id: "$userId",
+            sessions: { $sum: 1 },
+            lastActivity: { $max: "$data" },
+          },
+        },
+      ]),
+    ]);
+
+    const answersByUser = new Map(
+      answerCounts.map((row) => [
+        String(row._id),
+        { answers: row.answers || 0, correct: row.correct || 0 },
+      ])
+    );
+    const sessionsByUser = new Map(
+      sessionCounts.map((row) => [
+        String(row._id),
+        { sessions: row.sessions || 0, lastActivity: row.lastActivity || null },
+      ])
+    );
+
+    for (const user of users) {
+      const key = String(user._id);
+      const answers = answersByUser.get(key);
+      if (answers) {
+        user.answersCount = (user.answersCount || 0) + answers.answers;
+        user.correctAnswers = (user.correctAnswers || 0) + answers.correct;
+      }
+      const sessions = sessionsByUser.get(key);
+      if (sessions) {
+        user.historyCount = (user.historyCount || 0) + sessions.sessions;
+        if (
+          sessions.lastActivity &&
+          (!user.lastActivity || sessions.lastActivity > user.lastActivity)
+        ) {
+          user.lastActivity = sessions.lastActivity;
+        }
+      }
+    }
     const totals = users.reduce(
       (acc, user) => {
         acc.users += 1;
@@ -444,9 +541,10 @@ exports.getUsersStats = async (req, res) => {
 // GET /api/users/hquestion
 exports.getHQuestion = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user.hquestion || []);
+    const exists = await User.exists({ _id: req.user.id });
+    if (!exists) return res.status(404).json({ message: "User not found" });
+    const hquestion = await userData.getUserHQuestion(req.user.id);
+    res.json(hquestion);
   } catch (err) {
     res.status(500).json({ message: "Error fetching hquestion" });
   }
@@ -469,33 +567,10 @@ exports.updateHQuestion = async (req, res) => {
       return res.status(400).json({ message: "Nieprawidłowe ID pytania" });
     }
 
-    // Atomowo: dodaj wpis tylko, jeśli nie istnieje (bez pobierania całego dokumentu).
-    const pushed = await User.updateOne(
-      { _id: req.user.id, "hquestion.id": { $ne: questionId } },
-      { $push: { hquestion: { id: questionId, correct, category } } }
-    );
+    const exists = await User.exists({ _id: req.user.id });
+    if (!exists) return res.status(404).json({ message: "User not found" });
 
-    if (!pushed.matchedCount) {
-      // Wpis już jest — jedyna dozwolona zmiana to false → true (jak dotychczas).
-      const upgraded = await User.updateOne(
-        {
-          _id: req.user.id,
-          "hquestion.id": questionId,
-          "hquestion.correct": false,
-        },
-        {
-          $set: {
-            "hquestion.$.correct": true,
-            "hquestion.$.category": category,
-          },
-        }
-      );
-
-      if (!upgraded.matchedCount) {
-        const exists = await User.exists({ _id: req.user.id });
-        if (!exists) return res.status(404).json({ message: "User not found" });
-      }
-    }
+    await userData.addAnswer(req.user.id, { id: questionId, correct, category });
 
     res.json({ message: "OK" });
   } catch (err) {
@@ -507,28 +582,16 @@ exports.updateHQuestion = async (req, res) => {
 // PUT /api/users/clear-category
 exports.clearCategoryHQuestion = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
     const { category } = req.body;
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
 
     if (!category) {
       return res.status(400).json({ message: "Brak kategorii" });
     }
 
-    // Zapisz liczbę elementów przed i po filtracji dla weryfikacji
-    const beforeCount = (user.hquestion || []).length;
-    user.hquestion = (user.hquestion || []).filter(
-      (q) => q.category !== category
-    );
-    const afterCount = user.hquestion.length;
-
-    await user.save();
+    const removed = await userData.clearCategoryAnswers(req.user.id, category);
     res.json({
       message: "Wyczyszczono pytania z tej kategorii",
-      removed: beforeCount - afterCount,
+      removed,
     });
   } catch (err) {
     console.error("Błąd czyszczenia kategorii:", err);

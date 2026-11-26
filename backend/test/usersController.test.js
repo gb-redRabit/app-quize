@@ -5,6 +5,8 @@ const bcrypt = require("bcrypt");
 // --- Stuby modeli, żeby testować kontroler bez bazy ---
 const userPath = require.resolve("../src/models/User");
 const questionPath = require.resolve("../src/models/Question");
+const answerEventPath = require.resolve("../src/models/AnswerEvent");
+const quizSessionPath = require.resolve("../src/models/QuizSession");
 const sessionVersionPath = require.resolve("../src/utils/sessionVersion");
 
 const state = {
@@ -18,6 +20,43 @@ const state = {
   updateOneCalls: [],
   updateOneResults: [],
   userExists: true,
+  legacyQuestionExists: false,
+  answerEvent: null,
+  answerEventCreateCalls: [],
+};
+
+const fakeAnswerEventModel = {
+  findOne: async () => state.answerEvent,
+  create: async (data) => {
+    state.answerEventCreateCalls.push(data);
+    return data;
+  },
+  updateOne: async () => ({ matchedCount: 1 }),
+  deleteMany: async () => ({ deletedCount: 0 }),
+  aggregate: async () => [],
+};
+
+const fakeQuizSessionModel = {
+  find: () => ({
+    sort: () => ({ lean: async () => [] }),
+  }),
+  updateOne: async () => ({ matchedCount: 1 }),
+  create: async (data) => data,
+  deleteMany: async () => ({ deletedCount: 0 }),
+  aggregate: async () => [],
+};
+
+require.cache[answerEventPath] = {
+  id: answerEventPath,
+  filename: answerEventPath,
+  loaded: true,
+  exports: fakeAnswerEventModel,
+};
+require.cache[quizSessionPath] = {
+  id: quizSessionPath,
+  filename: quizSessionPath,
+  loaded: true,
+  exports: fakeQuizSessionModel,
 };
 
 const fakeUserModel = {
@@ -52,7 +91,12 @@ const fakeUserModel = {
     state.updateOneCalls.push(args);
     return state.updateOneResults.shift() || { matchedCount: 0, modifiedCount: 0 };
   },
-  exists: async () => state.userExists,
+  exists: async (filter = {}) => {
+    if (filter && Object.prototype.hasOwnProperty.call(filter, "hquestion.id")) {
+      return state.legacyQuestionExists;
+    }
+    return state.userExists;
+  },
 };
 
 require.cache[userPath] = {
@@ -106,6 +150,9 @@ function reset() {
   state.updateOneCalls = [];
   state.updateOneResults = [];
   state.userExists = true;
+  state.legacyQuestionExists = false;
+  state.answerEvent = null;
+  state.answerEventCreateCalls = [];
 }
 
 function makeSelfUser({ password = "haslo123", rola = "user" } = {}) {
@@ -290,9 +337,8 @@ test("deleteSelf: usuwa konto przy poprawnym haśle", async () => {
   assert.equal(state.deleted, true);
 });
 
-test("updateHQuestion: dodaje wpis atomowo, gdy go nie ma", async () => {
+test("updateHQuestion: nowe pytanie trafia do answer_events", async () => {
   reset();
-  state.updateOneResults = [{ matchedCount: 1, modifiedCount: 1 }];
   const res = makeRes();
 
   await controller.updateHQuestion(
@@ -301,18 +347,19 @@ test("updateHQuestion: dodaje wpis atomowo, gdy go nie ma", async () => {
   );
 
   assert.equal(res.statusCode, 200);
-  assert.equal(state.updateOneCalls.length, 1);
-  const [filter, update] = state.updateOneCalls[0];
-  assert.deepEqual(filter["hquestion.id"], { $ne: 5 });
-  assert.deepEqual(update.$push.hquestion, { id: 5, correct: true, category: "X" });
+  assert.equal(state.answerEventCreateCalls.length, 1);
+  assert.deepEqual(state.answerEventCreateCalls[0], {
+    userId: "u1",
+    questionId: 5,
+    correct: true,
+    category: "X",
+  });
+  assert.equal(state.updateOneCalls.length, 0);
 });
 
-test("updateHQuestion: false → true aktualizuje istniejący wpis", async () => {
+test("updateHQuestion: false → true aktualizuje istniejący answer_event", async () => {
   reset();
-  state.updateOneResults = [
-    { matchedCount: 0 },
-    { matchedCount: 1, modifiedCount: 1 },
-  ];
+  state.answerEvent = { _id: "event1", correct: false, category: "X" };
   const res = makeRes();
 
   await controller.updateHQuestion(
@@ -321,8 +368,25 @@ test("updateHQuestion: false → true aktualizuje istniejący wpis", async () =>
   );
 
   assert.equal(res.statusCode, 200);
-  assert.equal(state.updateOneCalls.length, 2);
-  const [, update] = state.updateOneCalls[1];
+  assert.equal(state.answerEventCreateCalls.length, 0);
+  assert.equal(state.updateOneCalls.length, 0);
+});
+
+test("updateHQuestion: pytanie z legacy hquestion jest aktualizowane w miejscu", async () => {
+  reset();
+  state.legacyQuestionExists = true;
+  state.updateOneResults = [{ matchedCount: 1, modifiedCount: 1 }];
+  const res = makeRes();
+
+  await controller.updateHQuestion(
+    { user: { id: "u1" }, body: { id: 5, correct: true, category: "Y" } },
+    res
+  );
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(state.answerEventCreateCalls.length, 0);
+  assert.equal(state.updateOneCalls.length, 1);
+  const [, update] = state.updateOneCalls[0];
   assert.equal(update.$set["hquestion.$.correct"], true);
   assert.equal(update.$set["hquestion.$.category"], "Y");
 });
