@@ -27,6 +27,7 @@
         <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
           <span class="font-semibold text-gray-700 dark:text-gray-200">
             {{ categoryPercentComplete(cat) }}%
+            <span class="font-normal">przerobione</span>
           </span>
           <span
             class="inline-flex h-1.5 w-32 sm:w-44 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"

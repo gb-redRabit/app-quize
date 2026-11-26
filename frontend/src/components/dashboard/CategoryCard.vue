@@ -16,6 +16,7 @@
         <span
           class="indicator_A text-[11px] font-semibold px-2 py-0.5 rounded-full"
           :class="percentCompleteClass"
+          title="Procent przerobionych pytań"
         >
           {{ percentComplete }}%
         </span>
