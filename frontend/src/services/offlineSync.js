@@ -11,6 +11,12 @@ import {
 
 export const MAX_OFFLINE_IMPORT_BYTES = 15 * 1024 * 1024;
 
+/** Klucz w IndexedDB jest liczbowy — normalizujemy ID z formularzy. */
+function normalizeQuestionId(id) {
+  const numeric = Number(id);
+  return Number.isSafeInteger(numeric) ? numeric : id;
+}
+
 let flushing = null;
 let listenersReady = false;
 
@@ -85,6 +91,7 @@ export async function flushOfflineQueue() {
     let conflicts = 0;
     const importsDone = [];
     const importsFailed = [];
+    const questionEvents = [];
     while (true) {
       const [op] = getQueue();
       if (!op) break;
@@ -95,13 +102,30 @@ export async function flushOfflineQueue() {
         } else if (op.type === 'history') {
           await apiClient.silentPut('/users/update-profile', { addHistory: op.payload });
         } else if (op.type === 'question-create') {
-          await apiClient.silentPost('/questions', op.payload);
+          const response = await apiClient.silentPost('/questions', op.payload);
+          const createdId = response?.data?.ID ?? op.payload?.ID;
+          if (createdId != null) {
+            questionEvents.push({
+              type: 'create',
+              question: { ...op.payload, ID: normalizeQuestionId(createdId) },
+            });
+          }
           questionsChanged = true;
         } else if (op.type === 'question-update') {
           await apiClient.silentPut(`/questions/${op.payload.ID}`, op.payload);
+          const question = { ...op.payload };
+          delete question.expectedUpdatedAt;
+          question.ID = normalizeQuestionId(question.ID);
+          questionEvents.push({ type: 'update', question });
           questionsChanged = true;
         } else if (op.type === 'question-delete') {
           await apiClient.silentDelete(`/questions/${op.payload.ID}`);
+          if (op.payload?.ID != null) {
+            questionEvents.push({
+              type: 'delete',
+              ID: normalizeQuestionId(op.payload.ID),
+            });
+          }
           questionsChanged = true;
         } else if (op.type === 'import-excel') {
           const record = await getOfflineFile(op.payload.fileId);
@@ -158,8 +182,19 @@ export async function flushOfflineQueue() {
       // Odśwież widoki i statystyki po zsynchronizowaniu pytań.
       try {
         apiClient.clearCache();
+        // Najpierw punktowe aktualizacje cache — bez czekania na deltę.
+        for (const detail of questionEvents) {
+          window.dispatchEvent(new CustomEvent('questions-changed', { detail }));
+        }
+        // Import Excel zmienia wiele pytań naraz; pojedyncze operacje tylko
+        // domykają numer wersji (delta), nie wymuszają pełnego snapshotu.
         window.dispatchEvent(
-          new CustomEvent('questions-changed', { detail: { type: 'bulk', action: 'sync' } })
+          new CustomEvent('questions-changed', {
+            detail: {
+              type: importsDone.length > 0 ? 'bulk' : 'sync',
+              action: 'sync',
+            },
+          })
         );
       } catch (e) {
         // ignoruj

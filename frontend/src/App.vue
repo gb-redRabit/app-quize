@@ -25,7 +25,14 @@
           Tryb offline
           <template v-if="pendingChanges > 0">
             · {{ pendingChanges }}
-            {{ pendingChanges === 1 ? 'zmiana czeka' : 'zmiany czekają' }}
+            {{
+              pluralizePl(
+                pendingChanges,
+                'zmiana czeka',
+                'zmiany czekają',
+                'zmian czeka'
+              )
+            }}
           </template>
         </span>
         <button
@@ -203,6 +210,7 @@ import { useSkeletonConfig } from '@/composables/useSkeletonConfig.js';
 import { useGlobalLoader } from '@/composables/useGlobalLoader.js';
 import { updateAvailable, applyUpdate, dismissUpdate } from '@/services/pwa';
 import { useSidebar } from '@/composables/useSidebar';
+import { pluralizePl } from '@/utils/pluralize';
 import { getToken, setToken, setUser, getCachedUserData } from '@/utils/authStorage';
 
 const store = useStore();
@@ -494,11 +502,13 @@ function handleOffline() {
 function handleOfflineConflicts(event) {
   const count = Number(event.detail?.count) || 0;
   if (count > 0) {
-    showAlert(
-      'warning',
-      `${count} ${count === 1 ? 'zmiana nie została' : 'zmiany nie zostały'} wysłane — pytania zmieniono w innym miejscu.`,
-      8000
+    const message = pluralizePl(
+      count,
+      'zmiana nie została wysłana',
+      'zmiany nie zostały wysłane',
+      'zmian nie zostało wysłanych'
     );
+    showAlert('warning', `${count} ${message} — pytania zmieniono w innym miejscu.`, 8000);
   }
 }
 

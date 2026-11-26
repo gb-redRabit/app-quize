@@ -11,7 +11,10 @@ const eventsPath = require.resolve("../src/utils/events");
 const state = {
   existing: null,
   updated: null,
+  deletedQuestion: null,
   updateCalls: 0,
+  statsUpdates: 0,
+  versionBumps: 0,
   emitted: null,
   changeLog: [],
 };
@@ -22,6 +25,7 @@ const QuestionStub = {
     state.updateCalls += 1;
     return state.updated;
   },
+  findOneAndDelete: async () => state.deletedQuestion,
   countDocuments: async () => 1,
   aggregate: async () => [],
 };
@@ -36,7 +40,12 @@ require.cache[statsModelPath] = {
   id: statsModelPath,
   filename: statsModelPath,
   loaded: true,
-  exports: { findOneAndUpdate: async () => ({}) },
+  exports: {
+    findOneAndUpdate: async () => {
+      state.statsUpdates += 1;
+      return {};
+    },
+  },
 };
 require.cache[questionChangePath] = {
   id: questionChangePath,
@@ -54,7 +63,10 @@ require.cache[versionPath] = {
   filename: versionPath,
   loaded: true,
   exports: {
-    bumpQuestionsVersion: async () => ({ version: 1 }),
+    bumpQuestionsVersion: async () => {
+      state.versionBumps += 1;
+      return { version: 1 };
+    },
     getQuestionsVersion: async () => ({ version: 1 }),
   },
 };
@@ -96,7 +108,10 @@ function validBody(overrides = {}) {
 function reset() {
   state.existing = null;
   state.updated = null;
+  state.deletedQuestion = null;
   state.updateCalls = 0;
+  state.statsUpdates = 0;
+  state.versionBumps = 0;
   state.emitted = null;
   state.changeLog = [];
 }
@@ -155,6 +170,34 @@ test("updateQuestion: brak expectedUpdatedAt nie blokuje zapisu", async () => {
 
   assert.equal(res.statusCode, 200);
   assert.equal(state.updateCalls, 1);
+});
+
+test("deleteQuestion: brak pytania nie rusza statystyk ani wersji", async () => {
+  reset();
+  state.deletedQuestion = null;
+  const res = makeRes();
+
+  await controller.deleteQuestion({ params: { id: "999" } }, res);
+
+  assert.equal(res.statusCode, 404);
+  assert.equal(state.statsUpdates, 0);
+  assert.equal(state.versionBumps, 0);
+  assert.deepEqual(state.changeLog, []);
+  assert.equal(state.emitted, null);
+});
+
+test("deleteQuestion: usuwa pytanie, przelicza statystyki i emituje zmianę", async () => {
+  reset();
+  state.deletedQuestion = { ID: 7 };
+  const res = makeRes();
+
+  await controller.deleteQuestion({ params: { id: "7" } }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(state.statsUpdates, 1);
+  assert.equal(state.versionBumps, 1);
+  assert.deepEqual(state.changeLog, [{ version: 1, action: "delete", ID: 7 }]);
+  assert.equal(state.emitted?.name, "questions-changed");
 });
 
 test("updateQuestion: 404 dla nieistniejącego ID", async () => {

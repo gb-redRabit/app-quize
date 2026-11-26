@@ -193,6 +193,13 @@ export async function handleQuestionsEvent(detail = {}) {
       return;
     }
 
+    if (type === 'sync') {
+      // Po wysłaniu kolejki offline cache jest już łatany punktowo — tutaj
+      // tylko domykamy numer wersji (delta), bez pełnego snapshotu.
+      ensureQuestionsCache({ force: true });
+      return;
+    }
+
     if (type === 'bulk') {
       // Import/czyszczenie/usunięcie kategorii — pełne odświeżenie w tle.
       clearTimeout(bulkSyncTimer);

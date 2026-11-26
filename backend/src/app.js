@@ -8,7 +8,6 @@ if (!process.env.JWT_SECRET || !process.env.MONGO_URI) {
 }
 
 const express = require("express");
-const bodyParser = require("body-parser");
 const compression = require("compression"); // <-- 1. Dodaj import
 const authRoutes = require("./routes/auth");
 const questionsRoutes = require("./routes/questions");
@@ -96,8 +95,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Publiczny health check (używany m.in. do keep-alive na Render Free)
 app.get("/api/health", (req, res) => {

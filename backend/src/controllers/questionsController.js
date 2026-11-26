@@ -222,13 +222,13 @@ exports.deleteQuestion = async (req, res) => {
       ID: Number(req.params.id),
     });
 
-    await updateStats();
-
     if (!deleted) {
       return res
         .status(404)
         .json({ message: "Nie znaleziono pytania do usunięcia" });
     }
+
+    await updateStats();
 
     const { version } = await bumpQuestionsVersion();
     await logQuestionChange(version, "delete", Number(req.params.id));
