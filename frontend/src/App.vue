@@ -540,6 +540,11 @@ async function refreshData() {
   ]);
 }
 
+// Po opróżnieniu kolejki offline serwer ma już nasze dane — dociągamy świeży stan.
+function handleUserDataSynced() {
+  refreshData();
+}
+
 // Weryfikacja sesji po focusie (maks. raz na minutę)
 let lastSessionCheck = 0;
 async function verifySession() {
@@ -637,6 +642,7 @@ onMounted(() => {
   window.addEventListener('offline-queue-changed', refreshPendingChanges);
   window.addEventListener('offline-conflicts', handleOfflineConflicts);
   window.addEventListener('offline-import-finished', handleOfflineImportFinished);
+  window.addEventListener('user-data-synced', handleUserDataSynced);
 
   window.addEventListener('online', handleOnline);
   window.addEventListener('offline', handleOffline);
@@ -669,6 +675,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('offline-queue-changed', refreshPendingChanges);
   window.removeEventListener('offline-conflicts', handleOfflineConflicts);
   window.removeEventListener('offline-import-finished', handleOfflineImportFinished);
+  window.removeEventListener('user-data-synced', handleUserDataSynced);
   window.removeEventListener('online', handleOnline);
   window.removeEventListener('offline', handleOffline);
   window.removeEventListener('focus', verifySession);

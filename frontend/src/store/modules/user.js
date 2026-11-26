@@ -34,6 +34,15 @@ function persistHQuestion(userId, answers) {
   });
 }
 
+/** Vuex przechowuje reaktywne proxy — IndexedDB wymaga zwykłych obiektów. */
+function toPlain(value) {
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch (e) {
+    return value;
+  }
+}
+
 export default {
   namespaced: true,
   state: {
@@ -162,6 +171,30 @@ export default {
       commit('SET_HISTORY_SOURCE', 'server');
       setCachedHistory(history);
       persistHistory(getStoredUser()?._id, history);
+    },
+    /** Zapisuje bieżący stan odpowiedzi do IndexedDB (tryb offline). */
+    async persistHQuestionLocally({ state }) {
+      const userId = state.user?._id;
+      if (!userId) return false;
+      try {
+        setCachedHQuestionMarker(userId, state.hquestion.length);
+        await replaceHQuestionCache(userId, toPlain(state.hquestion));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    /** Zapisuje bieżącą historię (z listami odpowiedzi) do IndexedDB. */
+    async persistHistoryLocally({ state }) {
+      const userId = state.user?._id;
+      if (!userId) return false;
+      try {
+        setCachedHistory(state.history);
+        await replaceHistoryCache(userId, toPlain(state.history));
+        return true;
+      } catch (e) {
+        return false;
+      }
     },
     /** Sam profil — używany przy starcie, gdy nie ma lokalnej kopii danych. */
     async fetchUserProfile({ commit }) {

@@ -9,7 +9,16 @@ vi.mock('@/api', () => ({
   },
 }));
 
+vi.mock('@/utils/userCache', () => ({
+  getHistoryCache: vi.fn(async () => []),
+  replaceHistoryCache: vi.fn(async () => {}),
+  getHQuestionCache: vi.fn(async () => []),
+  replaceHQuestionCache: vi.fn(async () => {}),
+  clearUserCache: vi.fn(async () => {}),
+}));
+
 import apiClient from '@/api';
+import * as userCache from '@/utils/userCache';
 import userStore from './user';
 
 function createContext(overrides = {}) {
@@ -62,6 +71,57 @@ describe('user store — dane użytkownika', () => {
       userId: 'u1',
       count: 1,
     });
+    expect(userCache.replaceHQuestionCache).toHaveBeenCalledWith('u1', [{ id: 1 }]);
+    expect(userCache.replaceHistoryCache).toHaveBeenCalledWith('u1', [
+      { clientId: 'a' },
+    ]);
+  });
+
+  it('persistHQuestionLocally zapisuje pełne odpowiedzi i znacznik', async () => {
+    const ctx = createContext();
+    ctx.state.user = { _id: 'u1' };
+    ctx.state.hquestion = [{ id: 5, correct: false, category: 'X' }];
+
+    const ok = await userStore.actions.persistHQuestionLocally(ctx);
+
+    expect(ok).toBe(true);
+    expect(userCache.replaceHQuestionCache).toHaveBeenCalledWith('u1', [
+      { id: 5, correct: false, category: 'X' },
+    ]);
+    expect(JSON.parse(localStorage.getItem('cached-hquestion-user'))).toEqual({
+      userId: 'u1',
+      count: 1,
+    });
+  });
+
+  it('persistHistoryLocally zapisuje pełną historię i podsumowania', async () => {
+    const ctx = createContext();
+    ctx.state.user = { _id: 'u1' };
+    ctx.state.history = [
+      { clientId: 'c1', type: 'quiz', list: [{ id_questions: 1 }], questionTimes: [2] },
+    ];
+
+    const ok = await userStore.actions.persistHistoryLocally(ctx);
+
+    expect(ok).toBe(true);
+    expect(userCache.replaceHistoryCache).toHaveBeenCalledWith('u1', [
+      { clientId: 'c1', type: 'quiz', list: [{ id_questions: 1 }], questionTimes: [2] },
+    ]);
+    // localStorage dostaje tylko podsumowanie.
+    expect(JSON.parse(localStorage.getItem('cached-history'))).toEqual([
+      { clientId: 'c1', type: 'quiz' },
+    ]);
+  });
+
+  it('persist actions nie zapisują bez zalogowanego użytkownika', async () => {
+    const ctx = createContext();
+    ctx.state.hquestion = [{ id: 1 }];
+    ctx.state.history = [{ clientId: 'c1' }];
+
+    expect(await userStore.actions.persistHQuestionLocally(ctx)).toBe(false);
+    expect(await userStore.actions.persistHistoryLocally(ctx)).toBe(false);
+    expect(userCache.replaceHQuestionCache).not.toHaveBeenCalled();
+    expect(userCache.replaceHistoryCache).not.toHaveBeenCalled();
   });
 
   it('withProfile:false pomija /users/me (profil pochodzi z logowania)', async () => {

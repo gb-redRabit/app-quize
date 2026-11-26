@@ -88,6 +88,7 @@ export async function flushOfflineQueue() {
 
     let sent = 0;
     let questionsChanged = false;
+    let userDataChanged = false;
     let conflicts = 0;
     const importsDone = [];
     const importsFailed = [];
@@ -99,8 +100,10 @@ export async function flushOfflineQueue() {
       try {
         if (op.type === 'hquestion') {
           await apiClient.silentPost('/users/hquestion', op.payload);
+          userDataChanged = true;
         } else if (op.type === 'history') {
           await apiClient.silentPut('/users/update-profile', { addHistory: op.payload });
+          userDataChanged = true;
         } else if (op.type === 'question-create') {
           const response = await apiClient.silentPost('/questions', op.payload);
           const createdId = response?.data?.ID ?? op.payload?.ID;
@@ -195,6 +198,18 @@ export async function flushOfflineQueue() {
               action: 'sync',
             },
           })
+        );
+      } catch (e) {
+        // ignoruj
+      }
+    }
+
+    if (userDataChanged) {
+      // Serwer ma już odpowiedzi/wynik — odśwież stan, żeby UI i cache były spójne.
+      try {
+        apiClient.clearCache();
+        window.dispatchEvent(
+          new CustomEvent('user-data-synced', { detail: { sent } })
         );
       } catch (e) {
         // ignoruj

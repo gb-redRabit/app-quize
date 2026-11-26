@@ -660,6 +660,32 @@ test.describe('Quiz App E2E', () => {
     );
     expect(queueWhileOffline).toBeGreaterThan(0);
 
+    // Postęp i wynik muszą być od razu w IndexedDB (reload offline nic nie gubi).
+    const readCache = (store) =>
+      page.evaluate(
+        (storeName) =>
+          new Promise((resolve) => {
+            const open = indexedDB.open('quiz-user-cache');
+            open.onerror = () => resolve([]);
+            open.onsuccess = () => {
+              const get = open.result
+                .transaction(storeName, 'readonly')
+                .objectStore(storeName)
+                .get('all');
+              get.onerror = () => resolve([]);
+              get.onsuccess = () => resolve(get.result?.value || []);
+            };
+          }),
+        store
+      );
+
+    await expect
+      .poll(async () => (await readCache('hquestion')).length, { timeout: 10000 })
+      .toBeGreaterThan(0);
+    await expect
+      .poll(async () => (await readCache('history')).length, { timeout: 10000 })
+      .toBeGreaterThan(0);
+
     // Przywracamy API i sieć, żeby kolejka mogła się opróżnić.
     sentAnswers.length = 0;
     await mockApi(page);

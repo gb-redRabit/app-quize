@@ -706,6 +706,8 @@ const selectAnswer = async (index, selectedKey) => {
         // Offline: zapisz w kolejce i doślij, gdy wróci sieć.
         if (!err?.response) {
           queueHquestion({ id, correct: isCorrect, category: q.category });
+          // Utrwal też lokalnie — reload offline zachowa postęp.
+          store.dispatch('user/persistHQuestionLocally').catch(() => {});
         }
       });
 
@@ -911,6 +913,8 @@ const saveUserHistory = async () => {
     // 1. Optymistyczna aktualizacja lokalnie
     const updatedHistory = [...store.state.user.history, historyItem];
     store.commit('user/SET_USER_HISTORY', updatedHistory);
+    // Utrwal od razu — reload bez sieci nie może zgubić wyniku.
+    store.dispatch('user/persistHistoryLocally').catch(() => {});
 
     window.dispatchEvent(
       new CustomEvent('quiz-completed', {
