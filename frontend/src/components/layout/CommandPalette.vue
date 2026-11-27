@@ -84,6 +84,7 @@ const categories = computed(() => {
 });
 
 const isAdmin = computed(() => store.getters['user/getUser']?.rola === 'admin');
+const isDarkTheme = computed(() => store.getters['ui/isDarkTheme']);
 
 const actions = computed(() => {
   const list = [
@@ -93,8 +94,7 @@ const actions = computed(() => {
       hint: 'Wygląd',
       keywords: 'motyw ciemny jasny theme',
       run: () => {
-        const next = store.state.ui?.theme === 'dark' ? 'light' : 'dark';
-        store.dispatch('ui/setTheme', next);
+        store.dispatch('ui/setTheme', isDarkTheme.value ? 'light' : 'dark');
       },
     },
     {
@@ -126,7 +126,16 @@ const actions = computed(() => {
       label: 'Dodaj pytanie',
       hint: 'Panel admina',
       keywords: 'nowe pytanie dodaj admin',
-      run: () => router.push({ path: '/admin' }),
+      run: async () => {
+        try {
+          sessionStorage.setItem('admin-open-add-question', '1');
+        } catch (e) {
+          // tryb prywatny — event poniżej wystarczy, gdy widok jest już otwarty
+        }
+        await router.push({ name: 'AdminView' });
+        await nextTick();
+        window.dispatchEvent(new CustomEvent('admin-open-add-question'));
+      },
     });
   }
 

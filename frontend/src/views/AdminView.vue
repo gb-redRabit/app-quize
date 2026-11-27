@@ -9,7 +9,7 @@
     <div class="lg:flex lg:items-start lg:gap-6">
       <!-- Zakładki -->
       <div
-        class="surface mb-5 flex gap-1 overflow-x-auto p-1 lg:mb-0 lg:w-56 lg:shrink-0 lg:flex-col lg:sticky lg:top-20 xl:top-6"
+        class="surface mb-5 flex gap-1 overflow-x-auto p-1 lg:mb-0 lg:w-56 lg:shrink-0 lg:flex-col lg:sticky lg:top-6"
       >
         <BaseButton
           v-for="tab in tabs"
@@ -153,6 +153,16 @@ watch(questionsTabRef, (component) => {
   }
 });
 
+function handleOpenAddFromCommandBar() {
+  if (!isAdmin.value) return;
+  try {
+    sessionStorage.removeItem('admin-open-add-question');
+  } catch (e) {
+    // ignore
+  }
+  requestAddQuestion();
+}
+
 function handleAdminKeydown(event) {
   if (!isAdmin.value) return;
   if (event.ctrlKey || event.metaKey || event.altKey) return;
@@ -177,10 +187,20 @@ onMounted(() => {
     return;
   }
   window.addEventListener('keydown', handleAdminKeydown);
+  window.addEventListener('admin-open-add-question', handleOpenAddFromCommandBar);
+  try {
+    if (sessionStorage.getItem('admin-open-add-question') === '1') {
+      sessionStorage.removeItem('admin-open-add-question');
+      requestAddQuestion();
+    }
+  } catch (e) {
+    // ignore
+  }
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleAdminKeydown);
+  window.removeEventListener('admin-open-add-question', handleOpenAddFromCommandBar);
 });
 
 </script>

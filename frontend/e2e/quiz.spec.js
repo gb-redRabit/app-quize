@@ -298,6 +298,40 @@ test.describe('Quiz App E2E', () => {
     await expect(page.getByRole('dialog')).not.toBeVisible();
   });
 
+  test('command bar: przełącza motyw z trybu system na przeciwny', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await login(page);
+
+    // Logowanie ustawia motyw konta; testujemy zapisany tryb system.
+    await page.evaluate(() => localStorage.setItem('theme', 'system'));
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.getByRole('heading', { name: /Cześć/ }).waitFor({ state: 'visible' });
+
+    await expect(page.locator('html')).toHaveClass(/dark/);
+    await page.keyboard.press('Control+k');
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    const input = dialog.getByRole('combobox');
+    await expect(input).toBeFocused();
+    await input.press('Enter');
+
+    await expect(page.locator('html')).not.toHaveClass(/dark/);
+    expect(await page.evaluate(() => localStorage.getItem('theme'))).toBe('light');
+  });
+
+  test('command bar: Dodaj pytanie otwiera formularz w adminie', async ({ page }) => {
+    await login(page);
+    await page.keyboard.press('Control+k');
+
+    const input = page.getByRole('dialog').getByRole('combobox');
+    await input.fill('dodaj');
+    await input.press('Enter');
+
+    await expect(page).toHaveURL(/\/admin$/);
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await expect(page.locator('#question-text')).toBeFocused();
+  });
+
   test('sidebar: przy 1024 px startuje zwinięty i daje się rozwinąć', async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 768 });
     await login(page);
