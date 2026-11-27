@@ -2,7 +2,10 @@
   <div
     id="app"
     class="flex min-h-screen flex-col items-center justify-start text-[var(--text-primary)]"
-    style="background-color: var(--bg-canvas)"
+    :style="{
+      backgroundColor: 'var(--bg-canvas)',
+      '--sidebar-width': showAppNavigation ? (sidebarCollapsed ? '76px' : '248px') : '0px',
+    }"
     :data-theme="currentTheme"
   >
     <BaseLoader v-if="!isAuthChecked" />

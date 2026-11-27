@@ -256,6 +256,22 @@ test.describe('Quiz App E2E', () => {
     }
   });
 
+  test('command bar: górny pasek pojawia się po najechaniu na krawędź', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+
+    const searchButton = page.getByRole('button', { name: /Szukaj kategorii/ }).first();
+    await expect(searchButton).not.toBeInViewport();
+
+    await page.mouse.move(800, 3);
+    await expect(searchButton).toBeInViewport();
+
+    await searchButton.click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).not.toBeVisible();
+  });
+
   test('sidebar: przy 1024 px startuje zwinięty i daje się rozwinąć', async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 768 });
     await login(page);

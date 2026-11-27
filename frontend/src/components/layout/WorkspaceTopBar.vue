@@ -1,6 +1,14 @@
 <template>
-  <header class="sticky top-0 z-20 hidden w-full px-4 pt-4 lg:block lg:px-8">
-    <div class="bento-glass flex items-center gap-2 px-3 py-2">
+  <header
+    class="group pointer-events-none fixed right-0 top-0 z-20 hidden lg:block"
+    style="left: var(--sidebar-width, 248px)"
+  >
+    <!-- Strefa hover przy górnej krawędzi obszaru roboczego -->
+    <div class="pointer-events-auto h-3 w-full" aria-hidden="true"></div>
+
+    <div
+      class="bento-glass pointer-events-auto mx-4 mt-1 flex -translate-y-[160%] items-center gap-2 px-3 py-2 opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 focus-within:translate-y-0 focus-within:opacity-100 lg:mx-8"
+    >
       <button
         type="button"
         class="flex min-w-0 flex-1 items-center gap-2 rounded-xl px-2 py-1.5 text-left text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/5"
