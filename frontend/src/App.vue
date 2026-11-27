@@ -15,7 +15,6 @@
       </a>
       <AppSidebar v-if="showAppNavigation" />
       <Navbar v-if="showAppNavigation" />
-      <WorkspaceTopBar v-if="showAppNavigation" />
       <div
         v-if="!isOnline && !offlineBannerDismissed"
         class="fixed left-1/2 top-[4.75rem] z-50 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 rounded-full border border-gray-700/60 bg-gray-900/95 px-3 py-1.5 text-xs text-gray-100 shadow-lg backdrop-blur lg:left-auto lg:right-6 lg:top-auto lg:bottom-6 lg:translate-x-0"
@@ -64,6 +63,7 @@
             : ''
         "
       >
+        <WorkspaceTopBar v-if="showAppNavigation" />
         <main
           id="main"
           tabindex="-1"
