@@ -675,6 +675,19 @@ test.describe('Quiz App E2E', () => {
     await expect(dialog).not.toBeVisible();
   });
 
+  test('admin: skrót N otwiera formularz także z innej zakładki', async ({ page }) => {
+    await login(page);
+    await page.goto('/admin');
+    await expect(page.getByRole('heading', { name: 'Panel administratora' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Użytkownicy', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Zarejestrowani użytkownicy' })).toBeVisible();
+
+    await page.keyboard.press('n');
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await expect(page.locator('#question-text')).toBeFocused();
+  });
+
   test('admin: modal dodawania pytania ma focus trap i Escape', async ({ page }) => {
     await login(page);
     await page.goto('/admin');
