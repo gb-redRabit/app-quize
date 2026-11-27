@@ -11,7 +11,7 @@
       class="flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-[10px] font-medium transition-colors"
       :style="
         isActive(item)
-          ? 'background-color: var(--accent-soft); color: var(--accent)'
+          ? 'background-color: var(--accent-soft); color: var(--accent-text)'
           : 'color: var(--text-muted)'
       "
       :aria-current="isActive(item) ? 'page' : undefined"

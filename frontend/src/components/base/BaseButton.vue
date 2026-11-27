@@ -42,22 +42,22 @@
       // Ghost
       variant === 'ghost' ? 'bg-transparent shadow-none' : '',
       variant === 'ghost' && color === 'blue'
-        ? 'text-blue-700 hover:bg-blue-50 dark:hover:bg-gray-800'
+        ? 'text-blue-700 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-gray-800'
         : '',
       variant === 'ghost' && color === 'green'
-        ? 'text-green-800 hover:bg-green-50 dark:hover:bg-gray-800'
+        ? 'text-green-800 hover:bg-green-50 dark:text-green-300 dark:hover:bg-gray-800'
         : '',
       variant === 'ghost' && color === 'red'
-        ? 'text-red-700 hover:bg-red-50 dark:hover:bg-gray-800'
+        ? 'text-red-700 hover:bg-red-50 dark:text-red-300 dark:hover:bg-gray-800'
         : '',
       variant === 'ghost' && color === 'yellow'
-        ? 'text-yellow-800 hover:bg-yellow-50 dark:hover:bg-gray-800'
+        ? 'text-yellow-800 hover:bg-yellow-50 dark:text-yellow-200 dark:hover:bg-gray-800'
         : '',
       variant === 'ghost' && color === 'gray'
-        ? 'text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
+        ? 'text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800'
         : '',
       variant === 'ghost' && color === 'purple'
-        ? 'text-purple-800 hover:bg-purple-50 dark:hover:bg-gray-800'
+        ? 'text-purple-800 hover:bg-purple-50 dark:text-purple-300 dark:hover:bg-gray-800'
         : '',
       // Rozmiary
       size === 'xs' ? 'h-9 px-3 text-xs' : '',

@@ -34,7 +34,7 @@
           role="option"
           :aria-selected="index === activeIndex"
           class="cursor-pointer rounded-xl px-3 py-2.5 transition-colors"
-          :style="index === activeIndex ? 'background-color: var(--accent-soft); color: var(--accent)' : ''"
+          :style="index === activeIndex ? 'background-color: var(--accent-soft); color: var(--accent-text)' : ''"
           @mouseenter="activeIndex = index"
           @click="choose(item, $event)"
         >

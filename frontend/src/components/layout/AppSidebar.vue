@@ -67,7 +67,7 @@
           ]"
           :style="
             isActive(item)
-              ? 'background-color: var(--accent-soft); color: var(--accent)'
+              ? 'background-color: var(--accent-soft); color: var(--accent-text)'
               : 'color: var(--text-muted)'
           "
           :title="collapsed ? item.label : undefined"

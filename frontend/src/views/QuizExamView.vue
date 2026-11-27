@@ -101,12 +101,12 @@
           <button
             type="button"
             class="hidden h-10 shrink-0 items-center gap-2 rounded-xl border border-gray-200 px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800 lg:inline-flex"
-            aria-label="Pokaż siatkę pytań"
             @click="showQuestionSheet = true"
           >
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h6v6H4zm10 0h6v6h-6zM4 15h6v6H4zm10 0h6v6h-6z" />
             </svg>
+            <span class="sr-only">Pokaż siatkę pytań</span>
             <span class="font-data">{{ answeredCount }}/{{ questions.length }}</span>
           </button>
         </div>
@@ -285,9 +285,9 @@
         <button
           v-if="mode === 'quiz'"
           class="h-12 px-3 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-xs font-medium"
-          aria-label="Pokaż listę pytań"
           @click="showQuestionSheet = true"
         >
+          <span class="sr-only">Pokaż listę pytań</span>
           Pytania
           <span class="block text-[10px] text-gray-500 dark:text-gray-400">
             {{ currentQuestionIndex + 1 }}/{{ questions.length }}

@@ -534,7 +534,7 @@ test.describe('Quiz App E2E', () => {
     await expect(
       page.getByRole('heading', { name: /E2E: stolica Polski|E2E: 2 \+ 2/ })
     ).toBeVisible();
-    await page.getByRole('button', { name: 'Pokaż siatkę pytań' }).click();
+    await page.getByRole('button', { name: /Pokaż siatkę pytań/ }).click();
     await expect(page.getByRole('heading', { name: 'Pytania' })).toBeVisible();
 
     await page.getByRole('button', { name: /Pytanie 2.*bez odpowiedzi/ }).click();
@@ -1304,6 +1304,65 @@ test.describe('Quiz App E2E', () => {
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();
     expect(serious(userResults.violations)).toEqual([]);
+  });
+
+  test('kluczowe widoki bez poważnych naruszeń WCAG (light/dark)', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+
+    const serious = (violations) =>
+      violations.filter((violation) => ['serious', 'critical'].includes(violation.impact));
+
+    const scan = async (label) => {
+      await page.waitForTimeout(400);
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze();
+      const found = serious(results.violations);
+      expect(
+        found,
+        `${label}: ${JSON.stringify(found.map((violation) => violation.id))}`
+      ).toEqual([]);
+    };
+
+    await login(page);
+
+    for (const theme of ['light', 'dark']) {
+      // Wracamy na pulpit — reload na /quiz zostawiłby nas w trybie focus.
+      await page.goto('/');
+      await page.getByRole('heading', { name: /Cześć/ }).waitFor({
+        state: 'visible',
+        timeout: 30000,
+      });
+      await page.evaluate((value) => localStorage.setItem('theme', value), theme);
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.getByRole('heading', { name: /Cześć/ }).waitFor({
+        state: 'visible',
+        timeout: 30000,
+      });
+      await scan(`home-${theme}`);
+
+      await page.goto('/history');
+      await page.waitForTimeout(600);
+      await scan(`history-${theme}`);
+
+      await page.goto('/questions');
+      await page.waitForTimeout(600);
+      await scan(`questions-${theme}`);
+
+      await page.goto('/user');
+      await page.waitForTimeout(600);
+      await scan(`user-${theme}`);
+
+      await page.goto('/admin');
+      await page.waitForTimeout(800);
+      await scan(`admin-${theme}`);
+
+      await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=a11y');
+      await expect(
+        page.getByRole('heading', { name: /E2E: stolica Polski|E2E: 2 \+ 2/ })
+      ).toBeVisible();
+      await scan(`quiz-${theme}`);
+    }
   });
 });
 
