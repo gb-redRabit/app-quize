@@ -1,5 +1,5 @@
 <template>
-  <header class="sticky top-0 z-20 hidden px-4 pt-4 lg:block lg:px-8">
+  <header class="sticky top-0 z-20 hidden w-full px-4 pt-4 lg:block lg:px-8">
     <div class="bento-glass flex items-center gap-2 px-3 py-2">
       <button
         type="button"

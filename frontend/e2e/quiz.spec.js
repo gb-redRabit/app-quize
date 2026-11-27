@@ -501,6 +501,23 @@ test.describe('Quiz App E2E', () => {
     expect(hquestionGets.length).toBeLessThanOrEqual(1);
   });
 
+  test('quiz: siatka pytań otwiera drawer i przeskakuje do wybranego pytania', async ({ page }) => {
+    await login(page);
+    await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=drawer');
+
+    await expect(
+      page.getByRole('heading', { name: /E2E: stolica Polski|E2E: 2 \+ 2/ })
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Pokaż siatkę pytań' }).click();
+    await expect(page.getByRole('heading', { name: 'Pytania' })).toBeVisible();
+
+    await page.getByRole('button', { name: /Pytanie 2.*bez odpowiedzi/ }).click();
+    await expect(page.getByRole('heading', { name: 'Pytania' })).not.toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /E2E: stolica Polski|E2E: 2 \+ 2/ })
+    ).toBeVisible();
+  });
+
   test('podsumowanie: „Wróć do strony głównej” prowadzi do pulpitu', async ({ page }) => {
     await login(page);
     await page.goto('/quiz?length=2&categories=E2E&ids=1,2&r=e2e-home');

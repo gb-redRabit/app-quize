@@ -98,6 +98,17 @@
               class="flex-grow sm:w-48"
             />
           </div>
+          <button
+            type="button"
+            class="hidden h-10 shrink-0 items-center gap-2 rounded-xl border border-gray-200 px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800 lg:inline-flex"
+            aria-label="Pokaż siatkę pytań"
+            @click="showQuestionSheet = true"
+          >
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h6v6H4zm10 0h6v6h-6zM4 15h6v6H4zm10 0h6v6h-6z" />
+            </svg>
+            <span class="font-data">{{ answeredCount }}/{{ questions.length }}</span>
+          </button>
         </div>
         <!-- Dodaj do nagłówka quizu (np. pod ProgressBar) -->
         <div v-if="mode === 'quiz'" class="flex items-center gap-4 mb-2">
@@ -320,14 +331,14 @@
       </div>
     </div>
 
-    <!-- Arkusz nawigacji pytaniami (mobile) -->
-    <div v-if="showQuestionSheet" class="fixed inset-0 z-40 lg:hidden">
+    <!-- Siatka nawigacji pytaniami: bottom sheet (mobile) / prawy drawer (desktop) -->
+    <div v-if="showQuestionSheet" class="fixed inset-0 z-50">
       <div
         class="absolute inset-0 bg-gray-900/50"
         @click="showQuestionSheet = false"
       ></div>
       <div
-        class="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-2xl p-4 max-h-[70vh] overflow-y-auto"
+        class="absolute bottom-0 left-0 right-0 max-h-[70vh] overflow-y-auto rounded-t-2xl bg-white p-4 dark:bg-gray-900 lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-full lg:max-h-none lg:w-96 lg:rounded-l-2xl lg:rounded-tr-none"
         style="padding-bottom: calc(1rem + env(safe-area-inset-bottom))"
       >
         <div class="flex items-center justify-between mb-3">
