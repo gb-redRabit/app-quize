@@ -657,6 +657,24 @@ test.describe('Quiz App E2E', () => {
     await expect(dialog).not.toBeVisible();
   });
 
+  test('mobile: BaseModal otwiera się jako bottom sheet', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await login(page);
+    await page.goto('/questions');
+
+    const firstRow = page.locator('[data-question-id]').first();
+    await expect(firstRow).toBeVisible();
+    await firstRow.click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await page.waitForTimeout(350);
+    const box = await dialog.boundingBox();
+    expect(box).toBeTruthy();
+    expect(Math.abs(box.y + box.height - 844)).toBeLessThan(3);
+    expect(box.width).toBeGreaterThan(350);
+  });
+
   test('mobile: kategoria otwiera szczegóły pytania w modalu', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await login(page);

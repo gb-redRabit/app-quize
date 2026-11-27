@@ -2,7 +2,7 @@
   <Transition name="modal-fade">
     <div
       v-if="show"
-      class="fixed inset-0 bg-gray-950/60 backdrop-blur-sm transition-opacity flex items-center justify-center z-50 p-4 sm:p-6"
+      class="fixed inset-0 z-50 flex items-end justify-center bg-gray-950/60 p-0 backdrop-blur-sm transition-opacity sm:items-center sm:p-6"
       role="presentation"
       @click.self="$emit('close')"
     >
@@ -12,8 +12,8 @@
         aria-modal="true"
         :aria-labelledby="$slots.header ? 'modal-title' : undefined"
         tabindex="-1"
-        class="surface relative shadow-2xl transform transition-all sm:my-8 w-full flex flex-col outline-hidden"
-        :style="{ maxHeight: '90vh', maxWidth }"
+        class="surface modal-panel relative flex w-full transform flex-col shadow-2xl outline-hidden transition-all sm:my-8"
+        :style="{ maxWidth }"
       >
         <div
           class="flex justify-between items-center px-5 py-4 border-b border-gray-200 dark:border-gray-800"
@@ -58,7 +58,7 @@
 
         <div
           v-if="$slots.footer"
-          class="bg-gray-50 dark:bg-gray-800/60 px-5 py-3 sm:flex sm:flex-row-reverse gap-3 rounded-b-2xl border-t border-gray-200 dark:border-gray-800"
+          class="modal-footer bg-gray-50 dark:bg-gray-800/60 px-5 py-3 sm:flex sm:flex-row-reverse gap-3 rounded-b-2xl border-t border-gray-200 dark:border-gray-800"
         >
           <slot name="footer"></slot>
         </div>
@@ -189,6 +189,36 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.modal-panel {
+  max-height: 90vh;
+}
+
+@media (max-width: 639px) {
+  .modal-panel {
+    max-height: 92dvh;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    animation: modal-sheet-in 0.28s ease-out;
+  }
+
+  .modal-footer {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+}
+
+@keyframes modal-sheet-in {
+  from {
+    opacity: 0.7;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: opacity 0.3s ease;
