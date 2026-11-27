@@ -235,6 +235,16 @@ test.describe('Quiz App E2E', () => {
     await expect(page).toHaveURL(/\/history$/);
   });
 
+  test('pulpit: Egzamin jest obok Quiz w liście i kafelkach', async ({ page }) => {
+    await login(page);
+    await expect(page.getByRole('button', { name: 'Egzamin', exact: true }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Quiz', exact: true }).first()).toBeVisible();
+
+    await page.getByRole('button', { name: 'Widok kafelków' }).click();
+    await expect(page.getByRole('button', { name: 'Egzamin', exact: true }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Quiz', exact: true }).first()).toBeVisible();
+  });
+
   test('nawigacja: brak martwych stref na 390/768/1024/1280/1920', async ({ page }) => {
     await login(page);
 

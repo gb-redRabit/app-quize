@@ -104,6 +104,15 @@
           </div>
         </div>
 
+        <BaseButton
+          color="green"
+          size="xs"
+          :disabled="isDisabled(cat)"
+          @click="$emit('start-exam', cat)"
+        >
+          Egzamin
+        </BaseButton>
+
         <div class="relative">
           <button
             type="button"

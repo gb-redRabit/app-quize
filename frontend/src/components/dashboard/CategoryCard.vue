@@ -53,7 +53,8 @@
       <span class="font-medium">Łącznie: {{ total }}</span>
     </div>
     <div class="category-card mt-auto flex items-center gap-2">
-      <div class="relative flex-1">
+      <div class="flex min-w-0 flex-1 items-center gap-2">
+        <div class="relative flex-1">
         <BaseButton
           ref="quizToggleRef"
           color="blue"
@@ -109,6 +110,17 @@
           </div>
         </div>
       </div>
+      </div>
+
+      <BaseButton
+        color="green"
+        size="xs"
+        class="shrink-0"
+        :disabled="isDisabled"
+        @click="$emit('start-exam')"
+      >
+        Egzamin
+      </BaseButton>
 
       <div class="relative">
         <button
