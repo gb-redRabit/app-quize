@@ -241,8 +241,34 @@ test.describe('Quiz App E2E', () => {
     await expect(page.getByRole('button', { name: 'Quiz', exact: true }).first()).toBeVisible();
 
     await page.getByRole('button', { name: 'Widok kafelków' }).click();
-    await expect(page.getByRole('button', { name: 'Egzamin', exact: true }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Quiz', exact: true }).first()).toBeVisible();
+    const card = page.locator('[data-category="E2E"]').first();
+    await expect(card.getByRole('button', { name: 'Egzamin', exact: true })).toBeVisible();
+    await expect(card.getByRole('button', { name: 'Quiz', exact: true })).toBeVisible();
+
+    // Egzamin z kafelka musi użyć kategorii kafelka (regresja: brak argumentu).
+    await card.getByRole('button', { name: 'Egzamin', exact: true }).click();
+    await expect(page).toHaveURL(/\/exam\?/);
+    const url = new URL(page.url());
+    expect(url.searchParams.get('categories')).toBe('E2E');
+    expect((url.searchParams.get('ids') || '').split(',').sort()).toEqual(['1', '2']);
+  });
+
+  test('pulpit: mieszany quiz i egzamin startują z całej bazy', async ({ page }) => {
+    await login(page);
+
+    await page.getByRole('button', { name: /Mieszany quiz/ }).click();
+    await expect(page).toHaveURL(/\/quiz\?/);
+    let url = new URL(page.url());
+    expect(url.searchParams.get('categories')).toBe('all');
+    expect((url.searchParams.get('ids') || '').split(',').length).toBe(2);
+
+    await page.goto('/');
+    await page.getByRole('heading', { name: /Cześć/ }).waitFor({ state: 'visible' });
+    await page.getByRole('button', { name: /Mieszany egzamin/ }).click();
+    await expect(page).toHaveURL(/\/exam\?/);
+    url = new URL(page.url());
+    expect(url.searchParams.get('categories')).toBe('all');
+    expect((url.searchParams.get('ids') || '').split(',').length).toBe(2);
   });
 
   test('nawigacja: brak martwych stref na 390/768/1024/1280/1920', async ({ page }) => {

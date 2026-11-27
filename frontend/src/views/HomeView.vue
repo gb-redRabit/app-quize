@@ -166,6 +166,60 @@
 
       <!-- Lista kategorii -->
       <section id="categories">
+        <div class="mb-4 grid gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            class="surface flex items-center gap-3 p-4 text-left transition-colors hover:border-indigo-300 dark:hover:border-indigo-700"
+            @click="startMixedQuiz"
+          >
+            <span
+              class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300"
+              aria-hidden="true"
+            >
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </span>
+            <span class="min-w-0 flex-1">
+              <span class="block text-sm font-semibold">Mieszany quiz</span>
+              <span class="block text-xs text-gray-500 dark:text-gray-400">
+                50 losowych pytań ze wszystkich kategorii
+              </span>
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="surface flex items-center gap-3 p-4 text-left transition-colors hover:border-indigo-300 dark:hover:border-indigo-700"
+            @click="startMixedExam"
+          >
+            <span
+              class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300"
+              aria-hidden="true"
+            >
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </span>
+            <span class="min-w-0 flex-1">
+              <span class="block text-sm font-semibold">Mieszany egzamin</span>
+              <span class="block text-xs text-gray-500 dark:text-gray-400">
+                Pytania z całej bazy · limit z ustawień nauki
+              </span>
+            </span>
+          </button>
+        </div>
+
         <CategoryFilter
           v-model:active-filter="activeFilter"
           v-model:view-type="viewType"
@@ -239,6 +293,8 @@ import apiClient from '@/api';
 import { getStoredUser, setUser } from '@/utils/authStorage';
 import { computeRemainingSeconds } from '@/utils/quizProgress';
 import { getExamLength, normalizeExamLength } from '@/utils/examSettings';
+import { getCachedQuestionIdsByCategory } from '@/services/questionsSync';
+import { shuffleArray } from '@/utils/shuffleArray';
 import { getCategoryMasteryStatus } from '@/utils/categoryStatus';
 import { useQuestions } from '@/composables/useQuestions';
 
@@ -525,6 +581,66 @@ const goToCategoryQuestions = async (cat) => {
     await router.push({ name: 'CategoryQuestions', params: { category: cat } });
   } catch (e) {
     showAlert('error', 'Błąd ładowania pytań z kategorii');
+  }
+};
+
+async function getAllQuestionIds() {
+  let ids = await store.dispatch('questions/fetchQuestionIdsByCategory', 'all');
+  if (!Array.isArray(ids) || ids.length === 0) {
+    ids = await getCachedQuestionIdsByCategory('all');
+  }
+  return Array.isArray(ids) ? ids : [];
+}
+
+const startMixedQuiz = async () => {
+  if (typeof showAlert === 'function') showAlert('info', 'Przygotowywanie mieszanego quizu...');
+  try {
+    const allIds = await getAllQuestionIds();
+    if (!allIds.length) {
+      showAlert('warning', 'Brak pytań w bazie.');
+      return;
+    }
+    const length = Math.min(50, allIds.length);
+    const ids = shuffleArray(allIds).slice(0, length);
+    router.push({
+      name: 'QuizView',
+      query: {
+        length,
+        categories: 'all',
+        ids: ids.join(','),
+        r: Math.random().toString(36).substring(2, 8),
+      },
+    });
+  } catch (e) {
+    console.error('Błąd startu mieszanego quizu:', e);
+    showAlert('error', 'Nie udało się przygotować mieszanego quizu.');
+  }
+};
+
+const startMixedExam = async () => {
+  if (typeof showAlert === 'function') showAlert('info', 'Przygotowywanie mieszanego egzaminu...');
+  try {
+    const allIds = await getAllQuestionIds();
+    if (!allIds.length) {
+      showAlert('warning', 'Brak pytań w bazie.');
+      return;
+    }
+    const configured = store.state.user.user?.settings?.examLength;
+    const length = getExamLength(configured, allIds.length);
+    const ids = shuffleArray(allIds).slice(0, length);
+    router.push({
+      name: 'ExamView',
+      query: {
+        length,
+        categories: 'all',
+        time: 60,
+        ids: ids.join(','),
+        r: Math.random().toString(36).slice(2, 8),
+      },
+    });
+  } catch (e) {
+    console.error('Błąd startu mieszanego egzaminu:', e);
+    showAlert('error', 'Nie udało się przygotować mieszanego egzaminu.');
   }
 };
 

@@ -117,7 +117,7 @@
         size="xs"
         class="shrink-0"
         :disabled="isDisabled"
-        @click="$emit('start-exam')"
+        @click="$emit('start-exam', category)"
       >
         Egzamin
       </BaseButton>
